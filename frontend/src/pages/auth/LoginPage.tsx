@@ -67,7 +67,7 @@ export function LoginPage() {
                 onChange={(e) => setEmail(e.target.value)}
                 required
                 autoFocus
-                placeholder="admin@crm.com"
+                placeholder="seu@email.com"
                 className="input"
               />
             </div>
@@ -100,9 +100,6 @@ export function LoginPage() {
           </form>
         </div>
 
-        <p className="text-center text-xs text-gray-500 mt-5 font-mono">
-          admin@crm.com / Admin123!
-        </p>
       </div>
     </div>
   )

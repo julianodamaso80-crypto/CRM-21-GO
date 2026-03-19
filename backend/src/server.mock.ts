@@ -23,9 +23,9 @@ fastify.register(cors, {
 
 const mockUser = {
   id: 'user-1',
-  email: 'admin@crm.com',
-  firstName: 'Admin',
-  lastName: 'Sistema',
+  email: 'damasojuliano@gmail.com',
+  firstName: 'Juliano',
+  lastName: 'Damaso',
   avatar: null,
   phone: null,
   timezone: 'America/Sao_Paulo',
@@ -36,7 +36,7 @@ const mockUser = {
   createdAt: new Date().toISOString(),
   updatedAt: new Date().toISOString(),
   lastLoginAt: new Date().toISOString(),
-  company: { id: 'default-company', name: 'Empresa Demo', slug: 'empresa-demo' },
+  company: { id: 'default-company', name: '21Go Proteção Veicular', slug: '21go' },
   role: { id: 'admin-role', name: 'admin', displayName: 'Administrador', level: 10 },
 }
 
@@ -45,7 +45,7 @@ fastify.post('/api/auth/login', async (request, reply) => {
   const { email, password } = request.body as { email: string; password: string }
   console.log('[MOCK] POST /api/auth/login', { email })
 
-  if (email === 'admin@crm.com' && password === 'Admin123!') {
+  if (email === 'damasojuliano@gmail.com' && password === '160807') {
     return reply.send({
       user: mockUser,
       token: 'mock-jwt-token-' + Date.now(),
