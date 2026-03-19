@@ -74,12 +74,10 @@ export function AppLayout() {
         {/* Logo */}
         <div className="h-16 flex items-center px-5 border-b border-dark-700/30">
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-gradient-gold flex items-center justify-center shadow-glow-gold">
-              <span className="text-dark-900 font-display font-bold text-sm">21</span>
-            </div>
+            <img src="/logo21go.png" alt="21Go" className="w-9 h-9 rounded-xl object-contain" />
             <div>
               <h1 className="text-base font-display font-bold text-white tracking-tight">21Go</h1>
-              <p className="text-[10px] text-gold-500/70 font-medium tracking-widest uppercase">CRM Platform</p>
+              <p className="text-[10px] text-orange-500/70 font-medium tracking-widest uppercase">CRM Platform</p>
             </div>
           </div>
         </div>
@@ -102,10 +100,10 @@ export function AppLayout() {
                     to={item.path}
                     className={active ? 'sidebar-link-active' : 'sidebar-link-inactive'}
                   >
-                    <Icon size={18} className={active ? 'text-gold-400' : ''} />
+                    <Icon size={18} className={active ? 'text-blue-400' : ''} />
                     <span>{item.label}</span>
                     {active && (
-                      <div className="ml-auto w-1.5 h-1.5 rounded-full bg-gold-400" />
+                      <div className="ml-auto w-1.5 h-1.5 rounded-full bg-blue-400" />
                     )}
                   </Link>
                 )
@@ -119,7 +117,7 @@ export function AppLayout() {
               to="/billing"
               className={isActive('/billing') ? 'sidebar-link-active' : 'sidebar-link-inactive'}
             >
-              <CreditCard size={18} className={isActive('/billing') ? 'text-gold-400' : ''} />
+              <CreditCard size={18} className={isActive('/billing') ? 'text-blue-400' : ''} />
               <span>Financeiro</span>
             </Link>
           </div>
@@ -128,7 +126,7 @@ export function AppLayout() {
         {/* User Profile */}
         <div className="px-3 py-3 border-t border-dark-700/30">
           <div className="flex items-center gap-3 px-2 py-2 rounded-xl hover:bg-dark-700/30 transition-colors group">
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-gold-500/20 to-gold-600/10 border border-gold-500/20 flex items-center justify-center text-xs font-semibold text-gold-400 flex-shrink-0">
+            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-orange-500/20 to-orange-600/10 border border-orange-500/20 flex items-center justify-center text-xs font-semibold text-orange-400 flex-shrink-0">
               {user?.firstName?.[0]}{user?.lastName?.[0]}
             </div>
             <div className="min-w-0 flex-1">
@@ -158,7 +156,7 @@ export function AppLayout() {
               placeholder="Buscar..."
               onFocus={() => setSearchFocused(true)}
               onBlur={() => setSearchFocused(false)}
-              className="w-full pl-9 pr-3 py-2 bg-dark-800/40 border border-dark-700/40 rounded-xl text-sm text-gray-300 placeholder-gray-500 focus:outline-none focus:border-gold-500/30 focus:ring-1 focus:ring-gold-500/20 transition-all"
+              className="w-full pl-9 pr-3 py-2 bg-dark-800/40 border border-dark-700/40 rounded-xl text-sm text-gray-300 placeholder-gray-500 focus:outline-none focus:border-blue-500/30 focus:ring-1 focus:ring-blue-500/20 transition-all"
             />
             <kbd className="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] text-gray-500 bg-dark-700/50 px-1.5 py-0.5 rounded-md border border-dark-600/30 font-mono">
               /
@@ -169,14 +167,14 @@ export function AppLayout() {
           <div className="flex items-center gap-2">
             <button className="relative p-2 rounded-xl text-gray-400 hover:text-gray-200 hover:bg-dark-700/40 transition-colors">
               <Bell size={18} />
-              <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-gold-500 rounded-full" />
+              <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-orange-500 rounded-full" />
             </button>
             <button className="relative p-2 rounded-xl text-gray-400 hover:text-gray-200 hover:bg-dark-700/40 transition-colors">
               <Settings size={18} />
             </button>
             <div className="w-px h-6 bg-dark-700/40 mx-1" />
             <button className="flex items-center gap-2 px-2.5 py-1.5 rounded-xl hover:bg-dark-700/40 transition-colors">
-              <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-gold-500/20 to-gold-600/10 border border-gold-500/20 flex items-center justify-center text-[11px] font-semibold text-gold-400">
+              <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-orange-500/20 to-orange-600/10 border border-orange-500/20 flex items-center justify-center text-[11px] font-semibold text-orange-400">
                 {user?.firstName?.[0]}{user?.lastName?.[0]}
               </div>
               <span className="text-sm text-gray-300 font-medium">{user?.firstName}</span>

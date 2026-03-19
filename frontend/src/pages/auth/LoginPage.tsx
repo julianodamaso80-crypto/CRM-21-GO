@@ -36,16 +36,14 @@ export function LoginPage() {
     <div className="min-h-screen flex items-center justify-center bg-dark-950 px-4 relative overflow-hidden">
       {/* Background effects */}
       <div className="absolute inset-0">
-        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[600px] h-[600px] bg-gold-500/[0.03] rounded-full blur-[120px]" />
+        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[600px] h-[600px] bg-blue-500/[0.04] rounded-full blur-[120px]" />
         <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-accent-blue/[0.02] rounded-full blur-[100px]" />
       </div>
 
       <div className="max-w-sm w-full relative z-10 animate-fade-in-up">
         {/* Logo */}
         <div className="text-center mb-10">
-          <div className="w-16 h-16 mx-auto rounded-2xl bg-gradient-gold flex items-center justify-center shadow-glow-gold-lg mb-5">
-            <span className="text-dark-900 font-display font-bold text-2xl">21</span>
-          </div>
+          <img src="/logo21go.png" alt="21Go" className="w-20 h-20 mx-auto mb-5 rounded-2xl object-contain drop-shadow-lg" />
           <h1 className="text-3xl font-display font-bold text-white tracking-tight">21Go CRM</h1>
           <p className="text-sm text-gray-400 mt-2">Plataforma de gestao inteligente</p>
         </div>

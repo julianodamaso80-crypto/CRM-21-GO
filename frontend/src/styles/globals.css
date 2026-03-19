@@ -12,8 +12,8 @@
   body {
     @apply bg-dark-950 text-gray-200 font-sans antialiased;
     background-image:
-      radial-gradient(ellipse 80% 50% at 50% -20%, rgba(201, 168, 76, 0.03), transparent),
-      radial-gradient(ellipse 60% 40% at 80% 100%, rgba(91, 141, 239, 0.02), transparent);
+      radial-gradient(ellipse 80% 50% at 50% -20%, rgba(27, 77, 161, 0.04), transparent),
+      radial-gradient(ellipse 60% 40% at 80% 100%, rgba(224, 118, 32, 0.02), transparent);
   }
 
   h1, h2, h3, h4, h5, h6 {
@@ -29,17 +29,17 @@
     background: transparent;
   }
   ::-webkit-scrollbar-thumb {
-    background: rgba(201, 168, 76, 0.2);
+    background: rgba(27, 77, 161, 0.3);
     border-radius: 10px;
   }
   ::-webkit-scrollbar-thumb:hover {
-    background: rgba(201, 168, 76, 0.35);
+    background: rgba(27, 77, 161, 0.5);
   }
 
   /* Selection */
   ::selection {
-    background: rgba(201, 168, 76, 0.25);
-    color: #FDF8EC;
+    background: rgba(61, 114, 222, 0.3);
+    color: #EBF0FA;
   }
 }
 
@@ -197,7 +197,7 @@
   }
 
   .sidebar-link-active {
-    @apply sidebar-link bg-gold-500/10 text-gold-400 border border-gold-500/15;
+    @apply sidebar-link bg-blue-500/10 text-blue-400 border border-blue-500/20;
   }
 
   .sidebar-link-inactive {
@@ -241,7 +241,7 @@
   }
 
   .text-gradient-gold {
-    @apply bg-gradient-to-r from-gold-400 via-gold-300 to-gold-500 bg-clip-text text-transparent;
+    @apply bg-gradient-to-r from-orange-400 via-orange-300 to-orange-500 bg-clip-text text-transparent;
   }
 
   .border-gradient-gold {
