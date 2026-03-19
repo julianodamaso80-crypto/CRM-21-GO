@@ -1,3 +1,5 @@
+import path from 'path'
+import fs from 'fs'
 import Fastify from 'fastify'
 import cors from '@fastify/cors'
 import helmet from '@fastify/helmet'
@@ -7,6 +9,7 @@ import multipart from '@fastify/multipart'
 import swagger from '@fastify/swagger'
 import swaggerUi from '@fastify/swagger-ui'
 import websocket from '@fastify/websocket'
+import fastifyStatic from '@fastify/static'
 
 import { env } from './config/env'
 import { errorHandler } from './middlewares/error-handler'
@@ -135,6 +138,24 @@ async function bootstrap() {
     await fastify.register(analyticsRoutes, { prefix: '/api/analytics' })
     await fastify.register(billingRoutes, { prefix: '/api/billing' })
     await fastify.register(uploadRoutes, { prefix: '/api/upload' })
+
+    // Serve frontend static files in production
+    const frontendDistPath = path.join(__dirname, '..', '..', 'frontend', 'dist')
+    if (fs.existsSync(frontendDistPath)) {
+      await fastify.register(fastifyStatic, {
+        root: frontendDistPath,
+        prefix: '/',
+        wildcard: false,
+      })
+
+      // SPA fallback: serve index.html for any non-API route
+      fastify.setNotFoundHandler((request, reply) => {
+        if (request.url.startsWith('/api/')) {
+          return reply.status(404).send({ error: 'Not Found', message: 'Route not found' })
+        }
+        return reply.sendFile('index.html')
+      })
+    }
 
     // Error handler global
     fastify.setErrorHandler(errorHandler as any)

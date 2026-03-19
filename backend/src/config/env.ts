@@ -7,27 +7,28 @@ const envSchema = z.object({
   PORT: z.coerce.number().default(3333),
 
   // URLs
-  FRONTEND_URL: z.string().url(),
-  BACKEND_URL: z.string().url(),
-  CORS_ORIGIN: z.string(),
+  FRONTEND_URL: z.string().default('http://localhost:5173'),
+  BACKEND_URL: z.string().default('http://localhost:3333'),
+  CORS_ORIGIN: z.string().default('*'),
 
   // Database
-  DATABASE_URL: z.string().url(),
+  DATABASE_URL: z.string(),
 
-  // Redis
+  // Redis (Railway provides REDIS_URL)
+  REDIS_URL: z.string().optional(),
   REDIS_HOST: z.string().default('localhost'),
   REDIS_PORT: z.coerce.number().default(6379),
   REDIS_PASSWORD: z.string().optional(),
 
   // JWT
-  JWT_SECRET: z.string().min(32),
+  JWT_SECRET: z.string().min(8).default('dev-jwt-secret-change-in-production-32chars'),
   JWT_EXPIRES_IN: z.string().default('15m'),
-  REFRESH_TOKEN_SECRET: z.string().min(32),
+  REFRESH_TOKEN_SECRET: z.string().min(8).default('dev-refresh-secret-change-in-prod-32chars'),
   REFRESH_TOKEN_EXPIRES_IN: z.string().default('7d'),
 
-  // Stripe
-  STRIPE_SECRET_KEY: z.string().startsWith('sk_'),
-  STRIPE_WEBHOOK_SECRET: z.string().startsWith('whsec_'),
+  // Stripe (optional - billing may not be active yet)
+  STRIPE_SECRET_KEY: z.string().optional(),
+  STRIPE_WEBHOOK_SECRET: z.string().optional(),
   STRIPE_PRICE_ID_FREE: z.string().optional(),
   STRIPE_PRICE_ID_PRO: z.string().optional(),
   STRIPE_PRICE_ID_ENTERPRISE: z.string().optional(),
@@ -37,7 +38,7 @@ const envSchema = z.object({
   ANTHROPIC_API_KEY: z.string().optional(),
   GOOGLE_AI_API_KEY: z.string().optional(),
   DEFAULT_AI_PROVIDER: z.enum(['openai', 'anthropic', 'google']).default('openai'),
-  AI_SERVICE_URL: z.string().url().default('http://localhost:8100'),
+  AI_SERVICE_URL: z.string().default('http://localhost:8100'),
 
   // WhatsApp
   WHATSAPP_API_TOKEN: z.string().optional(),
@@ -75,7 +76,7 @@ const envSchema = z.object({
   SENTRY_DSN: z.string().optional(),
 
   // Rate Limiting
-  RATE_LIMIT_WINDOW_MS: z.coerce.number().default(900000), // 15 min
+  RATE_LIMIT_WINDOW_MS: z.coerce.number().default(900000),
   RATE_LIMIT_MAX_REQUESTS: z.coerce.number().default(100),
 })
 
@@ -87,3 +88,15 @@ if (!_env.success) {
 }
 
 export const env = _env.data
+
+// Helper: get Redis connection config from REDIS_URL or individual vars
+export function getRedisConfig() {
+  if (env.REDIS_URL) {
+    return env.REDIS_URL
+  }
+  return {
+    host: env.REDIS_HOST,
+    port: env.REDIS_PORT,
+    password: env.REDIS_PASSWORD || undefined,
+  }
+}

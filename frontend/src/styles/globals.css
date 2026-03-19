@@ -208,7 +208,7 @@
      STAT CARD (KPI)
      ══════════════════════════════════════════ */
   .stat-card {
-    @apply card-hover group cursor-default;
+    @apply card-hover cursor-default;
   }
 
   .stat-card .stat-icon {
