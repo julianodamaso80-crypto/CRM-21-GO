@@ -115,38 +115,38 @@ Testar:
 - ✅ Atualizar status
 - ✅ Estatísticas
 
-### 2. Doctors
+### 2. Associados
 ```bash
-touch backend/src/modules/doctors/doctors.test.ts
+touch backend/src/modules/associados/associados.test.ts
 ```
 
 Testar:
-- ✅ Criar médico
-- ✅ Validar CRM único
-- ✅ Listar por especialidade
-- ✅ Inativar médico
+- Criar associado
+- Validar CPF unico
+- Listar com filtros
+- Inativar associado
 
-### 3. Appointments
+### 3. Veiculos
 ```bash
-touch backend/src/modules/appointments/appointments.test.ts
+touch backend/src/modules/vehicles/vehicles.test.ts
 ```
 
 Testar:
-- ✅ Criar agendamento
-- ✅ Validar conflitos de horário
-- ✅ Atualizar status
-- ✅ Cancelar consulta
+- Criar veiculo vinculado a associado
+- Validar placa unica
+- Consultar FIPE
+- Listar veiculos do associado
 
-### 4. Medical Records
+### 4. Sinistros
 ```bash
-touch backend/src/modules/medical-records/medical-records.test.ts
+touch backend/src/modules/sinistros/sinistros.test.ts
 ```
 
 Testar:
-- ✅ Criar prontuário
-- ✅ Adicionar evolução
-- ✅ Buscar histórico
-- ✅ Permissões de acesso
+- Abrir sinistro
+- Atualizar status (5 etapas)
+- Upload de fotos
+- Timeline de eventos
 
 ---
 
@@ -241,8 +241,8 @@ import { test, expect } from '@playwright/test'
 test('should login successfully', async ({ page }) => {
   await page.goto('http://localhost:5173/login')
 
-  await page.fill('input[type="email"]', 'admin@crm.com')
-  await page.fill('input[type="password"]', 'Admin123!')
+  await page.fill('input[type="email"]', 'damasojuliano@gmail.com')
+  await page.fill('input[type="password"]', '160807')
   await page.click('button[type="submit"]')
 
   await expect(page).toHaveURL('http://localhost:5173/')
@@ -252,22 +252,22 @@ test('should login successfully', async ({ page }) => {
 test('should create a contact', async ({ page }) => {
   // Login primeiro
   await page.goto('http://localhost:5173/login')
-  await page.fill('input[type="email"]', 'admin@crm.com')
-  await page.fill('input[type="password"]', 'Admin123!')
+  await page.fill('input[type="email"]', 'damasojuliano@gmail.com')
+  await page.fill('input[type="password"]', '160807')
   await page.click('button[type="submit"]')
 
-  // Navegar para contatos
-  await page.goto('http://localhost:5173/patients')
-  await page.click('text=Novo Paciente')
+  // Navegar para associados
+  await page.goto('http://localhost:5173/associados')
+  await page.click('text=Novo Associado')
 
-  // Preencher formulário
-  await page.fill('input[name="fullName"]', 'Test Patient')
+  // Preencher formulario
+  await page.fill('input[name="fullName"]', 'Test Associado')
   await page.fill('input[name="email"]', 'test@example.com')
-  await page.fill('input[name="phone"]', '11999999999')
+  await page.fill('input[name="phone"]', '21999999999')
   await page.click('button[type="submit"]')
 
   // Verificar sucesso
-  await expect(page.locator('text=Paciente criado')).toBeVisible()
+  await expect(page.locator('text=Associado criado')).toBeVisible()
 })
 ```
 
@@ -280,10 +280,9 @@ test('should create a contact', async ({ page }) => {
 - [ ] **Contacts**: CRUD, busca, tags, stats
 - [x] **Pipes**: CRUD, phases, cards, kanban ✅
 - [ ] **Leads**: CRUD, stats, conversão
-- [ ] **Doctors**: CRUD, especialidades
-- [ ] **Convenios**: CRUD
-- [ ] **Appointments**: CRUD, conflitos, stats
-- [ ] **Medical Records**: CRUD, histórico
+- [ ] **Associados**: CRUD, CPF, filtros
+- [ ] **Veiculos**: CRUD, placa, FIPE
+- [ ] **Sinistros**: abertura, status, timeline
 - [ ] **NPS**: criar survey, responder, stats
 - [ ] **Inbox**: conversas, mensagens, status
 - [x] **AI**: chat, knowledge base ✅
@@ -303,9 +302,9 @@ test('should create a contact', async ({ page }) => {
 ### E2E
 - [ ] **User Journey**: registro → login → dashboard
 - [ ] **CRUD Flow**: criar → editar → deletar contato
-- [ ] **Appointment Flow**: agendar → confirmar → atender
+- [ ] **Sinistro Flow**: abrir → avaliar → oficina → concluir
 - [ ] **Kanban Flow**: criar card → mover → completar
-- [ ] **Search**: buscar contato, lead, médico
+- [ ] **Search**: buscar associado, lead, veiculo
 
 ---
 

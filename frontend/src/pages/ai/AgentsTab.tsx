@@ -205,7 +205,7 @@ export function AgentsTab() {
                 <div>
                   <label className="block text-sm font-medium text-gray-300 mb-1">System Prompt</label>
                   <textarea value={formData.systemPrompt} onChange={(e) => setFormData({ ...formData, systemPrompt: e.target.value })}
-                    rows={6} placeholder="Instrucoes para o agente... Ex: Voce e um assistente de vendas especializado em tubos de aco."
+                    rows={6} placeholder="Instrucoes para o agente... Ex: Voce e um assistente de vendas especializado em protecao veicular."
                     className="w-full px-3 py-2 bg-dark-800 border border-dark-600 text-gray-200 rounded-lg resize-none" />
                 </div>
 

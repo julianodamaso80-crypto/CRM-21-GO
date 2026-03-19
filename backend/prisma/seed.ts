@@ -158,16 +158,16 @@ async function main() {
 
   console.log('✅ Permissions created!')
 
-  // 3. Criar Empresa Demo
-  console.log('🏢 Creating demo company...')
+  // 3. Criar Empresa 21Go
+  console.log('🏢 Creating company...')
 
   const company = await prisma.company.upsert({
-    where: { slug: 'empresa-demo' },
+    where: { slug: '21go' },
     update: {},
     create: {
-      name: 'Empresa Demo',
-      slug: 'empresa-demo',
-      email: 'contato@empresademo.com',
+      name: '21Go Proteção Veicular',
+      slug: '21go',
+      email: 'contato@21go.org',
       isActive: true,
     },
   })
@@ -238,16 +238,16 @@ async function main() {
   // 6. Criar Usuário Admin
   console.log('👤 Creating admin user...')
 
-  const hashedPassword = await bcrypt.hash('Admin123!', 10)
+  const hashedPassword = await bcrypt.hash('160807', 10)
 
   const adminUser = await prisma.user.upsert({
-    where: { email: 'admin@crm.com' },
+    where: { email: 'damasojuliano@gmail.com' },
     update: {},
     create: {
-      email: 'admin@crm.com',
+      email: 'damasojuliano@gmail.com',
       password: hashedPassword,
-      firstName: 'Admin',
-      lastName: 'Sistema',
+      firstName: 'Juliano',
+      lastName: 'Damaso',
       companyId: company.id,
       roleId: roleAdmin.id,
       isActive: true,
@@ -303,7 +303,7 @@ async function main() {
     { name: 'nome_cliente', label: 'Nome do Cliente', type: 'text', required: true, position: 0 },
     { name: 'email', label: 'Email', type: 'email', required: true, position: 1 },
     { name: 'telefone', label: 'Telefone', type: 'phone', required: false, position: 2 },
-    { name: 'produto', label: 'Produto', type: 'select', required: false, position: 3, configJson: { options: ['Tubos', 'Conexões', 'Válvulas', 'Outros'] } },
+    { name: 'plano', label: 'Plano', type: 'select', required: false, position: 3, configJson: { options: ['Básico', 'Completo', 'Premium'] } },
     { name: 'valor', label: 'Valor', type: 'currency', required: false, position: 4 },
     { name: 'prioridade', label: 'Prioridade', type: 'select', required: false, position: 5, configJson: { options: ['alta', 'media', 'baixa'] } },
   ]
@@ -331,8 +331,7 @@ async function main() {
   console.log('🎉 Seed completed successfully!')
   console.log('')
   console.log('📝 Login credentials:')
-  console.log('   Email: admin@crm.com')
-  console.log('   Password: Admin123!')
+  console.log('   Email: damasojuliano@gmail.com')
   console.log('')
 }
 

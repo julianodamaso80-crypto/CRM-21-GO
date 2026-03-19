@@ -19,17 +19,15 @@ O projeto CRM SaaS Healthcare + Pipefy-like foi **100% implementado** seguindo a
 
 ## ✅ FASE 1: CRÍTICOS (MVP)
 
-### 1.1 Frontend Healthcare - **COMPLETO** ✅
+### 1.1 Frontend Protecao Veicular - **COMPLETO**
 
-| Módulo | Linhas | Status |
-|--------|--------|--------|
-| **Doctors** | 220 | ✅ CRUD + Especialidades |
-| **Convenios** | 207 | ✅ CRUD + Tabelas |
-| **Agenda/Appointments** | 703 | ✅ Calendário + Agendamento |
-| **Prontuário** | 501 | ✅ Prontuários + Evoluções |
-| **NPS** | 532 | ✅ Surveys + Analytics |
-
-**TOTAL Healthcare:** 2.163 linhas
+| Modulo | Status |
+|--------|--------|
+| **Associados** | CRUD + CPF + Status |
+| **Veiculos** | CRUD + Placa + FIPE |
+| **Sinistros** | Abertura + Timeline + Fotos |
+| **NPS** | Surveys + Analytics |
+| **Projetos** | Kanban |
 
 ### 1.2 Socket.io Real-time - **CONFIGURADO** ✅
 
@@ -162,12 +160,12 @@ O projeto CRM SaaS Healthcare + Pipefy-like foi **100% implementado** seguindo a
 4. ✅ **Deals/Kanban** - Drag & drop + fases
 5. ✅ **Pipes** - Processos customizáveis
 
-### Healthcare
-6. ✅ **Doctors** - Médicos + especialidades (220 linhas)
-7. ✅ **Convenios** - Convênios médicos (207 linhas)
-8. ✅ **Appointments** - Agenda médica (703 linhas)
-9. ✅ **Prontuário** - Prontuários eletrônicos (501 linhas)
-10. ✅ **NPS** - Pesquisas de satisfação (532 linhas)
+### Protecao Veicular
+6. ✅ **Associados** - Gestao de associados
+7. ✅ **Veiculos** - Cadastro veicular + FIPE
+8. ✅ **Sinistros** - Abertura e acompanhamento
+9. ✅ **NPS** - Pesquisas de satisfacao (532 linhas)
+10. ✅ **Projetos** - Kanban de projetos
 
 ### Comunicação
 11. ✅ **Inbox/Chat** - Conversas + mensagens (319 linhas)
@@ -207,8 +205,8 @@ npm run dev
 ### 3. Login
 ```
 URL: http://localhost:5173/login
-Email: admin@crm.com
-Senha: Admin123!
+Email: damasojuliano@gmail.com
+Senha: (definida pelo admin)
 ```
 
 ---
@@ -252,7 +250,7 @@ Senha: Admin123!
 - [x] Backend rodando sem erros
 - [x] Frontend compilando
 - [x] Autenticação funcionando
-- [x] Todos os módulos Healthcare implementados
+- [x] Modulos de protecao veicular implementados
 - [x] Kanban drag & drop funcionando
 - [x] Leads CRUD completo
 - [x] Dashboard com gráficos

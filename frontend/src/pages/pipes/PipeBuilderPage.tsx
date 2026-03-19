@@ -79,7 +79,7 @@ export function PipeBuilderPage() {
               value={promptText}
               onChange={(e) => setPromptText(e.target.value)}
               rows={5}
-              placeholder="Ex: Preciso de um pipeline de vendas B2B para tubos de aco. O processo comeca com prospecção, depois qualificação, envio de proposta, negociação e fechamento. Quero campos para valor estimado, prazo de entrega e tipo de produto."
+              placeholder="Ex: Preciso de um pipeline de vendas para protecao veicular. O processo comeca com prospecção, depois qualificação, cotação FIPE, vistoria e fechamento. Quero campos para valor estimado, plano e placa do veiculo."
               className="w-full px-3 py-2 bg-dark-800 border border-dark-600 text-gray-200 rounded-lg focus:ring-2 focus:ring-gold-500/30 focus:border-gold-500 resize-none"
             />
             <p className="text-xs text-gray-500 mt-1">{promptText.length} caracteres (minimo 10)</p>

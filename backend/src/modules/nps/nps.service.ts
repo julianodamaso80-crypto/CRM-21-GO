@@ -120,7 +120,7 @@ export class NPSService {
   }
 
   /**
-   * Envia pesquisa NPS em lote para múltiplos pacientes
+   * Envia pesquisa NPS em lote para multiplos associados
    */
   async sendBatch(companyId: string, data: SendNPSBatchDTO) {
     const surveys = []
@@ -241,7 +241,7 @@ export class NPSService {
       responses: data.total,
     }))
 
-    // NPS por médico
+    // NPS por vendedor
     const byDoctorMap: Record<string, { name: string; promoters: number; detractors: number; total: number }> = {}
 
     for (const survey of answered) {

@@ -1,94 +1,193 @@
-# CRM SaaS Platform - Project Context
+# MASTER PLAN — 21Go CRM: Plataforma de Proteção Veicular
 
-## About This Project
-
-**CRM SaaS multi-tenant** evoluindo para plataforma **Pipefy-like** (processos no-code/low-code).
-
-- **Stack Frontend:** React 18 + TypeScript + Vite + Tailwind CSS + TanStack Query + Zustand
-- **Stack Backend:** Fastify + TypeScript + Prisma ORM + PostgreSQL
-- **Auth:** JWT + Refresh Tokens + RBAC granular
-- **Real-time:** Socket.io
-- **AI:** OpenAI, Anthropic, Google AI SDKs integrados
-- **Payments:** Stripe
-- **Queues:** Bull + Redis
-
-**Status atual:** Backend mock rodando (PostgreSQL não configurado). Auth desabilitada temporariamente no frontend.
+Este documento é a BÍBLIA do projeto. Leia INTEIRO antes de tocar em qualquer código.
+Toda decisão de código, design, UX e arquitetura deve ser guiada por este documento.
 
 ---
 
-## Key Directories
+## 1. O QUE É A 21Go
 
-```
-CRM TUBOMINAS/
-├── backend/
-│   ├── prisma/
-│   │   └── schema.prisma      # Database models (MUITO IMPORTANTE)
-│   └── src/
-│       ├── config/            # env.ts, database.ts
-│       ├── middlewares/       # authenticate.ts, check-permission.ts, error-handler.ts
-│       ├── modules/
-│       │   ├── auth/          # Login, register, JWT
-│       │   └── contacts/      # CRUD completo (REFERÊNCIA)
-│       ├── utils/             # logger.ts, app-error.ts
-│       ├── server.ts          # Servidor real (precisa PostgreSQL)
-│       └── server.mock.ts     # Servidor mock (funciona sem DB)
-│
-├── frontend/
-│   ├── src/
-│   │   ├── components/
-│   │   │   └── layouts/       # AppLayout, AuthLayout
-│   │   ├── hooks/             # useContacts.ts (REFERÊNCIA)
-│   │   ├── lib/               # api.ts (Axios client)
-│   │   ├── pages/
-│   │   │   ├── contacts/      # COMPLETO - usar como template
-│   │   │   ├── dashboard/     # Placeholder
-│   │   │   ├── deals/         # Placeholder (será Kanban/Pipeline)
-│   │   │   ├── leads/         # Placeholder
-│   │   │   └── inbox/         # Placeholder
-│   │   ├── services/          # contacts.service.ts (REFERÊNCIA)
-│   │   ├── store/             # auth-store.ts (Zustand)
-│   │   └── Router.tsx
-│   └── .env                   # VITE_API_URL=http://localhost:3333
-│
-├── shared/
-│   └── types/
-│       └── index.ts           # Types compartilhados frontend/backend
-│
-└── docs/
-    ├── CURRENT_STATE.md       # Auditoria completa do projeto
-    └── MIGRATION_PLAN_PIPEFY_LIKE.md  # Plano de evolução
-```
+A 21Go é uma associação de proteção veicular no Rio de Janeiro com 20+ anos de mercado. NÃO é seguradora — funciona por mutualismo: todos os associados contribuem mensalmente para um fundo comum, e quando alguém sofre um sinistro (roubo, colisão, incêndio), o fundo cobre. Quanto mais associados, menor o rateio mensal para cada um.
+
+### Planos
+- **Básico**: Roubo/furto + Assistência 24h (guincho 200km)
+- **Completo**: + Colisão + Incêndio + Carro reserva 7 dias
+- **Premium**: + Terceiros R$100K + Vidros + Carro reserva 15 dias + Rastreamento
+
+### Cálculo da mensalidade
+`valor_mensal = valor_fipe × taxa_plano + R$35 (taxa admin)`
+Taxas: Básico 1.8%, Completo 2.8%, Premium 3.8%
+
+### Sistemas que a 21Go já usa
+- **Hinova SGA**: gestão de associados e veículos
+- **Hinova SGC**: boletos, cobranças, inadimplência
+- **Hinova PowerCRM**: cotações e leads (básico)
+- **WhatsApp**: atendimento manual (sem API ainda)
+- **Instagram**: captação orgânica
+- **Reclame Aqui**: nota 5.1 (precisa subir para 7.5+)
 
 ---
 
-## Database Models (Prisma)
+## 2. O QUE ESTAMOS CONSTRUINDO
 
-### Core Models Existentes
-```
-User, Role, Permission, RolePermission  → Auth + RBAC
-Company, Plan, Subscription, Invoice    → Multi-tenant + Billing
-Contact                                 → CRUD completo
-Lead                                    → Oportunidades
-Pipeline, Stage, Deal, DealHistory      → Kanban de vendas
-Channel, Conversation, Message          → Chat/Inbox
-AIAgent, Webhook, WebhookLog, Automation → IA e automações
-Activity, AuditLog                      → Tracking
-```
+Uma plataforma completa que substitui e integra tudo: CRM + IA + Operação + Growth. NÃO é apenas um CRM — é o sistema nervoso central da 21Go.
 
-### Migração Pipefy-like (Planejada)
-```
-Pipeline → Pipe
-Stage → Phase
-Deal → Card
-+ FieldDefinition (campos dinâmicos)
-+ FieldValue (valores dos campos)
-+ StartForm (formulário de entrada)
-+ CardComment, CardAttachment
-```
+### 4 Pilares da transformação
+
+**Pilar 1 — Retenção**: NPS automatizado, gestão Reclame Aqui, detecção de churn, onboarding 30 dias. Parar a sangria de clientes.
+
+**Pilar 2 — Inteligência**: 10 agentes de IA especializados no coração da operação. Pré-venda 24/7, pós-venda proativo, briefing para gestores, gestão de sinistros inteligente.
+
+**Pilar 3 — Crescimento**: Tráfego pago (Google Ads + Meta Ads), SEO, landing pages com cotação automática. Sair da invisibilidade online.
+
+**Pilar 4 — Indicação**: Programa Member Get Member. 10% de desconto por indicação que fecha, acumulativo. 10 indicações = proteção gratuita.
 
 ---
 
-## Standards
+## 3. QUEM USA O SISTEMA (1 app, 4 roles)
+
+É UM sistema só. Mesmo login, mesma URL. O que muda é o menu lateral baseado na role do usuário.
+
+### VENDEDOR (ex: Rodrigo, Carla, Thiago)
+**Rotina**: Recebe leads qualificados pelo agente IA → liga/WhatsApp → move no funil → fecha adesão
+**Vê**: Meus Leads, Funil/Kanban, Chat/WhatsApp, Cotação FIPE, Meu Desempenho
+**NÃO vê**: Dashboard geral, Analytics, NPS, Financeiro, Sinistros, Config
+
+### OPERAÇÃO (ex: Carlos mecânico, Pedro pintor, Ana vistoriadora)
+**Rotina**: Abre app no celular → vê agenda do dia → atualiza status dos serviços → tira fotos
+**Vê**: Minha Agenda, Sinistros atribuídos, Vistorias, Upload de fotos, Status de veículos
+**NÃO vê**: Leads, Cotação, Dashboard, Financeiro, Analytics, MGM
+**Importante**: Interface MOBILE-FIRST. Botões grandes, upload fácil, status com 1 toque.
+
+### GESTOR (ex: Diretor comercial, gerente operacional)
+**Rotina**: Briefing da manhã → Dashboard → age nos alertas → analisa campanhas → relatório do dia
+**Vê**: Dashboard, Analytics, NPS, Ranking vendedores, Financeiro, MGM, Todos os leads, Automações, Projetos, Agentes IA, Sinistros (todos)
+**Tela especial**: Aba Projetos (Kanban) para acompanhar evolução dos projetos com a FlowAI
+
+### ADMIN
+**Vê**: Tudo + Configurações do sistema, gestão de usuários, roles
+
+### Regra de dados
+- Vendedor só vê SEUS leads (filtrar por vendedor_id)
+- Operação só vê SEUS sinistros/vistorias atribuídos
+- Gestor e Admin veem tudo
+
+---
+
+## 4. OS 10 AGENTES DE IA
+
+Cada agente tem um system prompt completo em `21go-squad/agents/`. Os agentes já foram instalados no módulo de IA (Fase 1 concluída). Agora faltam os 2 novos.
+
+| # | Agente | Icon | Função | Acesso | Framework base |
+|---|--------|------|--------|--------|----------------|
+| 1 | 21Go Chief | shield | Orquestrador — roteia para o agente certo | Todos | Routing por domínio |
+| 2 | Pré-Venda | robot | Qualifica leads, cotação FIPE, atende 24/7 | vendedor, gestor | Hormozi CLOSER |
+| 3 | Pós-Venda | handshake | Onboarding 30 dias, atendimento associados | vendedor, gestor | Hormozi Retention |
+| 4 | Gestores | brain | Briefing manhã, relatório dia, consultas | gestor, admin | Data Chief + COO |
+| 5 | Retenção | shield | Anti-churn, LTGP, segmentação por valor | gestor, admin | Hormozi + Peter Fader |
+| 6 | Crescimento | rocket | MGM, viral loops, gamificação | gestor, admin | Sean Ellis (Dropbox) |
+| 7 | Tráfego | target | Google Ads, Meta Ads, SEO | gestor, admin | Pedro Sobral + Kasim |
+| 8 | Operação | wrench | Agenda oficina, status serviço, vistorias | operação, gestor | Mobile-first |
+| 9 | Financeiro | money | Boletos, inadimplência, MRR, projeções | gestor, admin | Integração Hinova SGC |
+| 10 | Sinistros | alert | Abertura ao encerramento, oficinas, prazos | operação, gestor | Fluxo de 5 etapas |
+
+---
+
+## 5. ESTADO ATUAL DO PROJETO
+
+### O que JÁ foi feito:
+- [x] Squad 21Go criada com 8 agentes (.md com system prompts)
+- [x] Fase 1: 8 agentes instalados no módulo de IA do CRM
+- [x] Fase 2: Módulos de saúde removidos (Doctors, Appointments, Prontuário, Convênios)
+- [x] Design system sofisticado aplicado (tema dark + dourado #C9A84C)
+- [x] Módulo de Projetos (Kanban) criado
+- [x] Dashboard adaptado para proteção veicular
+- [x] NPS adaptado (removido referências a médicos)
+- [x] 7 commits no GitHub, deploy configurado no Railway
+
+### O que FALTA fazer (em ordem de prioridade):
+
+**URGENTE — Deploy:**
+- [ ] Corrigir deploy no Railway (erro "No start command")
+- [ ] Configurar variáveis de ambiente (DATABASE_URL, REDIS_URL)
+- [ ] Backend servir frontend como static files em produção
+- [ ] Domínio 21go.site apontado e funcionando
+
+**Fase 3 — Contacts -> Associados:**
+- [ ] Adaptar modelo Contact com campos veiculares (CPF, status, hinova_id, origem, UTM)
+- [ ] Remover campos médicos
+- [ ] Frontend: renomear tudo, tabela, formulário, drawer com tabs
+
+**Fase 4 — Módulo Veículos:**
+- [ ] Backend CRUD completo (placa, FIPE, plano, vistoria)
+- [ ] Endpoint: GET /api/contacts/:id/vehicles
+- [ ] Frontend: página + aba no drawer do associado
+
+**Fase 5 — Leads + Sidebar por role:**
+- [ ] Campos veiculares nos leads (placa, FIPE, cotação, etapa funil)
+- [ ] Sidebar filtra menu por role do usuário logado
+- [ ] RBAC middleware no backend
+
+**Fase 6 — Módulos novos:**
+- [ ] Sinistros (abertura, oficinas, status, fotos, timeline)
+- [ ] Cotação FIPE (motor de cálculo automático)
+- [ ] Member Get Member (link rastreável, desconto acumulativo)
+
+**Fase 7 — Integrações:**
+- [ ] WhatsApp Business API
+- [ ] Hinova SGA/SGC/PowerCRM (API REST)
+- [ ] Tabela FIPE (API externa)
+- [ ] Google Ads + Meta Ads (pixel + conversões)
+
+**Fase 8 — Agentes novos:**
+- [ ] Instalar Agente Financeiro (money) no módulo de IA
+- [ ] Instalar Agente Sinistros (alert) no módulo de IA
+
+---
+
+## 6. STACK TÉCNICA
+
+- **Backend**: TypeScript, Fastify 4.26, Prisma 5.9.1, PostgreSQL
+- **Frontend**: React 18, Vite, TanStack Query, Zustand, Tailwind CSS
+- **Types**: Centralizados em shared/types/index.ts
+- **Validação**: Zod (backend), React Hook Form (frontend)
+- **IA**: Módulo em backend/src/modules/ai/ com CRUD de agentes
+- **Padrão de módulos**: service -> controller -> routes (backend)
+- **Deploy**: Railway (Postgres + Redis + App) com domínio 21go.site no Cloudflare
+
+---
+
+## 7. DESIGN SYSTEM
+
+> **Referencia completa**: ver `brand-guide.md` na raiz do projeto.
+> Toda decisao visual deve seguir o brand guide. Abaixo um resumo executivo.
+
+Consultar **`brand-guide.md`** na raiz do projeto para a identidade visual completa.
+
+Resumo rapido:
+- **Tema**: Dark luxuoso (referencias: Linear App, Raycast, Vercel, Stripe)
+- **Cor principal**: Dourado `#C9A84C` (gold-500) -- escala completa de 50 a 950
+- **Fundos**: `#08080F` (dark-950) -> `#0C0C18` (dark-900) -> `#141422` (dark-800) -> `#1E1E32` (dark-700, cards)
+- **Tipografia**: Outfit (display) + DM Sans (body) + JetBrains Mono (codigo/placas)
+- **Tokens Tailwind**: `frontend/tailwind.config.js` (cores, sombras, animacoes, gradientes)
+- **Componentes, tom de voz, icones, espacamento**: ver brand-guide.md
+
+---
+
+## 8. REGRAS DE OURO
+
+1. **1 sistema, 4 roles** — sidebar muda por role, dados filtram por permissão
+2. **Mobile-first para operação** — mecânico usa celular com mão suja
+3. **Dados cruzam, telas não** — vendedor fecha -> vistoria aparece pra operação automaticamente
+4. **Cada agente IA fala com um mundo** — pré-venda com vendedor, operação com mecânico, gestores com diretoria
+5. **Receita primeiro** — sempre priorizar o que gera ou protege receita
+6. **Mantenha o padrão** — mesmo estilo de código, mesma estrutura de módulos
+7. **Commits frequentes** — mensagens descritivas em português
+8. **Não atropele** — cada fase depende da anterior estar estável
+
+---
+
+## 9. STANDARDS DE CÓDIGO
 
 ### TypeScript
 - **Type hints obrigatórios** em todas as funções públicas
@@ -130,9 +229,16 @@ Frontend:
     └── {Resource}Drawer.tsx      # Modal lateral
 ```
 
+### Bibliotecas Já Instaladas (usar!)
+- **React DnD** - drag & drop (para Kanban)
+- **Recharts** - gráficos (para Dashboard)
+- **React Hook Form + Zod** - formulários com validação
+- **date-fns** - manipulação de datas
+- **Socket.io** - real-time (para chat/inbox)
+
 ---
 
-## Common Commands
+## 10. COMMON COMMANDS
 
 ### Desenvolvimento
 ```bash
@@ -149,36 +255,25 @@ cd backend && npm run dev
 ### Database (Prisma)
 ```bash
 cd backend
-
-# Gerar cliente Prisma
 npx prisma generate
-
-# Criar migration
 npx prisma migrate dev --name nome_da_migration
-
-# Ver banco no browser
 npx prisma studio
-
-# Executar seed
 npm run prisma:seed
 ```
 
-### Build & Testes
+### Build
 ```bash
-# Frontend
 cd frontend && npm run build
 cd frontend && npm run type-check
-
-# Backend
 cd backend && npm run build
 cd backend && npm run test
 ```
 
 ---
 
-## API Endpoints
+## 11. API ENDPOINTS
 
-### Implementados ✅
+### Implementados
 ```
 POST   /api/auth/login
 POST   /api/auth/register
@@ -194,12 +289,14 @@ GET    /api/contacts/tags
 GET    /api/contacts/stats
 ```
 
-### Não implementados (usar mesmo padrão)
+### A implementar (mesmo padrão)
 ```
 /api/leads
-/api/pipelines (será /api/pipes)
-/api/stages (será /api/phases)
-/api/deals (será /api/cards)
+/api/vehicles
+/api/sinistros
+/api/pipes
+/api/phases
+/api/cards
 /api/conversations
 /api/webhooks
 /api/automations
@@ -207,49 +304,10 @@ GET    /api/contacts/stats
 
 ---
 
-## Workflows
-
-### Criar Novo Módulo CRUD
-1. Verificar se model existe em `prisma/schema.prisma`
-2. Se não existir, criar model e rodar migration
-3. Criar `backend/src/modules/{module}/`
-   - Copiar estrutura de `contacts/` como base
-   - Adaptar service, controller, routes
-4. Registrar rotas em `server.ts`
-5. Criar types em `shared/types/index.ts`
-6. Criar `frontend/src/services/{module}.service.ts`
-7. Criar `frontend/src/hooks/use{Module}.ts`
-8. Criar componentes em `frontend/src/pages/{module}/`
-9. Adicionar rota em `Router.tsx`
-
-### Implementar Kanban (Pipeline/Deals)
-1. Renomear models: Pipeline→Pipe, Stage→Phase, Deal→Card
-2. Adicionar FieldDefinition, FieldValue ao schema
-3. Rodar migrations
-4. Criar APIs: /pipes, /phases, /cards
-5. Criar seed do Sales Pipe
-6. Usar React DnD para drag & drop
-7. Estrutura: KanbanBoard → KanbanColumn → KanbanCard
-
-### Debug de Erros de API
-1. Abrir DevTools (F12) → Console
-2. Logs automáticos mostram: URL, status, response
-3. Se 401: token inválido/expirado
-4. Se 404: endpoint não existe ou ID errado
-5. Se 500: erro no backend (ver logs do terminal)
-
----
-
-## Important Notes
-
-### Estado Atual do Projeto
-- **Backend mock** rodando em `http://localhost:3333` (sem PostgreSQL)
-- **Auth desabilitada** no frontend (usuário sempre logado)
-- **Contatos** é o único módulo 100% funcional
-- **Outras páginas** são placeholders
+## 12. MULTI-TENANCY & RBAC
 
 ### Multi-tenancy
-Todos os models têm `companyId`. **NUNCA** esquecer de filtrar por empresa:
+Todos os models têm `companyId`. NUNCA esquecer de filtrar por empresa:
 ```typescript
 // CORRETO
 const contacts = await prisma.contact.findMany({
@@ -263,105 +321,8 @@ const contacts = await prisma.contact.findMany()
 ### RBAC
 Sistema de permissões: `resource:action:scope`
 ```
-deals:read:own    → só seus deals
-deals:read:all    → todos da empresa
-deals:delete      → pode deletar
-settings:billing  → acesso a faturamento
-```
-
-### Evolução Pipefy-like
-O projeto está migrando de "CRM de vendas" para "plataforma de processos":
-- Pipeline = Pipe (processo genérico)
-- Stage = Phase (fase do processo)
-- Deal = Card (item no processo)
-- Campos dinâmicos via FieldDefinition/FieldValue
-
-Ver `docs/MIGRATION_PLAN_PIPEFY_LIKE.md` para detalhes.
-
-### Bibliotecas Já Instaladas (usar!)
-- **React DnD** - drag & drop (para Kanban)
-- **Recharts** - gráficos (para Dashboard)
-- **React Hook Form + Zod** - formulários com validação
-- **date-fns** - manipulação de datas
-- **Socket.io** - real-time (para chat/inbox)
-
----
-
-## Quick Reference
-
-### Criar Hook de Query (TanStack Query)
-```typescript
-export function useContacts(params = {}) {
-  return useQuery({
-    queryKey: ['contacts', params],
-    queryFn: () => contactsService.list(params),
-    staleTime: 1000 * 60 * 5, // 5 min
-  })
-}
-```
-
-### Criar Mutation com Feedback
-```typescript
-export function useCreateContact() {
-  const queryClient = useQueryClient()
-  return useMutation({
-    mutationFn: (data) => contactsService.create(data),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['contacts'] })
-      toast.success('Contato criado!')
-    },
-    onError: (err) => {
-      toast.error(err.response?.data?.message || 'Erro')
-    },
-  })
-}
-```
-
-### Componente de Tabela Padrão
-```tsx
-<div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
-  <table className="min-w-full divide-y divide-gray-200">
-    <thead className="bg-gray-50">
-      <tr>
-        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-          Coluna
-        </th>
-      </tr>
-    </thead>
-    <tbody className="divide-y divide-gray-200">
-      {items.map(item => (
-        <tr key={item.id} className="hover:bg-gray-50">
-          <td className="px-6 py-4">{item.name}</td>
-        </tr>
-      ))}
-    </tbody>
-  </table>
-</div>
-```
-
-### Botão Padrão
-```tsx
-<button className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
-  Ação
-</button>
-```
-
-### Loading State
-```tsx
-{isLoading && (
-  <div className="flex justify-center p-12">
-    <Loader2 className="w-8 h-8 text-blue-600 animate-spin" />
-  </div>
-)}
-```
-
-### Empty State
-```tsx
-{data?.length === 0 && (
-  <div className="text-center p-12">
-    <Icon className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-    <h3 className="text-lg font-medium text-gray-900">Nenhum item</h3>
-    <p className="text-gray-500">Comece criando o primeiro</p>
-  </div>
-)}
+deals:read:own    -> só seus deals
+deals:read:all    -> todos da empresa
+deals:delete      -> pode deletar
+settings:billing  -> acesso a faturamento
 ```

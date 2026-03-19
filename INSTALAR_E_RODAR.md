@@ -1,12 +1,12 @@
-# 🚀 COMO RODAR O CRM - PASSO A PASSO COMPLETO
+# COMO RODAR O CRM 21Go - PASSO A PASSO
 
-## ⚠️ IMPORTANTE: Siga NA ORDEM!
+## IMPORTANTE: Siga NA ORDEM!
 
 ---
 
 ## PASSO 1: INSTALAR POSTGRESQL
 
-### Opção A: Com Docker (Recomendado)
+### Opcao A: Com Docker (Recomendado)
 
 1. **Baixar Docker Desktop:** https://www.docker.com/products/docker-desktop/
 2. **Instalar** e **reiniciar o PC**
@@ -14,15 +14,15 @@
 4. No PowerShell, executar:
 
 ```powershell
-cd "c:\Users\damas\Documents\PROJETOS\CRM TUBOMINAS"
+cd "c:\Users\damas\Documents\PROJETOS\CRM"
 docker compose -f docker/docker-compose.yml up postgres redis -d
 ```
 
-### Opção B: PostgreSQL Nativo (Sem Docker)
+### Opcao B: PostgreSQL Nativo (Sem Docker)
 
 1. **Baixar:** https://www.enterprisedb.com/downloads/postgres-postgresql-downloads
 2. **Instalar PostgreSQL 15** ou 16
-3. Durante instalação:
+3. Durante instalacao:
    - Senha: `crm_password`
    - Porta: `5432`
 4. **Abrir pgAdmin ou SQL Shell** e executar:
@@ -41,11 +41,11 @@ ALTER DATABASE crm_database OWNER TO crm_user;
 No PowerShell:
 
 ```powershell
-cd "c:\Users\damas\Documents\PROJETOS\CRM TUBOMINAS\backend"
+cd "c:\Users\damas\Documents\PROJETOS\CRM\backend"
 npx prisma migrate dev --name init
 ```
 
-**Você verá:** "Your database is now in sync with your schema."
+**Voce vera:** "Your database is now in sync with your schema."
 
 ---
 
@@ -55,28 +55,27 @@ npx prisma migrate dev --name init
 npx tsx prisma/seed.ts
 ```
 
-**Você verá:**
+**Voce vera:**
 
 ```
-🌱 Starting database seed...
-📦 Creating plans...
-✅ Plans created!
-🔐 Creating permissions...
-✅ Permissions created!
-🏢 Creating demo company...
-✅ Company created!
-👑 Creating admin role...
-✅ Admin role created with all permissions!
-💳 Creating subscription...
-✅ Subscription created!
-👤 Creating admin user...
-✅ Admin user created!
+Starting database seed...
+Creating plans...
+Plans created!
+Creating permissions...
+Permissions created!
+Creating company...
+Company created!
+Creating admin role...
+Admin role created with all permissions!
+Creating subscription...
+Subscription created!
+Creating admin user...
+Admin user created!
 
-🎉 Seed completed successfully!
+Seed completed successfully!
 
-📝 Login credentials:
-   Email: admin@crm.com
-   Password: Admin123!
+Login credentials:
+   Email: damasojuliano@gmail.com
 ```
 
 ---
@@ -85,16 +84,6 @@ npx tsx prisma/seed.ts
 
 ```powershell
 npm run dev
-```
-
-**Você verá:**
-
-```
-╔═══════════════════════════════════════════════════╗
-║   🚀 CRM IA ENTERPRISE - BACKEND STARTED         ║
-║   📍 Server: http://localhost:3333              ║
-║   📚 Docs:   http://localhost:3333/docs        ║
-╚═══════════════════════════════════════════════════╝
 ```
 
 **Deixe este terminal aberto!**
@@ -106,16 +95,8 @@ npm run dev
 **Abra um NOVO PowerShell** e execute:
 
 ```powershell
-cd "c:\Users\damas\Documents\PROJETOS\CRM TUBOMINAS\frontend"
+cd "c:\Users\damas\Documents\PROJETOS\CRM\frontend"
 npm run dev
-```
-
-**Você verá:**
-
-```
-VITE v5.4.21  ready in 276 ms
-
-➜  Local:   http://localhost:5173/
 ```
 
 ---
@@ -125,36 +106,36 @@ VITE v5.4.21  ready in 276 ms
 Abra o navegador em: **http://localhost:5173**
 
 **Login:**
-- Email: `admin@crm.com`
-- Senha: `Admin123!`
+- Email: `damasojuliano@gmail.com`
+- Senha: (definida pelo admin)
 
 ---
 
-## ✅ CHECKLIST
+## CHECKLIST
 
 Antes de fazer login, certifique-se que:
 
-- [x] PostgreSQL está rodando (Docker ou nativo)
+- [x] PostgreSQL esta rodando (Docker ou nativo)
 - [x] Migrations foram executadas sem erro
-- [x] Seed foi executado e mostrou as credenciais
-- [x] Backend está rodando (porta 3333)
-- [x] Frontend está rodando (porta 5173)
-- [x] Você acessou http://localhost:5173
+- [x] Seed foi executado
+- [x] Backend esta rodando (porta 3333)
+- [x] Frontend esta rodando (porta 5173)
+- [x] Voce acessou http://localhost:5173
 
 ---
 
-## 🐛 PROBLEMAS COMUNS
+## PROBLEMAS COMUNS
 
 ### "Can't reach database server"
 
-**Solução:** PostgreSQL não está rodando.
+**Solucao:** PostgreSQL nao esta rodando.
 
 - **Docker:** `docker ps` deve mostrar `crm-postgres`
-- **Nativo:** Abrir "Services" do Windows e verificar se "postgresql" está rodando
+- **Nativo:** Abrir "Services" do Windows e verificar se "postgresql" esta rodando
 
 ### "Port 3333 already in use"
 
-**Solução:** Algo já está usando a porta.
+**Solucao:** Algo ja esta usando a porta.
 
 ```powershell
 netstat -ano | findstr :3333
@@ -163,7 +144,7 @@ taskkill /PID <numero> /F
 
 ### "Prisma Client not generated"
 
-**Solução:**
+**Solucao:**
 
 ```powershell
 cd backend
@@ -172,14 +153,4 @@ npx prisma generate
 
 ---
 
-## 📞 PRECISA DE AJUDA?
-
-Se algo der errado:
-
-1. **Feche tudo** (Ctrl+C nos terminais)
-2. **Me envie uma screenshot do erro**
-3. **Diga em qual passo parou**
-
----
-
-**Boa sorte! 🚀**
+**21Go Protecao Veicular** | CRM + IA

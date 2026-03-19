@@ -70,7 +70,7 @@ export function NPSPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-display font-bold text-white">Pesquisa de Satisfacao (NPS)</h1>
-          <p className="text-sm text-gray-400 mt-1">Acompanhe a satisfacao dos seus pacientes</p>
+          <p className="text-sm text-gray-400 mt-1">Acompanhe a satisfacao dos seus associados</p>
         </div>
       </div>
 
@@ -464,7 +464,7 @@ function RegisterTab() {
             value={comment}
             onChange={(e) => setComment(e.target.value)}
             rows={3}
-            placeholder="O que o paciente disse..."
+            placeholder="O que o associado disse..."
             className="input resize-none"
           />
         </div>
