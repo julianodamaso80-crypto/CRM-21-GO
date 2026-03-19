@@ -1,14 +1,19 @@
 // @ts-nocheck
+import path from 'path'
+import fs from 'fs'
 import Fastify from 'fastify'
 import cors from '@fastify/cors'
 
+const port = Number(process.env.PORT) || 3333
+
 const fastify = Fastify({
   logger: true,
+  trustProxy: true,
 })
 
 // CORS
 fastify.register(cors, {
-  origin: 'http://localhost:5173',
+  origin: process.env.CORS_ORIGIN === '*' ? true : (process.env.CORS_ORIGIN || true),
   credentials: true,
 })
 
@@ -2589,20 +2594,80 @@ fastify.delete('/api/projects/:id', async (request, reply) => {
   return reply.send({ success: true })
 })
 
+// ── Serve frontend static files in production ───────
+const possiblePaths = [
+  path.join(process.cwd(), '..', 'frontend', 'dist'),
+  path.join(process.cwd(), 'frontend', 'dist'),
+  path.join(__dirname, '..', '..', 'frontend', 'dist'),
+  path.join(__dirname, '..', 'frontend', 'dist'),
+]
+
+const frontendDistPath = possiblePaths.find(p => fs.existsSync(p))
+
+if (frontendDistPath) {
+  console.log(`[Static] Serving frontend from: ${frontendDistPath}`)
+
+  // Serve static files manually (no @fastify/static to avoid Fastify version issues)
+  const mimeTypes: Record<string, string> = {
+    '.html': 'text/html',
+    '.js': 'application/javascript',
+    '.css': 'text/css',
+    '.json': 'application/json',
+    '.png': 'image/png',
+    '.jpg': 'image/jpeg',
+    '.svg': 'image/svg+xml',
+    '.ico': 'image/x-icon',
+    '.woff': 'font/woff',
+    '.woff2': 'font/woff2',
+    '.ttf': 'font/ttf',
+  }
+
+  fastify.setNotFoundHandler((request, reply) => {
+    // API routes return 404 JSON
+    if (request.url.startsWith('/api/') || request.url === '/health') {
+      return reply.status(404).send({ error: 'Not Found', message: 'Route not found' })
+    }
+
+    // Try to serve static file
+    const urlPath = request.url.split('?')[0]
+    const filePath = path.join(frontendDistPath, urlPath)
+
+    if (fs.existsSync(filePath) && fs.statSync(filePath).isFile()) {
+      const ext = path.extname(filePath)
+      const contentType = mimeTypes[ext] || 'application/octet-stream'
+      reply.header('Content-Type', contentType)
+      return reply.send(fs.readFileSync(filePath))
+    }
+
+    // SPA fallback: serve index.html
+    const indexPath = path.join(frontendDistPath, 'index.html')
+    if (fs.existsSync(indexPath)) {
+      reply.header('Content-Type', 'text/html')
+      return reply.send(fs.readFileSync(indexPath))
+    }
+
+    return reply.status(404).send({ error: 'Not Found' })
+  })
+} else {
+  console.log('[Static] Frontend dist not found, skipping static file serving')
+  console.log('[Static] Looked in:', possiblePaths)
+}
+
 // Start server
 const start = async () => {
   try {
-    await fastify.listen({ port: 3333, host: '0.0.0.0' })
+    await fastify.listen({ port, host: '0.0.0.0' })
 
     console.log(`
     ╔═══════════════════════════════════════════════════╗
     ║                                                   ║
-    ║   🚀 MOCK BACKEND - RUNNING                      ║
+    ║   MOCK BACKEND - RUNNING                         ║
     ║                                                   ║
-    ║   📍 Server: http://localhost:3333               ║
-    ║   🏥 Health: http://localhost:3333/health        ║
+    ║   Server: http://0.0.0.0:${String(port).padEnd(25)}║
+    ║   Health: /health                                ║
+    ║   Static: ${frontendDistPath ? 'YES' : 'NO'}${' '.repeat(frontendDistPath ? 37 : 37)}║
     ║                                                   ║
-    ║   ⚠️  MODO MOCK - SEM BANCO DE DADOS             ║
+    ║   MODO MOCK - SEM BANCO DE DADOS                 ║
     ║                                                   ║
     ╚═══════════════════════════════════════════════════╝
     `)
