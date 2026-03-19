@@ -4,243 +4,33 @@ import bcrypt from 'bcryptjs'
 const prisma = new PrismaClient()
 
 async function main() {
-  console.log('🌱 Starting database seed...')
+  console.log('Starting database seed for 21Go Protecao Veicular...')
 
-  // 1. Criar Planos
-  console.log('📦 Creating plans...')
-
-  const planFree = await prisma.plan.upsert({
-    where: { name: 'free' },
-    update: {},
-    create: {
-      name: 'free',
-      displayName: 'Free',
-      description: 'Plano gratuito para começar',
-      price: 0,
-      currency: 'BRL',
-      billingInterval: 'month',
-      maxUsers: 2,
-      maxLeadsPerMonth: 100,
-      maxDealsPerMonth: 50,
-      maxAIMessages: 50,
-      maxWebhooks: 0,
-      maxAPICallsPerDay: 100,
-      maxStorageGB: 1,
-      features: {
-        basic_crm: true,
-        ai_chatbot: false,
-        omnichannel: false,
-        analytics: false,
-        webhooks: false,
-        api_access: false,
-      },
-      isActive: true,
-      isPopular: false,
-    },
-  })
-
-  const planPro = await prisma.plan.upsert({
-    where: { name: 'pro' },
-    update: {},
-    create: {
-      name: 'pro',
-      displayName: 'Pro',
-      description: 'Plano profissional completo',
-      price: 297,
-      currency: 'BRL',
-      billingInterval: 'month',
-      maxUsers: 10,
-      maxLeadsPerMonth: 5000,
-      maxDealsPerMonth: 1000,
-      maxAIMessages: 1000,
-      maxWebhooks: 10,
-      maxAPICallsPerDay: 10000,
-      maxStorageGB: 50,
-      features: {
-        basic_crm: true,
-        ai_chatbot: true,
-        omnichannel: true,
-        analytics: true,
-        webhooks: true,
-        api_access: true,
-      },
-      isActive: true,
-      isPopular: true,
-    },
-  })
-
-  const planEnterprise = await prisma.plan.upsert({
-    where: { name: 'enterprise' },
-    update: {},
-    create: {
-      name: 'enterprise',
-      displayName: 'Enterprise',
-      description: 'Plano enterprise com recursos ilimitados',
-      price: 1997,
-      currency: 'BRL',
-      billingInterval: 'month',
-      maxUsers: 999999,
-      maxLeadsPerMonth: 999999,
-      maxDealsPerMonth: 999999,
-      maxAIMessages: 999999,
-      maxWebhooks: 999999,
-      maxAPICallsPerDay: 999999,
-      maxStorageGB: 999999,
-      features: {
-        basic_crm: true,
-        ai_chatbot: true,
-        omnichannel: true,
-        analytics: true,
-        webhooks: true,
-        api_access: true,
-        white_label: true,
-        sso: true,
-        dedicated_ip: true,
-        sla: true,
-      },
-      isActive: true,
-      isPopular: false,
-    },
-  })
-
-  console.log('✅ Plans created!')
-
-  // 2. Criar Permissions
-  console.log('🔐 Creating permissions...')
-
-  const permissions = [
-    // Leads
-    { resource: 'leads', action: 'create', scope: null, code: 'leads:create' },
-    { resource: 'leads', action: 'read', scope: 'own', code: 'leads:read:own' },
-    { resource: 'leads', action: 'read', scope: 'team', code: 'leads:read:team' },
-    { resource: 'leads', action: 'read', scope: 'all', code: 'leads:read:all' },
-    { resource: 'leads', action: 'update', scope: 'own', code: 'leads:update:own' },
-    { resource: 'leads', action: 'update', scope: 'all', code: 'leads:update:all' },
-    { resource: 'leads', action: 'delete', scope: null, code: 'leads:delete' },
-    { resource: 'leads', action: 'assign', scope: null, code: 'leads:assign' },
-
-    // Deals
-    { resource: 'deals', action: 'create', scope: null, code: 'deals:create' },
-    { resource: 'deals', action: 'read', scope: 'own', code: 'deals:read:own' },
-    { resource: 'deals', action: 'read', scope: 'team', code: 'deals:read:team' },
-    { resource: 'deals', action: 'read', scope: 'all', code: 'deals:read:all' },
-    { resource: 'deals', action: 'update', scope: 'own', code: 'deals:update:own' },
-    { resource: 'deals', action: 'update', scope: 'all', code: 'deals:update:all' },
-    { resource: 'deals', action: 'delete', scope: null, code: 'deals:delete' },
-
-    // Contacts
-    { resource: 'contacts', action: 'create', scope: null, code: 'contacts:create' },
-    { resource: 'contacts', action: 'read', scope: 'all', code: 'contacts:read:all' },
-    { resource: 'contacts', action: 'update', scope: null, code: 'contacts:update' },
-    { resource: 'contacts', action: 'delete', scope: null, code: 'contacts:delete' },
-    { resource: 'contacts', action: 'export', scope: null, code: 'contacts:export' },
-
-    // Users
-    { resource: 'users', action: 'create', scope: null, code: 'users:create' },
-    { resource: 'users', action: 'read', scope: 'all', code: 'users:read:all' },
-    { resource: 'users', action: 'update', scope: null, code: 'users:update' },
-    { resource: 'users', action: 'delete', scope: null, code: 'users:delete' },
-    { resource: 'users', action: 'invite', scope: null, code: 'users:invite' },
-
-    // Settings
-    { resource: 'settings', action: 'billing', scope: null, code: 'settings:billing' },
-    { resource: 'settings', action: 'integrations', scope: null, code: 'settings:integrations' },
-    { resource: 'settings', action: 'company', scope: null, code: 'settings:company' },
-  ]
-
-  for (const perm of permissions) {
-    await prisma.permission.upsert({
-      where: { code: perm.code },
-      update: {},
-      create: perm,
-    })
-  }
-
-  console.log('✅ Permissions created!')
-
-  // 3. Criar Empresa 21Go
-  console.log('🏢 Creating company...')
-
+  // 1. Empresa
+  console.log('Creating company...')
   const company = await prisma.company.upsert({
     where: { slug: '21go' },
     update: {},
     create: {
-      name: '21Go Proteção Veicular',
+      name: '21Go Protecao Veicular',
       slug: '21go',
       email: 'contato@21go.org',
-      isActive: true,
-    },
-  })
-
-  console.log('✅ Company created!')
-
-  // 4. Criar Role Admin
-  console.log('👑 Creating admin role...')
-
-  const roleAdmin = await prisma.role.upsert({
-    where: {
-      name_companyId: {
-        name: 'admin',
-        companyId: company.id
-      }
-    },
-    update: {},
-    create: {
-      name: 'admin',
-      displayName: 'Administrador',
-      description: 'Acesso total ao sistema',
-      level: 10,
-      companyId: company.id,
-      isSystem: true,
-    },
-  })
-
-  // Associar TODAS as permissions ao admin
-  const allPermissions = await prisma.permission.findMany()
-  for (const perm of allPermissions) {
-    await prisma.rolePermission.upsert({
-      where: {
-        roleId_permissionId: {
-          roleId: roleAdmin.id,
-          permissionId: perm.id,
-        },
+      phone: '(21) 3333-2100',
+      city: 'Rio de Janeiro',
+      state: 'RJ',
+      settings: {
+        planos: ['basico', 'completo', 'premium'],
+        taxas: { basico: 0.018, completo: 0.028, premium: 0.038 },
+        taxaAdmin: 35.0,
+        hinovaIntegration: false,
       },
-      update: {},
-      create: {
-        roleId: roleAdmin.id,
-        permissionId: perm.id,
-      },
-    })
-  }
-
-  console.log('✅ Admin role created with all permissions!')
-
-  // 5. Criar Subscription Free para a empresa
-  console.log('💳 Creating subscription...')
-
-  const subscription = await prisma.subscription.upsert({
-    where: {
-      id: 'seed-subscription-demo'
-    },
-    update: {},
-    create: {
-      id: 'seed-subscription-demo',
-      companyId: company.id,
-      planId: planPro.id, // Começar com Pro para testar tudo
-      status: 'active',
-      currentPeriodStart: new Date(),
-      currentPeriodEnd: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 dias
     },
   })
 
-  console.log('✅ Subscription created!')
-
-  // 6. Criar Usuário Admin
-  console.log('👤 Creating admin user...')
-
+  // 2. Usuario admin (Juliano)
+  console.log('Creating admin user...')
   const hashedPassword = await bcrypt.hash('160807', 10)
-
-  const adminUser = await prisma.user.upsert({
+  const admin = await prisma.user.upsert({
     where: { email: 'damasojuliano@gmail.com' },
     update: {},
     create: {
@@ -248,17 +38,14 @@ async function main() {
       password: hashedPassword,
       firstName: 'Juliano',
       lastName: 'Damaso',
+      role: 'admin',
       companyId: company.id,
-      roleId: roleAdmin.id,
       isActive: true,
     },
   })
 
-  console.log('✅ Admin user created!')
-
-  // 7. Criar Pipe Vendas (Pipefy-like)
-  console.log('🔧 Creating Sales Pipe...')
-
+  // 3. Pipe de Vendas (Pipefy-like)
+  console.log('Creating sales pipe...')
   const salesPipe = await prisma.pipe.upsert({
     where: { id: 'seed-pipe-vendas' },
     update: {},
@@ -266,19 +53,19 @@ async function main() {
       id: 'seed-pipe-vendas',
       companyId: company.id,
       name: 'Vendas',
-      description: 'Pipeline principal de vendas',
-      color: '#3B82F6',
+      description: 'Pipeline de adesao de novos associados',
+      color: '#1B4DA1',
       tags: ['vendas', 'comercial'],
     },
   })
 
   const salesPhases = [
-    { name: 'Prospecção', color: '#3B82F6', position: 0, probability: 10, isWon: false, isLost: false },
-    { name: 'Contato Realizado', color: '#8B5CF6', position: 1, probability: 25, isWon: false, isLost: false },
-    { name: 'Proposta Enviada', color: '#F59E0B', position: 2, probability: 50, isWon: false, isLost: false },
-    { name: 'Negociação', color: '#F97316', position: 3, probability: 75, isWon: false, isLost: false },
-    { name: 'Fechado (Ganho)', color: '#10B981', position: 4, probability: 100, isWon: true, isLost: false },
-    { name: 'Fechado (Perdido)', color: '#EF4444', position: 5, probability: 0, isWon: false, isLost: true },
+    { name: 'Novo Lead', color: '#3D72DE', position: 0, probability: 10 },
+    { name: 'Qualificado', color: '#A78BFA', position: 1, probability: 25 },
+    { name: 'Cotacao Enviada', color: '#FBBF24', position: 2, probability: 50 },
+    { name: 'Negociacao', color: '#F08C28', position: 3, probability: 75 },
+    { name: 'Fechado (Aderiu)', color: '#34D399', position: 4, probability: 100, isWon: true },
+    { name: 'Perdido', color: '#FB7185', position: 5, probability: 0, isLost: true },
   ]
 
   for (const phase of salesPhases) {
@@ -293,19 +80,19 @@ async function main() {
         color: phase.color,
         position: phase.position,
         probability: phase.probability,
-        isWon: phase.isWon,
-        isLost: phase.isLost,
+        isWon: phase.isWon || false,
+        isLost: phase.isLost || false,
       },
     })
   }
 
   const salesFields = [
-    { name: 'nome_cliente', label: 'Nome do Cliente', type: 'text', required: true, position: 0 },
-    { name: 'email', label: 'Email', type: 'email', required: true, position: 1 },
-    { name: 'telefone', label: 'Telefone', type: 'phone', required: false, position: 2 },
-    { name: 'plano', label: 'Plano', type: 'select', required: false, position: 3, configJson: { options: ['Básico', 'Completo', 'Premium'] } },
-    { name: 'valor', label: 'Valor', type: 'currency', required: false, position: 4 },
-    { name: 'prioridade', label: 'Prioridade', type: 'select', required: false, position: 5, configJson: { options: ['alta', 'media', 'baixa'] } },
+    { name: 'nome_lead', label: 'Nome do Lead', type: 'text', required: true, position: 0 },
+    { name: 'whatsapp', label: 'WhatsApp', type: 'phone', required: true, position: 1 },
+    { name: 'veiculo', label: 'Veiculo de Interesse', type: 'text', required: false, position: 2 },
+    { name: 'plano', label: 'Plano', type: 'select', required: false, position: 3, configJson: { options: ['Basico', 'Completo', 'Premium'] } },
+    { name: 'valor_cotacao', label: 'Valor Cotacao', type: 'currency', required: false, position: 4 },
+    { name: 'origem', label: 'Origem', type: 'select', required: false, position: 5, configJson: { options: ['Google Ads', 'Meta Ads', 'Instagram', 'Indicacao', 'WhatsApp', 'Direto'] } },
   ]
 
   for (const field of salesFields) {
@@ -325,19 +112,61 @@ async function main() {
     })
   }
 
-  console.log('✅ Sales Pipe created with 6 phases and 6 fields!')
+  // 4. Pipe de Sinistros
+  console.log('Creating sinistros pipe...')
+  const sinistrosPipe = await prisma.pipe.upsert({
+    where: { id: 'seed-pipe-sinistros' },
+    update: {},
+    create: {
+      id: 'seed-pipe-sinistros',
+      companyId: company.id,
+      name: 'Sinistros',
+      description: 'Acompanhamento de sinistros da abertura ao encerramento',
+      color: '#FB7185',
+      tags: ['operacao', 'sinistros'],
+    },
+  })
+
+  const sinistrosPhases = [
+    { name: 'Aberto', color: '#FB7185', position: 0, probability: 0 },
+    { name: 'Em Analise', color: '#FBBF24', position: 1, probability: 20 },
+    { name: 'Na Oficina', color: '#F08C28', position: 2, probability: 50 },
+    { name: 'Aguardando Peca', color: '#A78BFA', position: 3, probability: 60 },
+    { name: 'Em Reparo', color: '#3D72DE', position: 4, probability: 80 },
+    { name: 'Pronto', color: '#34D399', position: 5, probability: 95 },
+    { name: 'Entregue', color: '#34D399', position: 6, probability: 100, isWon: true },
+  ]
+
+  for (const phase of sinistrosPhases) {
+    await prisma.phase.upsert({
+      where: { id: `seed-sinistro-phase-${phase.position}` },
+      update: {},
+      create: {
+        id: `seed-sinistro-phase-${phase.position}`,
+        companyId: company.id,
+        pipeId: sinistrosPipe.id,
+        name: phase.name,
+        color: phase.color,
+        position: phase.position,
+        probability: phase.probability,
+        isWon: phase.isWon || false,
+        isLost: phase.isLost || false,
+      },
+    })
+  }
 
   console.log('')
-  console.log('🎉 Seed completed successfully!')
+  console.log('Seed completed successfully!')
   console.log('')
-  console.log('📝 Login credentials:')
-  console.log('   Email: damasojuliano@gmail.com')
+  console.log('Company: 21Go Protecao Veicular')
+  console.log('Admin: damasojuliano@gmail.com')
+  console.log('Pipes: Vendas (6 fases), Sinistros (7 fases)')
   console.log('')
 }
 
 main()
   .catch((e) => {
-    console.error('❌ Error seeding database:', e)
+    console.error('Error seeding database:', e)
     process.exit(1)
   })
   .finally(async () => {

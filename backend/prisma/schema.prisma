@@ -1,5 +1,6 @@
-// CRM IA ENTERPRISE - DATABASE SCHEMA
-// Multi-tenant SaaS architecture
+// 21Go Protecao Veicular - Database Schema
+// Redesigned for vehicle protection association (not generic SaaS)
+// Models based on 10 AI agents + 4 roles (admin/gestor/vendedor/operacao)
 
 generator client {
   provider = "prisma-client-js"
@@ -11,56 +12,95 @@ datasource db {
 }
 
 // ============================================================================
-// IDENTITY & ACCESS MANAGEMENT
+// IDENTITY & ACCESS
 // ============================================================================
 
+model Company {
+  id       String  @id @default(uuid())
+  name     String  // "21Go Protecao Veicular"
+  slug     String  @unique
+  logo     String?
+  website  String?
+  email    String?
+  phone    String?
+  address  String?
+  city     String?
+  state    String?
+  zipCode  String? @map("zip_code")
+  settings Json    @default("{}") // configuracoes gerais da empresa
+
+  isActive Boolean @default(true) @map("is_active")
+
+  // Relationships
+  users          User[]
+  associados     Associado[]
+  leads          Lead[]
+  cotacoes       Cotacao[]
+  vehicles       Vehicle[]
+  sinistros      Sinistro[]
+  oficinas       Oficina[]
+  vistorias      Vistoria[]
+  boletos        Boleto[]
+  npsSurveys     NpsSurvey[]
+  indicacoes     Indicacao[]
+  projetos       Projeto[]
+  conversations  Conversation[]
+  messages       Message[]
+  aiAgents       AIAgent[]
+  knowledgeBases KnowledgeBase[]
+  automacoes     Automacao[]
+  auditLogs      AuditLog[]
+
+  // Pipefy-like
+  pipes Pipe[]
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("companies")
+}
+
 model User {
-  id        String   @id @default(uuid())
-  email     String   @unique
-  password  String
-  firstName String   @map("first_name")
-  lastName  String   @map("last_name")
+  id        String  @id @default(uuid())
+  email     String  @unique
+  password  String  // bcrypt hashed — LGPD: dado de autenticacao
+  firstName String  @map("first_name")
+  lastName  String  @map("last_name")
   avatar    String?
-  phone     String?
-  timezone  String   @default("America/Sao_Paulo")
-  language  String   @default("pt-BR")
-  isActive  Boolean  @default(true) @map("is_active")
+  phone     String? // LGPD: dado pessoal
+  role      String  @default("vendedor") // admin, gestor, vendedor, operacao
+  isActive  Boolean @default(true) @map("is_active")
 
-  // Multi-tenant relationship
-  companyId String   @map("company_id")
-  company   Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  companyId String  @map("company_id")
+  company   Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
 
-  // Role-based access control
-  roleId    String   @map("role_id")
-  role      Role     @relation(fields: [roleId], references: [id])
-
-  // Authentication
+  // Auth
   refreshTokens RefreshToken[]
 
   // CRM relationships
-  assignedLeads         Lead[]         @relation("AssignedLeads")
-  assignedDeals         Deal[]         @relation("AssignedDeals")
+  assignedLeads         Lead[]         @relation("VendedorLeads")
   assignedConversations Conversation[] @relation("AssignedConversations")
   sentMessages          Message[]      @relation("SentMessages")
-  activities            Activity[]
-  createdWebhooks       Webhook[]
-  createdAutomations    Automation[]
+  sinistrosResponsavel  Sinistro[]     @relation("ResponsavelSinistro")
+  vistoriasRealizadas   Vistoria[]     @relation("VistoriadorVistorias")
 
-  // Pipefy-like
-  createdCards          Card[]         @relation("CreatedCards")
-  assignedCards         Card[]         @relation("AssignedCards")
+  // Pipefy
+  createdCards  Card[] @relation("CreatedCards")
+  assignedCards Card[] @relation("AssignedCards")
+
+  // Associados vendidos por este user
+  associadosVendidos Associado[] @relation("VendedorAssociados")
 
   // Audit
   auditLogs AuditLog[]
 
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
   lastLoginAt DateTime? @map("last_login_at")
 
   @@map("users")
   @@index([companyId])
-  @@index([email])
-  @@index([roleId])
+  @@index([role])
 }
 
 model RefreshToken {
@@ -73,824 +113,636 @@ model RefreshToken {
 
   @@map("refresh_tokens")
   @@index([userId])
-  @@index([token])
-}
-
-model Role {
-  id          String   @id @default(uuid())
-  name        String   // super_admin, admin, manager, sales, support, viewer
-  displayName String   @map("display_name")
-  description String?
-  isSystem    Boolean  @default(false) @map("is_system") // Sistema não pode deletar
-
-  // Hierarquia
-  level       Int      @default(100) // menor = mais poder (0 = super_admin)
-
-  // Multi-tenant (super_admin não tem companyId)
-  companyId   String?  @map("company_id")
-  company     Company? @relation(fields: [companyId], references: [id], onDelete: Cascade)
-
-  // Relationships
-  users       User[]
-  permissions RolePermission[]
-
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
-
-  @@unique([name, companyId])
-  @@map("roles")
-  @@index([companyId])
-}
-
-model Permission {
-  id          String   @id @default(uuid())
-  resource    String   // deals, leads, contacts, settings, etc
-  action      String   // create, read, update, delete, export, etc
-  scope       String?  // own, team, all
-  description String?
-
-  // Ex: deals:read:own, contacts:delete, settings:billing
-  code        String   @unique // resource:action:scope
-
-  roles       RolePermission[]
-
-  createdAt DateTime @default(now()) @map("created_at")
-
-  @@map("permissions")
-  @@index([code])
-}
-
-model RolePermission {
-  roleId       String     @map("role_id")
-  role         Role       @relation(fields: [roleId], references: [id], onDelete: Cascade)
-
-  permissionId String     @map("permission_id")
-  permission   Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
-
-  createdAt DateTime @default(now()) @map("created_at")
-
-  @@id([roleId, permissionId])
-  @@map("role_permissions")
 }
 
 // ============================================================================
-// COMPANY & TENANT
+// ASSOCIADOS (membros da associacao)
 // ============================================================================
 
-model Company {
-  id          String   @id @default(uuid())
-  name        String
-  slug        String   @unique // para subdomain
-  domain      String?  @unique // custom domain
-  logo        String?
-  website     String?
-  industry    String?
-  size        String?  // small, medium, large
+model Associado {
+  id        String @id @default(uuid())
+  companyId String @map("company_id")
+  company   Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
 
-  // Contact
-  email       String?
-  phone       String?
-
-  // Address
-  address     String?
-  city        String?
-  state       String?
-  country     String   @default("BR")
-  zipCode     String?  @map("zip_code")
-
-  // Settings
-  timezone    String   @default("America/Sao_Paulo")
-  language    String   @default("pt-BR")
-  currency    String   @default("BRL")
-
-  // Status
-  isActive    Boolean  @default(true) @map("is_active")
-
-  // Billing
-  subscriptions Subscription[]
-  invoices      Invoice[]
-
-  // Relationships
-  users         User[]
-  roles         Role[]
-  contacts      Contact[]
-  leads         Lead[]
-  deals         Deal[]
-  pipelines     Pipeline[]
-  pipes         Pipe[]
-  conversations Conversation[]
-  channels      Channel[]
-  webhooks      Webhook[]
-  automations   Automation[]
-  aiAgents       AIAgent[]
-  knowledgeBases KnowledgeBase[]
-  auditLogs       AuditLog[]
-  campaignCosts   CampaignCost[]
-  trackingEvents  TrackingEvent[]
-
-  // Veiculos
-  vehicles       Vehicle[]
-
-  // NPS
-  npsSurveys     NPSSurvey[]
-
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
-
-  @@map("companies")
-  @@index([slug])
-}
-
-// ============================================================================
-// SUBSCRIPTION & BILLING
-// ============================================================================
-
-model Plan {
-  id              String   @id @default(uuid())
-  name            String   @unique // free, pro, enterprise
-  displayName     String   @map("display_name")
-  description     String?
-  price           Decimal  @db.Decimal(10, 2)
-  currency        String   @default("BRL")
-  billingInterval String   @map("billing_interval") // month, year
-
-  // Stripe
-  stripeProductId String?  @unique @map("stripe_product_id")
-  stripePriceId   String?  @unique @map("stripe_price_id")
-
-  // Limites
-  maxUsers            Int      @map("max_users")
-  maxLeadsPerMonth    Int      @map("max_leads_per_month")
-  maxDealsPerMonth    Int      @map("max_deals_per_month")
-  maxAIMessages       Int      @map("max_ai_messages")
-  maxWebhooks         Int      @map("max_webhooks")
-  maxAPICallsPerDay   Int      @map("max_api_calls_per_day")
-  maxStorageGB        Int      @map("max_storage_gb")
-
-  // Features (JSON com feature flags)
-  features    Json     @default("{}")
-
-  isActive    Boolean  @default(true) @map("is_active")
-  isPopular   Boolean  @default(false) @map("is_popular")
-
-  subscriptions Subscription[]
-
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
-
-  @@map("plans")
-}
-
-model Subscription {
-  id              String   @id @default(uuid())
-
-  companyId       String   @map("company_id")
-  company         Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
-
-  planId          String   @map("plan_id")
-  plan            Plan     @relation(fields: [planId], references: [id])
-
-  status          String   // active, canceled, past_due, trialing
-
-  // Stripe
-  stripeSubscriptionId String? @unique @map("stripe_subscription_id")
-  stripeCustomerId     String? @map("stripe_customer_id")
-
-  // Datas
-  currentPeriodStart DateTime  @map("current_period_start")
-  currentPeriodEnd   DateTime  @map("current_period_end")
-  cancelAt           DateTime? @map("cancel_at")
-  canceledAt         DateTime? @map("canceled_at")
-  trialStart         DateTime? @map("trial_start")
-  trialEnd           DateTime? @map("trial_end")
-
-  // Relacionamentos
-  invoices Invoice[]
-
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
-
-  @@map("subscriptions")
-  @@index([companyId])
-  @@index([status])
-}
-
-model Invoice {
-  id              String   @id @default(uuid())
-
-  companyId       String   @map("company_id")
-  company         Company  @relation(fields: [companyId], references: [id])
-
-  subscriptionId  String   @map("subscription_id")
-  subscription    Subscription @relation(fields: [subscriptionId], references: [id])
-
-  // Stripe
-  stripeInvoiceId String?  @unique @map("stripe_invoice_id")
-
-  amount          Decimal  @db.Decimal(10, 2)
-  currency        String   @default("BRL")
-  status          String   // draft, open, paid, void, uncollectible
-
-  dueDate         DateTime @map("due_date")
-  paidAt          DateTime? @map("paid_at")
-
-  invoiceUrl      String?  @map("invoice_url")
-  invoicePdf      String?  @map("invoice_pdf")
-
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
-
-  @@map("invoices")
-  @@index([companyId])
-  @@index([status])
-}
-
-// ============================================================================
-// CRM CORE
-// ============================================================================
-
-model Contact {
-  id          String   @id @default(uuid())
-
-  // Multi-tenant
-  companyId   String   @map("company_id")
-  company     Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
-
-  // Identificacao
-  firstName   String?  @map("first_name")
-  lastName    String?  @map("last_name")
-  fullName    String   @map("full_name") // computed field
-  email       String?
-  phone       String?
-  avatar      String?
-
-  // Dados pessoais (Associado)
-  cpf         String?
-  rg          String?
-  dateOfBirth DateTime? @map("date_of_birth")
-  whatsapp    String?
+  // Identificacao — LGPD: dados pessoais sensiveis
+  nome           String
+  cpf            String?  // LGPD: dado pessoal sensivel — unique por empresa
+  rg             String?  // LGPD: dado pessoal
+  dataNascimento DateTime? @map("data_nascimento")
+  email          String?  // LGPD: dado pessoal
+  telefone       String?  // LGPD: dado pessoal
+  whatsapp       String?  // LGPD: dado pessoal
 
   // Endereco
-  address     String?
-  bairro      String?
-  city        String?
-  state       String?
-  country     String?
-  zipCode     String?  @map("zip_code")
+  endereco String?
+  bairro   String?
+  cidade   String?
+  uf       String? // sigla: RJ, SP, etc
+  cep      String?
 
   // Status de associacao
-  status             String   @default("em_adesao") // ativo, inativo, inadimplente, cancelado, em_adesao
+  status             String    @default("em_adesao") // ativo, inativo, inadimplente, cancelado, em_adesao
   dataAdesao         DateTime? @map("data_adesao")
   dataCancelamento   DateTime? @map("data_cancelamento")
   motivoCancelamento String?   @map("motivo_cancelamento")
 
   // Integracao Hinova (SGA)
-  hinovaId    String?  @map("hinova_id")
+  hinovaId String? @map("hinova_id")
 
-  // Indicacao / MGM
-  indicadoPor     String?  @map("indicado_por")
-  vendedorId      String?  @map("vendedor_id")
-  totalIndicacoes Int      @default(0) @map("total_indicacoes")
-  descontoMgm     Float?   @map("desconto_mgm")
+  // MGM — Indicacao (self-reference)
+  indicadoPorId   String?    @map("indicado_por_id")
+  indicadoPor     Associado? @relation("IndicacaoMGM", fields: [indicadoPorId], references: [id], onDelete: SetNull)
+  indicados       Associado[] @relation("IndicacaoMGM")
+  totalIndicacoes Int        @default(0) @map("total_indicacoes")
+  descontoMgm     Float      @default(0) @map("desconto_mgm") // 0 a 100 (%)
 
-  // NPS
-  npsScore    Int?      @map("nps_score")
-  ultimoNps   DateTime? @map("ultimo_nps")
+  // Vendedor responsavel
+  vendedorId String? @map("vendedor_id")
+  vendedor   User?   @relation("VendedorAssociados", fields: [vendedorId], references: [id], onDelete: SetNull)
 
-  // Origem / Rastreamento
-  origem      String?  // google_ads, meta_ads, instagram, site_organico, indicacao, whatsapp, direto, outro
-  utmSource   String?  @map("utm_source")
-  utmMedium   String?  @map("utm_medium")
-  utmCampaign String?  @map("utm_campaign")
+  // NPS (cache do ultimo)
+  npsScore  Int?      @map("nps_score")
+  ultimoNps DateTime? @map("ultimo_nps")
 
-  // Metadata
-  tags        String[] @default([])
-  customFields Json    @default("{}") @map("custom_fields")
-
-  // Relacionamentos CRM
-  leads         Lead[]
-  deals         Deal[]
-  conversations Conversation[]
-  activities    Activity[]
-
-  // Veiculos
-  vehicles      Vehicle[]
-
-  // NPS Surveys
-  npsSurveys    NPSSurvey[]
-
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
-
-  @@map("contacts")
-  @@index([companyId])
-  @@index([email])
-  @@index([phone])
-  @@index([cpf])
-  @@index([fullName])
-  @@index([status])
-  @@index([hinovaId])
-}
-
-model Lead {
-  id          String   @id @default(uuid())
-
-  companyId   String   @map("company_id")
-  company     Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
-
-  contactId   String   @map("contact_id")
-  contact     Contact  @relation(fields: [contactId], references: [id], onDelete: Cascade)
-
-  // Identificação
-  title       String
-  description String?
-
-  // Status
-  status      String   @default("new") // new, contacted, qualified, unqualified
-  score       Int      @default(0) // lead scoring
-
-  // Origem
-  source      String   // website, whatsapp, instagram, referral, manual, facebook, google, tiktok, linkedin, email, organic
-  medium      String?  // organic, paid, social, email, cpc, cpm, referral
-  campaign    String?
-
-  // Deep Ad Tracking (UTM + Platform)
-  utmSource    String?  @map("utm_source")    // google, facebook, instagram, tiktok, email_marketing
-  utmMedium    String?  @map("utm_medium")    // cpc, cpm, social, email, organic
-  utmCampaign  String?  @map("utm_campaign")  // campaign name
-  utmContent   String?  @map("utm_content")   // ad creative variation
-  utmTerm      String?  @map("utm_term")      // search keyword
-
-  // Platform-specific click IDs
-  gclid        String?  // Google Click ID
-  fbclid       String?  // Facebook Click ID
-  ttclid       String?  // TikTok Click ID
-
-  // Landing & Referrer
-  landingPage  String?  @map("landing_page")  // URL where the lead landed
-  referrerUrl  String?  @map("referrer_url")  // HTTP referrer
-
-  // Ad hierarchy
-  adPlatform   String?  @map("ad_platform")    // google_ads, meta_ads, tiktok_ads
-  adCampaignId String?  @map("ad_campaign_id") // external campaign ID
-  adSetId      String?  @map("ad_set_id")      // ad group/set ID
-  adId         String?  @map("ad_id")          // individual ad ID
-
-  // Atribuição
-  assignedToId String? @map("assigned_to_id")
-  assignedTo   User?   @relation("AssignedLeads", fields: [assignedToId], references: [id], onDelete: SetNull)
-
-  // Valor estimado
-  estimatedValue Decimal? @db.Decimal(10, 2) @map("estimated_value")
-
-  // Conversão para Deal
-  convertedToDealId String? @unique @map("converted_to_deal_id")
-  convertedAt       DateTime? @map("converted_at")
+  // Origem / Rastreamento (Agente Trafego)
+  origem      String? // google_ads, meta_ads, instagram, site_organico, indicacao, whatsapp, direto, outro
+  utmSource   String? @map("utm_source")
+  utmMedium   String? @map("utm_medium")
+  utmCampaign String? @map("utm_campaign")
 
   // Metadata
   tags         String[] @default([])
   customFields Json     @default("{}") @map("custom_fields")
 
-  // Relacionamentos
-  activities Activity[]
+  // Relationships
+  vehicles   Vehicle[]
+  leads      Lead[]
+  cotacoes   Cotacao[]
+  sinistros  Sinistro[]
+  vistorias  Vistoria[]
+  boletos    Boleto[]
+  npsSurveys NpsSurvey[]
+  conversations Conversation[]
+
+  // MGM — como indicador
+  indicacoesFeitas   Indicacao[] @relation("Indicador")
+  indicacaoResultado Indicacao[] @relation("AssociadoResultante")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("associados")
+  @@unique([companyId, cpf])
+  @@index([companyId])
+  @@index([hinovaId])
+  @@index([vendedorId])
+  @@index([status])
+  @@index([origem])
+  @@index([nome])
+}
+
+// ============================================================================
+// VEHICLES (Protecao Veicular)
+// ============================================================================
+
+model Vehicle {
+  id        String @id @default(uuid())
+  companyId String @map("company_id")
+  company   Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  associadoId String    @map("associado_id")
+  associado   Associado @relation(fields: [associadoId], references: [id], onDelete: Cascade)
+
+  // Dados do veiculo
+  placa         String
+  renavam       String?
+  chassi        String?
+  marca         String
+  modelo        String
+  anoFabricacao Int     @map("ano_fabricacao")
+  anoModelo     Int     @map("ano_modelo")
+  cor           String?
+  combustivel   String? // gasolina, etanol, flex, diesel, eletrico, hibrido
+  tipo          String  @default("carro") // carro, moto, caminhonete, van, caminhao
+
+  // FIPE (Agente Pre-Venda)
+  codigoFipe String? @map("codigo_fipe")
+  valorFipe  Float?  @map("valor_fipe")
+
+  // Plano de protecao
+  plano       String // basico, completo, premium
+  valorMensal Float? @map("valor_mensal")
+
+  // Rastreador
+  temRastreador   Boolean @default(false) @map("tem_rastreador")
+  rastreadorMarca String? @map("rastreador_marca")
+
+  // Vistoria (status inline para consulta rapida)
+  vistoriaStatus String    @default("pendente") @map("vistoria_status") // pendente, agendada, aprovada, reprovada
+  vistoriaData   DateTime? @map("vistoria_data")
+
+  // Status
+  ativo Boolean @default(true)
+
+  // Relationships
+  sinistros Sinistro[]
+  vistorias Vistoria[]
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("vehicles")
+  @@unique([companyId, placa])
+  @@index([associadoId])
+  @@index([codigoFipe])
+}
+
+// ============================================================================
+// LEADS & COTACOES (Agente Pre-Venda)
+// ============================================================================
+
+model Lead {
+  id        String @id @default(uuid())
+  companyId String @map("company_id")
+  company   Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  // Dados do lead — LGPD: dados pessoais
+  nome      String
+  telefone  String?  // LGPD: dado pessoal
+  email     String?  // LGPD: dado pessoal
+  whatsapp  String?
+
+  // Veiculo de interesse (pre-venda)
+  placaInteresse  String? @map("placa_interesse")
+  marcaInteresse  String? @map("marca_interesse")
+  modeloInteresse String? @map("modelo_interesse")
+  anoInteresse    Int?    @map("ano_interesse")
+
+  // Cotacao FIPE (Agente Pre-Venda calcula)
+  valorFipeConsultado Float?  @map("valor_fipe_consultado")
+  cotacaoValor        Float?  @map("cotacao_valor")
+  cotacaoPlano        String? @map("cotacao_plano") // basico, completo, premium
+  cotacaoEnviada      Boolean @default(false) @map("cotacao_enviada")
+  cotacaoData         DateTime? @map("cotacao_data")
+
+  // Qualificacao
+  qualificadoPor    String? @map("qualificado_por") // agente_ia, vendedor, manual
+  scoreQualificacao Int     @default(0) @map("score_qualificacao")
+
+  // Vendedor atribuido
+  vendedorId String? @map("vendedor_id")
+  vendedor   User?   @relation("VendedorLeads", fields: [vendedorId], references: [id], onDelete: SetNull)
+
+  // Conversa com agente IA
+  agenteIaConversaId String? @map("agente_ia_conversa_id")
+
+  // Funil de vendas
+  etapaFunil String @default("novo") @map("etapa_funil")
+  // novo, qualificado, cotacao_enviada, negociacao, fechado, perdido
+  motivoPerda String? @map("motivo_perda")
+
+  // Origem / Rastreamento (Agente Trafego)
+  origem      String? // google_ads, meta_ads, instagram, site_organico, indicacao, whatsapp, direto
+  utmSource   String? @map("utm_source")
+  utmMedium   String? @map("utm_medium")
+  utmCampaign String? @map("utm_campaign")
+  utmContent  String? @map("utm_content")
+  utmTerm     String? @map("utm_term")
+
+  // Associado resultante (quando lead vira associado)
+  associadoId String?    @map("associado_id")
+  associado   Associado? @relation(fields: [associadoId], references: [id], onDelete: SetNull)
+
+  // Cotacoes formais
+  cotacoes Cotacao[]
+
+  // Indicacao que gerou este lead (back-reference)
+  indicacaoOrigem Indicacao?
+
+  // Conversations
+  conversations Conversation[]
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
   @@map("leads")
   @@index([companyId])
-  @@index([contactId])
+  @@index([email])
+  @@index([telefone])
+  @@index([vendedorId])
+  @@index([etapaFunil])
+  @@index([origem])
+}
+
+model Cotacao {
+  id        String @id @default(uuid())
+  companyId String @map("company_id")
+  company   Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  leadId      String? @map("lead_id")
+  lead        Lead?   @relation(fields: [leadId], references: [id], onDelete: SetNull)
+
+  associadoId String?    @map("associado_id")
+  associado   Associado? @relation(fields: [associadoId], references: [id], onDelete: SetNull)
+
+  // Dados do veiculo cotado
+  veiculoDados Json @default("{}") @map("veiculo_dados")
+  // { placa, marca, modelo, ano, cor, combustivel, tipo }
+
+  // Calculo (Agente Pre-Venda)
+  valorFipe   Float   @map("valor_fipe")
+  plano       String  // basico, completo, premium
+  taxaPlano   Float   @map("taxa_plano")   // ex: 0.018, 0.028, 0.038
+  taxaAdmin   Float   @map("taxa_admin")   // ex: 35.00
+  valorMensal Float   @map("valor_mensal") // resultado final
+
+  // Validade e status
+  validade DateTime
+  status   String @default("pendente") // pendente, enviada, aceita, recusada, expirada
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("cotacoes")
+  @@index([companyId])
+  @@index([leadId])
+  @@index([associadoId])
   @@index([status])
-  @@index([assignedToId])
-  @@index([source])
-  @@index([utmSource])
-  @@index([utmCampaign])
-  @@index([adPlatform])
 }
 
 // ============================================================================
-// CAMPAIGN COST TRACKING
+// SINISTROS & OFICINAS (Agente Sinistros + Agente Operacao)
 // ============================================================================
 
-model CampaignCost {
-  id           String   @id @default(uuid())
+model Sinistro {
+  id        String @id @default(uuid())
+  companyId String @map("company_id")
+  company   Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
 
-  companyId    String   @map("company_id")
-  company      Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  associadoId String    @map("associado_id")
+  associado   Associado @relation(fields: [associadoId], references: [id], onDelete: Cascade)
 
-  // Campaign identification
-  platform     String   // google_ads, meta_ads, tiktok_ads, email_marketing, manual
-  campaignId   String?  @map("campaign_id")    // external platform campaign ID
-  campaignName String   @map("campaign_name")
-  adSetName    String?  @map("ad_set_name")
-  adName       String?  @map("ad_name")
+  veiculoId String  @map("veiculo_id")
+  veiculo   Vehicle @relation(fields: [veiculoId], references: [id], onDelete: Cascade)
 
-  // Cost data
-  spend        Decimal  @db.Decimal(10, 2)
-  currency     String   @default("BRL")
+  // Ocorrencia
+  tipo            String // roubo, furto, colisao, incendio, terceiros
+  descricao       String? @db.Text
+  dataOcorrencia  DateTime @map("data_ocorrencia")
+  localOcorrencia String?  @map("local_ocorrencia")
+  boletimOcorrencia String? @map("boletim_ocorrencia")
 
-  // Period
-  date         DateTime @db.Date
+  // Status (fluxo do Agente Sinistros)
+  // aberto > analise > aprovado/negado > oficina > aguardando_peca > reparo > pronto > entregue > encerrado
+  status String @default("aberto")
 
-  // Performance metrics from platform (optional)
-  impressions  Int?
-  clicks       Int?
+  // Oficina
+  oficinaId String?  @map("oficina_id")
+  oficina   Oficina? @relation(fields: [oficinaId], references: [id], onDelete: SetNull)
 
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
+  // Guincho
+  guinchoSolicitado Boolean @default(false) @map("guincho_solicitado")
+  guinchoRealizado  Boolean @default(false) @map("guincho_realizado")
 
-  @@map("campaign_costs")
-  @@index([companyId])
-  @@index([companyId, platform])
-  @@index([companyId, campaignName])
-  @@index([date])
-  @@unique([companyId, platform, campaignName, date])
-}
-
-// ============================================================================
-// TRACKING EVENTS (Multi-touch Attribution)
-// ============================================================================
-
-model TrackingEvent {
-  id          String   @id @default(uuid())
-
-  companyId   String   @map("company_id")
-  company     Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
-
-  // Which entity
-  leadId      String?  @map("lead_id")
-  contactId   String?  @map("contact_id")
-  dealId      String?  @map("deal_id")
-
-  // Event type
-  eventType   String   // first_touch, page_view, form_submit, deal_created, deal_won, deal_lost
-
-  // Attribution data at time of event
-  source      String?
-  medium      String?
-  campaign    String?
-  utmContent  String?  @map("utm_content")
-  utmTerm     String?  @map("utm_term")
-  adPlatform  String?  @map("ad_platform")
-  landingPage String?  @map("landing_page")
-  referrerUrl String?  @map("referrer_url")
-
-  // Value (for revenue events)
-  value       Decimal? @db.Decimal(10, 2)
-
-  // Metadata
-  metadata    Json?    @default("{}")
-
-  createdAt DateTime @default(now()) @map("created_at")
-
-  @@map("tracking_events")
-  @@index([companyId])
-  @@index([companyId, leadId])
-  @@index([companyId, contactId])
-  @@index([companyId, dealId])
-  @@index([eventType])
-  @@index([createdAt])
-  @@index([source])
-  @@index([campaign])
-}
-
-// ============================================================================
-// SALES PIPELINE
-// ============================================================================
-
-model Pipeline {
-  id          String   @id @default(uuid())
-
-  companyId   String   @map("company_id")
-  company     Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
-
-  name        String
-  description String?
-  isDefault   Boolean  @default(false) @map("is_default")
-  isActive    Boolean  @default(true) @map("is_active")
-
-  // Ordem de exibição
-  order       Int      @default(0)
-
-  // Relacionamentos
-  stages Stage[]
-  deals  Deal[]
-
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
-
-  @@map("pipelines")
-  @@index([companyId])
-}
-
-model Stage {
-  id          String   @id @default(uuid())
-
-  pipelineId  String   @map("pipeline_id")
-  pipeline    Pipeline @relation(fields: [pipelineId], references: [id], onDelete: Cascade)
-
-  name        String
-  description String?
-  color       String   @default("#6B7280")
-
-  // Ordem dentro do pipeline
-  order       Int
-
-  // Probabilidade de fechamento (0-100)
-  probability Int      @default(0)
-
-  // Flags
-  isWon       Boolean  @default(false) @map("is_won")
-  isLost      Boolean  @default(false) @map("is_lost")
-
-  // Relacionamentos
-  deals         Deal[]
-  dealHistories DealHistory[]
-
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
-
-  @@map("stages")
-  @@index([pipelineId])
-}
-
-model Deal {
-  id          String   @id @default(uuid())
-
-  companyId   String   @map("company_id")
-  company     Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
-
-  pipelineId  String   @map("pipeline_id")
-  pipeline    Pipeline @relation(fields: [pipelineId], references: [id])
-
-  stageId     String   @map("stage_id")
-  stage       Stage    @relation(fields: [stageId], references: [id])
-
-  contactId   String   @map("contact_id")
-  contact     Contact  @relation(fields: [contactId], references: [id])
-
-  // Identificação
-  title       String
-  description String?
-
-  // Valores
-  value       Decimal  @db.Decimal(10, 2)
-  currency    String   @default("BRL")
-
-  // Probabilidade atual (baseada no stage + manual)
-  probability Int      @default(0)
+  // Custo
+  custoEstimado Float? @map("custo_estimado")
+  custoReal     Float? @map("custo_real")
 
   // Datas
-  expectedCloseDate DateTime? @map("expected_close_date")
-  actualCloseDate   DateTime? @map("actual_close_date")
+  dataAbertura     DateTime  @default(now()) @map("data_abertura")
+  dataEncerramento DateTime? @map("data_encerramento")
 
-  // Status
-  status      String   @default("open") // open, won, lost
-  lostReason  String?  @map("lost_reason")
+  // Responsavel (operacao/gestor)
+  responsavelId String? @map("responsavel_id")
+  responsavel   User?   @relation("ResponsavelSinistro", fields: [responsavelId], references: [id], onDelete: SetNull)
 
-  // Atribuição
-  assignedToId String? @map("assigned_to_id")
-  assignedTo   User?   @relation("AssignedDeals", fields: [assignedToId], references: [id], onDelete: SetNull)
-
-  // Metadata
-  tags         String[] @default([])
-  customFields Json     @default("{}") @map("custom_fields")
-
-  // Relacionamentos
-  histories  DealHistory[]
-  activities Activity[]
+  // Fotos (antes/durante/depois — obrigatorias por regra do Agente Sinistros)
+  fotos Json @default("[]") // [{ url, etapa, descricao, dataUpload }]
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
-  @@map("deals")
+  @@map("sinistros")
   @@index([companyId])
-  @@index([pipelineId])
-  @@index([stageId])
-  @@index([contactId])
-  @@index([assignedToId])
+  @@index([associadoId])
+  @@index([veiculoId])
+  @@index([status])
+  @@index([dataAbertura])
+  @@index([oficinaId])
+}
+
+model Oficina {
+  id        String @id @default(uuid())
+  companyId String @map("company_id")
+  company   Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  nome         String
+  endereco     String?
+  cidade       String?
+  uf           String?
+  telefone     String?
+  responsavel  String?
+  especialidade String? // funilaria, pintura, mecanica_geral, eletrica, vidros
+  ativa        Boolean @default(true)
+  avaliacaoMedia Float? @map("avaliacao_media") // 0-5
+
+  // Relationships
+  sinistros Sinistro[]
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("oficinas")
+  @@index([companyId])
+  @@index([ativa])
+}
+
+// ============================================================================
+// VISTORIAS (Agente Operacao)
+// ============================================================================
+
+model Vistoria {
+  id        String @id @default(uuid())
+  companyId String @map("company_id")
+  company   Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  associadoId String    @map("associado_id")
+  associado   Associado @relation(fields: [associadoId], references: [id], onDelete: Cascade)
+
+  veiculoId String  @map("veiculo_id")
+  veiculo   Vehicle @relation(fields: [veiculoId], references: [id], onDelete: Cascade)
+
+  // Tipo e status
+  tipo   String @default("adesao") // adesao, periodica, sinistro
+  status String @default("pendente") // pendente, agendada, em_analise, aprovada, reprovada
+
+  // Datas
+  dataAgendada  DateTime? @map("data_agendada")
+  dataRealizada DateTime? @map("data_realizada")
+
+  // Vistoriador
+  vistoriadorId String? @map("vistoriador_id")
+  vistoriador   User?   @relation("VistoriadorVistorias", fields: [vistoriadorId], references: [id], onDelete: SetNull)
+
+  // Evidencias
+  fotos       Json    @default("[]") // [{ url, angulo, descricao }]
+  observacoes String? @db.Text
+  motivoReprovacao String? @map("motivo_reprovacao")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("vistorias")
+  @@index([companyId])
+  @@index([associadoId])
+  @@index([veiculoId])
   @@index([status])
 }
 
-model DealHistory {
-  id          String   @id @default(uuid())
-
-  dealId      String   @map("deal_id")
-  deal        Deal     @relation(fields: [dealId], references: [id], onDelete: Cascade)
-
-  // Snapshot do estado anterior
-  fromStageId String?  @map("from_stage_id")
-  fromStage   Stage?   @relation(fields: [fromStageId], references: [id], onDelete: SetNull)
-
-  toStageId   String   @map("to_stage_id")
-
-  // Mudanças
-  action      String   // created, moved, updated, won, lost
-  changes     Json?    // snapshot das mudanças
-
-  // Quem fez
-  userId      String?  @map("user_id")
-
-  // Duração no stage anterior (em dias)
-  daysInPreviousStage Int? @map("days_in_previous_stage")
-
-  createdAt DateTime @default(now()) @map("created_at")
-
-  @@map("deal_histories")
-  @@index([dealId])
-}
-
 // ============================================================================
-// COMMUNICATION & CHAT
+// BOLETOS (Agente Financeiro)
 // ============================================================================
 
-model Channel {
-  id          String   @id @default(uuid())
+model Boleto {
+  id        String @id @default(uuid())
+  companyId String @map("company_id")
+  company   Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
 
-  companyId   String   @map("company_id")
-  company     Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  associadoId String    @map("associado_id")
+  associado   Associado @relation(fields: [associadoId], references: [id], onDelete: Cascade)
 
-  type        String   // whatsapp, instagram, webchat
-  name        String
+  valor          Float
+  dataVencimento DateTime  @map("data_vencimento")
+  dataPagamento  DateTime? @map("data_pagamento")
+  status         String    @default("pendente") // pendente, pago, atrasado, cancelado
 
-  // Configurações específicas do canal (JSON)
-  config      Json     @default("{}")
-
-  isActive    Boolean  @default(true) @map("is_active")
-
-  // Relacionamentos
-  conversations Conversation[]
+  // Integracao Hinova SGC
+  hinovaBoletoId String? @map("hinova_boleto_id")
+  linkPagamento  String? @map("link_pagamento")
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
-  @@map("channels")
+  @@map("boletos")
   @@index([companyId])
-  @@index([type])
+  @@index([associadoId])
+  @@index([status])
+  @@index([dataVencimento])
 }
 
+// ============================================================================
+// NPS (Agente Retencao + Pos-Venda)
+// ============================================================================
+
+model NpsSurvey {
+  id        String @id @default(uuid())
+  companyId String @map("company_id")
+  company   Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  associadoId String    @map("associado_id")
+  associado   Associado @relation(fields: [associadoId], references: [id], onDelete: Cascade)
+
+  score   Int     // 0-10
+  comment String?
+  channel String  // whatsapp, email, app, manual
+  tipo    String  @default("periodico") // onboarding, periodico, pos_sinistro, pos_atendimento
+
+  respondidoEm DateTime? @map("respondido_em")
+
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("nps_surveys")
+  @@index([companyId])
+  @@index([associadoId])
+  @@index([score])
+}
+
+// ============================================================================
+// INDICACOES MGM (Agente Crescimento)
+// ============================================================================
+
+model Indicacao {
+  id        String @id @default(uuid())
+  companyId String @map("company_id")
+  company   Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  // Quem indicou
+  indicadorId String    @map("indicador_id")
+  indicador   Associado @relation("Indicador", fields: [indicadorId], references: [id], onDelete: Cascade)
+
+  // Pessoa indicada
+  indicadoNome     String @map("indicado_nome")
+  indicadoTelefone String? @map("indicado_telefone") // LGPD: dado pessoal
+  indicadoEmail    String? @map("indicado_email")    // LGPD: dado pessoal
+
+  // Progresso
+  leadId String? @unique @map("lead_id")
+  lead   Lead?   @relation(fields: [leadId], references: [id], onDelete: SetNull)
+
+  associadoResultanteId String?    @map("associado_resultante_id")
+  associadoResultante   Associado? @relation("AssociadoResultante", fields: [associadoResultanteId], references: [id], onDelete: SetNull)
+
+  // Status
+  status String @default("pendente")
+  // pendente, lead_criado, em_negociacao, convertido, expirado
+
+  descontoAplicado Float?    @map("desconto_aplicado") // % aplicado ao indicador
+  dataIndicacao    DateTime  @default(now()) @map("data_indicacao")
+  dataConversao    DateTime? @map("data_conversao")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("indicacoes")
+  @@index([companyId])
+  @@index([indicadorId])
+  @@index([status])
+}
+
+// ============================================================================
+// PROJETOS (Gestao interna)
+// ============================================================================
+
+model Projeto {
+  id        String @id @default(uuid())
+  companyId String @map("company_id")
+  company   Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  titulo      String
+  descricao   String?  @db.Text
+  status      String   @default("backlog") // backlog, todo, doing, review, done
+  prioridade  String   @default("media")   // alta, media, baixa
+  tags        String[] @default([])
+  responsavel String?
+  dataEntrega DateTime? @map("data_entrega")
+  progresso   Int       @default(0) // 0-100
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("projetos")
+  @@index([companyId])
+  @@index([status])
+}
+
+// ============================================================================
+// CONVERSATIONS & MESSAGES (Inbox / Chat)
+// ============================================================================
+
 model Conversation {
-  id          String   @id @default(uuid())
+  id        String @id @default(uuid())
+  companyId String @map("company_id")
+  company   Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
 
-  companyId   String   @map("company_id")
-  company     Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  // Pode ser de associado ou lead
+  associadoId String?    @map("associado_id")
+  associado   Associado? @relation(fields: [associadoId], references: [id], onDelete: SetNull)
 
-  channelId   String   @map("channel_id")
-  channel     Channel  @relation(fields: [channelId], references: [id])
+  leadId String? @map("lead_id")
+  lead   Lead?   @relation(fields: [leadId], references: [id], onDelete: SetNull)
 
-  contactId   String   @map("contact_id")
-  contact     Contact  @relation(fields: [contactId], references: [id])
+  channel String @default("whatsapp") // whatsapp, chat, email
+  status  String @default("open")     // open, assigned, resolved, closed
 
-  // Atribuição
+  // Atribuicao
   assignedToId String? @map("assigned_to_id")
   assignedTo   User?   @relation("AssignedConversations", fields: [assignedToId], references: [id], onDelete: SetNull)
 
-  // Status
-  status       String  @default("open") // open, assigned, resolved, closed
+  // Agente IA ativo nesta conversa
+  agenteIaId String? @map("agente_ia_id")
 
-  // Flags
-  isUnread     Boolean @default(true) @map("is_unread")
-  isBotActive  Boolean @default(true) @map("is_bot_active") // se IA está respondendo
-
-  // Última interação
   lastMessageAt DateTime? @map("last_message_at")
 
-  // Relacionamentos
-  messages   Message[]
-  activities Activity[]
+  // Relationships
+  messages Message[]
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
   @@map("conversations")
   @@index([companyId])
-  @@index([channelId])
-  @@index([contactId])
+  @@index([associadoId])
+  @@index([leadId])
   @@index([assignedToId])
   @@index([status])
 }
 
 model Message {
-  id             String   @id @default(uuid())
+  id        String @id @default(uuid())
+  companyId String @map("company_id")
+  company   Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
 
-  conversationId String   @map("conversation_id")
+  conversationId String       @map("conversation_id")
   conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
 
-  // Direção
-  direction      String   // inbound, outbound
+  content String @db.Text
 
-  // Remetente (null se for do contact)
-  senderId       String?  @map("sender_id")
-  sender         User?    @relation("SentMessages", fields: [senderId], references: [id], onDelete: SetNull)
+  // Quem enviou
+  sender String // associado, agente, vendedor, sistema
 
-  // Conteúdo
-  content        String   @db.Text
-  contentType    String   @default("text") @map("content_type") // text, image, video, audio, file
-
-  // Anexos
-  attachments    Json?    @default("[]")
-
-  // Metadata
-  externalId     String?  @unique @map("external_id") // ID da mensagem no canal externo
-  metadata       Json?    @default("{}")
-
-  // Flags
-  isFromBot      Boolean  @default(false) @map("is_from_bot")
-  isRead         Boolean  @default(false) @map("is_read")
-
-  // Status de entrega
-  deliveryStatus String?  @map("delivery_status") // sent, delivered, read, failed
-
-  readAt         DateTime? @map("read_at")
-  deliveredAt    DateTime? @map("delivered_at")
+  // Se enviado por user
+  senderId String? @map("sender_id")
+  senderUser User?  @relation("SentMessages", fields: [senderId], references: [id], onDelete: SetNull)
 
   createdAt DateTime @default(now()) @map("created_at")
 
   @@map("messages")
   @@index([conversationId])
-  @@index([senderId])
   @@index([createdAt])
 }
 
 // ============================================================================
-// AI & AUTOMATION
+// AI AGENTS & KNOWLEDGE BASE (10 agentes da squad)
 // ============================================================================
 
 model AIAgent {
-  id          String   @id @default(uuid())
+  id        String @id @default(uuid())
+  companyId String @map("company_id")
+  company   Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
 
-  companyId   String   @map("company_id")
-  company     Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  nome        String
+  agentId     String  @map("agent_id") // slug: 21go-chief, agente-pre-venda, etc
+  descricao   String?
+  icon        String?
+  tier        Int     @default(1) // 0=orchestrator, 1=specialist
+  squad       String  @default("21go-squad")
+  type        String  @default("internal") // internal, customer_facing
+  provider    String  @default("anthropic") // openai, anthropic, google
+  model       String  @default("claude-sonnet-4-6")
+  temperature Float   @default(0.5)
+  maxTokens   Int     @default(2000) @map("max_tokens")
+  systemPrompt String @db.Text @map("system_prompt")
 
-  name        String
-  description String?
-
-  // Configuração
-  provider    String   // openai, anthropic, google
-  model       String   // gpt-4, claude-3, gemini-pro
-  temperature Float    @default(0.7)
-  maxTokens   Int      @default(500) @map("max_tokens")
-
-  // Prompt do sistema
-  systemPrompt String  @db.Text @map("system_prompt")
-
-  // Contexto (acesso a dados do CRM)
-  allowedScopes String[] @default([]) @map("allowed_scopes") // contacts, leads, deals
-
-  // Ações permitidas
-  canCreateLeads   Boolean @default(false) @map("can_create_leads")
-  canUpdateLeads   Boolean @default(false) @map("can_update_leads")
-  canCreateDeals   Boolean @default(false) @map("can_create_deals")
-  canTransferToHuman Boolean @default(true) @map("can_transfer_to_human")
-
-  // Tipo do agente
-  type        String   @default("internal") // internal, customer_facing
+  // Permissoes (RBAC dos agentes)
+  allowedRoles  Json @default("[]") @map("allowed_roles")  // ["vendedor","gestor","admin"]
+  allowedScopes Json @default("[]") @map("allowed_scopes") // ["associados","leads","analytics"]
+  permissions   Json @default("{}") // { canCreateLeads, canUpdateLeads, canTransferToHuman, ... }
 
   // Knowledge Base vinculada
-  knowledgeBaseId String?  @map("knowledge_base_id")
+  knowledgeBaseId String?        @map("knowledge_base_id")
   knowledgeBase   KnowledgeBase? @relation(fields: [knowledgeBaseId], references: [id], onDelete: SetNull)
 
-  // Flags
-  isActive    Boolean  @default(true) @map("is_active")
-
-  // Relacionamentos
-  activities Activity[]
-  queryLogs  AIQueryLog[]
+  isActive Boolean @default(true) @map("is_active")
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
   @@map("ai_agents")
   @@index([companyId])
-  @@index([knowledgeBaseId])
+  @@index([agentId])
 }
 
-// ============================================================================
-// AI KNOWLEDGE BASE & RAG
-// ============================================================================
-
 model KnowledgeBase {
-  id          String   @id @default(uuid())
+  id        String @id @default(uuid())
+  companyId String @map("company_id")
+  company   Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
 
-  companyId   String   @map("company_id")
-  company     Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  nome      String
+  descricao String?
 
-  name        String
-  description String?
-
-  // ChromaDB collection name (auto-generated: kb_{companyId}_{id})
-  collectionName String @unique @map("collection_name")
-
-  // Stats
-  documentCount  Int    @default(0) @map("document_count")
-  chunkCount     Int    @default(0) @map("chunk_count")
-  totalSizeBytes BigInt @default(0) @map("total_size_bytes")
-
-  isActive    Boolean  @default(true) @map("is_active")
-
-  // Relacionamentos
-  documents   KnowledgeDocument[]
-  agents      AIAgent[]
+  // Relationships
+  documentos KnowledgeDocument[]
+  agents     AIAgent[]
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
@@ -900,269 +752,64 @@ model KnowledgeBase {
 }
 
 model KnowledgeDocument {
-  id              String   @id @default(uuid())
-
-  knowledgeBaseId String   @map("knowledge_base_id")
+  id              String        @id @default(uuid())
+  knowledgeBaseId String        @map("knowledge_base_id")
   knowledgeBase   KnowledgeBase @relation(fields: [knowledgeBaseId], references: [id], onDelete: Cascade)
 
-  // Metadata do documento
-  name            String
-  sourceType      String   // pdf, docx, txt, url, text, crm_contacts, crm_deals, crm_conversations
-
-  sourceUrl       String?  @map("source_url")
-  sourceContent   String?  @db.Text @map("source_content")
-
-  // Info do arquivo (para uploads)
-  fileName        String?  @map("file_name")
-  fileSize        Int?     @map("file_size")
-  mimeType        String?  @map("mime_type")
-  filePath        String?  @map("file_path")
-
-  // Status de processamento
-  status          String   @default("pending") // pending, processing, completed, failed
-  errorMessage    String?  @map("error_message")
-
-  // Stats de chunks
-  chunkCount      Int      @default(0) @map("chunk_count")
-
-  // Metadata de processamento
-  processedAt     DateTime? @map("processed_at")
-  processingMeta  Json?    @default("{}") @map("processing_meta")
+  nome       String
+  sourceType String @map("source_type") // pdf, txt, url, text, crm_data
+  fileName   String? @map("file_name")
+  fileSize   Int?    @map("file_size")
+  status     String  @default("pending") // pending, processing, completed, failed
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
   @@map("knowledge_documents")
   @@index([knowledgeBaseId])
-  @@index([status])
 }
 
-model AIQueryLog {
-  id          String   @id @default(uuid())
+// ============================================================================
+// AUTOMACOES
+// ============================================================================
 
-  companyId   String   @map("company_id")
+model Automacao {
+  id        String @id @default(uuid())
+  companyId String @map("company_id")
+  company   Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
 
-  agentId     String?  @map("agent_id")
-  agent       AIAgent? @relation(fields: [agentId], references: [id], onDelete: SetNull)
-
-  // Detalhes da query
-  query       String   @db.Text
-  response    String   @db.Text
-  context     Json?
-
-  // Metadata
-  provider    String
-  model       String
-  tokensUsed  Int?     @map("tokens_used")
-  latencyMs   Int?     @map("latency_ms")
-
-  // Origem
-  source      String   @default("internal") // internal, external_chat, api
-
-  // Feedback
-  rating      Int?
-  feedback    String?
-
-  createdAt DateTime @default(now()) @map("created_at")
-
-  @@map("ai_query_logs")
-  @@index([companyId])
-  @@index([agentId])
-  @@index([createdAt])
-}
-
-model Webhook {
-  id          String   @id @default(uuid())
-
-  companyId   String   @map("company_id")
-  company     Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
-
-  name        String
-  description String?
-
-  // Tipo
-  type        String   // incoming, outgoing
-
-  // Configuração
-  url         String?  // para outgoing
-  method      String?  @default("POST") // GET, POST, PUT
-  headers     Json?    @default("{}")
-
-  // Evento que dispara (para outgoing)
-  event       String?  // lead.created, deal.won, etc
-
-  // Secret para validar (incoming)
-  secret      String?
-
-  // Flags
-  isActive    Boolean  @default(true) @map("is_active")
-
-  // Estatísticas
-  totalCalls  Int      @default(0) @map("total_calls")
-  lastCalledAt DateTime? @map("last_called_at")
-
-  // Criador
-  createdById String   @map("created_by_id")
-  createdBy   User     @relation(fields: [createdById], references: [id])
-
-  // Relacionamentos
-  logs WebhookLog[]
+  nome       String
+  trigger    String  // evento que dispara
+  conditions Json    @default("[]") // condicoes para executar
+  actions    Json    @default("[]") // acoes a executar
+  ativa      Boolean @default(true)
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
-  @@map("webhooks")
-  @@index([companyId])
-  @@index([event])
-}
-
-model WebhookLog {
-  id          String   @id @default(uuid())
-
-  webhookId   String   @map("webhook_id")
-  webhook     Webhook  @relation(fields: [webhookId], references: [id], onDelete: Cascade)
-
-  // Request
-  requestPayload  Json   @map("request_payload")
-  requestHeaders  Json?  @map("request_headers")
-
-  // Response
-  responseStatus  Int?   @map("response_status")
-  responseBody    Json?  @map("response_body")
-
-  // Timing
-  duration        Int?   // em ms
-
-  // Status
-  status          String // success, failed, retrying
-  errorMessage    String? @map("error_message")
-
-  // Retry
-  retryCount      Int    @default(0) @map("retry_count")
-
-  createdAt DateTime @default(now()) @map("created_at")
-
-  @@map("webhook_logs")
-  @@index([webhookId])
-  @@index([status])
-}
-
-model Automation {
-  id          String   @id @default(uuid())
-
-  companyId   String   @map("company_id")
-  company     Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
-
-  name        String
-  description String?
-
-  // Trigger (quando executar)
-  trigger     Json     // { type: 'event', event: 'lead.created' }
-
-  // Conditions (condições para executar)
-  conditions  Json?    // [ { field: 'status', operator: 'equals', value: 'new' } ]
-
-  // Actions (o que fazer)
-  actions     Json     // [ { type: 'create_deal', params: {...} } ]
-
-  // Flags
-  isActive    Boolean  @default(true) @map("is_active")
-
-  // Estatísticas
-  executionCount Int   @default(0) @map("execution_count")
-  lastExecutedAt DateTime? @map("last_executed_at")
-
-  // Criador
-  createdById String   @map("created_by_id")
-  createdBy   User     @relation(fields: [createdById], references: [id])
-
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
-
-  @@map("automations")
+  @@map("automacoes")
   @@index([companyId])
 }
 
 // ============================================================================
-// ACTIVITY & AUDIT
+// AUDIT LOG (Cyber Chief — LGPD compliance)
 // ============================================================================
-
-model Activity {
-  id          String   @id @default(uuid())
-
-  companyId   String   @map("company_id")
-
-  // Tipo
-  type        String   // call, email, meeting, note, task
-
-  // Relacionamentos (opcional, pode ser uma atividade geral)
-  userId      String?  @map("user_id")
-  user        User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
-
-  contactId   String?  @map("contact_id")
-  contact     Contact? @relation(fields: [contactId], references: [id], onDelete: Cascade)
-
-  leadId      String?  @map("lead_id")
-  lead        Lead?    @relation(fields: [leadId], references: [id], onDelete: Cascade)
-
-  dealId      String?  @map("deal_id")
-  deal        Deal?    @relation(fields: [dealId], references: [id], onDelete: Cascade)
-
-  conversationId String? @map("conversation_id")
-  conversation   Conversation? @relation(fields: [conversationId], references: [id], onDelete: Cascade)
-
-  aiAgentId   String?  @map("ai_agent_id")
-  aiAgent     AIAgent? @relation(fields: [aiAgentId], references: [id], onDelete: SetNull)
-
-  // Conteúdo
-  subject     String?
-  description String?  @db.Text
-
-  // Duração (para calls e meetings, em minutos)
-  duration    Int?
-
-  // Data da atividade (pode ser no futuro para tasks)
-  activityDate DateTime @map("activity_date")
-
-  // Status (para tasks)
-  status      String?  @default("pending") // pending, completed, cancelled
-  completedAt DateTime? @map("completed_at")
-
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
-
-  @@map("activities")
-  @@index([companyId])
-  @@index([userId])
-  @@index([contactId])
-  @@index([leadId])
-  @@index([dealId])
-  @@index([type])
-  @@index([activityDate])
-}
 
 model AuditLog {
-  id          String   @id @default(uuid())
+  id        String @id @default(uuid())
+  companyId String @map("company_id")
+  company   Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
 
-  companyId   String   @map("company_id")
-  company     Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  userId    String? @map("user_id")
+  user      User?   @relation(fields: [userId], references: [id], onDelete: SetNull)
 
-  userId      String?  @map("user_id")
-  user        User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
-
-  // Ação
-  action      String   // create, update, delete, login, logout
-  resource    String   // user, lead, deal, etc
-  resourceId  String?  @map("resource_id")
-
-  // Detalhes
+  action    String  // create, update, delete, login, logout, export, access_sensitive_data
+  resource  String  // associado, lead, sinistro, boleto, etc
+  resourceId String? @map("resource_id")
   description String?
-  changes     Json?    // antes e depois
-  metadata    Json?    // IP, user agent, etc
-
-  // Request info
-  ipAddress   String?  @map("ip_address")
-  userAgent   String?  @map("user_agent")
+  changes   Json?   // { before: {}, after: {} }
+  ipAddress String? @map("ip_address")
+  userAgent String? @map("user_agent")
 
   createdAt DateTime @default(now()) @map("created_at")
 
@@ -1174,28 +821,21 @@ model AuditLog {
 }
 
 // ============================================================================
-// PIPEFY-LIKE CORE (Pipes, Phases, Cards, Fields)
+// PIPEFY-LIKE (Pipes, Phases, Cards — processos genericos)
 // ============================================================================
 
 model Pipe {
-  id          String   @id @default(uuid())
-
-  companyId   String   @map("company_id")
-  company     Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  id        String @id @default(uuid())
+  companyId String @map("company_id")
+  company   Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
 
   name        String
   description String?
-  icon        String?  // emoji ou lucide icon name
-  color       String   @default("#3B82F6")
-
-  // Status
-  status      String   @default("active") // active, archived
-  isPublic    Boolean  @default(false) @map("is_public") // formulario publico
-
-  // Tags
+  icon        String?
+  color       String @default("#1B4DA1")
+  status      String @default("active") // active, archived
   tags        String[] @default([])
 
-  // Relationships
   phases           Phase[]
   fieldDefinitions FieldDefinition[]
   cards            Card[]
@@ -1205,267 +845,103 @@ model Pipe {
 
   @@map("pipes")
   @@index([companyId])
-  @@index([status])
 }
 
 model Phase {
-  id          String   @id @default(uuid())
+  id        String @id @default(uuid())
+  companyId String @map("company_id")
 
-  companyId   String   @map("company_id")
-
-  pipeId      String   @map("pipe_id")
-  pipe        Pipe     @relation(fields: [pipeId], references: [id], onDelete: Cascade)
+  pipeId String @map("pipe_id")
+  pipe   Pipe   @relation(fields: [pipeId], references: [id], onDelete: Cascade)
 
   name        String
-  description String?
-  color       String   @default("#6B7280")
-
-  // Ordem dentro do pipe
+  color       String @default("#6B7280")
   position    Int
+  probability Int    @default(0) // 0-100
+  isWon       Boolean @default(false) @map("is_won")
+  isLost      Boolean @default(false) @map("is_lost")
 
-  // Probabilidade de fechamento (0-100)
-  probability Int      @default(0)
-
-  // Flags
-  isWon       Boolean  @default(false) @map("is_won")
-  isLost      Boolean  @default(false) @map("is_lost")
-
-  // Relationships
-  cards       Card[]
+  cards Card[]
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
   @@map("phases")
-  @@index([companyId, pipeId])
   @@index([pipeId, position])
 }
 
 model FieldDefinition {
-  id          String   @id @default(uuid())
+  id        String @id @default(uuid())
+  companyId String @map("company_id")
 
-  companyId   String   @map("company_id")
+  pipeId String @map("pipe_id")
+  pipe   Pipe   @relation(fields: [pipeId], references: [id], onDelete: Cascade)
 
-  pipeId      String   @map("pipe_id")
-  pipe        Pipe     @relation(fields: [pipeId], references: [id], onDelete: Cascade)
+  name       String
+  label      String
+  type       String // text, number, date, select, checkbox, currency, email, phone, url
+  required   Boolean @default(false)
+  position   Int     @default(0)
+  configJson Json    @default("{}") @map("config_json")
 
-  name        String   // slug: valor_estimado
-  label       String   // display: Valor Estimado
-  description String?
-
-  // Tipo do campo
-  type        String   // text, number, date, select, checkbox, currency, email, phone, url
-
-  // Configuracao
-  required    Boolean  @default(false)
-  position    Int      @default(0)
-  configJson  Json     @default("{}") @map("config_json") // { options: [...], default: ..., min: ..., max: ... }
-
-  // Relationships
-  values      CardFieldValue[]
+  values CardFieldValue[]
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
   @@map("field_definitions")
-  @@index([companyId, pipeId])
   @@unique([pipeId, name])
 }
 
 model Card {
-  id          String   @id @default(uuid())
+  id        String @id @default(uuid())
+  companyId String @map("company_id")
 
-  companyId   String   @map("company_id")
-
-  pipeId      String   @map("pipe_id")
-  pipe        Pipe     @relation(fields: [pipeId], references: [id], onDelete: Cascade)
+  pipeId         String @map("pipe_id")
+  pipe           Pipe   @relation(fields: [pipeId], references: [id], onDelete: Cascade)
 
   currentPhaseId String @map("current_phase_id")
   currentPhase   Phase  @relation(fields: [currentPhaseId], references: [id])
 
   title       String
   description String?
+  status      String @default("active") // active, done, archived
 
-  // Status
-  status      String   @default("active") // active, done, archived
+  createdById  String @map("created_by_id")
+  createdBy    User   @relation("CreatedCards", fields: [createdById], references: [id])
 
-  // Atribuicao
-  createdById  String   @map("created_by_id")
-  createdBy    User     @relation("CreatedCards", fields: [createdById], references: [id])
+  assignedToId String? @map("assigned_to_id")
+  assignedTo   User?   @relation("AssignedCards", fields: [assignedToId], references: [id], onDelete: SetNull)
 
-  assignedToId String?  @map("assigned_to_id")
-  assignedTo   User?    @relation("AssignedCards", fields: [assignedToId], references: [id], onDelete: SetNull)
+  dueDate     DateTime? @map("due_date")
+  completedAt DateTime? @map("completed_at")
 
-  // Datas de conclusao
-  dueDate      DateTime? @map("due_date")
-  completedAt  DateTime? @map("completed_at")
-
-  // Relationships
-  fieldValues   CardFieldValue[]
-  activityLogs  CardActivityLog[]
-  attachments   CardAttachment[]
+  fieldValues CardFieldValue[]
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
   @@map("cards")
   @@index([companyId, pipeId])
-  @@index([companyId, currentPhaseId])
-  @@index([createdById])
-  @@index([assignedToId])
+  @@index([currentPhaseId])
   @@index([status])
 }
 
 model CardFieldValue {
-  id          String   @id @default(uuid())
+  id        String @id @default(uuid())
+  companyId String @map("company_id")
 
-  companyId   String   @map("company_id")
+  cardId            String          @map("card_id")
+  card              Card            @relation(fields: [cardId], references: [id], onDelete: Cascade)
 
-  cardId      String   @map("card_id")
-  card        Card     @relation(fields: [cardId], references: [id], onDelete: Cascade)
-
-  fieldDefinitionId String @map("field_definition_id")
+  fieldDefinitionId String          @map("field_definition_id")
   fieldDefinition   FieldDefinition @relation(fields: [fieldDefinitionId], references: [id], onDelete: Cascade)
 
-  // Valor armazenado como JSON (suporta qualquer tipo)
-  valueJson   Json     @default("null") @map("value_json")
+  valueJson Json @default("null") @map("value_json")
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
   @@map("card_field_values")
   @@unique([cardId, fieldDefinitionId])
-  @@index([companyId, cardId])
-}
-
-model CardActivityLog {
-  id          String   @id @default(uuid())
-
-  companyId   String   @map("company_id")
-
-  cardId      String   @map("card_id")
-  card        Card     @relation(fields: [cardId], references: [id], onDelete: Cascade)
-
-  // Tipo de atividade
-  type        String   // created, phase_changed, field_updated, comment, attachment_added, assigned
-
-  // Payload (detalhes da mudanca)
-  payloadJson Json     @default("{}") @map("payload_json")
-
-  // Quem fez
-  createdById String?  @map("created_by_id")
-
-  createdAt DateTime @default(now()) @map("created_at")
-
-  @@map("card_activity_logs")
-  @@index([companyId, cardId])
-  @@index([createdAt])
-}
-
-model CardAttachment {
-  id          String   @id @default(uuid())
-
-  companyId   String   @map("company_id")
-
-  cardId      String   @map("card_id")
-  card        Card     @relation(fields: [cardId], references: [id], onDelete: Cascade)
-
-  fileName    String   @map("file_name")
-  mimeType    String?  @map("mime_type")
-  size        Int      @default(0) // bytes
-  storageUrl  String   @map("storage_url")
-
-  // Link para IA (se foi enviado para ingestao)
-  aiKnowledgeDocumentId String? @map("ai_knowledge_document_id")
-
-  createdById String?  @map("created_by_id")
-
-  createdAt DateTime @default(now()) @map("created_at")
-
-  @@map("card_attachments")
-  @@index([companyId, cardId])
-}
-
-// ============================================================================
-// VEHICLES (Protecao Veicular)
-// ============================================================================
-
-model Vehicle {
-  id          String   @id @default(uuid())
-
-  companyId   String   @map("company_id")
-  company     Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
-
-  associadoId String   @map("associado_id")
-  associado   Contact  @relation(fields: [associadoId], references: [id], onDelete: Cascade)
-
-  // Dados do veiculo
-  placa       String
-  renavam     String?
-  chassi      String?
-  marca       String
-  modelo      String
-  anoFabricacao Int    @map("ano_fabricacao")
-  anoModelo     Int    @map("ano_modelo")
-  cor           String?
-  combustivel   String?  // gasolina, etanol, flex, diesel, eletrico, hibrido
-  tipo          String   // carro, moto, caminhonete, van, caminhao
-
-  // FIPE
-  codigoFipe            String?  @map("codigo_fipe")
-  valorFipe             Float?   @map("valor_fipe")
-  valorFipeAtualizadoEm DateTime? @map("valor_fipe_atualizado_em")
-
-  // Plano
-  plano        String   // basico, completo, premium
-  valorMensal  Float?   @map("valor_mensal")
-
-  // Rastreador
-  temRastreador   Boolean @default(false) @map("tem_rastreador")
-  rastreadorMarca String? @map("rastreador_marca")
-
-  // Vistoria
-  vistoriaStatus String  @default("pendente") @map("vistoria_status") // pendente, agendada, aprovada, reprovada
-  vistoriaData   DateTime? @map("vistoria_data")
-
-  // Status
-  ativo         Boolean  @default(true)
-  dataInclusao  DateTime @default(now()) @map("data_inclusao")
-  dataExclusao  DateTime? @map("data_exclusao")
-
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
-
-  @@map("vehicles")
-  @@index([companyId])
-  @@index([associadoId])
-  @@index([placa])
-  @@unique([companyId, placa])
-}
-
-// ============================================================================
-// NPS SURVEYS (Satisfacao do Associado)
-// ============================================================================
-
-model NPSSurvey {
-  id        String   @id @default(uuid())
-  companyId String   @map("company_id")
-  company   Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
-
-  associadoId String  @map("associado_id")
-  associado   Contact @relation(fields: [associadoId], references: [id], onDelete: Cascade)
-
-  score    Int // 0-10
-  category String // promoter, passive, detractor
-  comment  String?
-  channel  String // whatsapp, email, sms, in_app, manual
-
-  sentAt     DateTime  @default(now()) @map("sent_at")
-  answeredAt DateTime? @map("answered_at")
-
-  createdAt DateTime @default(now()) @map("created_at")
-
-  @@map("nps_surveys")
-  @@index([companyId])
-  @@index([companyId, associadoId])
 }
