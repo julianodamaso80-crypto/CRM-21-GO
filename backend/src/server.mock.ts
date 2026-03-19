@@ -2498,6 +2498,247 @@ fastify.delete('/api/nps/:id', async (request, reply) => {
   return reply.send({ success: true })
 })
 
+// ============================================================================
+// MOCK PROJECTS (KANBAN) API
+// ============================================================================
+
+const mockProjects: any[] = [
+  {
+    id: 'proj-1',
+    title: 'Squad 21Go criada (8 agentes)',
+    description: 'Configuracao completa da squad de agentes IA: Chief, Pre-Venda, Pos-Venda, Gestores, Retencao, Crescimento, Trafego, Operacao. Todos com prompts especializados e permissoes configuradas.',
+    status: 'done',
+    priority: 'alta',
+    tags: ['IA'],
+    assignee: 'FlowAI',
+    dueDate: '2026-03-10',
+    progress: 100,
+    companyId: 'default-company',
+    createdAt: '2026-03-05T10:00:00Z',
+    updatedAt: '2026-03-10T15:00:00Z',
+  },
+  {
+    id: 'proj-2',
+    title: 'Instalar agentes no CRM',
+    description: 'Integrar os 8 agentes 21Go Squad no backend do CRM com endpoints de query, analytics e gerenciamento. Incluir knowledge base e documentos de treinamento.',
+    status: 'done',
+    priority: 'alta',
+    tags: ['IA', 'backend'],
+    assignee: 'FlowAI',
+    dueDate: '2026-03-15',
+    progress: 100,
+    companyId: 'default-company',
+    createdAt: '2026-03-10T10:00:00Z',
+    updatedAt: '2026-03-15T18:00:00Z',
+  },
+  {
+    id: 'proj-3',
+    title: 'Remover modulos de saude',
+    description: 'Limpar todos os modulos relacionados a clinicas medicas (Doctor, Convenio, Appointment, MedicalRecord). Substituir por contexto de protecao veicular.',
+    status: 'doing',
+    priority: 'alta',
+    tags: ['cleanup'],
+    assignee: 'FlowAI',
+    dueDate: '2026-03-20',
+    progress: 65,
+    companyId: 'default-company',
+    createdAt: '2026-03-12T08:00:00Z',
+    updatedAt: '2026-03-19T10:00:00Z',
+  },
+  {
+    id: 'proj-4',
+    title: 'Adaptar Contacts para Associados',
+    description: 'Renomear e adaptar o modulo Contacts para Associados com campos especificos: CPF, status de adesao, plano, veiculo vinculado, NPS, MGM.',
+    status: 'todo',
+    priority: 'alta',
+    tags: ['backend'],
+    assignee: 'FlowAI',
+    dueDate: '2026-03-25',
+    progress: 0,
+    companyId: 'default-company',
+    createdAt: '2026-03-15T10:00:00Z',
+    updatedAt: '2026-03-15T10:00:00Z',
+  },
+  {
+    id: 'proj-5',
+    title: 'Criar modulo Veiculos',
+    description: 'CRUD completo de veiculos: placa, marca, modelo, ano, FIPE, plano de protecao, status de vistoria, rastreador. Vincular com associado.',
+    status: 'todo',
+    priority: 'alta',
+    tags: ['backend'],
+    assignee: 'FlowAI',
+    dueDate: '2026-03-28',
+    progress: 0,
+    companyId: 'default-company',
+    createdAt: '2026-03-15T10:00:00Z',
+    updatedAt: '2026-03-15T10:00:00Z',
+  },
+  {
+    id: 'proj-6',
+    title: 'Motor de cotacao FIPE',
+    description: 'Integrar tabela FIPE para cotacao automatica. Calcular valor de protecao baseado em marca, modelo, ano e regiao. API publica + landing page.',
+    status: 'backlog',
+    priority: 'alta',
+    tags: ['backend', 'FIPE'],
+    assignee: null,
+    dueDate: '2026-04-10',
+    progress: 0,
+    companyId: 'default-company',
+    createdAt: '2026-03-18T10:00:00Z',
+    updatedAt: '2026-03-18T10:00:00Z',
+  },
+  {
+    id: 'proj-7',
+    title: 'Landing page com cotacao',
+    description: 'Criar landing page otimizada para SEO com formulario de cotacao integrado. Lead capture automatico com UTM tracking.',
+    status: 'backlog',
+    priority: 'alta',
+    tags: ['frontend', 'SEO'],
+    assignee: null,
+    dueDate: '2026-04-15',
+    progress: 0,
+    companyId: 'default-company',
+    createdAt: '2026-03-18T10:00:00Z',
+    updatedAt: '2026-03-18T10:00:00Z',
+  },
+  {
+    id: 'proj-8',
+    title: 'Integracao WhatsApp API',
+    description: 'Integrar WhatsApp Business API para envio e recebimento de mensagens. Chatbot com agentes IA. Notificacoes automaticas.',
+    status: 'backlog',
+    priority: 'alta',
+    tags: ['integracao'],
+    assignee: null,
+    dueDate: '2026-04-20',
+    progress: 0,
+    companyId: 'default-company',
+    createdAt: '2026-03-18T10:00:00Z',
+    updatedAt: '2026-03-18T10:00:00Z',
+  },
+  {
+    id: 'proj-9',
+    title: 'Design system sofisticado',
+    description: 'Implementar design system dark luxuoso com dourado 21Go. Tipografia Outfit + DM Sans. Glassmorphism, micro-interacoes, animacoes suaves.',
+    status: 'doing',
+    priority: 'alta',
+    tags: ['design'],
+    assignee: 'FlowAI',
+    dueDate: '2026-03-19',
+    progress: 80,
+    companyId: 'default-company',
+    createdAt: '2026-03-19T08:00:00Z',
+    updatedAt: '2026-03-19T14:00:00Z',
+  },
+  {
+    id: 'proj-10',
+    title: 'App mobile operacao',
+    description: 'App mobile para equipe de campo: vistoria com fotos, checklist de inspecao, assinatura digital, sincronizacao offline.',
+    status: 'backlog',
+    priority: 'media',
+    tags: ['mobile'],
+    assignee: null,
+    dueDate: '2026-05-01',
+    progress: 0,
+    companyId: 'default-company',
+    createdAt: '2026-03-18T10:00:00Z',
+    updatedAt: '2026-03-18T10:00:00Z',
+  },
+]
+
+// GET /api/projects
+fastify.get('/api/projects', async (request, reply) => {
+  console.log('[MOCK] GET /api/projects')
+  const { status, priority, assignee, tag, search } = request.query as any
+
+  let filtered = [...mockProjects]
+
+  if (status) {
+    filtered = filtered.filter((p) => p.status === status)
+  }
+  if (priority) {
+    filtered = filtered.filter((p) => p.priority === priority)
+  }
+  if (assignee) {
+    filtered = filtered.filter((p) => p.assignee === assignee)
+  }
+  if (tag) {
+    filtered = filtered.filter((p) => p.tags.includes(tag))
+  }
+  if (search) {
+    const s = search.toLowerCase()
+    filtered = filtered.filter((p: any) =>
+      p.title.toLowerCase().includes(s) ||
+      p.description.toLowerCase().includes(s)
+    )
+  }
+
+  return reply.send({
+    data: filtered,
+    stats: {
+      backlog: mockProjects.filter((p) => p.status === 'backlog').length,
+      todo: mockProjects.filter((p) => p.status === 'todo').length,
+      doing: mockProjects.filter((p) => p.status === 'doing').length,
+      review: mockProjects.filter((p) => p.status === 'review').length,
+      done: mockProjects.filter((p) => p.status === 'done').length,
+      total: mockProjects.length,
+    },
+  })
+})
+
+// GET /api/projects/:id
+fastify.get('/api/projects/:id', async (request, reply) => {
+  const { id } = request.params as { id: string }
+  const project = mockProjects.find((p) => p.id === id)
+  if (!project) return reply.status(404).send({ message: 'Projeto nao encontrado' })
+  return reply.send(project)
+})
+
+// POST /api/projects
+fastify.post('/api/projects', async (request, reply) => {
+  const data = request.body as any
+  console.log('[MOCK] POST /api/projects', data)
+  const project = {
+    id: `proj-${Date.now()}`,
+    title: data.title,
+    description: data.description || '',
+    status: data.status || 'backlog',
+    priority: data.priority || 'media',
+    tags: data.tags || [],
+    assignee: data.assignee || null,
+    dueDate: data.dueDate || null,
+    progress: data.progress || 0,
+    companyId: 'default-company',
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  }
+  mockProjects.push(project)
+  return reply.status(201).send(project)
+})
+
+// PUT /api/projects/:id
+fastify.put('/api/projects/:id', async (request, reply) => {
+  const { id } = request.params as { id: string }
+  const data = request.body as any
+  console.log('[MOCK] PUT /api/projects/' + id, data)
+  const index = mockProjects.findIndex((p) => p.id === id)
+  if (index === -1) return reply.status(404).send({ message: 'Projeto nao encontrado' })
+
+  mockProjects[index] = {
+    ...mockProjects[index],
+    ...data,
+    updatedAt: new Date().toISOString(),
+  }
+  return reply.send(mockProjects[index])
+})
+
+// DELETE /api/projects/:id
+fastify.delete('/api/projects/:id', async (request, reply) => {
+  const { id } = request.params as { id: string }
+  const index = mockProjects.findIndex((p) => p.id === id)
+  if (index !== -1) mockProjects.splice(index, 1)
+  return reply.send({ success: true })
+})
+
 // Start server
 const start = async () => {
   try {
