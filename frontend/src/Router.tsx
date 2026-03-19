@@ -18,6 +18,9 @@ import { AnalyticsPage } from './pages/analytics/AnalyticsPage'
 import { NPSPage } from './pages/nps/NPSPage'
 import { VehiclesPage } from './pages/vehicles/VehiclesPage'
 import { ProjectsPage } from './pages/projects/ProjectsPage'
+import { SinistrosPage } from './pages/sinistros/SinistrosPage'
+import { CotacoesPage } from './pages/cotacoes/CotacoesPage'
+import { IndicacoesPage } from './pages/indicacoes/IndicacoesPage'
 
 // Layouts
 import { AppLayout } from './components/layouts/AppLayout'
@@ -71,10 +74,10 @@ export function Router() {
           {/* Veiculos */}
           <Route path="/vehicles" element={<VehiclesPage />} />
 
-          {/* Em desenvolvimento */}
-          <Route path="/cotacoes" element={<ComingSoon title="Motor de Cotacao FIPE" />} />
-          <Route path="/sinistros" element={<ComingSoon title="Gestao de Sinistros" />} />
-          <Route path="/indicacoes" element={<ComingSoon title="Programa de Indicacoes (MGM)" />} />
+          {/* Novos modulos */}
+          <Route path="/cotacoes" element={<CotacoesPage />} />
+          <Route path="/sinistros" element={<SinistrosPage />} />
+          <Route path="/indicacoes" element={<IndicacoesPage />} />
           <Route path="/hinova" element={<ComingSoon title="Integracao Hinova SGA" />} />
 
           {/* Mantidos */}

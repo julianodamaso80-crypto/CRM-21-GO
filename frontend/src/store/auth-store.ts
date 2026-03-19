@@ -9,7 +9,10 @@ interface User {
   avatar?: string
   companyId: string
   roleId: string
+  role?: { id: string; name: string; displayName: string; level: number }
 }
+
+export type UserRole = 'admin' | 'gestor' | 'vendedor' | 'operacao'
 
 interface AuthState {
   user: User | null

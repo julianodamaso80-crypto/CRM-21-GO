@@ -317,59 +317,34 @@ const mockContacts: any[] = [
 // MOCK VEHICLES (Veiculos)
 // ============================================================================
 
+const mkVeh = (id: string, assocId: string, assocName: string, assocCpf: string, placa: string, marca: string, modelo: string, anoF: number, anoM: number, cor: string, tipo: string, plano: string, valorFipe: number, valorMensal: number, vistoria: string, rastreador = false, rastreadorMarca: string | null = null) => ({
+  id, companyId: 'default-company', associadoId: assocId,
+  associado: { id: assocId, fullName: assocName, cpf: assocCpf },
+  placa, renavam: null, chassi: null, marca, modelo, anoFabricacao: anoF, anoModelo: anoM, cor,
+  combustivel: 'flex', tipo,
+  codigoFipe: `${Math.floor(Math.random()*999999)}`, valorFipe, valorFipeAtualizadoEm: new Date().toISOString(),
+  plano, valorMensal, temRastreador: rastreador, rastreadorMarca,
+  vistoriaStatus: vistoria, vistoriaData: vistoria !== 'pendente' ? new Date(Date.now() - 30*24*60*60*1000).toISOString() : null,
+  ativo: true, dataInclusao: new Date(Date.now() - 90*24*60*60*1000).toISOString(), dataExclusao: null,
+  createdAt: new Date(Date.now() - 90*24*60*60*1000).toISOString(), updatedAt: new Date().toISOString(),
+})
+
 const mockVehicles: any[] = [
-  {
-    id: 'veh-1', companyId: 'default-company', associadoId: '1',
-    associado: { id: '1', fullName: 'Joao Silva', cpf: '123.456.789-00' },
-    placa: 'ABC1D23', renavam: '12345678901', chassi: '9BWZZZ377VT004251',
-    marca: 'Honda', modelo: 'Civic', anoFabricacao: 2020, anoModelo: 2021, cor: 'Prata',
-    combustivel: 'flex', tipo: 'carro',
-    codigoFipe: '001004-9', valorFipe: 8500000, valorFipeAtualizadoEm: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString(),
-    plano: 'premium', valorMensal: 18900,
-    temRastreador: true, rastreadorMarca: 'Sascar',
-    vistoriaStatus: 'aprovada', vistoriaData: new Date(Date.now() - 60 * 24 * 60 * 60 * 1000).toISOString(),
-    ativo: true, dataInclusao: new Date(Date.now() - 180 * 24 * 60 * 60 * 1000).toISOString(), dataExclusao: null,
-    createdAt: new Date(Date.now() - 180 * 24 * 60 * 60 * 1000).toISOString(), updatedAt: new Date().toISOString(),
-  },
-  {
-    id: 'veh-2', companyId: 'default-company', associadoId: '1',
-    associado: { id: '1', fullName: 'Joao Silva', cpf: '123.456.789-00' },
-    placa: 'XYZ5E67', renavam: '98765432109', chassi: null,
-    marca: 'Toyota', modelo: 'Corolla', anoFabricacao: 2018, anoModelo: 2019, cor: 'Preto',
-    combustivel: 'flex', tipo: 'carro',
-    codigoFipe: '005380-5', valorFipe: 7200000, valorFipeAtualizadoEm: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString(),
-    plano: 'completo', valorMensal: 14500,
-    temRastreador: false, rastreadorMarca: null,
-    vistoriaStatus: 'aprovada', vistoriaData: new Date(Date.now() - 90 * 24 * 60 * 60 * 1000).toISOString(),
-    ativo: true, dataInclusao: new Date(Date.now() - 120 * 24 * 60 * 60 * 1000).toISOString(), dataExclusao: null,
-    createdAt: new Date(Date.now() - 120 * 24 * 60 * 60 * 1000).toISOString(), updatedAt: new Date().toISOString(),
-  },
-  {
-    id: 'veh-3', companyId: 'default-company', associadoId: '2',
-    associado: { id: '2', fullName: 'Maria Santos', cpf: '987.654.321-00' },
-    placa: 'RIO2A34', renavam: '11122233344', chassi: null,
-    marca: 'Volkswagen', modelo: 'Polo', anoFabricacao: 2022, anoModelo: 2023, cor: 'Branco',
-    combustivel: 'flex', tipo: 'carro',
-    codigoFipe: null, valorFipe: null, valorFipeAtualizadoEm: null,
-    plano: 'completo', valorMensal: 15200,
-    temRastreador: true, rastreadorMarca: 'Omnilink',
-    vistoriaStatus: 'aprovada', vistoriaData: new Date(Date.now() - 45 * 24 * 60 * 60 * 1000).toISOString(),
-    ativo: true, dataInclusao: new Date(Date.now() - 90 * 24 * 60 * 60 * 1000).toISOString(), dataExclusao: null,
-    createdAt: new Date(Date.now() - 90 * 24 * 60 * 60 * 1000).toISOString(), updatedAt: new Date().toISOString(),
-  },
-  {
-    id: 'veh-4', companyId: 'default-company', associadoId: '3',
-    associado: { id: '3', fullName: 'Pedro Oliveira', cpf: '456.789.123-00' },
-    placa: 'NIT3B45', renavam: null, chassi: null,
-    marca: 'Fiat', modelo: 'Strada', anoFabricacao: 2019, anoModelo: 2020, cor: 'Vermelho',
-    combustivel: 'flex', tipo: 'caminhonete',
-    codigoFipe: null, valorFipe: null, valorFipeAtualizadoEm: null,
-    plano: 'basico', valorMensal: 8900,
-    temRastreador: false, rastreadorMarca: null,
-    vistoriaStatus: 'pendente', vistoriaData: null,
-    ativo: true, dataInclusao: new Date(Date.now() - 365 * 24 * 60 * 60 * 1000).toISOString(), dataExclusao: null,
-    createdAt: new Date(Date.now() - 365 * 24 * 60 * 60 * 1000).toISOString(), updatedAt: new Date().toISOString(),
-  },
+  mkVeh('veh-1','1','Joao Silva','123.456.789-00','RIO2A34','Hyundai','HB20 1.0',2022,2023,'Branco','carro','completo',72000,189,'aprovada'),
+  mkVeh('veh-2','1','Joao Silva','123.456.789-00','RJK5B67','Honda','Biz 125',2021,2021,'Vermelho','moto','basico',15000,62,'aprovada'),
+  mkVeh('veh-3','2','Maria Santos','987.654.321-00','NIT3C89','Chevrolet','Onix 1.0 Turbo',2023,2024,'Prata','carro','completo',85000,215,'aprovada'),
+  mkVeh('veh-4','3','Pedro Oliveira','456.789.123-00','BAR4D01','Honda','Civic Touring',2023,2024,'Preto','carro','premium',155000,425,'aprovada',true,'Tracker'),
+  mkVeh('veh-5','3','Pedro Oliveira','456.789.123-00','BAR3M89','BMW','320i Sport',2021,2022,'Azul','carro','premium',220000,610,'aprovada',true,'Tracker'),
+  mkVeh('veh-6','4','Ana Costa','321.654.987-00','TIJ5E23','Toyota','Corolla XEi 2.0',2021,2022,'Cinza','carro','completo',120000,310,'aprovada'),
+  mkVeh('veh-7','5','Roberto Almeida','654.321.987-00','DQC6F45','Fiat','Argo Drive 1.0',2022,2022,'Vermelho','carro','basico',62000,145,'aprovada'),
+  mkVeh('veh-8','5','Roberto Almeida','654.321.987-00','DQC7G67','Volkswagen','Saveiro Robust',2020,2021,'Branco','caminhonete','completo',78000,197,'aprovada'),
+  mkVeh('veh-9','5','Roberto Almeida','654.321.987-00','LAR8H89','Toyota','SW4 SRX',2022,2023,'Preto','caminhonete','premium',320000,890,'aprovada',true,'Sascar'),
+  mkVeh('veh-10','2','Maria Santos','987.654.321-00','IPA9I01','Renault','Kwid Zen',2023,2024,'Branco','carro','basico',58000,139,'aprovada'),
+  mkVeh('veh-11','1','Joao Silva','123.456.789-00','COP0J23','Jeep','Renegade Sport',2022,2023,'Verde','carro','premium',110000,385,'aprovada'),
+  mkVeh('veh-12','4','Ana Costa','321.654.987-00','TIJ1K45','Honda','HR-V EXL',2023,2023,'Branco','carro','premium',145000,390,'agendada'),
+  mkVeh('veh-13','3','Pedro Oliveira','456.789.123-00','NIT2L67','Fiat','Pulse Drive',2024,2025,'Cinza','carro','completo',95000,245,'pendente'),
+  mkVeh('veh-14','5','Roberto Almeida','654.321.987-00','LAR3M89','Toyota','HiLux SRV',2021,2022,'Prata','caminhonete','premium',280000,795,'aprovada',true,'Omnilink'),
+  mkVeh('veh-15','2','Maria Santos','987.654.321-00','IPA4N01','Volkswagen','T-Cross 200 TSI',2024,2025,'Cinza','carro','completo',135000,305,'reprovada'),
 ]
 
 // Health check
@@ -560,6 +535,81 @@ const mockLeads: any[] = [
     createdAt: new Date(Date.now() - 12 * 24 * 60 * 60 * 1000).toISOString(),
     updatedAt: new Date().toISOString(),
   },
+  {
+    id: 'lead-6', companyId: 'default-company', contactId: null,
+    contact: { id: null, firstName: 'Tatiane', lastName: 'Gomes', fullName: 'Tatiane Gomes', email: null, phone: '(21) 99990-6666', whatsapp: '(21) 99990-6666' },
+    title: 'Fiat Pulse 2024 - Tatiane', description: 'Lead Instagram Stories',
+    status: 'new', score: 30, source: 'instagram', medium: 'social', campaign: 'stories-protecao',
+    assignedToId: 'user-1', assignedTo: { id: 'user-1', firstName: 'Admin', lastName: 'Sistema' },
+    estimatedValue: 9500, tags: ['instagram'], customFields: {},
+    placaInteresse: null, marcaInteresse: 'Fiat', modeloInteresse: 'Pulse', anoInteresse: 2024,
+    valorFipeConsultado: null, cotacaoValor: null, cotacaoPlano: null,
+    cotacaoEnviada: false, cotacaoData: null,
+    qualificadoPor: null, vendedorId: 'user-1',
+    etapaFunil: 'novo', motivoPerda: null,
+    utmSource: 'instagram', utmMedium: 'social', utmCampaign: 'stories-protecao', utmContent: null, utmTerm: null,
+    createdAt: new Date(Date.now() - 0.5 * 24 * 60 * 60 * 1000).toISOString(), updatedAt: new Date().toISOString(),
+  },
+  {
+    id: 'lead-7', companyId: 'default-company', contactId: null,
+    contact: { id: null, firstName: 'Ricardo', lastName: 'Ferreira', fullName: 'Ricardo Ferreira', email: 'ricardo@email.com', phone: '(21) 99990-7777', whatsapp: '(21) 99990-7777' },
+    title: 'Volkswagen T-Cross 2023 - Ricardo', description: 'Lead qualificado pelo agente IA',
+    status: 'qualified', score: 70, source: 'google', medium: 'cpc', campaign: 'protecao-suv-rj',
+    assignedToId: 'user-1', assignedTo: { id: 'user-1', firstName: 'Admin', lastName: 'Sistema' },
+    estimatedValue: 13500, tags: ['suv', 'google'], customFields: {},
+    placaInteresse: null, marcaInteresse: 'Volkswagen', modeloInteresse: 'T-Cross', anoInteresse: 2023,
+    valorFipeConsultado: 13500000, cotacaoValor: 13500, cotacaoPlano: 'completo',
+    cotacaoEnviada: false, cotacaoData: null,
+    qualificadoPor: 'agente_ia', vendedorId: 'user-1',
+    etapaFunil: 'qualificado', motivoPerda: null,
+    utmSource: 'google', utmMedium: 'cpc', utmCampaign: 'protecao-suv-rj', utmContent: null, utmTerm: 'protecao veicular suv',
+    createdAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(), updatedAt: new Date().toISOString(),
+  },
+  {
+    id: 'lead-8', companyId: 'default-company', contactId: null,
+    contact: { id: null, firstName: 'Luciana', lastName: 'Martins', fullName: 'Luciana Martins', email: 'luciana@hotmail.com', phone: '(21) 99990-8888', whatsapp: '(21) 99990-8888' },
+    title: 'Hyundai Creta 2024 - Luciana', description: 'Indicacao da associada Maria Santos',
+    status: 'cotacao_enviada', score: 75, source: 'referral', medium: null, campaign: null,
+    assignedToId: 'user-1', assignedTo: { id: 'user-1', firstName: 'Admin', lastName: 'Sistema' },
+    estimatedValue: 11500, tags: ['indicacao'], customFields: {},
+    placaInteresse: null, marcaInteresse: 'Hyundai', modeloInteresse: 'Creta', anoInteresse: 2024,
+    valorFipeConsultado: 11500000, cotacaoValor: 11500, cotacaoPlano: 'completo',
+    cotacaoEnviada: true, cotacaoData: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
+    qualificadoPor: 'vendedor', vendedorId: 'user-1',
+    etapaFunil: 'cotacao_enviada', motivoPerda: null,
+    utmSource: null, utmMedium: null, utmCampaign: null, utmContent: null, utmTerm: null,
+    createdAt: new Date(Date.now() - 4 * 24 * 60 * 60 * 1000).toISOString(), updatedAt: new Date().toISOString(),
+  },
+  {
+    id: 'lead-9', companyId: 'default-company', contactId: null,
+    contact: { id: null, firstName: 'Felipe', lastName: 'Nascimento', fullName: 'Felipe Nascimento', email: null, phone: '(21) 99990-9999', whatsapp: '(21) 99990-9999' },
+    title: 'Honda HR-V 2023 - Felipe', description: 'Veio pelo WhatsApp direto',
+    status: 'new', score: 20, source: 'whatsapp', medium: null, campaign: null,
+    assignedToId: null, assignedTo: null,
+    estimatedValue: null, tags: [], customFields: {},
+    placaInteresse: null, marcaInteresse: 'Honda', modeloInteresse: 'HR-V', anoInteresse: 2023,
+    valorFipeConsultado: null, cotacaoValor: null, cotacaoPlano: null,
+    cotacaoEnviada: false, cotacaoData: null,
+    qualificadoPor: null, vendedorId: null,
+    etapaFunil: 'novo', motivoPerda: null,
+    utmSource: null, utmMedium: null, utmCampaign: null, utmContent: null, utmTerm: null,
+    createdAt: new Date(Date.now() - 0.2 * 24 * 60 * 60 * 1000).toISOString(), updatedAt: new Date().toISOString(),
+  },
+  {
+    id: 'lead-10', companyId: 'default-company', contactId: '5',
+    contact: { id: '5', firstName: 'Roberto', lastName: 'Almeida', fullName: 'Roberto Almeida', email: 'roberto@email.com', phone: '(21) 95678-9012', whatsapp: '(21) 95678-9012' },
+    title: 'Upgrade Premium Toyota SW4 - Roberto', description: 'Associado quer trocar plano do SW4 para premium',
+    status: 'fechado', score: 95, source: 'whatsapp', medium: null, campaign: null,
+    assignedToId: 'user-1', assignedTo: { id: 'user-1', firstName: 'Admin', lastName: 'Sistema' },
+    estimatedValue: 8900, tags: ['upgrade', 'premium'], customFields: {},
+    placaInteresse: 'LAR8H89', marcaInteresse: 'Toyota', modeloInteresse: 'SW4', anoInteresse: 2022,
+    valorFipeConsultado: 32000000, cotacaoValor: 8900, cotacaoPlano: 'premium',
+    cotacaoEnviada: true, cotacaoData: new Date(Date.now() - 15 * 24 * 60 * 60 * 1000).toISOString(),
+    qualificadoPor: 'vendedor', vendedorId: 'user-1',
+    etapaFunil: 'fechado', motivoPerda: null,
+    utmSource: null, utmMedium: null, utmCampaign: null, utmContent: null, utmTerm: null,
+    createdAt: new Date(Date.now() - 20 * 24 * 60 * 60 * 1000).toISOString(), updatedAt: new Date().toISOString(),
+  },
 ]
 
 // GET /api/leads
@@ -669,6 +719,135 @@ fastify.delete('/api/leads/:id', async (request, reply) => {
   if (index === -1) return reply.status(404).send({ message: 'Lead not found' })
   mockLeads.splice(index, 1)
   return reply.send({ success: true, message: 'Lead deleted successfully' })
+})
+
+// ============================================================================
+// MOCK SINISTROS, OFICINAS, COTACAO, INDICACOES
+// ============================================================================
+
+const mockOficinas: any[] = [
+  { id: 'ofi-1', companyId: 'default-company', nome: 'Auto Center Maracana', endereco: 'Rua Sao Francisco Xavier, 400', cidade: 'Rio de Janeiro', uf: 'RJ', telefone: '(21) 2569-1234', responsavel: 'Sergio Almeida', especialidade: 'funilaria', ativa: true, avaliacaoMedia: 4.5, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
+  { id: 'ofi-2', companyId: 'default-company', nome: 'Garagem Niteroi Reparos', endereco: 'Av. Ernani do Amaral Peixoto, 215', cidade: 'Niteroi', uf: 'RJ', telefone: '(21) 2620-5678', responsavel: 'Paulo Ribeiro', especialidade: 'mecanica_geral', ativa: true, avaliacaoMedia: 4.2, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
+  { id: 'ofi-3', companyId: 'default-company', nome: 'Pintura Express Barra', endereco: 'Av. das Americas, 3500', cidade: 'Rio de Janeiro', uf: 'RJ', telefone: '(21) 2438-9012', responsavel: 'Marcos Pereira', especialidade: 'pintura', ativa: true, avaliacaoMedia: 4.8, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
+]
+
+const mockSinistros: any[] = [
+  { id: 'sin-1', companyId: 'default-company', associadoId: '1', associado: { id: '1', fullName: 'Joao Silva' }, veiculoId: 'veh-1', veiculo: { id: 'veh-1', placa: 'RIO2A34', marca: 'Hyundai', modelo: 'HB20 1.0' }, tipo: 'colisao', descricao: 'Colisao traseira no sinal da Av. Atlantica. Danos no para-choque e lanterna.', dataOcorrencia: new Date(Date.now() - 15*24*60*60*1000).toISOString(), localOcorrencia: 'Av. Atlantica, Copacabana', boletimOcorrencia: 'BO-2026-00451', status: 'reparo', oficinaId: 'ofi-1', oficina: { id: 'ofi-1', nome: 'Auto Center Maracana' }, guinchoSolicitado: true, guinchoRealizado: true, custoEstimado: 4500, custoReal: null, dataAbertura: new Date(Date.now() - 15*24*60*60*1000).toISOString(), dataEncerramento: null, responsavelId: 'user-1', fotos: [{ url: '/fotos/sin1-frente.jpg', etapa: 'abertura' }], createdAt: new Date(Date.now() - 15*24*60*60*1000).toISOString(), updatedAt: new Date().toISOString() },
+  { id: 'sin-2', companyId: 'default-company', associadoId: '3', associado: { id: '3', fullName: 'Pedro Oliveira' }, veiculoId: 'veh-4', veiculo: { id: 'veh-4', placa: 'BAR4D01', marca: 'Honda', modelo: 'Civic Touring' }, tipo: 'roubo', descricao: 'Veiculo roubado proximo ao BarraShopping.', dataOcorrencia: new Date(Date.now() - 5*24*60*60*1000).toISOString(), localOcorrencia: 'Av. das Americas, 4666 - Barra', boletimOcorrencia: 'BO-2026-00589', status: 'analise', oficinaId: null, oficina: null, guinchoSolicitado: false, guinchoRealizado: false, custoEstimado: 155000, custoReal: null, dataAbertura: new Date(Date.now() - 5*24*60*60*1000).toISOString(), dataEncerramento: null, responsavelId: 'user-1', fotos: [], createdAt: new Date(Date.now() - 5*24*60*60*1000).toISOString(), updatedAt: new Date().toISOString() },
+  { id: 'sin-3', companyId: 'default-company', associadoId: '5', associado: { id: '5', fullName: 'Roberto Almeida' }, veiculoId: 'veh-7', veiculo: { id: 'veh-7', placa: 'DQC6F45', marca: 'Fiat', modelo: 'Argo Drive 1.0' }, tipo: 'colisao', descricao: 'Batida lateral no estacionamento.', dataOcorrencia: new Date(Date.now() - 45*24*60*60*1000).toISOString(), localOcorrencia: 'Estacionamento Extra Duque de Caxias', boletimOcorrencia: null, status: 'entregue', oficinaId: 'ofi-2', oficina: { id: 'ofi-2', nome: 'Garagem Niteroi Reparos' }, guinchoSolicitado: false, guinchoRealizado: false, custoEstimado: 2800, custoReal: 3100, dataAbertura: new Date(Date.now() - 45*24*60*60*1000).toISOString(), dataEncerramento: new Date(Date.now() - 30*24*60*60*1000).toISOString(), responsavelId: 'user-1', fotos: [{ url: '/fotos/sin3-antes.jpg', etapa: 'abertura' }, { url: '/fotos/sin3-depois.jpg', etapa: 'encerramento' }], createdAt: new Date(Date.now() - 45*24*60*60*1000).toISOString(), updatedAt: new Date().toISOString() },
+  { id: 'sin-4', companyId: 'default-company', associadoId: '2', associado: { id: '2', fullName: 'Maria Santos' }, veiculoId: 'veh-3', veiculo: { id: 'veh-3', placa: 'NIT3C89', marca: 'Chevrolet', modelo: 'Onix 1.0 Turbo' }, tipo: 'incendio', descricao: 'Principio de incendio no motor. Bombeiros acionados.', dataOcorrencia: new Date(Date.now() - 3*24*60*60*1000).toISOString(), localOcorrencia: 'Rua Mariz e Barros, Icarai - Niteroi', boletimOcorrencia: 'BO-2026-00612', status: 'aberto', oficinaId: null, oficina: null, guinchoSolicitado: true, guinchoRealizado: true, custoEstimado: null, custoReal: null, dataAbertura: new Date(Date.now() - 3*24*60*60*1000).toISOString(), dataEncerramento: null, responsavelId: null, fotos: [{ url: '/fotos/sin4-motor.jpg', etapa: 'abertura' }], createdAt: new Date(Date.now() - 3*24*60*60*1000).toISOString(), updatedAt: new Date().toISOString() },
+  { id: 'sin-5', companyId: 'default-company', associadoId: '1', associado: { id: '1', fullName: 'Joao Silva' }, veiculoId: 'veh-11', veiculo: { id: 'veh-11', placa: 'COP0J23', marca: 'Jeep', modelo: 'Renegade Sport' }, tipo: 'terceiros', descricao: 'Bateu no carro de terceiro no sinal. Dano no farol e para-choque do terceiro.', dataOcorrencia: new Date(Date.now() - 8*24*60*60*1000).toISOString(), localOcorrencia: 'Av. Nossa Sra. de Copacabana, 800', boletimOcorrencia: 'BO-2026-00577', status: 'oficina', oficinaId: 'ofi-3', oficina: { id: 'ofi-3', nome: 'Pintura Express Barra' }, guinchoSolicitado: false, guinchoRealizado: false, custoEstimado: 6200, custoReal: null, dataAbertura: new Date(Date.now() - 8*24*60*60*1000).toISOString(), dataEncerramento: null, responsavelId: 'user-1', fotos: [{ url: '/fotos/sin5-dano.jpg', etapa: 'abertura' }], createdAt: new Date(Date.now() - 8*24*60*60*1000).toISOString(), updatedAt: new Date().toISOString() },
+]
+
+// SINISTROS ENDPOINTS
+fastify.get('/api/sinistros', async (request, reply) => {
+  const query = request.query as any
+  let filtered = [...mockSinistros]
+  if (query.status) filtered = filtered.filter((s: any) => s.status === query.status)
+  if (query.associadoId) filtered = filtered.filter((s: any) => s.associadoId === query.associadoId)
+  if (query.search) {
+    const s = query.search.toLowerCase()
+    filtered = filtered.filter((x: any) => x.associado?.fullName?.toLowerCase().includes(s) || x.veiculo?.placa?.toLowerCase().includes(s) || x.tipo?.includes(s))
+  }
+  return reply.send({ data: filtered, pagination: { page: 1, limit: 20, total: filtered.length, totalPages: 1, hasNext: false, hasPrev: false } })
+})
+
+fastify.get('/api/sinistros/stats', async (request, reply) => {
+  const byStatus: Record<string,number> = {}
+  mockSinistros.forEach((s: any) => { byStatus[s.status] = (byStatus[s.status] || 0) + 1 })
+  const custoTotal = mockSinistros.reduce((sum: number, s: any) => sum + (s.custoReal || s.custoEstimado || 0), 0)
+  return reply.send({ total: mockSinistros.length, byStatus, custoTotal, abertos: mockSinistros.filter((s: any) => !['entregue','encerrado'].includes(s.status)).length })
+})
+
+fastify.get('/api/sinistros/:id', async (request, reply) => {
+  const { id } = request.params as { id: string }
+  const s = mockSinistros.find((x: any) => x.id === id)
+  if (!s) return reply.status(404).send({ message: 'Sinistro nao encontrado' })
+  return reply.send(s)
+})
+
+fastify.post('/api/sinistros', async (request, reply) => {
+  const data = request.body as any
+  const associado = mockContacts.find((c: any) => c.id === data.associadoId)
+  const veiculo = mockVehicles.find((v: any) => v.id === data.veiculoId)
+  const sinistro = { id: `sin-${Date.now()}`, companyId: 'default-company', ...data, associado: associado ? { id: associado.id, fullName: associado.fullName } : null, veiculo: veiculo ? { id: veiculo.id, placa: veiculo.placa, marca: veiculo.marca, modelo: veiculo.modelo } : null, status: 'aberto', fotos: [], dataAbertura: new Date().toISOString(), createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() }
+  mockSinistros.push(sinistro)
+  return reply.status(201).send(sinistro)
+})
+
+fastify.put('/api/sinistros/:id', async (request, reply) => {
+  const { id } = request.params as { id: string }
+  const data = request.body as any
+  const index = mockSinistros.findIndex((x: any) => x.id === id)
+  if (index === -1) return reply.status(404).send({ message: 'Sinistro nao encontrado' })
+  mockSinistros[index] = { ...mockSinistros[index], ...data, updatedAt: new Date().toISOString() }
+  return reply.send(mockSinistros[index])
+})
+
+// OFICINAS ENDPOINTS
+fastify.get('/api/oficinas', async (_request, reply) => {
+  return reply.send({ data: mockOficinas, pagination: { page: 1, limit: 20, total: mockOficinas.length, totalPages: 1, hasNext: false, hasPrev: false } })
+})
+
+// COTACAO FIPE ENDPOINT
+fastify.post('/api/cotacao/calcular', async (request, reply) => {
+  const { marca, modelo, ano, plano } = request.body as any
+  console.log('[MOCK] POST /api/cotacao/calcular', { marca, modelo, ano, plano })
+  // Simula tabela FIPE
+  const fipeBase: Record<string, number> = {
+    'HB20': 72000, 'Onix': 85000, 'Civic': 155000, 'Corolla': 120000, 'Pulse': 95000,
+    'T-Cross': 135000, 'Renegade': 110000, 'SW4': 320000, 'HiLux': 280000, '320i': 220000,
+    'Argo': 62000, 'Kwid': 58000, 'HR-V': 145000, 'Polo': 92000, 'Creta': 115000,
+  }
+  const valorFipe = fipeBase[modelo] || 80000 + Math.floor(Math.random() * 60000)
+  const taxas: Record<string, number> = { basico: 0.018, completo: 0.028, premium: 0.038 }
+  const taxaAdmin = 35
+  const planos = Object.entries(taxas).map(([p, taxa]) => ({
+    plano: p, taxa, valorMensal: Math.round(valorFipe * taxa + taxaAdmin), valorFipe,
+  }))
+  const selecionado = planos.find(p => p.plano === (plano || 'completo')) || planos[1]
+  return reply.send({ valorFipe, marca, modelo, ano, planos, selecionado })
+})
+
+// INDICACOES (MGM) ENDPOINTS
+const mockIndicacoes: any[] = [
+  { id: 'ind-1', companyId: 'default-company', indicadorId: '1', indicador: { id: '1', fullName: 'Joao Silva' }, indicadoNome: 'Maria Santos', indicadoTelefone: '(21) 91234-5678', indicadoEmail: 'maria@exemplo.com', leadId: null, associadoResultanteId: '2', status: 'convertido', descontoAplicado: 10, dataIndicacao: new Date(Date.now() - 120*24*60*60*1000).toISOString(), dataConversao: new Date(Date.now() - 90*24*60*60*1000).toISOString(), createdAt: new Date(Date.now() - 120*24*60*60*1000).toISOString(), updatedAt: new Date().toISOString() },
+  { id: 'ind-2', companyId: 'default-company', indicadorId: '1', indicador: { id: '1', fullName: 'Joao Silva' }, indicadoNome: 'Carlos Eduardo', indicadoTelefone: '(21) 97777-8888', indicadoEmail: null, leadId: 'lead-2', associadoResultanteId: null, status: 'em_negociacao', descontoAplicado: null, dataIndicacao: new Date(Date.now() - 10*24*60*60*1000).toISOString(), dataConversao: null, createdAt: new Date(Date.now() - 10*24*60*60*1000).toISOString(), updatedAt: new Date().toISOString() },
+  { id: 'ind-3', companyId: 'default-company', indicadorId: '5', indicador: { id: '5', fullName: 'Roberto Almeida' }, indicadoNome: 'Fernanda Lima', indicadoTelefone: '(21) 96666-5555', indicadoEmail: 'fernanda@email.com', leadId: null, associadoResultanteId: null, status: 'pendente', descontoAplicado: null, dataIndicacao: new Date(Date.now() - 2*24*60*60*1000).toISOString(), dataConversao: null, createdAt: new Date(Date.now() - 2*24*60*60*1000).toISOString(), updatedAt: new Date().toISOString() },
+  { id: 'ind-4', companyId: 'default-company', indicadorId: '5', indicador: { id: '5', fullName: 'Roberto Almeida' }, indicadoNome: 'Thiago Souza', indicadoTelefone: '(21) 95555-4444', indicadoEmail: null, leadId: null, associadoResultanteId: null, status: 'expirado', descontoAplicado: null, dataIndicacao: new Date(Date.now() - 180*24*60*60*1000).toISOString(), dataConversao: null, createdAt: new Date(Date.now() - 180*24*60*60*1000).toISOString(), updatedAt: new Date().toISOString() },
+  { id: 'ind-5', companyId: 'default-company', indicadorId: '2', indicador: { id: '2', fullName: 'Maria Santos' }, indicadoNome: 'Julia Pereira', indicadoTelefone: '(21) 94444-3333', indicadoEmail: 'julia@email.com', leadId: null, associadoResultanteId: null, status: 'lead_criado', descontoAplicado: null, dataIndicacao: new Date(Date.now() - 7*24*60*60*1000).toISOString(), dataConversao: null, createdAt: new Date(Date.now() - 7*24*60*60*1000).toISOString(), updatedAt: new Date().toISOString() },
+]
+
+fastify.get('/api/indicacoes', async (request, reply) => {
+  const query = request.query as any
+  let filtered = [...mockIndicacoes]
+  if (query.indicadorId) filtered = filtered.filter((i: any) => i.indicadorId === query.indicadorId)
+  if (query.status) filtered = filtered.filter((i: any) => i.status === query.status)
+  return reply.send({ data: filtered, pagination: { page: 1, limit: 20, total: filtered.length, totalPages: 1, hasNext: false, hasPrev: false } })
+})
+
+fastify.get('/api/indicacoes/stats', async (_request, reply) => {
+  const total = mockIndicacoes.length
+  const convertidas = mockIndicacoes.filter((i: any) => i.status === 'convertido').length
+  const pendentes = mockIndicacoes.filter((i: any) => i.status === 'pendente').length
+  return reply.send({ total, convertidas, pendentes, taxaConversao: total > 0 ? Math.round(convertidas/total*100) : 0 })
+})
+
+fastify.post('/api/indicacoes', async (request, reply) => {
+  const data = request.body as any
+  const indicador = mockContacts.find((c: any) => c.id === data.indicadorId)
+  const ind = { id: `ind-${Date.now()}`, companyId: 'default-company', ...data, indicador: indicador ? { id: indicador.id, fullName: indicador.fullName } : null, status: 'pendente', dataIndicacao: new Date().toISOString(), createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() }
+  mockIndicacoes.push(ind)
+  return reply.status(201).send(ind)
+})
+
+fastify.put('/api/indicacoes/:id', async (request, reply) => {
+  const { id } = request.params as { id: string }
+  const data = request.body as any
+  const index = mockIndicacoes.findIndex((x: any) => x.id === id)
+  if (index === -1) return reply.status(404).send({ message: 'Indicacao nao encontrada' })
+  mockIndicacoes[index] = { ...mockIndicacoes[index], ...data, updatedAt: new Date().toISOString() }
+  return reply.send(mockIndicacoes[index])
 })
 
 // ============================================================================
