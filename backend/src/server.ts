@@ -29,6 +29,8 @@ import { analyticsRoutes } from './modules/analytics/analytics.routes'
 import { billingRoutes } from './modules/billing/billing.routes'
 import { uploadRoutes } from './modules/upload/upload.routes'
 
+const port = Number(process.env.PORT) || env.PORT || 3333
+
 const fastify = Fastify({
   logger: logger as any,
   trustProxy: true,
@@ -36,13 +38,13 @@ const fastify = Fastify({
 
 async function bootstrap() {
   try {
-    // Plugins de segurança
+    // Plugins de seguranca
     await fastify.register(helmet, {
-      contentSecurityPolicy: false, // Ajustar conforme necessário
+      contentSecurityPolicy: false,
     })
 
     await fastify.register(cors, {
-      origin: env.CORS_ORIGIN,
+      origin: env.CORS_ORIGIN === '*' ? true : env.CORS_ORIGIN,
       credentials: true,
     })
 
@@ -69,18 +71,18 @@ async function bootstrap() {
     // WebSocket
     await fastify.register(websocket)
 
-    // Swagger (documentação API)
+    // Swagger (documentacao API)
     await fastify.register(swagger, {
       openapi: {
         info: {
-          title: 'CRM IA Enterprise API',
-          description: 'API completa do CRM SaaS com IA',
+          title: 'CRM 21Go API',
+          description: 'API do CRM 21Go - Protecao Veicular',
           version: '1.0.0',
         },
         servers: [
           {
             url: env.BACKEND_URL,
-            description: 'Development server',
+            description: env.NODE_ENV === 'production' ? 'Production' : 'Development',
           },
         ],
         components: {
@@ -92,11 +94,7 @@ async function bootstrap() {
             },
           },
         },
-        security: [
-          {
-            bearerAuth: [],
-          },
-        ],
+        security: [{ bearerAuth: [] }],
       },
     })
 
@@ -118,20 +116,14 @@ async function bootstrap() {
       }
     })
 
-    // Rotas - Core
+    // ── API Routes ──────────────────────────────────────
     await fastify.register(authRoutes, { prefix: '/api/auth' })
     await fastify.register(contactsRoutes, { prefix: '/api/contacts' })
     await fastify.register(aiRoutes, { prefix: '/api/ai' })
     await fastify.register(pipesRoutes, { prefix: '/api/pipes' })
-
-    // Rotas - NPS
     await fastify.register(npsRoutes, { prefix: '/api/nps' })
-
-    // Rotas - CRM & Comunicação
     await fastify.register(leadsRoutes, { prefix: '/api/leads' })
     await fastify.register(inboxRoutes, { prefix: '/api/conversations' })
-
-    // Rotas - Plataforma
     await fastify.register(automationsRoutes, { prefix: '/api/automations' })
     await fastify.register(webhooksRoutes, { prefix: '/api/webhooks' })
     await fastify.register(dashboardRoutes, { prefix: '/api/dashboard' })
@@ -139,22 +131,35 @@ async function bootstrap() {
     await fastify.register(billingRoutes, { prefix: '/api/billing' })
     await fastify.register(uploadRoutes, { prefix: '/api/upload' })
 
-    // Serve frontend static files in production
-    const frontendDistPath = path.join(__dirname, '..', '..', 'frontend', 'dist')
-    if (fs.existsSync(frontendDistPath)) {
+    // ── Serve frontend static files in production ───────
+    // Try multiple possible paths for the frontend dist
+    const possiblePaths = [
+      path.join(process.cwd(), '..', 'frontend', 'dist'),    // cd backend && node dist/server.js
+      path.join(process.cwd(), 'frontend', 'dist'),           // node backend/dist/server.js from root
+      path.join(__dirname, '..', '..', 'frontend', 'dist'),   // relative to compiled file
+      path.join(__dirname, '..', 'frontend', 'dist'),         // alternative
+    ]
+
+    const frontendDistPath = possiblePaths.find(p => fs.existsSync(p))
+
+    if (frontendDistPath) {
+      console.log(`[Static] Serving frontend from: ${frontendDistPath}`)
       await fastify.register(fastifyStatic, {
         root: frontendDistPath,
         prefix: '/',
         wildcard: false,
       })
 
-      // SPA fallback: serve index.html for any non-API route
+      // SPA fallback: serve index.html for any non-API, non-health route
       fastify.setNotFoundHandler((request, reply) => {
-        if (request.url.startsWith('/api/')) {
+        if (request.url.startsWith('/api/') || request.url === '/health') {
           return reply.status(404).send({ error: 'Not Found', message: 'Route not found' })
         }
         return reply.sendFile('index.html')
       })
+    } else {
+      console.log('[Static] Frontend dist not found, skipping static file serving')
+      console.log('[Static] Looked in:', possiblePaths)
     }
 
     // Error handler global
@@ -162,7 +167,7 @@ async function bootstrap() {
 
     // Start server
     await fastify.listen({
-      port: env.PORT,
+      port,
       host: '0.0.0.0',
     })
 
@@ -172,14 +177,13 @@ async function bootstrap() {
     console.log(`
     ╔═══════════════════════════════════════════════════╗
     ║                                                   ║
-    ║   🚀 CRM IA ENTERPRISE - BACKEND STARTED         ║
+    ║   CRM 21Go - BACKEND STARTED                     ║
     ║                                                   ║
-    ║   📍 Server: http://localhost:${env.PORT}              ║
-    ║   📚 Docs:   http://localhost:${env.PORT}/docs        ║
-    ║   🏥 Health: http://localhost:${env.PORT}/health      ║
-    ║   🔌 WebSocket: Connected and ready               ║
-    ║                                                   ║
-    ║   Environment: ${env.NODE_ENV.toUpperCase().padEnd(35)}║
+    ║   Server:  http://0.0.0.0:${String(port).padEnd(25)}║
+    ║   Docs:    /docs                                  ║
+    ║   Health:  /health                                ║
+    ║   Env:     ${env.NODE_ENV.toUpperCase().padEnd(38)}║
+    ║   Static:  ${frontendDistPath ? 'YES' : 'NO'}${' '.repeat(frontendDistPath ? 37 : 37)}║
     ║                                                   ║
     ╚═══════════════════════════════════════════════════╝
     `)

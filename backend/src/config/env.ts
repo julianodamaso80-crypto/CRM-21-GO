@@ -12,7 +12,7 @@ const envSchema = z.object({
   CORS_ORIGIN: z.string().default('*'),
 
   // Database
-  DATABASE_URL: z.string(),
+  DATABASE_URL: z.string().default('postgresql://localhost:5432/crm'),
 
   // Redis (Railway provides REDIS_URL)
   REDIS_URL: z.string().optional(),

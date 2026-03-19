@@ -10,22 +10,12 @@
   ],
   "scripts": {
     "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
-    "dev:backend": "npm run dev --workspace=backend",
-    "dev:frontend": "npm run dev --workspace=frontend",
-    "dev:mock": "npm run dev:mock --workspace=backend",
-    "build": "npm run build:frontend && npm run build:backend",
-    "build:frontend": "npm run build --workspace=frontend",
-    "build:backend": "cd backend && npx prisma generate && npm run build",
-    "start": "npm run start --workspace=backend",
-    "postinstall": "cd backend && npx prisma generate || true",
-    "docker:up": "docker-compose -f docker/docker-compose.yml up -d",
-    "docker:down": "docker-compose -f docker/docker-compose.yml down",
-    "docker:logs": "docker-compose -f docker/docker-compose.yml logs -f",
-    "prisma:migrate": "npm run prisma:migrate --workspace=backend",
-    "prisma:studio": "npm run prisma:studio --workspace=backend",
-    "type-check": "npm run type-check --workspaces",
-    "lint": "npm run lint --workspaces",
-    "test": "npm run test --workspaces"
+    "dev:backend": "cd backend && npx tsx src/server.ts",
+    "dev:frontend": "cd frontend && npx vite",
+    "dev:mock": "cd backend && npx tsx src/server.mock.ts",
+    "build": "cd frontend && npm run build && cd ../backend && npx prisma generate && npx tsup",
+    "start": "cd backend && node dist/server.js",
+    "postinstall": "cd backend && npx prisma generate || true"
   },
   "devDependencies": {
     "concurrently": "^8.2.2",
