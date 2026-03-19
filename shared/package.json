@@ -1,0 +1,13 @@
+{
+  "name": "@crm/shared",
+  "version": "1.0.0",
+  "description": "Shared types and utilities",
+  "main": "index.ts",
+  "types": "index.ts",
+  "scripts": {
+    "type-check": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "typescript": "^5.3.3"
+  }
+}

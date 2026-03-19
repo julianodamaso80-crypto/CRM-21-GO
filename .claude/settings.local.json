@@ -1,0 +1,43 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm install)",
+      "Bash(npm run dev:*)",
+      "Bash(timeout /t 5)",
+      "Bash(timeout:*)",
+      "Bash(npm install:*)",
+      "Bash(npx prisma migrate:*)",
+      "Bash(copy:*)",
+      "Bash(docker-compose:*)",
+      "Bash(docker compose up:*)",
+      "Bash(node -e:*)",
+      "Bash(ping:*)",
+      "Bash(test:*)",
+      "Bash(netstat:*)",
+      "Bash(findstr:*)",
+      "Bash(pg_ctl:*)",
+      "Bash(net start:*)",
+      "Bash(npm run dev:mock:*)",
+      "Bash(curl:*)",
+      "Bash(dir:*)",
+      "WebFetch(domain:claude.com)",
+      "Bash(npx vitest:*)",
+      "Bash(ls:*)",
+      "Bash(npx tsc:*)",
+      "Bash(if not exist \"c:\\\\Users\\\\damas\\\\Documents\\\\PROJETOS\\\\CRM TUBOMINAS\\\\frontend\\\\src\\\\pages\\\\webhooks\" mkdir \"c:\\\\Users\\\\damas\\\\Documents\\\\PROJETOS\\\\CRM TUBOMINAS\\\\frontend\\\\src\\\\pages\\\\webhooks\")",
+      "Bash(npx tsx:*)",
+      "Bash(python3:*)",
+      "Bash(start \"\" \"c:\\\\Users\\\\damas\\\\Documents\\\\PROJETOS\\\\CRM TUBOMINAS\\\\apresentacao-crm-medico.html\")",
+      "Bash(wc:*)",
+      "Bash(npx prisma generate:*)",
+      "Bash(taskkill:*)",
+      "Bash(npm run build:*)",
+      "Bash(psql:*)",
+      "Bash(docker:*)",
+      "Bash(npm run type-check:*)",
+      "Bash(npm run prisma:seed:*)",
+      "Bash(powershell -Command \"Stop-Process -Id 103544 -Force\")",
+      "Bash(if exist CRM dir CRM /a)"
+    ]
+  }
+}

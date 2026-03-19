@@ -1,0 +1,75 @@
+{
+  "users": [
+    {
+      "id": "1",
+      "email": "admin@crm.com",
+      "password": "$2a$10$3WtunYTju1AeO9mZOXwtn.ifcUH/yDcftEQoKrbfSSXxFR0jKGmcO",
+      "firstName": "Admin",
+      "lastName": "Sistema",
+      "avatar": null,
+      "phone": null,
+      "timezone": "America/Sao_Paulo",
+      "language": "pt-BR",
+      "isActive": true,
+      "companyId": "1",
+      "roleId": "1",
+      "createdAt": "2025-01-21T00:00:00.000Z",
+      "updatedAt": "2025-01-21T00:00:00.000Z",
+      "lastLoginAt": "2026-01-30T20:52:25.249Z"
+    }
+  ],
+  "companies": [
+    {
+      "id": "1",
+      "name": "Empresa Demo",
+      "slug": "empresa-demo",
+      "domain": null,
+      "logo": null,
+      "website": null,
+      "industry": null,
+      "size": null,
+      "email": "contato@empresademo.com",
+      "phone": null,
+      "address": null,
+      "city": null,
+      "state": null,
+      "country": "BR",
+      "zipCode": null,
+      "timezone": "America/Sao_Paulo",
+      "language": "pt-BR",
+      "currency": "BRL",
+      "isActive": true,
+      "createdAt": "2025-01-21T00:00:00.000Z",
+      "updatedAt": "2025-01-21T00:00:00.000Z"
+    }
+  ],
+  "roles": [
+    {
+      "id": "1",
+      "name": "admin",
+      "displayName": "Administrador",
+      "description": "Acesso total ao sistema",
+      "isSystem": true,
+      "level": 10,
+      "companyId": "1",
+      "createdAt": "2025-01-21T00:00:00.000Z",
+      "updatedAt": "2025-01-21T00:00:00.000Z"
+    }
+  ],
+  "refreshTokens": [
+    {
+      "id": "14b7d5c4-c6f6-4ff3-a617-3c9d152db9cb",
+      "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjEiLCJlbWFpbCI6ImFkbWluQGNybS5jb20iLCJjb21wYW55SWQiOiIxIiwicm9sZUlkIjoiMSIsImlhdCI6MTc2OTgwNTIzNCwiZXhwIjoxNzcwNDEwMDM0fQ.Mmt5265gq92UYQT-I0_olqSsjhdYp-9zpjHDqI8gtTc",
+      "userId": "1",
+      "expiresAt": "2026-02-06T20:33:54.133Z",
+      "createdAt": "2026-01-30T20:33:54.133Z"
+    },
+    {
+      "id": "3e69d6db-0d4b-439d-93d2-95bfff8c3b01",
+      "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjEiLCJlbWFpbCI6ImFkbWluQGNybS5jb20iLCJjb21wYW55SWQiOiIxIiwicm9sZUlkIjoiMSIsImlhdCI6MTc2OTgwNjM0NSwiZXhwIjoxNzcwNDExMTQ1fQ.5MwUmqIrI1nNXzGz6exBTk4kJZiMYcQ1yh2HoxobEy8",
+      "userId": "1",
+      "expiresAt": "2026-02-06T20:52:25.251Z",
+      "createdAt": "2026-01-30T20:52:25.251Z"
+    }
+  ]
+}

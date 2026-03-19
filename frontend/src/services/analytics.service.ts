@@ -1,0 +1,48 @@
+import { api } from '../lib/api'
+import type {
+  AnalyticsFilters,
+  AnalyticsOverview,
+  SourceAnalyticsResponse,
+  CampaignAnalyticsResponse,
+  FunnelAnalyticsResponse,
+  LTVAnalyticsResponse,
+  ROIAnalyticsResponse,
+  TrendsAnalyticsResponse,
+} from '../../../shared/types'
+
+export const analyticsService = {
+  async getOverview(filters: AnalyticsFilters = {}): Promise<AnalyticsOverview> {
+    const response = await api.get<AnalyticsOverview>('/analytics/overview', { params: filters })
+    return response.data
+  },
+
+  async getSources(filters: AnalyticsFilters = {}): Promise<SourceAnalyticsResponse> {
+    const response = await api.get<SourceAnalyticsResponse>('/analytics/sources', { params: filters })
+    return response.data
+  },
+
+  async getCampaigns(filters: AnalyticsFilters = {}): Promise<CampaignAnalyticsResponse> {
+    const response = await api.get<CampaignAnalyticsResponse>('/analytics/campaigns', { params: filters })
+    return response.data
+  },
+
+  async getFunnel(filters: AnalyticsFilters = {}): Promise<FunnelAnalyticsResponse> {
+    const response = await api.get<FunnelAnalyticsResponse>('/analytics/funnel', { params: filters })
+    return response.data
+  },
+
+  async getLTV(filters: AnalyticsFilters = {}): Promise<LTVAnalyticsResponse> {
+    const response = await api.get<LTVAnalyticsResponse>('/analytics/ltv', { params: filters })
+    return response.data
+  },
+
+  async getROI(filters: AnalyticsFilters = {}): Promise<ROIAnalyticsResponse> {
+    const response = await api.get<ROIAnalyticsResponse>('/analytics/roi', { params: filters })
+    return response.data
+  },
+
+  async getTrends(filters: AnalyticsFilters = {}): Promise<TrendsAnalyticsResponse> {
+    const response = await api.get<TrendsAnalyticsResponse>('/analytics/trends', { params: filters })
+    return response.data
+  },
+}

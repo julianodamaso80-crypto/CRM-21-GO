@@ -1,0 +1,89 @@
+import 'dotenv/config'
+import { z } from 'zod'
+
+const envSchema = z.object({
+  // Node
+  NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
+  PORT: z.coerce.number().default(3333),
+
+  // URLs
+  FRONTEND_URL: z.string().url(),
+  BACKEND_URL: z.string().url(),
+  CORS_ORIGIN: z.string(),
+
+  // Database
+  DATABASE_URL: z.string().url(),
+
+  // Redis
+  REDIS_HOST: z.string().default('localhost'),
+  REDIS_PORT: z.coerce.number().default(6379),
+  REDIS_PASSWORD: z.string().optional(),
+
+  // JWT
+  JWT_SECRET: z.string().min(32),
+  JWT_EXPIRES_IN: z.string().default('15m'),
+  REFRESH_TOKEN_SECRET: z.string().min(32),
+  REFRESH_TOKEN_EXPIRES_IN: z.string().default('7d'),
+
+  // Stripe
+  STRIPE_SECRET_KEY: z.string().startsWith('sk_'),
+  STRIPE_WEBHOOK_SECRET: z.string().startsWith('whsec_'),
+  STRIPE_PRICE_ID_FREE: z.string().optional(),
+  STRIPE_PRICE_ID_PRO: z.string().optional(),
+  STRIPE_PRICE_ID_ENTERPRISE: z.string().optional(),
+
+  // AI
+  OPENAI_API_KEY: z.string().optional(),
+  ANTHROPIC_API_KEY: z.string().optional(),
+  GOOGLE_AI_API_KEY: z.string().optional(),
+  DEFAULT_AI_PROVIDER: z.enum(['openai', 'anthropic', 'google']).default('openai'),
+  AI_SERVICE_URL: z.string().url().default('http://localhost:8100'),
+
+  // WhatsApp
+  WHATSAPP_API_TOKEN: z.string().optional(),
+  WHATSAPP_PHONE_NUMBER_ID: z.string().optional(),
+  WHATSAPP_VERIFY_TOKEN: z.string().optional(),
+
+  // Instagram
+  INSTAGRAM_APP_ID: z.string().optional(),
+  INSTAGRAM_APP_SECRET: z.string().optional(),
+  INSTAGRAM_ACCESS_TOKEN: z.string().optional(),
+
+  // Storage
+  STORAGE_TYPE: z.enum(['local', 's3', 'minio']).default('local'),
+  AWS_ACCESS_KEY_ID: z.string().optional(),
+  AWS_SECRET_ACCESS_KEY: z.string().optional(),
+  AWS_REGION: z.string().optional(),
+  AWS_BUCKET_NAME: z.string().optional(),
+
+  // MinIO
+  MINIO_ENDPOINT: z.string().optional(),
+  MINIO_PORT: z.coerce.number().optional(),
+  MINIO_ACCESS_KEY: z.string().optional(),
+  MINIO_SECRET_KEY: z.string().optional(),
+  MINIO_BUCKET: z.string().optional(),
+
+  // Email
+  SMTP_HOST: z.string().optional(),
+  SMTP_PORT: z.coerce.number().optional(),
+  SMTP_USER: z.string().optional(),
+  SMTP_PASSWORD: z.string().optional(),
+  EMAIL_FROM: z.string().optional(),
+
+  // Observability
+  LOG_LEVEL: z.enum(['debug', 'info', 'warn', 'error']).default('info'),
+  SENTRY_DSN: z.string().optional(),
+
+  // Rate Limiting
+  RATE_LIMIT_WINDOW_MS: z.coerce.number().default(900000), // 15 min
+  RATE_LIMIT_MAX_REQUESTS: z.coerce.number().default(100),
+})
+
+const _env = envSchema.safeParse(process.env)
+
+if (!_env.success) {
+  console.error('❌ Invalid environment variables:', _env.error.format())
+  throw new Error('Invalid environment variables')
+}
+
+export const env = _env.data
