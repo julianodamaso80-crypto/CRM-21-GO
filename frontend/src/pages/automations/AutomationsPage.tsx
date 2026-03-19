@@ -216,7 +216,7 @@ function AutomationDrawer({ automation, onClose }: { automation: Automation | nu
       <div className="fixed inset-0 bg-black/30" onClick={onClose} />
       <div className="relative w-full max-w-lg bg-dark-800 shadow-xl flex flex-col">
         <div className="px-6 py-4 border-b border-dark-700 flex items-center justify-between">
-          <h2 className="text-lg font-semibold text-white">{isEdit ? 'Editar Automacao' : 'Nova Automacao'}</h2>
+          <h2 className="text-lg font-semibold text-white font-display">{isEdit ? 'Editar Automacao' : 'Nova Automacao'}</h2>
           <button onClick={onClose} className="text-gray-500 hover:text-gray-400 text-xl leading-none">&times;</button>
         </div>
 
@@ -270,14 +270,14 @@ function AutomationDrawer({ automation, onClose }: { automation: Automation | nu
                 )}
               </div>
             ))}
-            <button type="button" onClick={addAction} className="text-sm text-gold-400 hover:text-gold-400 font-medium flex items-center gap-1">
+            <button type="button" onClick={addAction} className="text-sm text-gold-400 hover:text-gold-300 font-medium flex items-center gap-1">
               <Plus size={14} /> Adicionar acao
             </button>
           </div>
 
           <div className="pt-4">
             <button type="submit" disabled={isPending}
-              className="w-full px-4 py-2 btn-primary disabled:opacity-50 flex items-center justify-center gap-2">
+              className="w-full btn-primary disabled:opacity-50 flex items-center justify-center gap-2">
               {isPending && <Loader2 size={16} className="animate-spin" />}
               {isEdit ? 'Salvar' : 'Criar Automacao'}
             </button>
@@ -299,7 +299,7 @@ function DeleteModal({ automation, onClose }: { automation: Automation; onClose:
     <div className="fixed inset-0 z-50 flex items-center justify-center">
       <div className="fixed inset-0 bg-black/30" onClick={onClose} />
       <div className="relative bg-dark-800 rounded-xl shadow-xl p-6 max-w-sm w-full mx-4">
-        <h3 className="text-lg font-semibold text-white">Excluir automacao</h3>
+        <h3 className="text-lg font-semibold text-white font-display">Excluir automacao</h3>
         <p className="text-sm text-gray-400 mt-2">
           Tem certeza que deseja excluir <strong>{automation.name}</strong>? Esta acao nao pode ser desfeita.
         </p>

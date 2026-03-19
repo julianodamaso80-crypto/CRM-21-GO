@@ -81,7 +81,7 @@ function SubscriptionTab() {
           <CreditCard size={40} className="text-blue-400/30" />
         </div>
 
-        <div className="grid grid-cols-2 gap-4 mt-6 pt-6 border-t border-dark-700/40">
+        <div className="grid grid-cols-2 gap-4 mt-6 pt-6 border-t border-dark-700/40 stagger-children">
           <div>
             <p className="text-xs text-gray-400">Periodo atual</p>
             <p className="text-sm font-medium text-white">{formatDate(sub.currentPeriodStart)} - {formatDate(sub.currentPeriodEnd)}</p>
@@ -113,8 +113,8 @@ function SubscriptionTab() {
       {showCancel && (
         <div className="fixed inset-0 z-50 flex items-center justify-center">
           <div className="fixed inset-0 bg-black/30" onClick={() => setShowCancel(false)} />
-          <div className="relative bg-dark-800 rounded-xl shadow-xl p-6 max-w-sm w-full mx-4">
-            <h3 className="text-lg font-semibold text-white">Cancelar assinatura</h3>
+          <div className="relative bg-dark-800 rounded-2xl shadow-xl p-6 max-w-sm w-full mx-4">
+            <h3 className="text-lg font-display font-semibold text-white">Cancelar assinatura</h3>
             <p className="text-sm text-gray-400 mt-2">
               Voce perdera acesso aos recursos do plano ao final do periodo atual. Tem certeza?
             </p>
@@ -261,9 +261,9 @@ function InvoicesTab() {
   const formatCurrency = (v: number) => v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
 
   const statusColors: Record<string, string> = {
-    paid: 'bg-green-500/15 text-green-400',
-    pending: 'bg-yellow-500/15 text-yellow-400',
-    failed: 'bg-red-500/15 text-red-400',
+    paid: 'bg-accent-emerald/15 text-accent-emerald',
+    pending: 'bg-accent-amber/15 text-accent-amber',
+    failed: 'bg-accent-rose/15 text-accent-rose',
   }
 
   const statusLabels: Record<string, string> = {
@@ -273,9 +273,9 @@ function InvoicesTab() {
   }
 
   return (
-    <div className="bg-dark-800 border border-dark-700 rounded-lg overflow-hidden">
-      <table className="min-w-full divide-y divide-dark-700">
-        <thead className="bg-dark-700">
+    <div className="card overflow-hidden">
+      <table className="min-w-full divide-y divide-dark-700/40">
+        <thead className="bg-dark-700/50">
           <tr>
             <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase">Periodo</th>
             <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase">Valor</th>
@@ -283,9 +283,9 @@ function InvoicesTab() {
             <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase">Pago em</th>
           </tr>
         </thead>
-        <tbody className="divide-y divide-dark-700">
+        <tbody className="divide-y divide-dark-700/40">
           {invoices?.map((inv) => (
-            <tr key={inv.id} className="hover:bg-dark-700">
+            <tr key={inv.id} className="hover:bg-dark-700/50">
               <td className="px-6 py-4 text-sm text-white">
                 {formatDate(inv.periodStart)} - {formatDate(inv.periodEnd)}
               </td>
@@ -312,7 +312,7 @@ function InvoicesTab() {
 function Loading() {
   return (
     <div className="flex justify-center p-12">
-      <Loader2 className="w-8 h-8 text-primary-400 animate-spin" />
+      <Loader2 className="w-8 h-8 text-gold-400 animate-spin" />
     </div>
   )
 }

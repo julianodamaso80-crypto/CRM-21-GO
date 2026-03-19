@@ -201,7 +201,7 @@ export function VehiclesPage() {
                       </td>
                       <td className="px-4 py-3 text-right">
                         <div className="flex justify-end gap-1">
-                          <button onClick={() => openEdit(vehicle)} className="p-1.5 text-gray-500 hover:text-primary-400 rounded">
+                          <button onClick={() => openEdit(vehicle)} className="p-1.5 text-gray-500 hover:text-gold-400 rounded">
                             <Edit3 className="w-4 h-4" />
                           </button>
                           <button onClick={() => setDeleteId(vehicle.id)} className="p-1.5 text-gray-500 hover:text-red-400 rounded">
@@ -225,8 +225,8 @@ export function VehiclesPage() {
       {deleteId && (
         <div className="fixed inset-0 z-50 flex items-center justify-center">
           <div className="absolute inset-0 bg-black/30" onClick={() => setDeleteId(null)} />
-          <div className="relative bg-dark-800 rounded-lg shadow-xl p-6 w-full max-w-sm">
-            <h3 className="text-lg font-semibold text-white">Remover Veiculo</h3>
+          <div className="relative card shadow-xl p-6 w-full max-w-sm">
+            <h3 className="text-lg font-display font-semibold text-white">Remover Veiculo</h3>
             <p className="text-sm text-gray-400 mt-2">Tem certeza? Esta acao nao pode ser desfeita.</p>
             <div className="flex justify-end gap-3 mt-5">
               <button onClick={() => setDeleteId(null)} className="px-4 py-2 text-sm text-gray-300 border border-dark-600 rounded-lg hover:bg-dark-700">Cancelar</button>
@@ -295,14 +295,14 @@ function VehicleDrawer({ vehicle, onClose }: { vehicle: Vehicle | null; onClose:
     }
   }
 
-  const inputClass = 'w-full px-3 py-2 text-sm bg-dark-800 border border-dark-600 rounded-lg text-gray-200 focus:ring-2 focus:ring-primary-500'
+  const inputClass = 'input'
 
   return (
     <div className="fixed inset-0 z-50 flex justify-end">
       <div className="absolute inset-0 bg-black/30" onClick={onClose} />
       <div className="relative w-full max-w-md bg-dark-800 shadow-xl overflow-y-auto">
-        <div className="sticky top-0 bg-dark-800 border-b border-dark-700 px-6 py-4 flex items-center justify-between z-10">
-          <h2 className="text-lg font-semibold text-white">{isEditing ? 'Editar Veiculo' : 'Novo Veiculo'}</h2>
+        <div className="sticky top-0 bg-dark-800 border-b border-dark-700/40 px-6 py-4 flex items-center justify-between z-10">
+          <h2 className="text-lg font-display font-semibold text-white">{isEditing ? 'Editar Veiculo' : 'Novo Veiculo'}</h2>
           <button onClick={onClose} className="p-1 text-gray-500 hover:text-gray-400 rounded"><X className="w-5 h-5" /></button>
         </div>
 
@@ -412,7 +412,7 @@ function VehicleDrawer({ vehicle, onClose }: { vehicle: Vehicle | null; onClose:
           {/* Rastreador */}
           <div className="flex items-center gap-3">
             <input type="checkbox" id="temRastreador" checked={temRastreador} onChange={(e) => setTemRastreador(e.target.checked)}
-              className="w-4 h-4 rounded border-dark-600 bg-dark-800 text-primary-500 focus:ring-primary-500" />
+              className="w-4 h-4 rounded border-dark-600 bg-dark-800 text-gold-500 focus:ring-gold-500" />
             <label htmlFor="temRastreador" className="text-sm text-gray-300">Possui rastreador instalado</label>
           </div>
 

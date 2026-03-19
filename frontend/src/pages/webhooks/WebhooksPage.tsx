@@ -20,13 +20,13 @@ export function WebhooksPage() {
   }
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="p-6 space-y-6 page-enter">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-white">Webhooks</h1>
+          <h1 className="text-2xl font-bold text-white font-display">Webhooks</h1>
           <p className="text-sm text-gray-400 mt-1">Gerencie webhooks de entrada e saida para integrar com servicos externos</p>
         </div>
-        <button onClick={openCreate} className="flex items-center gap-2 px-4 py-2 bg-primary-500 text-white rounded-lg hover:bg-primary-400">
+        <button onClick={openCreate} className="flex items-center gap-2 px-4 py-2 btn-primary">
           <Plus size={16} />
           Novo Webhook
         </button>
@@ -260,7 +260,7 @@ function WebhookDrawer({ webhook, onClose }: { webhook: WebhookType | null; onCl
 
           <div className="pt-4">
             <button type="submit" disabled={isPending}
-              className="w-full px-4 py-2 bg-primary-500 text-white rounded-lg hover:bg-primary-400 disabled:opacity-50 flex items-center justify-center gap-2">
+              className="w-full px-4 py-2 btn-primary disabled:opacity-50 flex items-center justify-center gap-2">
               {isPending && <Loader2 size={16} className="animate-spin" />}
               {isEdit ? 'Salvar' : 'Criar Webhook'}
             </button>
