@@ -119,7 +119,7 @@ function SubscriptionTab() {
               Voce perdera acesso aos recursos do plano ao final do periodo atual. Tem certeza?
             </p>
             <div className="flex justify-end gap-2 mt-6">
-              <button onClick={() => setShowCancel(false)} className="px-4 py-2 text-sm text-gray-300 border border-dark-600 rounded-lg hover:bg-dark-700">Manter</button>
+              <button onClick={() => setShowCancel(false)} className="btn-secondary px-4 py-2 text-sm rounded-lg">Manter</button>
               <button onClick={() => { cancelMutation.mutate(); setShowCancel(false) }}
                 className="px-4 py-2 text-sm text-white bg-red-600 rounded-lg hover:bg-red-700">Cancelar assinatura</button>
             </div>
@@ -171,7 +171,7 @@ function PlansTab() {
 
             <div className="mt-6">
               {isCurrent ? (
-                <div className="w-full text-center px-4 py-2 bg-dark-700 text-gray-400 rounded-lg text-sm font-medium">
+                <div className="w-full text-center px-4 py-2 bg-dark-700/50 text-gray-400 rounded-lg text-sm font-medium">
                   Plano atual
                 </div>
               ) : (
@@ -236,7 +236,7 @@ function UsageTab() {
               </span>
             </div>
             {data.limit !== -1 && (
-              <div className="w-full bg-dark-700 rounded-full h-2">
+              <div className="w-full bg-dark-700/50 rounded-full h-2">
                 <div
                   className={`h-2 rounded-full transition-all ${isCritical ? 'bg-accent-rose' : isWarning ? 'bg-accent-amber' : 'bg-gold-500'}`}
                   style={{ width: `${pct}%` }}

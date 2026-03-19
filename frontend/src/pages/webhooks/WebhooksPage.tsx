@@ -34,7 +34,7 @@ export function WebhooksPage() {
 
       {isLoading && (
         <div className="flex justify-center p-12">
-          <Loader2 className="w-8 h-8 text-primary-400 animate-spin" />
+          <Loader2 className="w-8 h-8 text-gold-400 animate-spin" />
         </div>
       )}
 
@@ -84,7 +84,7 @@ function WebhookCard({ webhook, onEdit, onDelete }: {
   }
 
   return (
-    <div className={`bg-dark-800 border rounded-lg p-4 ${webhook.isActive ? 'border-dark-700' : 'border-dark-700 opacity-60'}`}>
+    <div className={`card p-4 ${webhook.isActive ? '' : 'opacity-60'}`}>
       <div className="flex items-start justify-between">
         <div className="flex items-start gap-3 flex-1 min-w-0">
           <div className={`mt-0.5 p-2 rounded-lg ${webhook.type === 'outgoing' ? 'bg-blue-500/15 text-blue-400' : 'bg-green-500/15 text-green-400'}`}>
@@ -184,7 +184,7 @@ function WebhookDrawer({ webhook, onClose }: { webhook: WebhookType | null; onCl
       <div className="fixed inset-0 bg-black/30" onClick={onClose} />
       <div className="relative w-full max-w-lg bg-dark-800 shadow-xl flex flex-col">
         <div className="px-6 py-4 border-b border-dark-700 flex items-center justify-between">
-          <h2 className="text-lg font-semibold text-white">{isEdit ? 'Editar Webhook' : 'Novo Webhook'}</h2>
+          <h2 className="text-lg font-semibold text-white font-display">{isEdit ? 'Editar Webhook' : 'Novo Webhook'}</h2>
           <button onClick={onClose} className="text-gray-500 hover:text-gray-400 text-xl leading-none">&times;</button>
         </div>
 
@@ -193,14 +193,14 @@ function WebhookDrawer({ webhook, onClose }: { webhook: WebhookType | null; onCl
           <div>
             <label className="block text-sm font-medium text-gray-300 mb-1">Nome *</label>
             <input type="text" required value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })}
-              className="w-full bg-dark-800 border border-dark-600 text-gray-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none" />
+              className="w-full bg-dark-800 border border-dark-600 text-gray-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-gold-500/30 focus:border-gold-500 outline-none" />
           </div>
 
           {/* Description */}
           <div>
             <label className="block text-sm font-medium text-gray-300 mb-1">Descricao</label>
             <input type="text" value={form.description || ''} onChange={(e) => setForm({ ...form, description: e.target.value })}
-              className="w-full bg-dark-800 border border-dark-600 text-gray-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none" />
+              className="w-full bg-dark-800 border border-dark-600 text-gray-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-gold-500/30 focus:border-gold-500 outline-none" />
           </div>
 
           {/* Type */}
@@ -222,7 +222,7 @@ function WebhookDrawer({ webhook, onClose }: { webhook: WebhookType | null; onCl
           <div>
             <label className="block text-sm font-medium text-gray-300 mb-1">Evento</label>
             <select value={form.event || ''} onChange={(e) => setForm({ ...form, event: e.target.value })}
-              className="w-full bg-dark-800 border border-dark-600 text-gray-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none">
+              className="w-full bg-dark-800 border border-dark-600 text-gray-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-gold-500/30 focus:border-gold-500 outline-none">
               <option value="">Selecione um evento</option>
               {events?.map((ev) => (
                 <option key={ev} value={ev}>{ev}</option>
@@ -237,12 +237,12 @@ function WebhookDrawer({ webhook, onClose }: { webhook: WebhookType | null; onCl
                 <label className="block text-sm font-medium text-gray-300 mb-1">URL *</label>
                 <input type="url" required value={form.url || ''} onChange={(e) => setForm({ ...form, url: e.target.value })}
                   placeholder="https://example.com/webhook"
-                  className="w-full bg-dark-800 border border-dark-600 text-gray-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none" />
+                  className="w-full bg-dark-800 border border-dark-600 text-gray-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-gold-500/30 focus:border-gold-500 outline-none" />
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-300 mb-1">Metodo HTTP</label>
                 <select value={form.method || 'POST'} onChange={(e) => setForm({ ...form, method: e.target.value as 'GET' | 'POST' | 'PUT' })}
-                  className="w-full bg-dark-800 border border-dark-600 text-gray-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none">
+                  className="w-full bg-dark-800 border border-dark-600 text-gray-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-gold-500/30 focus:border-gold-500 outline-none">
                   <option value="POST">POST</option>
                   <option value="GET">GET</option>
                   <option value="PUT">PUT</option>
@@ -260,7 +260,7 @@ function WebhookDrawer({ webhook, onClose }: { webhook: WebhookType | null; onCl
 
           <div className="pt-4">
             <button type="submit" disabled={isPending}
-              className="w-full px-4 py-2 btn-primary disabled:opacity-50 flex items-center justify-center gap-2">
+              className="w-full btn-primary disabled:opacity-50 flex items-center justify-center gap-2">
               {isPending && <Loader2 size={16} className="animate-spin" />}
               {isEdit ? 'Salvar' : 'Criar Webhook'}
             </button>
@@ -282,7 +282,7 @@ function DeleteModal({ webhook, onClose }: { webhook: WebhookType; onClose: () =
     <div className="fixed inset-0 z-50 flex items-center justify-center">
       <div className="fixed inset-0 bg-black/30" onClick={onClose} />
       <div className="relative bg-dark-800 rounded-xl shadow-xl p-6 max-w-sm w-full mx-4">
-        <h3 className="text-lg font-semibold text-white">Excluir webhook</h3>
+        <h3 className="text-lg font-semibold text-white font-display">Excluir webhook</h3>
         <p className="text-sm text-gray-400 mt-2">
           Tem certeza que deseja excluir <strong>{webhook.name}</strong>? Esta acao nao pode ser desfeita.
         </p>

@@ -250,7 +250,7 @@ export function LeadsPage() {
             <h3 className="text-lg font-display font-semibold text-white">Excluir Lead</h3>
             <p className="text-sm text-gray-400 mt-2">Tem certeza que deseja excluir este lead? Esta acao nao pode ser desfeita.</p>
             <div className="flex justify-end gap-3 mt-5">
-              <button onClick={() => setDeleteId(null)} className="px-4 py-2 text-sm text-gray-300 border border-dark-600 rounded-lg hover:bg-dark-700">
+              <button onClick={() => setDeleteId(null)} className="px-4 py-2 text-sm text-gray-300 border border-dark-700/50 rounded-lg hover:bg-dark-700">
                 Cancelar
               </button>
               <button onClick={confirmDelete} disabled={deleteMutation.isPending} className="px-4 py-2 text-sm bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:opacity-50">
@@ -510,7 +510,7 @@ function LeadDrawer({ lead, onClose }: { lead: Lead | null; onClose: () => void 
 
           {/* Acoes */}
           <div className="flex justify-end gap-3 pt-4 border-t border-dark-700/40">
-            <button type="button" onClick={onClose} className="px-4 py-2 text-sm text-gray-300 border border-dark-600 rounded-lg hover:bg-dark-700">
+            <button type="button" onClick={onClose} className="px-4 py-2 text-sm text-gray-300 border border-dark-700/50 rounded-lg hover:bg-dark-700">
               Cancelar
             </button>
             <button type="submit" disabled={isPending} className="btn-primary text-sm disabled:opacity-50">

@@ -127,7 +127,7 @@ export function KanbanPage() {
                     <button
                       onClick={handleCreateCard}
                       disabled={!newCardTitle.trim() || createCard.isPending}
-                      className="px-3 py-1 text-xs btn-primary text-xs disabled:opacity-50"
+                      className="px-3 py-1 btn-primary text-xs disabled:opacity-50"
                     >
                       {createCard.isPending ? 'Criando...' : 'Criar'}
                     </button>

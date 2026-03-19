@@ -229,7 +229,7 @@ export function VehiclesPage() {
             <h3 className="text-lg font-display font-semibold text-white">Remover Veiculo</h3>
             <p className="text-sm text-gray-400 mt-2">Tem certeza? Esta acao nao pode ser desfeita.</p>
             <div className="flex justify-end gap-3 mt-5">
-              <button onClick={() => setDeleteId(null)} className="px-4 py-2 text-sm text-gray-300 border border-dark-600 rounded-lg hover:bg-dark-700">Cancelar</button>
+              <button onClick={() => setDeleteId(null)} className="px-4 py-2 text-sm text-gray-300 border border-dark-700/50 rounded-lg hover:bg-dark-700">Cancelar</button>
               <button onClick={confirmDelete} disabled={deleteMutation.isPending} className="px-4 py-2 text-sm bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:opacity-50">
                 {deleteMutation.isPending ? 'Removendo...' : 'Remover'}
               </button>
@@ -417,9 +417,9 @@ function VehicleDrawer({ vehicle, onClose }: { vehicle: Vehicle | null; onClose:
           </div>
 
           {/* Acoes */}
-          <div className="flex justify-end gap-3 pt-4 border-t border-dark-700">
-            <button type="button" onClick={onClose} className="px-4 py-2 text-sm text-gray-300 border border-dark-600 rounded-lg hover:bg-dark-700">Cancelar</button>
-            <button type="submit" disabled={isPending} className="px-4 py-2 text-sm bg-primary-500 text-white rounded-lg hover:bg-primary-400 disabled:opacity-50">
+          <div className="flex justify-end gap-3 pt-4 border-t border-dark-700/40">
+            <button type="button" onClick={onClose} className="px-4 py-2 text-sm text-gray-300 border border-dark-700/50 rounded-lg hover:bg-dark-700">Cancelar</button>
+            <button type="submit" disabled={isPending} className="btn-primary text-sm disabled:opacity-50">
               {isPending ? 'Salvando...' : isEditing ? 'Salvar' : 'Cadastrar Veiculo'}
             </button>
           </div>
