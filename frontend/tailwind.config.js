@@ -32,6 +32,13 @@ export default {
           900: '#4D260A',
           950: '#2E1706',
         },
+        // 21Go Gold — cor de acento premium do CRM (legado design system)
+        gold: {
+          300: '#F0D080',
+          400: '#D4B55A',
+          500: '#C9A84C',
+          600: '#A87C2A',
+        },
         // Dark palette — backgrounds sofisticados (tema dark do CRM)
         dark: {
           50: '#E8E8EE',
@@ -86,6 +93,8 @@ export default {
         'glow-blue': '0 0 20px rgba(27, 77, 161, 0.15)',
         'glow-blue-lg': '0 0 40px rgba(27, 77, 161, 0.2)',
         'glow-orange': '0 0 20px rgba(224, 118, 32, 0.15)',
+        'glow-gold': '0 0 20px rgba(201, 168, 76, 0.15)',
+        'glow-gold-lg': '0 0 40px rgba(201, 168, 76, 0.2)',
         'glass': '0 8px 32px rgba(0, 0, 0, 0.3)',
         'glass-lg': '0 16px 48px rgba(0, 0, 0, 0.4)',
         'card': '0 1px 3px rgba(0, 0, 0, 0.3), 0 1px 2px rgba(0, 0, 0, 0.2)',
@@ -93,6 +102,8 @@ export default {
         'sidebar': '4px 0 24px rgba(0, 0, 0, 0.3)',
       },
       backgroundImage: {
+        'gradient-gold': 'linear-gradient(135deg, #C9A84C, #D4B55A)',
+        'gradient-gold-subtle': 'linear-gradient(135deg, rgba(201, 168, 76, 0.1), rgba(201, 168, 76, 0.05))',
         'gradient-blue': 'linear-gradient(135deg, #1B4DA1, #3D72DE)',
         'gradient-blue-dark': 'linear-gradient(180deg, #111827, #0B1120)',
         'gradient-orange': 'linear-gradient(135deg, #E07620, #F08C28, #FFAA61)',
