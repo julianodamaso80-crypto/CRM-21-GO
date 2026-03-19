@@ -4,7 +4,7 @@ import { useAuthStore } from './store/auth-store'
 // Pages
 import { DashboardPage } from './pages/dashboard/DashboardPage'
 import { LeadsPage } from './pages/leads/LeadsPage'
-import { ContactsPage } from './pages/contacts/ContactsPage'
+import { AssociadosPage } from './pages/associados/AssociadosPage'
 import { InboxPage } from './pages/inbox/InboxPage'
 import { AITrainingPage } from './pages/ai/AITrainingPage'
 import { PipeBuilderPage } from './pages/pipes/PipeBuilderPage'
@@ -64,7 +64,7 @@ export function Router() {
           <Route path="/leads" element={<LeadsPage />} />
 
           {/* Associados (antigo /patients e /contacts) */}
-          <Route path="/associados" element={<ContactsPage />} />
+          <Route path="/associados" element={<AssociadosPage />} />
           <Route path="/patients" element={<Navigate to="/associados" replace />} />
           <Route path="/contacts" element={<Navigate to="/associados" replace />} />
 

@@ -4,7 +4,7 @@ import {
   CheckCircle2, AlertCircle, Clock,
 } from 'lucide-react'
 import { useVehicles, useCreateVehicle, useUpdateVehicle, useDeleteVehicle } from '../../hooks/useVehicles'
-import { useContacts } from '../../hooks/useContacts'
+import { useAssociados } from '../../hooks/useAssociados'
 import type { Vehicle, CreateVehicleRequest, UpdateVehicleRequest, VehiclePlano, VehicleTipo, VehicleCombustivel, VistoriaStatus } from '../../../../shared/types'
 
 const PLANO_CONFIG: Record<VehiclePlano, { label: string; cls: string }> = {
@@ -246,8 +246,8 @@ export function VehiclesPage() {
 function VehicleDrawer({ vehicle, onClose }: { vehicle: Vehicle | null; onClose: () => void }) {
   const createMutation = useCreateVehicle()
   const updateMutation = useUpdateVehicle()
-  const { data: contactsData } = useContacts({ limit: 200 })
-  const contacts = contactsData?.data || []
+  const { data: associadosData } = useAssociados({ limit: 200 })
+  const associados = associadosData?.data || []
 
   const [associadoId, setAssociadoId] = useState(vehicle?.associadoId || '')
   const [placa, setPlaca] = useState(vehicle?.placa || '')
@@ -312,7 +312,7 @@ function VehicleDrawer({ vehicle, onClose }: { vehicle: Vehicle | null; onClose:
             <label className="block text-sm font-medium text-gray-300 mb-1">Associado *</label>
             <select value={associadoId} onChange={(e) => setAssociadoId(e.target.value)} required className={inputClass}>
               <option value="">Selecione o associado</option>
-              {contacts.map((c) => (
+              {associados.map((c) => (
                 <option key={c.id} value={c.id}>{c.fullName}{c.cpf ? ` (${c.cpf})` : ''}</option>
               ))}
             </select>

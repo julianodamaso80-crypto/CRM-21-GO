@@ -16,7 +16,7 @@ import { errorHandler } from './middlewares/error-handler'
 import { logger } from './utils/logger'
 import { socketService } from './websocket'
 import { authRoutes } from './modules/auth/auth.routes.simple'
-import { contactsRoutes } from './modules/contacts/contacts.routes'
+import { associadosRoutes } from './modules/associados/associados.routes'
 import { aiRoutes } from './modules/ai/ai.routes'
 import { pipesRoutes } from './modules/pipes/pipes.routes'
 import { leadsRoutes } from './modules/leads/leads.routes'
@@ -118,7 +118,7 @@ async function bootstrap() {
 
     // ── API Routes ──────────────────────────────────────
     await fastify.register(authRoutes, { prefix: '/api/auth' })
-    await fastify.register(contactsRoutes, { prefix: '/api/contacts' })
+    await fastify.register(associadosRoutes, { prefix: '/api/associados' })
     await fastify.register(aiRoutes, { prefix: '/api/ai' })
     await fastify.register(pipesRoutes, { prefix: '/api/pipes' })
     await fastify.register(npsRoutes, { prefix: '/api/nps' })

@@ -91,9 +91,9 @@ fastify.post('/api/auth/register', async (request, reply) => {
 // MOCK ASSOCIADOS (CONTACTS) API
 // ============================================================================
 
-// GET /api/contacts (lista de associados)
-fastify.get('/api/contacts', async (request, reply) => {
-  console.log('[MOCK] GET /api/contacts')
+// GET /api/associados (lista de associados)
+fastify.get('/api/associados', async (request, reply) => {
+  console.log('[MOCK] GET /api/associados')
   const { search, status, origem, page = '1', limit = '20' } = request.query as any
 
   let filtered = [...mockContacts]
@@ -137,17 +137,17 @@ fastify.get('/api/contacts', async (request, reply) => {
   })
 })
 
-// GET /api/contacts/tags
-fastify.get('/api/contacts/tags', async (request, reply) => {
-  console.log('[MOCK] GET /api/contacts/tags')
+// GET /api/associados/tags
+fastify.get('/api/associados/tags', async (request, reply) => {
+  console.log('[MOCK] GET /api/associados/tags')
   const allTags = mockContacts.flatMap((c: any) => c.tags || [])
   const uniqueTags = [...new Set(allTags)].sort()
   return reply.send({ tags: uniqueTags })
 })
 
-// GET /api/contacts/stats
-fastify.get('/api/contacts/stats', async (request, reply) => {
-  console.log('[MOCK] GET /api/contacts/stats')
+// GET /api/associados/stats
+fastify.get('/api/associados/stats', async (request, reply) => {
+  console.log('[MOCK] GET /api/associados/stats')
   const totalVehicles = mockVehicles.filter((v: any) => v.ativo).length
   return reply.send({
     total: mockContacts.length,
@@ -163,20 +163,20 @@ fastify.get('/api/contacts/stats', async (request, reply) => {
   })
 })
 
-// GET /api/contacts/:id
-fastify.get('/api/contacts/:id', async (request, reply) => {
+// GET /api/associados/:id
+fastify.get('/api/associados/:id', async (request, reply) => {
   const { id } = request.params as { id: string }
-  console.log('[MOCK] GET /api/contacts/:id', { id })
+  console.log('[MOCK] GET /api/associados/:id', { id })
   const associado = mockContacts.find((p: any) => p.id === id)
   if (!associado) return reply.status(404).send({ message: 'Associado nao encontrado' })
   const vehicles = mockVehicles.filter((v: any) => v.associadoId === id)
   return reply.send({ ...associado, vehicles, leads: [], deals: [], conversations: [], activities: [] })
 })
 
-// POST /api/contacts
-fastify.post('/api/contacts', async (request, reply) => {
+// POST /api/associados
+fastify.post('/api/associados', async (request, reply) => {
   const data = request.body as any
-  console.log('[MOCK] POST /api/contacts', { name: data.firstName })
+  console.log('[MOCK] POST /api/associados', { name: data.firstName })
   const associado = {
     id: `assoc-${Date.now()}`,
     companyId: 'default-company',
@@ -197,11 +197,11 @@ fastify.post('/api/contacts', async (request, reply) => {
   return reply.status(201).send(associado)
 })
 
-// PUT /api/contacts/:id
-fastify.put('/api/contacts/:id', async (request, reply) => {
+// PUT /api/associados/:id
+fastify.put('/api/associados/:id', async (request, reply) => {
   const { id } = request.params as { id: string }
   const data = request.body as any
-  console.log('[MOCK] PUT /api/contacts/:id', { id })
+  console.log('[MOCK] PUT /api/associados/:id', { id })
   const index = mockContacts.findIndex((p: any) => p.id === id)
   if (index === -1) return reply.status(404).send({ message: 'Associado nao encontrado' })
 
@@ -217,10 +217,10 @@ fastify.put('/api/contacts/:id', async (request, reply) => {
   return reply.send(mockContacts[index])
 })
 
-// DELETE /api/contacts/:id
-fastify.delete('/api/contacts/:id', async (request, reply) => {
+// DELETE /api/associados/:id
+fastify.delete('/api/associados/:id', async (request, reply) => {
   const { id } = request.params as { id: string }
-  console.log('[MOCK] DELETE /api/contacts/:id', { id })
+  console.log('[MOCK] DELETE /api/associados/:id', { id })
   const index = mockContacts.findIndex((p: any) => p.id === id)
   if (index !== -1) mockContacts.splice(index, 1)
   return reply.send({ success: true, message: 'Associado excluido com sucesso' })
@@ -408,10 +408,10 @@ fastify.get('/api/vehicles', async (request, reply) => {
   })
 })
 
-// GET /api/contacts/:id/vehicles
-fastify.get('/api/contacts/:id/vehicles', async (request, reply) => {
+// GET /api/associados/:id/vehicles
+fastify.get('/api/associados/:id/vehicles', async (request, reply) => {
   const { id } = request.params as { id: string }
-  console.log('[MOCK] GET /api/contacts/:id/vehicles', { id })
+  console.log('[MOCK] GET /api/associados/:id/vehicles', { id })
   const vehicles = mockVehicles.filter((v: any) => v.associadoId === id)
   return reply.send(vehicles)
 })
@@ -830,6 +830,40 @@ const SQUAD_AGENTS_DATA = [
     allowedScopes: ['contacts'],
     canCreateLeads: false, canUpdateLeads: true, canCreateDeals: false, canTransferToHuman: true,
     systemPrompt: '# Agente Operacao 21Go\n\nAssistente de pintores, mecanicos e vistoriadores. Linguagem de oficina: direto, sem frescura.\n\nCapacidades:\n- Agenda do dia: veiculo, servico, associado, prioridade, prazo\n- Atualizar status: Recebido -> Diagnostico -> Aguardando Peca -> Reparo -> Pintura -> Montagem -> Pronto -> Entregue (notifica associado automatico via WhatsApp)\n- Registrar servico: tipo, problema, pecas, fotos antes/depois\n- Consultar veiculo: por placa/nome/sinistro -> historico, sinistros anteriores, plano\n\nRegras: mobile-first, status com 1 toque, fotos obrigatorias (recebimento/conclusao/entrega), NUNCA mostrar financeiro do associado, peca indisponivel -> alerta gestor.',
+  },
+  {
+    id: 'agente-financeiro',
+    name: 'Agente Financeiro',
+    description: 'Controle Financeiro & Inadimplencia — Boletos, MRR, cobranca via Hinova SGC',
+    icon: '💰',
+    tier: 1,
+    squad: '21go-squad',
+    type: 'internal',
+    provider: 'anthropic',
+    model: 'claude-sonnet-4-6',
+    temperature: 0.5,
+    maxTokens: 3000,
+    allowedRoles: ['gestor', 'admin'],
+    allowedScopes: ['contacts', 'analytics', 'billing'],
+    canCreateLeads: false, canUpdateLeads: false, canCreateDeals: false, canTransferToHuman: false,
+    systemPrompt: '# Agente Financeiro 21Go\n\nController Financeiro Digital. Obsecado com a saude do caixa.\n\nCapacidades:\n- Boletos em aberto por periodo\n- Top inadimplentes (valor + dias de atraso)\n- MRR atual e por plano (Basico/Completo/Premium)\n- Ticket medio por associado\n- Projecao de receita proximos 3 meses\n- Descontos MGM concedidos e ROI\n- Fluxo de cobranca: dia 5, dia 15, dia 30\n\nMetricas: MRR, churn financeiro (receita perdida/MRR anterior), inadimplencia rate (15+ dias), LTV financeiro, CAC payback.\n\nAlertas: inadimplencia > 8%, MRR caiu 5%+ m/m, associado 3+ boletos atrasados consecutivos.\n\nHinova SGC: /api/sgc/boletos, /api/sgc/inadimplentes, /api/sgc/pagamentos, /api/sgc/segunda-via.\n\nRegras: nunca expor financeiro para vendedor/operacao. Acesso: gestor e admin. Sempre mostrar tendencia junto com numero. Projecoes sao estimativas.',
+  },
+  {
+    id: 'agente-sinistros',
+    name: 'Agente Sinistros',
+    description: 'Gestao de Sinistros — Abertura ao Encerramento, oficinas, prazos, sinistralidade',
+    icon: '🚨',
+    tier: 1,
+    squad: '21go-squad',
+    type: 'internal',
+    provider: 'anthropic',
+    model: 'claude-sonnet-4-6',
+    temperature: 0.6,
+    maxTokens: 3000,
+    allowedRoles: ['operacao', 'gestor', 'admin'],
+    allowedScopes: ['contacts', 'deals'],
+    canCreateLeads: false, canUpdateLeads: true, canCreateDeals: false, canTransferToHuman: true,
+    systemPrompt: '# Agente Sinistros 21Go\n\nGestor de Sinistros Digital. Sinistro e o momento mais critico — oportunidade de fidelizacao.\n\nFluxo: 1) Abertura (0800/WhatsApp/App/CRM) -> protocolo + notificar gestor. 2) Analise (adimplente? vistoria? cobertura? carencia?) -> aprovar/negar. 3) Oficina (guincho -> recebido -> diagnostico -> orcamento -> pecas -> reparo -> pintura -> montagem -> pronto). 4) Comunicacao (nunca 48h+ sem noticia, WhatsApp automatico). 5) Encerramento (fotos antes/depois, confirmacao, NPS).\n\nMetricas: sinistros abertos/fechados, tempo medio resolucao (meta 15 dias), sinistralidade (custo/receita), NPS pos-sinistro (meta >=7), cancelamento pos-sinistro (meta <5%), sinistros por tipo.\n\nAlertas: 10+ dias sem atualizacao, 3+ sinistros mesma oficina com atraso, sinistralidade >70%, Reclame Aqui -> 24h.\n\nRegras: associado e prioridade, fotos obrigatorias, operacao ve seus sinistros, gestor/admin veem todos, vendedor NAO ve sinistros.',
   },
 ]
 

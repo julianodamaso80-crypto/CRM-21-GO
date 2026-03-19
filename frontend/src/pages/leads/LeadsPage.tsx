@@ -14,7 +14,7 @@ import {
   Send,
 } from 'lucide-react'
 import { useLeads, useLeadStats, useCreateLead, useUpdateLead, useDeleteLead } from '../../hooks/useLeads'
-import { useContacts } from '../../hooks/useContacts'
+import { useAssociados } from '../../hooks/useAssociados'
 import type { Lead, CreateLeadRequest, UpdateLeadRequest, LeadStatus, LeadSource, VehiclePlano } from '../../../../shared/types'
 
 const STATUS_MAP: Partial<Record<LeadStatus, { label: string; cls: string }>> = {
@@ -303,8 +303,8 @@ function ScoreBar({ score }: { score: number }) {
 function LeadDrawer({ lead, onClose }: { lead: Lead | null; onClose: () => void }) {
   const createMutation = useCreateLead()
   const updateMutation = useUpdateLead()
-  const { data: contactsData } = useContacts({ limit: 100 })
-  const contacts = contactsData?.data || []
+  const { data: associadosData } = useAssociados({ limit: 100 })
+  const associados = associadosData?.data || []
 
   const [title, setTitle] = useState(lead?.title || '')
   const [description, setDescription] = useState(lead?.description || '')
@@ -382,7 +382,7 @@ function LeadDrawer({ lead, onClose }: { lead: Lead | null; onClose: () => void 
                 className="w-full input"
               >
                 <option value="">Selecione um associado</option>
-                {contacts.map((c) => (
+                {associados.map((c) => (
                   <option key={c.id} value={c.id}>{c.fullName || `${c.firstName} ${c.lastName}`}{c.cpf ? ` — ${c.cpf}` : ''}</option>
                 ))}
               </select>

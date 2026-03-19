@@ -194,7 +194,7 @@ export type AssociadoOrigem =
   | 'google_ads' | 'meta_ads' | 'instagram' | 'site_organico'
   | 'indicacao' | 'whatsapp' | 'direto' | 'outro'
 
-export interface Contact {
+export interface Associado {
   id: string
   companyId: string
   firstName?: string
@@ -243,7 +243,7 @@ export interface Contact {
   vehicles?: Vehicle[]
 }
 
-export interface CreateContactRequest {
+export interface CreateAssociadoRequest {
   firstName?: string
   lastName?: string
   email?: string
@@ -273,9 +273,9 @@ export interface CreateContactRequest {
   customFields?: Record<string, any>
 }
 
-export interface UpdateContactRequest extends Partial<CreateContactRequest> {}
+export interface UpdateAssociadoRequest extends Partial<CreateAssociadoRequest> {}
 
-export interface ContactWithStats extends Contact {
+export interface AssociadoWithStats extends Associado {
   _count: {
     leads: number
     deals: number
@@ -284,7 +284,7 @@ export interface ContactWithStats extends Contact {
   }
 }
 
-export interface ContactDetails extends Contact {
+export interface AssociadoDetails extends Associado {
   leads: Array<{
     id: string
     title: string
@@ -317,8 +317,8 @@ export interface ContactDetails extends Contact {
   vehicles: Vehicle[]
 }
 
-export interface ContactsListResponse {
-  data: ContactWithStats[]
+export interface AssociadosListResponse {
+  data: AssociadoWithStats[]
   pagination: {
     page: number
     limit: number
@@ -329,7 +329,7 @@ export interface ContactsListResponse {
   }
 }
 
-export interface ContactsStatsResponse {
+export interface AssociadosStatsResponse {
   total: number
   ativos: number
   inativos: number
@@ -338,6 +338,15 @@ export interface ContactsStatsResponse {
   recentCount: number
   totalVehicles: number
 }
+
+// Backward-compat aliases (Contact → Associado)
+export type Contact = Associado
+export type CreateContactRequest = CreateAssociadoRequest
+export type UpdateContactRequest = UpdateAssociadoRequest
+export type ContactWithStats = AssociadoWithStats
+export type ContactDetails = AssociadoDetails
+export type ContactsListResponse = AssociadosListResponse
+export type ContactsStatsResponse = AssociadosStatsResponse
 
 // ============================================================================
 // LEADS
