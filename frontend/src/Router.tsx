@@ -35,12 +35,12 @@ function PublicOnlyRoute() {
 
 function ComingSoon({ title }: { title: string }) {
   return (
-    <div className="p-6 flex flex-col items-center justify-center h-full min-h-[400px]">
+    <div className="p-6 flex flex-col items-center justify-center h-full min-h-[400px] page-enter">
       <div className="text-center">
-        <div className="w-16 h-16 bg-primary-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
+        <div className="w-16 h-16 bg-gold-500/10 border border-gold-500/20 rounded-2xl flex items-center justify-center mx-auto mb-5">
           <span className="text-2xl">🚧</span>
         </div>
-        <h2 className="text-xl font-bold text-white mb-2">{title}</h2>
+        <h2 className="text-xl font-display font-bold text-white mb-2">{title}</h2>
         <p className="text-gray-400">Modulo em desenvolvimento. Em breve disponivel.</p>
       </div>
     </div>

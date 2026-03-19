@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Loader2, LogIn } from 'lucide-react'
+import { Loader2, LogIn, ArrowRight } from 'lucide-react'
 import { useAuthStore } from '../../store/auth-store'
 import { authService } from '../../services/auth.service'
 
@@ -32,23 +32,34 @@ export function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-dark-900 px-4">
-      <div className="max-w-sm w-full">
-        <div className="text-center mb-8">
-          <h1 className="text-2xl font-bold text-white">CRM IA</h1>
-          <p className="text-sm text-gray-400 mt-1">Entre na sua conta</p>
+    <div className="min-h-screen flex items-center justify-center bg-dark-950 px-4 relative overflow-hidden">
+      {/* Background effects */}
+      <div className="absolute inset-0">
+        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[600px] h-[600px] bg-gold-500/[0.03] rounded-full blur-[120px]" />
+        <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-accent-blue/[0.02] rounded-full blur-[100px]" />
+      </div>
+
+      <div className="max-w-sm w-full relative z-10 animate-fade-in-up">
+        {/* Logo */}
+        <div className="text-center mb-10">
+          <div className="w-16 h-16 mx-auto rounded-2xl bg-gradient-gold flex items-center justify-center shadow-glow-gold-lg mb-5">
+            <span className="text-dark-900 font-display font-bold text-2xl">21</span>
+          </div>
+          <h1 className="text-3xl font-display font-bold text-white tracking-tight">21Go CRM</h1>
+          <p className="text-sm text-gray-400 mt-2">Plataforma de gestao inteligente</p>
         </div>
 
-        <div className="bg-dark-800 rounded-lg border border-dark-700 p-6">
-          <form onSubmit={handleSubmit} className="space-y-4">
+        {/* Form Card */}
+        <div className="card-glass p-8">
+          <form onSubmit={handleSubmit} className="space-y-5">
             {error && (
-              <div className="px-3 py-2 text-sm text-red-700 bg-red-50 rounded-lg border border-red-200">
+              <div className="px-4 py-3 text-sm text-red-400 bg-red-500/10 rounded-xl border border-red-500/20 animate-fade-in">
                 {error}
               </div>
             )}
 
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-300 mb-1">Email</label>
+              <label htmlFor="email" className="label">Email</label>
               <input
                 id="email"
                 type="email"
@@ -57,12 +68,12 @@ export function LoginPage() {
                 required
                 autoFocus
                 placeholder="admin@crm.com"
-                className="w-full px-3 py-2 text-sm bg-dark-800 border border-dark-600 text-gray-200 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                className="input"
               />
             </div>
 
             <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-300 mb-1">Senha</label>
+              <label htmlFor="password" className="label">Senha</label>
               <input
                 id="password"
                 type="password"
@@ -70,26 +81,26 @@ export function LoginPage() {
                 onChange={(e) => setPassword(e.target.value)}
                 required
                 placeholder="••••••••"
-                className="w-full px-3 py-2 text-sm bg-dark-800 border border-dark-600 text-gray-200 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                className="input"
               />
             </div>
 
             <button
               type="submit"
               disabled={loading}
-              className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-primary-500 text-white text-sm font-medium rounded-lg hover:bg-primary-400 disabled:opacity-50"
+              className="btn-primary w-full flex items-center justify-center gap-2 py-3"
             >
               {loading ? (
                 <Loader2 className="w-4 h-4 animate-spin" />
               ) : (
-                <LogIn className="w-4 h-4" />
+                <ArrowRight className="w-4 h-4" />
               )}
               {loading ? 'Entrando...' : 'Entrar'}
             </button>
           </form>
         </div>
 
-        <p className="text-center text-xs text-gray-400 mt-4">
+        <p className="text-center text-xs text-gray-500 mt-5 font-mono">
           admin@crm.com / Admin123!
         </p>
       </div>

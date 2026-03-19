@@ -188,7 +188,10 @@ model Company {
   campaignCosts   CampaignCost[]
   trackingEvents  TrackingEvent[]
 
-  // Healthcare
+  // Veiculos
+  vehicles       Vehicle[]
+
+  // Healthcare (legacy - sera removido)
   doctors        Doctor[]
   convenios      Convenio[]
   appointments   Appointment[]
@@ -317,7 +320,7 @@ model Contact {
   companyId   String   @map("company_id")
   company     Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
 
-  // Identificação
+  // Identificacao
   firstName   String?  @map("first_name")
   lastName    String?  @map("last_name")
   fullName    String   @map("full_name") // computed field
@@ -325,39 +328,60 @@ model Contact {
   phone       String?
   avatar      String?
 
-  // Profissional
-  jobTitle    String?  @map("job_title")
-  companyName String?  @map("company_name")
-
-  // Social
+  // Dados pessoais (Associado)
+  cpf         String?
+  rg          String?
+  dateOfBirth DateTime? @map("date_of_birth")
   whatsapp    String?
-  instagram   String?
-  linkedin    String?
-  twitter     String?
 
-  // Address
+  // Endereco
   address     String?
+  bairro      String?
   city        String?
   state       String?
   country     String?
   zipCode     String?  @map("zip_code")
 
+  // Status de associacao
+  status             String   @default("em_adesao") // ativo, inativo, inadimplente, cancelado, em_adesao
+  dataAdesao         DateTime? @map("data_adesao")
+  dataCancelamento   DateTime? @map("data_cancelamento")
+  motivoCancelamento String?   @map("motivo_cancelamento")
+
+  // Integracao Hinova (SGA)
+  hinovaId    String?  @map("hinova_id")
+
+  // Indicacao / MGM
+  indicadoPor     String?  @map("indicado_por")
+  vendedorId      String?  @map("vendedor_id")
+  totalIndicacoes Int      @default(0) @map("total_indicacoes")
+  descontoMgm     Float?   @map("desconto_mgm")
+
+  // NPS
+  npsScore    Int?      @map("nps_score")
+  ultimoNps   DateTime? @map("ultimo_nps")
+
+  // Origem / Rastreamento
+  origem      String?  // google_ads, meta_ads, instagram, site_organico, indicacao, whatsapp, direto, outro
+  utmSource   String?  @map("utm_source")
+  utmMedium   String?  @map("utm_medium")
+  utmCampaign String?  @map("utm_campaign")
+
   // Metadata
   tags        String[] @default([])
   customFields Json    @default("{}") @map("custom_fields")
 
-  // Relacionamentos
+  // Relacionamentos CRM
   leads         Lead[]
   deals         Deal[]
   conversations Conversation[]
   activities    Activity[]
 
-  // Healthcare
-  appointments   Appointment[]
-  medicalRecords MedicalRecord[]
-  npsSurveys     NPSSurvey[]
-  convenioId     String?        @map("convenio_id")
-  convenio       Convenio?      @relation("ContactConvenio", fields: [convenioId], references: [id])
+  // Veiculos
+  vehicles      Vehicle[]
+
+  // NPS Surveys
+  npsSurveys    NPSSurvey[]
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
@@ -366,7 +390,10 @@ model Contact {
   @@index([companyId])
   @@index([email])
   @@index([phone])
+  @@index([cpf])
   @@index([fullName])
+  @@index([status])
+  @@index([hinovaId])
 }
 
 model Lead {
@@ -1361,6 +1388,63 @@ model CardAttachment {
 
   @@map("card_attachments")
   @@index([companyId, cardId])
+}
+
+// ============================================================================
+// VEHICLES (Protecao Veicular)
+// ============================================================================
+
+model Vehicle {
+  id          String   @id @default(uuid())
+
+  companyId   String   @map("company_id")
+  company     Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  associadoId String   @map("associado_id")
+  associado   Contact  @relation(fields: [associadoId], references: [id], onDelete: Cascade)
+
+  // Dados do veiculo
+  placa       String
+  renavam     String?
+  chassi      String?
+  marca       String
+  modelo      String
+  anoFabricacao Int    @map("ano_fabricacao")
+  anoModelo     Int    @map("ano_modelo")
+  cor           String?
+  combustivel   String?  // gasolina, etanol, flex, diesel, eletrico, hibrido
+  tipo          String   // carro, moto, caminhonete, van, caminhao
+
+  // FIPE
+  codigoFipe            String?  @map("codigo_fipe")
+  valorFipe             Float?   @map("valor_fipe")
+  valorFipeAtualizadoEm DateTime? @map("valor_fipe_atualizado_em")
+
+  // Plano
+  plano        String   // basico, completo, premium
+  valorMensal  Float?   @map("valor_mensal")
+
+  // Rastreador
+  temRastreador   Boolean @default(false) @map("tem_rastreador")
+  rastreadorMarca String? @map("rastreador_marca")
+
+  // Vistoria
+  vistoriaStatus String  @default("pendente") @map("vistoria_status") // pendente, agendada, aprovada, reprovada
+  vistoriaData   DateTime? @map("vistoria_data")
+
+  // Status
+  ativo         Boolean  @default(true)
+  dataInclusao  DateTime @default(now()) @map("data_inclusao")
+  dataExclusao  DateTime? @map("data_exclusao")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("vehicles")
+  @@index([companyId])
+  @@index([associadoId])
+  @@index([placa])
+  @@unique([companyId, placa])
 }
 
 // ============================================================================

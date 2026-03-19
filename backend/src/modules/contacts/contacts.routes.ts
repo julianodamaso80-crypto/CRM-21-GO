@@ -5,23 +5,19 @@ import { authenticate } from '../../middlewares/authenticate'
 const contactsController = new ContactsController()
 
 export async function contactsRoutes(fastify: FastifyInstance) {
-  // Todas as rotas requerem autenticação
   fastify.addHook('onRequest', authenticate)
 
   // GET /contacts/tags - deve vir antes de /contacts/:id
   fastify.get('/tags', {
     schema: {
-      description: 'Get unique tags from all contacts',
-      tags: ['contacts'],
+      description: 'Get unique tags from all associados',
+      tags: ['associados'],
       security: [{ bearerAuth: [] }],
       response: {
         200: {
           type: 'object',
           properties: {
-            tags: {
-              type: 'array',
-              items: { type: 'string' },
-            },
+            tags: { type: 'array', items: { type: 'string' } },
           },
         },
       },
@@ -32,18 +28,20 @@ export async function contactsRoutes(fastify: FastifyInstance) {
   // GET /contacts/stats
   fastify.get('/stats', {
     schema: {
-      description: 'Get contacts statistics',
-      tags: ['contacts'],
+      description: 'Get associados statistics',
+      tags: ['associados'],
       security: [{ bearerAuth: [] }],
       response: {
         200: {
           type: 'object',
           properties: {
             total: { type: 'number' },
-            withEmail: { type: 'number' },
-            withPhone: { type: 'number' },
-            withDeals: { type: 'number' },
+            ativos: { type: 'number' },
+            inativos: { type: 'number' },
+            inadimplentes: { type: 'number' },
+            emAdesao: { type: 'number' },
             recentCount: { type: 'number' },
+            totalVehicles: { type: 'number' },
           },
         },
       },
@@ -54,8 +52,8 @@ export async function contactsRoutes(fastify: FastifyInstance) {
   // GET /contacts
   fastify.get('/', {
     schema: {
-      description: 'List contacts with pagination and filters',
-      tags: ['contacts'],
+      description: 'List associados with pagination and filters',
+      tags: ['associados'],
       security: [{ bearerAuth: [] }],
       querystring: {
         type: 'object',
@@ -63,20 +61,16 @@ export async function contactsRoutes(fastify: FastifyInstance) {
           page: { type: 'number', minimum: 1 },
           limit: { type: 'number', minimum: 1, maximum: 100 },
           search: { type: 'string' },
+          status: { type: 'string' },
+          origem: { type: 'string' },
           tags: {
             oneOf: [
               { type: 'string' },
               { type: 'array', items: { type: 'string' } },
             ],
           },
-          sortBy: {
-            type: 'string',
-            enum: ['createdAt', 'updatedAt', 'fullName'],
-          },
-          sortOrder: {
-            type: 'string',
-            enum: ['asc', 'desc'],
-          },
+          sortBy: { type: 'string', enum: ['createdAt', 'updatedAt', 'fullName'] },
+          sortOrder: { type: 'string', enum: ['asc', 'desc'] },
         },
       },
     },
@@ -86,8 +80,8 @@ export async function contactsRoutes(fastify: FastifyInstance) {
   // GET /contacts/:id
   fastify.get('/:id', {
     schema: {
-      description: 'Get contact by ID with related data',
-      tags: ['contacts'],
+      description: 'Get associado by ID with related data',
+      tags: ['associados'],
       security: [{ bearerAuth: [] }],
       params: {
         type: 'object',
@@ -103,8 +97,8 @@ export async function contactsRoutes(fastify: FastifyInstance) {
   // POST /contacts
   fastify.post('/', {
     schema: {
-      description: 'Create a new contact',
-      tags: ['contacts'],
+      description: 'Create a new associado',
+      tags: ['associados'],
       security: [{ bearerAuth: [] }],
       body: {
         type: 'object',
@@ -113,21 +107,28 @@ export async function contactsRoutes(fastify: FastifyInstance) {
           lastName: { type: 'string' },
           email: { type: 'string', format: 'email' },
           phone: { type: 'string' },
-          jobTitle: { type: 'string' },
-          companyName: { type: 'string' },
           whatsapp: { type: 'string' },
-          instagram: { type: 'string' },
-          linkedin: { type: 'string' },
-          twitter: { type: 'string' },
+          cpf: { type: 'string' },
+          rg: { type: 'string' },
+          dateOfBirth: { type: 'string' },
           address: { type: 'string' },
+          bairro: { type: 'string' },
           city: { type: 'string' },
           state: { type: 'string' },
           country: { type: 'string' },
           zipCode: { type: 'string' },
-          tags: {
-            type: 'array',
-            items: { type: 'string' },
-          },
+          status: { type: 'string' },
+          dataAdesao: { type: 'string' },
+          dataCancelamento: { type: 'string' },
+          motivoCancelamento: { type: 'string' },
+          hinovaId: { type: 'string' },
+          indicadoPor: { type: 'string' },
+          vendedorId: { type: 'string' },
+          origem: { type: 'string' },
+          utmSource: { type: 'string' },
+          utmMedium: { type: 'string' },
+          utmCampaign: { type: 'string' },
+          tags: { type: 'array', items: { type: 'string' } },
           customFields: { type: 'object' },
         },
       },
@@ -138,8 +139,8 @@ export async function contactsRoutes(fastify: FastifyInstance) {
   // PUT /contacts/:id
   fastify.put('/:id', {
     schema: {
-      description: 'Update an existing contact',
-      tags: ['contacts'],
+      description: 'Update an existing associado',
+      tags: ['associados'],
       security: [{ bearerAuth: [] }],
       params: {
         type: 'object',
@@ -155,21 +156,28 @@ export async function contactsRoutes(fastify: FastifyInstance) {
           lastName: { type: 'string' },
           email: { type: 'string', format: 'email' },
           phone: { type: 'string' },
-          jobTitle: { type: 'string' },
-          companyName: { type: 'string' },
           whatsapp: { type: 'string' },
-          instagram: { type: 'string' },
-          linkedin: { type: 'string' },
-          twitter: { type: 'string' },
+          cpf: { type: 'string' },
+          rg: { type: 'string' },
+          dateOfBirth: { type: 'string' },
           address: { type: 'string' },
+          bairro: { type: 'string' },
           city: { type: 'string' },
           state: { type: 'string' },
           country: { type: 'string' },
           zipCode: { type: 'string' },
-          tags: {
-            type: 'array',
-            items: { type: 'string' },
-          },
+          status: { type: 'string' },
+          dataAdesao: { type: 'string' },
+          dataCancelamento: { type: 'string' },
+          motivoCancelamento: { type: 'string' },
+          hinovaId: { type: 'string' },
+          indicadoPor: { type: 'string' },
+          vendedorId: { type: 'string' },
+          origem: { type: 'string' },
+          utmSource: { type: 'string' },
+          utmMedium: { type: 'string' },
+          utmCampaign: { type: 'string' },
+          tags: { type: 'array', items: { type: 'string' } },
           customFields: { type: 'object' },
         },
       },
@@ -180,8 +188,8 @@ export async function contactsRoutes(fastify: FastifyInstance) {
   // DELETE /contacts/:id
   fastify.delete('/:id', {
     schema: {
-      description: 'Delete a contact',
-      tags: ['contacts'],
+      description: 'Delete an associado',
+      tags: ['associados'],
       security: [{ bearerAuth: [] }],
       params: {
         type: 'object',

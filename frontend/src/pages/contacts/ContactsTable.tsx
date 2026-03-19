@@ -46,7 +46,7 @@ export function ContactsTable({ contacts, onEdit, onView }: ContactsTableProps) 
 
   if (contacts.length === 0) {
     return (
-      <div className="bg-dark-800 rounded-lg border border-dark-700 p-12 text-center">
+      <div className="card p-12 text-center">
         <div className="flex flex-col items-center">
           <div className="w-16 h-16 bg-dark-700 rounded-full flex items-center justify-center mb-4">
             <Users className="w-8 h-8 text-gray-500" />
@@ -59,10 +59,10 @@ export function ContactsTable({ contacts, onEdit, onView }: ContactsTableProps) 
   }
 
   return (
-    <div className="bg-dark-800 rounded-lg border border-dark-700 overflow-hidden">
+    <div className="table-container">
       <div className="overflow-x-auto">
-        <table className="min-w-full divide-y divide-dark-700">
-          <thead className="bg-dark-700">
+        <table className="min-w-full divide-y divide-dark-700/40">
+          <thead className="table-header">
             <tr>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Associado</th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">WhatsApp</th>

@@ -83,13 +83,13 @@ fastify.post('/api/auth/register', async (request, reply) => {
 })
 
 // ============================================================================
-// MOCK PATIENTS/ASSOCIADOS API
+// MOCK ASSOCIADOS (CONTACTS) API
 // ============================================================================
 
-// GET /api/patients (lista de pacientes)
-fastify.get('/api/patients', async (request, reply) => {
-  console.log('[MOCK] GET /api/patients')
-  const { search, page = '1', limit = '10' } = request.query as any
+// GET /api/contacts (lista de associados)
+fastify.get('/api/contacts', async (request, reply) => {
+  console.log('[MOCK] GET /api/contacts')
+  const { search, status, origem, page = '1', limit = '20' } = request.query as any
 
   let filtered = [...mockContacts]
 
@@ -99,81 +99,109 @@ fastify.get('/api/patients', async (request, reply) => {
       p.fullName?.toLowerCase().includes(s) ||
       p.email?.toLowerCase().includes(s) ||
       p.phone?.includes(s) ||
-      p.cpf?.includes(s)
+      p.cpf?.includes(s) ||
+      p.whatsapp?.includes(s)
     )
+  }
+
+  if (status) {
+    filtered = filtered.filter((p: any) => p.status === status)
+  }
+
+  if (origem) {
+    filtered = filtered.filter((p: any) => p.origem === origem)
   }
 
   const total = filtered.length
   const pageNum = parseInt(page)
   const limitNum = parseInt(limit)
   const offset = (pageNum - 1) * limitNum
+  const totalPages = Math.ceil(total / limitNum)
   const paged = filtered.slice(offset, offset + limitNum)
 
   return reply.send({
     data: paged,
-    meta: {
-      total,
+    pagination: {
       page: pageNum,
       limit: limitNum,
-      totalPages: Math.ceil(total / limitNum),
+      total,
+      totalPages,
+      hasNext: pageNum < totalPages,
+      hasPrev: pageNum > 1,
     },
   })
 })
 
-// GET /api/patients/stats
-fastify.get('/api/patients/stats', async (request, reply) => {
-  console.log('[MOCK] GET /api/patients/stats')
+// GET /api/contacts/tags
+fastify.get('/api/contacts/tags', async (request, reply) => {
+  console.log('[MOCK] GET /api/contacts/tags')
+  const allTags = mockContacts.flatMap((c: any) => c.tags || [])
+  const uniqueTags = [...new Set(allTags)].sort()
+  return reply.send({ tags: uniqueTags })
+})
+
+// GET /api/contacts/stats
+fastify.get('/api/contacts/stats', async (request, reply) => {
+  console.log('[MOCK] GET /api/contacts/stats')
+  const totalVehicles = mockVehicles.filter((v: any) => v.ativo).length
   return reply.send({
     total: mockContacts.length,
-    active: mockContacts.filter((p: any) => p.lastVisitAt).length,
-    newThisMonth: mockContacts.filter((p: any) => {
+    ativos: mockContacts.filter((p: any) => p.status === 'ativo').length,
+    inativos: mockContacts.filter((p: any) => p.status === 'inativo').length,
+    inadimplentes: mockContacts.filter((p: any) => p.status === 'inadimplente').length,
+    emAdesao: mockContacts.filter((p: any) => p.status === 'em_adesao').length,
+    recentCount: mockContacts.filter((p: any) => {
       const created = new Date(p.createdAt)
-      const now = new Date()
-      return created.getMonth() === now.getMonth() && created.getFullYear() === now.getFullYear()
+      return Date.now() - created.getTime() < 30 * 24 * 60 * 60 * 1000
     }).length,
-    withUpcomingAppointments: mockContacts.filter((p: any) => p.nextVisitAt).length,
+    totalVehicles,
   })
 })
 
-// GET /api/patients/:id
-fastify.get('/api/patients/:id', async (request, reply) => {
+// GET /api/contacts/:id
+fastify.get('/api/contacts/:id', async (request, reply) => {
   const { id } = request.params as { id: string }
-  console.log('[MOCK] GET /api/patients/:id', { id })
-  const patient = mockContacts.find((p: any) => p.id === id)
-  if (!patient) return reply.status(404).send({ message: 'Patient not found' })
-  return reply.send(patient)
+  console.log('[MOCK] GET /api/contacts/:id', { id })
+  const associado = mockContacts.find((p: any) => p.id === id)
+  if (!associado) return reply.status(404).send({ message: 'Associado nao encontrado' })
+  const vehicles = mockVehicles.filter((v: any) => v.associadoId === id)
+  return reply.send({ ...associado, vehicles, leads: [], deals: [], conversations: [], activities: [] })
 })
 
-// POST /api/patients
-fastify.post('/api/patients', async (request, reply) => {
+// POST /api/contacts
+fastify.post('/api/contacts', async (request, reply) => {
   const data = request.body as any
-  console.log('[MOCK] POST /api/patients', { name: data.firstName })
-  const patient = {
-    id: `patient-${Date.now()}`,
+  console.log('[MOCK] POST /api/contacts', { name: data.firstName })
+  const associado = {
+    id: `assoc-${Date.now()}`,
     companyId: 'default-company',
-    fullName: `${data.firstName} ${data.lastName}`,
+    fullName: `${data.firstName || ''} ${data.lastName || ''}`.trim() || 'Sem nome',
     ...data,
     avatar: null,
+    totalIndicacoes: 0,
+    descontoMgm: 0,
+    npsScore: null,
+    ultimoNps: null,
     tags: data.tags || [],
     customFields: data.customFields || {},
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
-    _count: { leads: 0, deals: 0, conversations: 0 },
+    _count: { leads: 0, deals: 0, conversations: 0, vehicles: 0 },
   }
-  mockContacts.push(patient)
-  return reply.status(201).send(patient)
+  mockContacts.push(associado)
+  return reply.status(201).send(associado)
 })
 
-// PUT /api/patients/:id
-fastify.put('/api/patients/:id', async (request, reply) => {
+// PUT /api/contacts/:id
+fastify.put('/api/contacts/:id', async (request, reply) => {
   const { id } = request.params as { id: string }
   const data = request.body as any
-  console.log('[MOCK] PUT /api/patients/:id', { id })
+  console.log('[MOCK] PUT /api/contacts/:id', { id })
   const index = mockContacts.findIndex((p: any) => p.id === id)
-  if (index === -1) return reply.status(404).send({ message: 'Patient not found' })
+  if (index === -1) return reply.status(404).send({ message: 'Associado nao encontrado' })
 
-  if (data.firstName || data.lastName) {
-    data.fullName = `${data.firstName ?? mockContacts[index].firstName} ${data.lastName ?? mockContacts[index].lastName}`
+  if (data.firstName !== undefined || data.lastName !== undefined) {
+    data.fullName = `${data.firstName ?? mockContacts[index].firstName} ${data.lastName ?? mockContacts[index].lastName}`.trim()
   }
 
   mockContacts[index] = {
@@ -184,13 +212,13 @@ fastify.put('/api/patients/:id', async (request, reply) => {
   return reply.send(mockContacts[index])
 })
 
-// DELETE /api/patients/:id
-fastify.delete('/api/patients/:id', async (request, reply) => {
+// DELETE /api/contacts/:id
+fastify.delete('/api/contacts/:id', async (request, reply) => {
   const { id } = request.params as { id: string }
-  console.log('[MOCK] DELETE /api/patients/:id', { id })
+  console.log('[MOCK] DELETE /api/contacts/:id', { id })
   const index = mockContacts.findIndex((p: any) => p.id === id)
   if (index !== -1) mockContacts.splice(index, 1)
-  return reply.send({ success: true })
+  return reply.send({ success: true, message: 'Associado excluido com sucesso' })
 })
 
 // ============================================================================

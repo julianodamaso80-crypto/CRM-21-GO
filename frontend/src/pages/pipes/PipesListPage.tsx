@@ -24,10 +24,10 @@ export function PipesListPage() {
   }
 
   return (
-    <div className="p-6">
+    <div className="p-6 page-enter">
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-white">Pipes</h1>
+          <h1 className="text-2xl font-bold text-white font-display">Pipes</h1>
           <p className="text-gray-400">Gerencie seus processos e pipelines</p>
         </div>
         <div className="flex gap-2">
@@ -40,7 +40,7 @@ export function PipesListPage() {
           </Link>
           <button
             onClick={() => setShowNewForm(true)}
-            className="flex items-center gap-1.5 px-4 py-2 text-sm bg-primary-500 text-white rounded-lg hover:bg-primary-400"
+            className="flex items-center gap-1.5 px-4 py-2 text-sm btn-primary"
           >
             <Plus className="w-4 h-4" />
             Novo Pipe
@@ -64,7 +64,7 @@ export function PipesListPage() {
             <button
               onClick={handleCreate}
               disabled={!newName.trim() || createPipe.isPending}
-              className="px-4 py-2 bg-primary-500 text-white rounded-lg hover:bg-primary-400 disabled:opacity-50"
+              className="px-4 py-2 btn-primary disabled:opacity-50"
             >
               {createPipe.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Criar'}
             </button>
@@ -81,7 +81,7 @@ export function PipesListPage() {
       {/* Loading */}
       {isLoading && (
         <div className="flex justify-center p-12">
-          <Loader2 className="w-8 h-8 text-primary-400 animate-spin" />
+          <Loader2 className="w-8 h-8 text-gold-400 animate-spin" />
         </div>
       )}
 
@@ -101,7 +101,7 @@ export function PipesListPage() {
             </Link>
             <button
               onClick={() => setShowNewForm(true)}
-              className="flex items-center gap-1.5 px-4 py-2 text-sm bg-primary-500 text-white rounded-lg hover:bg-primary-400"
+              className="flex items-center gap-1.5 px-4 py-2 text-sm btn-primary"
             >
               <Plus className="w-4 h-4" />
               Novo Pipe

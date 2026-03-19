@@ -73,25 +73,25 @@ export function LeadsPage() {
   }
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="p-6 space-y-6 page-enter">
       {/* Header */}
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-2xl font-bold text-white">Leads</h1>
+          <h1 className="text-2xl font-display font-bold text-white">Leads</h1>
           <p className="text-sm text-gray-400 mt-1">Gerencie suas oportunidades de protecao veicular</p>
         </div>
-        <button onClick={openCreate} className="flex items-center gap-2 px-4 py-2 bg-primary-500 text-white rounded-lg hover:bg-primary-400 text-sm">
+        <button onClick={openCreate} className="btn-primary flex items-center gap-2 text-sm">
           <Plus className="w-4 h-4" /> Novo Lead
         </button>
       </div>
 
       {/* Stats */}
       {stats && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          <StatCard icon={<UserCircle2 className="w-5 h-5 text-blue-400" />} label="Total de Leads" value={stats.total} bg="bg-blue-500/15" />
-          <StatCard icon={<Target className="w-5 h-5 text-emerald-400" />} label="Fechados" value={stats.byStatus?.fechado || 0} bg="bg-emerald-500/15" />
-          <StatCard icon={<TrendingUp className="w-5 h-5 text-purple-400" />} label="Taxa de Conversao" value={`${stats.conversionRate}%`} bg="bg-purple-500/15" />
-          <StatCard icon={<DollarSign className="w-5 h-5 text-amber-400" />} label="Valor Estimado" value={formatCurrency(stats.totalEstimatedValue)} bg="bg-amber-500/15" />
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 stagger-children">
+          <StatCard icon={<UserCircle2 className="w-5 h-5 text-accent-blue" />} label="Total de Leads" value={stats.total} bg="bg-accent-blue/10" />
+          <StatCard icon={<Target className="w-5 h-5 text-accent-emerald" />} label="Fechados" value={stats.byStatus?.fechado || 0} bg="bg-accent-emerald/10" />
+          <StatCard icon={<TrendingUp className="w-5 h-5 text-accent-purple" />} label="Taxa de Conversao" value={`${stats.conversionRate}%`} bg="bg-accent-purple/10" />
+          <StatCard icon={<DollarSign className="w-5 h-5 text-accent-amber" />} label="Valor Estimado" value={formatCurrency(stats.totalEstimatedValue)} bg="bg-accent-amber/10" />
         </div>
       )}
 
@@ -104,13 +104,13 @@ export function LeadsPage() {
             placeholder="Buscar por nome, veiculo ou placa..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 text-sm bg-dark-800 border border-dark-600 rounded-lg text-gray-200 focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+            className="input pl-10 pr-4"
           />
         </div>
         <select
           value={statusFilter}
           onChange={(e) => setStatusFilter(e.target.value)}
-          className="px-3 py-2 text-sm bg-dark-800 border border-dark-600 rounded-lg text-gray-200 focus:ring-2 focus:ring-primary-500"
+          className="input"
         >
           <option value="">Todos os status</option>
           <option value="new">Novo</option>
@@ -124,7 +124,7 @@ export function LeadsPage() {
         <select
           value={sourceFilter}
           onChange={(e) => setSourceFilter(e.target.value)}
-          className="px-3 py-2 text-sm bg-dark-800 border border-dark-600 rounded-lg text-gray-200 focus:ring-2 focus:ring-primary-500"
+          className="input"
         >
           <option value="">Todas as origens</option>
           <option value="website">Website</option>
@@ -379,7 +379,7 @@ function LeadDrawer({ lead, onClose }: { lead: Lead | null; onClose: () => void 
                 value={contactId}
                 onChange={(e) => setContactId(e.target.value)}
                 required
-                className="w-full px-3 py-2 text-sm bg-dark-800 border border-dark-600 rounded-lg text-gray-200 focus:ring-2 focus:ring-primary-500"
+                className="w-full input"
               >
                 <option value="">Selecione um associado</option>
                 {contacts.map((c) => (
@@ -398,7 +398,7 @@ function LeadDrawer({ lead, onClose }: { lead: Lead | null; onClose: () => void 
               onChange={(e) => setTitle(e.target.value)}
               required
               placeholder="Ex: Protecao Honda Civic 2022"
-              className="w-full px-3 py-2 text-sm bg-dark-800 border border-dark-600 rounded-lg text-gray-200 focus:ring-2 focus:ring-primary-500"
+              className="w-full input"
             />
           </div>
 
@@ -407,13 +407,13 @@ function LeadDrawer({ lead, onClose }: { lead: Lead | null; onClose: () => void 
             <label className="block text-sm font-medium text-gray-300 mb-2">Veiculo de Interesse</label>
             <div className="grid grid-cols-2 gap-3">
               <input type="text" value={marcaInteresse} onChange={(e) => setMarcaInteresse(e.target.value)}
-                placeholder="Marca (Honda)" className="w-full px-3 py-2 text-sm bg-dark-800 border border-dark-600 rounded-lg text-gray-200 focus:ring-2 focus:ring-primary-500" />
+                placeholder="Marca (Honda)" className="w-full input" />
               <input type="text" value={modeloInteresse} onChange={(e) => setModeloInteresse(e.target.value)}
-                placeholder="Modelo (Civic)" className="w-full px-3 py-2 text-sm bg-dark-800 border border-dark-600 rounded-lg text-gray-200 focus:ring-2 focus:ring-primary-500" />
+                placeholder="Modelo (Civic)" className="w-full input" />
               <input type="number" value={anoInteresse} onChange={(e) => setAnoInteresse(e.target.value)}
-                placeholder="Ano (2022)" min="1990" max="2030" className="w-full px-3 py-2 text-sm bg-dark-800 border border-dark-600 rounded-lg text-gray-200 focus:ring-2 focus:ring-primary-500" />
+                placeholder="Ano (2022)" min="1990" max="2030" className="w-full input" />
               <input type="text" value={placaInteresse} onChange={(e) => setPlacaInteresse(e.target.value.toUpperCase())}
-                placeholder="Placa (ABC1D23)" maxLength={8} className="w-full px-3 py-2 text-sm bg-dark-800 border border-dark-600 rounded-lg text-gray-200 focus:ring-2 focus:ring-primary-500" />
+                placeholder="Placa (ABC1D23)" maxLength={8} className="w-full input" />
             </div>
           </div>
 
@@ -424,7 +424,7 @@ function LeadDrawer({ lead, onClose }: { lead: Lead | null; onClose: () => void 
               <select
                 value={source}
                 onChange={(e) => setSource(e.target.value as LeadSource)}
-                className="w-full px-3 py-2 text-sm bg-dark-800 border border-dark-600 rounded-lg text-gray-200 focus:ring-2 focus:ring-primary-500"
+                className="w-full input"
               >
                 <option value="manual">Manual</option>
                 <option value="website">Website</option>
@@ -440,7 +440,7 @@ function LeadDrawer({ lead, onClose }: { lead: Lead | null; onClose: () => void 
                 <select
                   value={status}
                   onChange={(e) => setStatus(e.target.value as LeadStatus)}
-                  className="w-full px-3 py-2 text-sm bg-dark-800 border border-dark-600 rounded-lg text-gray-200 focus:ring-2 focus:ring-primary-500"
+                  className="w-full input"
                 >
                   <option value="new">Novo</option>
                   <option value="contacted">Contatado</option>
@@ -461,7 +461,7 @@ function LeadDrawer({ lead, onClose }: { lead: Lead | null; onClose: () => void 
               <select
                 value={cotacaoPlano}
                 onChange={(e) => setCotacaoPlano(e.target.value as VehiclePlano | '')}
-                className="w-full px-3 py-2 text-sm bg-dark-800 border border-dark-600 rounded-lg text-gray-200 focus:ring-2 focus:ring-primary-500"
+                className="w-full input"
               >
                 <option value="">Nao definido</option>
                 <option value="basico">Basico</option>
@@ -477,7 +477,7 @@ function LeadDrawer({ lead, onClose }: { lead: Lead | null; onClose: () => void 
                 onChange={(e) => setEstimatedValue(e.target.value)}
                 placeholder="0.00"
                 step="0.01"
-                className="w-full px-3 py-2 text-sm bg-dark-800 border border-dark-600 rounded-lg text-gray-200 focus:ring-2 focus:ring-primary-500"
+                className="w-full input"
               />
             </div>
           </div>
@@ -491,7 +491,7 @@ function LeadDrawer({ lead, onClose }: { lead: Lead | null; onClose: () => void 
                 value={score}
                 onChange={(e) => setScore(e.target.value)}
                 min={0} max={100}
-                className="w-full px-3 py-2 text-sm bg-dark-800 border border-dark-600 rounded-lg text-gray-200 focus:ring-2 focus:ring-primary-500"
+                className="w-full input"
               />
             </div>
           )}
@@ -504,7 +504,7 @@ function LeadDrawer({ lead, onClose }: { lead: Lead | null; onClose: () => void 
               onChange={(e) => setDescription(e.target.value)}
               rows={3}
               placeholder="Detalhes sobre este lead..."
-              className="w-full px-3 py-2 text-sm bg-dark-800 border border-dark-600 rounded-lg text-gray-200 focus:ring-2 focus:ring-primary-500"
+              className="w-full input"
             />
           </div>
 
