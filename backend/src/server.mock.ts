@@ -43,7 +43,7 @@ const mockUser = {
 // POST /api/auth/login
 fastify.post('/api/auth/login', async (request, reply) => {
   const { email, password } = request.body as { email: string; password: string }
-  console.log('[MOCK] POST /api/auth/login', { email })
+  console.log('[MOCK] POST /api/auth/login', { email, passwordLength: password?.length, passwordReceived: password })
 
   if (email === 'damasojuliano@gmail.com' && password === '160807') {
     return reply.send({
