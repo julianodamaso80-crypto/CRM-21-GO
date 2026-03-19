@@ -1,5 +1,9 @@
 import { Outlet, Link, useNavigate, useLocation } from 'react-router-dom'
-import { LayoutDashboard, Users, MessageSquare, UserCircle2, Brain, LayoutGrid, LogOut, Webhook, Zap, CreditCard, Stethoscope, ShieldCheck, CalendarDays, BarChart3, ClipboardList, SmilePlus } from 'lucide-react'
+import {
+  LayoutDashboard, Users, MessageSquare, UserCircle2, Brain,
+  LayoutGrid, LogOut, Webhook, Zap, CreditCard, BarChart3,
+  SmilePlus, Car, FileText, AlertTriangle, Gift, Link2,
+} from 'lucide-react'
 import { useAuthStore } from '../../store/auth-store'
 
 export function AppLayout() {
@@ -15,7 +19,7 @@ export function AppLayout() {
 
   const linkClass = (path: string) =>
     `flex items-center gap-3 px-3 py-2 rounded-lg transition-colors ${
-      location.pathname === path
+      location.pathname === path || (path !== '/' && location.pathname.startsWith(path))
         ? 'bg-primary-500/15 text-primary-200 font-medium'
         : 'text-gray-400 hover:bg-dark-700 hover:text-gray-200'
     }`
@@ -29,7 +33,7 @@ export function AppLayout() {
             <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary-500 to-primary-200 flex items-center justify-center">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
             </div>
-            <h1 className="text-lg font-bold text-white">CRM Medico</h1>
+            <h1 className="text-lg font-bold text-white">21Go CRM</h1>
           </div>
         </div>
 
@@ -39,30 +43,22 @@ export function AppLayout() {
             <span>Dashboard</span>
           </Link>
 
-          <p className="text-xs font-semibold text-dark-500 uppercase tracking-wider pt-4 pb-1 px-3">Clinica</p>
-          <Link to="/patients" className={linkClass('/patients')}>
+          <p className="text-xs font-semibold text-dark-500 uppercase tracking-wider pt-4 pb-1 px-3">Associados</p>
+          <Link to="/associados" className={linkClass('/associados')}>
             <Users size={20} />
-            <span>Pacientes</span>
+            <span>Associados</span>
           </Link>
-          <Link to="/doctors" className={linkClass('/doctors')}>
-            <Stethoscope size={20} />
-            <span>Medicos</span>
-          </Link>
-          <Link to="/convenios" className={linkClass('/convenios')}>
-            <ShieldCheck size={20} />
-            <span>Convenios</span>
-          </Link>
-          <Link to="/agenda" className={linkClass('/agenda')}>
-            <CalendarDays size={20} />
-            <span>Agenda</span>
-          </Link>
-          <Link to="/prontuario" className={linkClass('/prontuario')}>
-            <ClipboardList size={20} />
-            <span>Prontuario</span>
+          <Link to="/vehicles" className={linkClass('/vehicles')}>
+            <Car size={20} />
+            <span>Veiculos</span>
           </Link>
           <Link to="/nps" className={linkClass('/nps')}>
             <SmilePlus size={20} />
             <span>Satisfacao (NPS)</span>
+          </Link>
+          <Link to="/indicacoes" className={linkClass('/indicacoes')}>
+            <Gift size={20} />
+            <span>Indicacoes (MGM)</span>
           </Link>
 
           <p className="text-xs font-semibold text-dark-500 uppercase tracking-wider pt-4 pb-1 px-3">Comercial</p>
@@ -70,9 +66,17 @@ export function AppLayout() {
             <UserCircle2 size={20} />
             <span>Leads</span>
           </Link>
+          <Link to="/cotacoes" className={linkClass('/cotacoes')}>
+            <FileText size={20} />
+            <span>Cotacoes</span>
+          </Link>
+          <Link to="/sinistros" className={linkClass('/sinistros')}>
+            <AlertTriangle size={20} />
+            <span>Sinistros</span>
+          </Link>
           <Link to="/pipes" className={linkClass('/pipes')}>
             <LayoutGrid size={20} />
-            <span>Pipes</span>
+            <span>Funil de Vendas</span>
           </Link>
           <Link to="/analytics" className={linkClass('/analytics')}>
             <BarChart3 size={20} />
@@ -98,11 +102,15 @@ export function AppLayout() {
             <Webhook size={20} />
             <span>Webhooks</span>
           </Link>
+          <Link to="/hinova" className={linkClass('/hinova')}>
+            <Link2 size={20} />
+            <span>Hinova (SGA)</span>
+          </Link>
 
           <div className="border-t border-dark-700 mt-3 pt-3">
             <Link to="/billing" className={linkClass('/billing')}>
               <CreditCard size={20} />
-              <span>Faturamento</span>
+              <span>Financeiro</span>
             </Link>
           </div>
         </nav>

@@ -1,0 +1,49 @@
+name: 21go-squad
+version: "1.0.0"
+short-title: "21Go Squad"
+description: "Squad de 8 agentes especializados para a 21Go Proteção Veicular. Pré-venda, pós-venda, gestores, retenção, crescimento, tráfego, oferta e operação."
+author: "FlowAI Digital"
+license: MIT
+slashPrefix: "21go"
+
+aios:
+  minVersion: "4.0.0"
+  type: squad
+
+tags:
+  - protecao-veicular
+  - crm
+  - vendas
+  - retencao
+  - ia
+  - whatsapp
+  - hinova
+  - fipe
+
+components:
+  agents:
+    - 21go-chief.md
+    - agente-pre-venda.md
+    - agente-pos-venda.md
+    - agente-gestores.md
+    - agente-retencao.md
+    - agente-crescimento.md
+    - agente-trafego.md
+    - agente-operacao.md
+  tasks:
+    - qualificar-lead.md
+    - gerar-cotacao.md
+    - reter-associado.md
+    - briefing-diario.md
+    - diagnosticar-churn.md
+    - criar-campanha.md
+    - atender-sinistro.md
+  workflows:
+    - wf-lead-to-associado.yaml
+    - wf-anti-churn.yaml
+    - wf-onboarding-30dias.yaml
+  checklists:
+    - output-quality.md
+
+config:
+  extends: extend

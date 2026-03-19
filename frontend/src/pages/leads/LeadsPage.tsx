@@ -10,19 +10,25 @@ import {
   Target,
   DollarSign,
   X,
+  Car,
+  Send,
 } from 'lucide-react'
 import { useLeads, useLeadStats, useCreateLead, useUpdateLead, useDeleteLead } from '../../hooks/useLeads'
 import { useContacts } from '../../hooks/useContacts'
-import type { Lead, CreateLeadRequest, UpdateLeadRequest, LeadStatus, LeadSource } from '../../../../shared/types'
+import type { Lead, CreateLeadRequest, UpdateLeadRequest, LeadStatus, LeadSource, VehiclePlano } from '../../../../shared/types'
 
-const STATUS_MAP: Record<LeadStatus, { label: string; cls: string }> = {
+const STATUS_MAP: Partial<Record<LeadStatus, { label: string; cls: string }>> = {
   new: { label: 'Novo', cls: 'bg-blue-500/15 text-blue-400' },
   contacted: { label: 'Contatado', cls: 'bg-amber-500/15 text-amber-400' },
-  qualified: { label: 'Qualificado', cls: 'bg-emerald-500/15 text-emerald-400' },
-  unqualified: { label: 'Desqualificado', cls: 'bg-dark-700 text-gray-400' },
+  qualified: { label: 'Qualificado', cls: 'bg-purple-500/15 text-purple-400' },
+  cotacao_enviada: { label: 'Cotacao Enviada', cls: 'bg-cyan-500/15 text-cyan-400' },
+  negociacao: { label: 'Negociacao', cls: 'bg-orange-500/15 text-orange-400' },
+  fechado: { label: 'Fechado', cls: 'bg-emerald-500/15 text-emerald-400' },
+  perdido: { label: 'Perdido', cls: 'bg-dark-700 text-gray-400' },
+  unqualified: { label: 'Desqualificado', cls: 'bg-dark-700 text-gray-500' },
 }
 
-const SOURCE_MAP: Record<LeadSource, string> = {
+const SOURCE_MAP: Partial<Record<LeadSource, string>> = {
   website: 'Website',
   whatsapp: 'WhatsApp',
   instagram: 'Instagram',
@@ -72,7 +78,7 @@ export function LeadsPage() {
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-2xl font-bold text-white">Leads</h1>
-          <p className="text-sm text-gray-400 mt-1">Gerencie suas oportunidades de negocio</p>
+          <p className="text-sm text-gray-400 mt-1">Gerencie suas oportunidades de protecao veicular</p>
         </div>
         <button onClick={openCreate} className="flex items-center gap-2 px-4 py-2 bg-primary-500 text-white rounded-lg hover:bg-primary-400 text-sm">
           <Plus className="w-4 h-4" /> Novo Lead
@@ -83,19 +89,19 @@ export function LeadsPage() {
       {stats && (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <StatCard icon={<UserCircle2 className="w-5 h-5 text-blue-400" />} label="Total de Leads" value={stats.total} bg="bg-blue-500/15" />
-          <StatCard icon={<Target className="w-5 h-5 text-emerald-400" />} label="Qualificados" value={stats.byStatus.qualified || 0} bg="bg-emerald-500/15" />
+          <StatCard icon={<Target className="w-5 h-5 text-emerald-400" />} label="Fechados" value={stats.byStatus?.fechado || 0} bg="bg-emerald-500/15" />
           <StatCard icon={<TrendingUp className="w-5 h-5 text-purple-400" />} label="Taxa de Conversao" value={`${stats.conversionRate}%`} bg="bg-purple-500/15" />
           <StatCard icon={<DollarSign className="w-5 h-5 text-amber-400" />} label="Valor Estimado" value={formatCurrency(stats.totalEstimatedValue)} bg="bg-amber-500/15" />
         </div>
       )}
 
-      {/* Filters */}
+      {/* Filtros */}
       <div className="flex flex-wrap gap-3 items-center">
         <div className="relative flex-1 min-w-[200px] max-w-md">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
           <input
             type="text"
-            placeholder="Buscar por titulo, contato ou email..."
+            placeholder="Buscar por nome, veiculo ou placa..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="w-full pl-10 pr-4 py-2 text-sm bg-dark-800 border border-dark-600 rounded-lg text-gray-200 focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
@@ -110,7 +116,10 @@ export function LeadsPage() {
           <option value="new">Novo</option>
           <option value="contacted">Contatado</option>
           <option value="qualified">Qualificado</option>
-          <option value="unqualified">Desqualificado</option>
+          <option value="cotacao_enviada">Cotacao Enviada</option>
+          <option value="negociacao">Negociacao</option>
+          <option value="fechado">Fechado</option>
+          <option value="perdido">Perdido</option>
         </select>
         <select
           value={sourceFilter}
@@ -122,6 +131,7 @@ export function LeadsPage() {
           <option value="whatsapp">WhatsApp</option>
           <option value="instagram">Instagram</option>
           <option value="referral">Indicacao</option>
+          <option value="google">Google</option>
           <option value="manual">Manual</option>
         </select>
         {(statusFilter || sourceFilter) && (
@@ -131,7 +141,7 @@ export function LeadsPage() {
         )}
       </div>
 
-      {/* Table */}
+      {/* Tabela */}
       {isLoading ? (
         <div className="flex justify-center py-16">
           <Loader2 className="w-8 h-8 text-primary-500 animate-spin" />
@@ -151,12 +161,12 @@ export function LeadsPage() {
             <table className="min-w-full divide-y divide-dark-700">
               <thead className="bg-dark-700">
                 <tr>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase">Lead</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase">Contato</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase">Associado</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase">Veiculo Interesse</th>
                   <th className="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase">Status</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase">Cotacao</th>
                   <th className="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase">Origem</th>
                   <th className="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase">Score</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase">Valor</th>
                   <th className="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase">Data</th>
                   <th className="px-4 py-3 text-right text-xs font-medium text-gray-400 uppercase">Acoes</th>
                 </tr>
@@ -166,27 +176,47 @@ export function LeadsPage() {
                   <tr key={lead.id} className="hover:bg-dark-700">
                     <td className="px-4 py-3">
                       <div>
-                        <p className="text-sm font-medium text-white">{lead.title}</p>
-                        {lead.description && <p className="text-xs text-gray-500 truncate max-w-[200px]">{lead.description}</p>}
+                        <p className="text-sm font-medium text-white">{lead.contact?.fullName || '-'}</p>
+                        <p className="text-xs text-gray-500">{lead.contact?.phone || lead.contact?.whatsapp || lead.contact?.email || ''}</p>
                       </div>
                     </td>
                     <td className="px-4 py-3">
-                      <div>
-                        <p className="text-sm text-gray-100">{lead.contact?.fullName || lead.contact?.firstName || '-'}</p>
-                        <p className="text-xs text-gray-500">{lead.contact?.email || ''}</p>
-                      </div>
+                      {lead.marcaInteresse ? (
+                        <div className="flex items-start gap-1.5">
+                          <Car className="w-3.5 h-3.5 text-gray-500 mt-0.5 flex-shrink-0" />
+                          <div>
+                            <p className="text-sm text-gray-200">{lead.marcaInteresse} {lead.modeloInteresse}</p>
+                            {lead.anoInteresse && <p className="text-xs text-gray-500">{lead.anoInteresse}</p>}
+                            {lead.placaInteresse && <p className="text-xs text-gray-500">Placa: {lead.placaInteresse}</p>}
+                          </div>
+                        </div>
+                      ) : (
+                        <span className="text-sm text-gray-600">-</span>
+                      )}
                     </td>
                     <td className="px-4 py-3">
                       <StatusBadge status={lead.status} />
+                    </td>
+                    <td className="px-4 py-3">
+                      {lead.cotacaoValor ? (
+                        <div>
+                          <p className="text-sm text-gray-200">{formatCurrency(lead.cotacaoValor)}</p>
+                          {lead.cotacaoPlano && <p className="text-xs text-gray-500 capitalize">{lead.cotacaoPlano}</p>}
+                          {lead.cotacaoEnviada && (
+                            <span className="inline-flex items-center gap-0.5 text-xs text-cyan-400 mt-0.5">
+                              <Send className="w-2.5 h-2.5" /> Enviada
+                            </span>
+                          )}
+                        </div>
+                      ) : (
+                        <span className="text-sm text-gray-600">-</span>
+                      )}
                     </td>
                     <td className="px-4 py-3 text-sm text-gray-400">
                       {SOURCE_MAP[lead.source] || lead.source}
                     </td>
                     <td className="px-4 py-3">
                       <ScoreBar score={lead.score} />
-                    </td>
-                    <td className="px-4 py-3 text-sm text-gray-300 whitespace-nowrap">
-                      {formatCurrency(lead.estimatedValue)}
                     </td>
                     <td className="px-4 py-3 text-xs text-gray-500 whitespace-nowrap">
                       {new Date(lead.createdAt).toLocaleDateString('pt-BR')}
@@ -283,7 +313,11 @@ function LeadDrawer({ lead, onClose }: { lead: Lead | null; onClose: () => void 
   const [status, setStatus] = useState<LeadStatus>(lead?.status || 'new')
   const [score, setScore] = useState(String(lead?.score || 0))
   const [estimatedValue, setEstimatedValue] = useState(lead?.estimatedValue ? String(lead.estimatedValue) : '')
-  const [tags, setTags] = useState(lead?.tags?.join(', ') || '')
+  const [marcaInteresse, setMarcaInteresse] = useState(lead?.marcaInteresse || '')
+  const [modeloInteresse, setModeloInteresse] = useState(lead?.modeloInteresse || '')
+  const [anoInteresse, setAnoInteresse] = useState(lead?.anoInteresse ? String(lead.anoInteresse) : '')
+  const [placaInteresse, setPlacaInteresse] = useState(lead?.placaInteresse || '')
+  const [cotacaoPlano, setCotacaoPlano] = useState<VehiclePlano | ''>(lead?.cotacaoPlano || '')
 
   const isEditing = !!lead
   const isPending = createMutation.isPending || updateMutation.isPending
@@ -291,6 +325,14 @@ function LeadDrawer({ lead, onClose }: { lead: Lead | null; onClose: () => void 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     if (!title.trim() || (!isEditing && !contactId)) return
+
+    const vehicleFields = {
+      marcaInteresse: marcaInteresse || undefined,
+      modeloInteresse: modeloInteresse || undefined,
+      anoInteresse: anoInteresse ? parseInt(anoInteresse) : undefined,
+      placaInteresse: placaInteresse || undefined,
+      cotacaoPlano: (cotacaoPlano as VehiclePlano) || undefined,
+    }
 
     if (isEditing) {
       const data: UpdateLeadRequest = {
@@ -300,7 +342,7 @@ function LeadDrawer({ lead, onClose }: { lead: Lead | null; onClose: () => void 
         score: parseInt(score) || 0,
         source,
         estimatedValue: estimatedValue ? parseFloat(estimatedValue) : null,
-        tags: tags ? tags.split(',').map((t) => t.trim()).filter(Boolean) : [],
+        ...vehicleFields,
       }
       updateMutation.mutate({ id: lead.id, data }, { onSuccess: onClose })
     } else {
@@ -310,7 +352,7 @@ function LeadDrawer({ lead, onClose }: { lead: Lead | null; onClose: () => void 
         description: description.trim() || undefined,
         source,
         estimatedValue: estimatedValue ? parseFloat(estimatedValue) : undefined,
-        tags: tags ? tags.split(',').map((t) => t.trim()).filter(Boolean) : undefined,
+        ...vehicleFields,
       }
       createMutation.mutate(data, { onSuccess: onClose })
     }
@@ -329,25 +371,25 @@ function LeadDrawer({ lead, onClose }: { lead: Lead | null; onClose: () => void 
         </div>
 
         <form onSubmit={handleSubmit} className="p-6 space-y-4">
-          {/* Contact */}
+          {/* Associado */}
           {!isEditing && (
             <div>
-              <label className="block text-sm font-medium text-gray-300 mb-1">Contato *</label>
+              <label className="block text-sm font-medium text-gray-300 mb-1">Associado *</label>
               <select
                 value={contactId}
                 onChange={(e) => setContactId(e.target.value)}
                 required
                 className="w-full px-3 py-2 text-sm bg-dark-800 border border-dark-600 rounded-lg text-gray-200 focus:ring-2 focus:ring-primary-500"
               >
-                <option value="">Selecione um contato</option>
+                <option value="">Selecione um associado</option>
                 {contacts.map((c) => (
-                  <option key={c.id} value={c.id}>{c.fullName || `${c.firstName} ${c.lastName}`} — {c.email}</option>
+                  <option key={c.id} value={c.id}>{c.fullName || `${c.firstName} ${c.lastName}`}{c.cpf ? ` — ${c.cpf}` : ''}</option>
                 ))}
               </select>
             </div>
           )}
 
-          {/* Title */}
+          {/* Titulo */}
           <div>
             <label className="block text-sm font-medium text-gray-300 mb-1">Titulo *</label>
             <input
@@ -355,24 +397,27 @@ function LeadDrawer({ lead, onClose }: { lead: Lead | null; onClose: () => void 
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               required
-              placeholder="Ex: Tubos para projeto X"
+              placeholder="Ex: Protecao Honda Civic 2022"
               className="w-full px-3 py-2 text-sm bg-dark-800 border border-dark-600 rounded-lg text-gray-200 focus:ring-2 focus:ring-primary-500"
             />
           </div>
 
-          {/* Description */}
+          {/* Veiculo de Interesse */}
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-1">Descricao</label>
-            <textarea
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              rows={3}
-              placeholder="Detalhes sobre este lead..."
-              className="w-full px-3 py-2 text-sm bg-dark-800 border border-dark-600 rounded-lg text-gray-200 focus:ring-2 focus:ring-primary-500"
-            />
+            <label className="block text-sm font-medium text-gray-300 mb-2">Veiculo de Interesse</label>
+            <div className="grid grid-cols-2 gap-3">
+              <input type="text" value={marcaInteresse} onChange={(e) => setMarcaInteresse(e.target.value)}
+                placeholder="Marca (Honda)" className="w-full px-3 py-2 text-sm bg-dark-800 border border-dark-600 rounded-lg text-gray-200 focus:ring-2 focus:ring-primary-500" />
+              <input type="text" value={modeloInteresse} onChange={(e) => setModeloInteresse(e.target.value)}
+                placeholder="Modelo (Civic)" className="w-full px-3 py-2 text-sm bg-dark-800 border border-dark-600 rounded-lg text-gray-200 focus:ring-2 focus:ring-primary-500" />
+              <input type="number" value={anoInteresse} onChange={(e) => setAnoInteresse(e.target.value)}
+                placeholder="Ano (2022)" min="1990" max="2030" className="w-full px-3 py-2 text-sm bg-dark-800 border border-dark-600 rounded-lg text-gray-200 focus:ring-2 focus:ring-primary-500" />
+              <input type="text" value={placaInteresse} onChange={(e) => setPlacaInteresse(e.target.value.toUpperCase())}
+                placeholder="Placa (ABC1D23)" maxLength={8} className="w-full px-3 py-2 text-sm bg-dark-800 border border-dark-600 rounded-lg text-gray-200 focus:ring-2 focus:ring-primary-500" />
+            </div>
           </div>
 
-          {/* Source + Status */}
+          {/* Origem + Status */}
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-300 mb-1">Origem</label>
@@ -386,6 +431,7 @@ function LeadDrawer({ lead, onClose }: { lead: Lead | null; onClose: () => void 
                 <option value="whatsapp">WhatsApp</option>
                 <option value="instagram">Instagram</option>
                 <option value="referral">Indicacao</option>
+                <option value="google">Google</option>
               </select>
             </div>
             {isEditing && (
@@ -399,28 +445,31 @@ function LeadDrawer({ lead, onClose }: { lead: Lead | null; onClose: () => void 
                   <option value="new">Novo</option>
                   <option value="contacted">Contatado</option>
                   <option value="qualified">Qualificado</option>
-                  <option value="unqualified">Desqualificado</option>
+                  <option value="cotacao_enviada">Cotacao Enviada</option>
+                  <option value="negociacao">Negociacao</option>
+                  <option value="fechado">Fechado</option>
+                  <option value="perdido">Perdido</option>
                 </select>
               </div>
             )}
           </div>
 
-          {/* Score + Value */}
+          {/* Plano + Valor */}
           <div className="grid grid-cols-2 gap-4">
-            {isEditing && (
-              <div>
-                <label className="block text-sm font-medium text-gray-300 mb-1">Score (0-100)</label>
-                <input
-                  type="number"
-                  value={score}
-                  onChange={(e) => setScore(e.target.value)}
-                  min={0}
-                  max={100}
-                  className="w-full px-3 py-2 text-sm bg-dark-800 border border-dark-600 rounded-lg text-gray-200 focus:ring-2 focus:ring-primary-500"
-                />
-              </div>
-            )}
-            <div className={isEditing ? '' : 'col-span-2'}>
+            <div>
+              <label className="block text-sm font-medium text-gray-300 mb-1">Plano Interesse</label>
+              <select
+                value={cotacaoPlano}
+                onChange={(e) => setCotacaoPlano(e.target.value as VehiclePlano | '')}
+                className="w-full px-3 py-2 text-sm bg-dark-800 border border-dark-600 rounded-lg text-gray-200 focus:ring-2 focus:ring-primary-500"
+              >
+                <option value="">Nao definido</option>
+                <option value="basico">Basico</option>
+                <option value="completo">Completo</option>
+                <option value="premium">Premium</option>
+              </select>
+            </div>
+            <div>
               <label className="block text-sm font-medium text-gray-300 mb-1">Valor Estimado (R$)</label>
               <input
                 type="number"
@@ -433,19 +482,33 @@ function LeadDrawer({ lead, onClose }: { lead: Lead | null; onClose: () => void 
             </div>
           </div>
 
-          {/* Tags */}
+          {/* Score (somente edicao) */}
+          {isEditing && (
+            <div>
+              <label className="block text-sm font-medium text-gray-300 mb-1">Score (0-100)</label>
+              <input
+                type="number"
+                value={score}
+                onChange={(e) => setScore(e.target.value)}
+                min={0} max={100}
+                className="w-full px-3 py-2 text-sm bg-dark-800 border border-dark-600 rounded-lg text-gray-200 focus:ring-2 focus:ring-primary-500"
+              />
+            </div>
+          )}
+
+          {/* Descricao */}
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-1">Tags</label>
-            <input
-              type="text"
-              value={tags}
-              onChange={(e) => setTags(e.target.value)}
-              placeholder="vendas, tubos, urgente (separadas por virgula)"
+            <label className="block text-sm font-medium text-gray-300 mb-1">Observacoes</label>
+            <textarea
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              rows={3}
+              placeholder="Detalhes sobre este lead..."
               className="w-full px-3 py-2 text-sm bg-dark-800 border border-dark-600 rounded-lg text-gray-200 focus:ring-2 focus:ring-primary-500"
             />
           </div>
 
-          {/* Actions */}
+          {/* Acoes */}
           <div className="flex justify-end gap-3 pt-4 border-t border-dark-700">
             <button type="button" onClick={onClose} className="px-4 py-2 text-sm text-gray-300 border border-dark-600 rounded-lg hover:bg-dark-700">
               Cancelar

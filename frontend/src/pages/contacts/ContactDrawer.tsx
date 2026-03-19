@@ -32,7 +32,7 @@ export function ContactDrawer({
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-dark-700">
           <h2 className="text-xl font-semibold text-white">
-            {contact ? 'Editar Paciente' : 'Novo Paciente'}
+            {contact ? 'Editar Associado' : 'Novo Associado'}
           </h2>
           <button
             onClick={onClose}
@@ -43,7 +43,7 @@ export function ContactDrawer({
           </button>
         </div>
 
-        {/* Body - Scrollable */}
+        {/* Body */}
         <div className="flex-1 overflow-y-auto px-6 py-6">
           <ContactForm
             contact={contact}

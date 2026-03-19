@@ -1,0 +1,99 @@
+workflow:
+  id: wf-lead-to-associado
+  name: "Pipeline Lead → Associado"
+  version: "1.0.0"
+  description: |
+    Workflow completo de captação: do clique no anúncio até o associado ativo no Hinova.
+    Cada etapa tem um agente responsável e um gate de qualidade.
+  trigger: "*lead-pipeline"
+  entry_agent: 21go-chief
+  estimated_duration: "1-7 dias (depende do lead)"
+
+  type: sequential
+  sequence:
+    - agent: agente-pre-venda
+      action: qualificar-lead
+      creates: lead_qualificado
+    - agent: agente-pre-venda
+      action: gerar-cotacao
+      creates: cotacao
+    - agent: vendedor_humano
+      action: negociar-e-fechar
+      creates: adesao
+    - agent: agente-pos-venda
+      action: onboarding-30-dias
+      creates: associado_ativo
+
+phases:
+  - id: phase_0
+    name: "Captação e primeiro contato"
+    agent: agente-pre-venda
+    task: qualificar-lead.md
+    description: "Lead chega via anúncio/site/indicação. Agente IA atende em segundos, inicia framework CLOSER (Clarify), coleta dados do veículo."
+    outputs:
+      - lead_qualificado: "object"
+      - dados_veiculo: "object"
+      - temperatura_lead: "string (quente/morno/frio)"
+    checkpoint:
+      gate: "Nome + telefone + modelo do veículo coletados"
+      veto: "Lead não informou nem o modelo do carro"
+
+  - id: phase_1
+    name: "Cotação e apresentação"
+    agent: agente-pre-venda
+    task: gerar-cotacao.md
+    depends_on: [phase_0]
+    description: "Consulta FIPE, calcula valor por plano, apresenta cotação usando Value Equation (Hormozi Offers). Trata objeções com framework CLOSER."
+    outputs:
+      - cotacao: "object (3 planos com valores)"
+      - objecoes_tratadas: "list"
+      - proximo_passo: "string"
+    checkpoint:
+      gate: "Cotação enviada ao lead com pelo menos 1 plano"
+      veto: "Não conseguiu consultar FIPE ou lead desistiu"
+
+  - id: phase_2
+    name: "Vendedor negocia e fecha"
+    agent: vendedor_humano
+    depends_on: [phase_1]
+    description: "Vendedor recebe lead quente com: nome, veículo, FIPE, cotação, objeções discutidas, temperatura. Negocia, fecha, coleta documentos."
+    outputs:
+      - contrato_assinado: "boolean"
+      - plano_escolhido: "string"
+      - dados_completos: "object (CPF, endereço, documentos)"
+    checkpoint:
+      gate: "Contrato assinado + dados completos coletados"
+      veto: "Lead desistiu — mover para fluxo de nutrição"
+
+  - id: phase_3
+    name: "Cadastro e vistoria"
+    agent: agente-pos-venda
+    depends_on: [phase_2]
+    description: "Dados vão para Hinova SGA via API. Vistoria agendada. Onboarding de 30 dias inicia automaticamente."
+    outputs:
+      - hinova_id: "string"
+      - vistoria_agendada: "boolean"
+      - onboarding_iniciado: "boolean"
+    checkpoint:
+      gate: "Associado cadastrado no Hinova + vistoria agendada"
+      veto: "Falha na API Hinova — escalar para suporte técnico"
+
+  - id: phase_4
+    name: "Onboarding 30 dias"
+    agent: agente-pos-venda
+    depends_on: [phase_3]
+    description: "Fluxo automatizado de 30 dias: boas-vindas, verificação de vistoria, check-in dia 7, conteúdo dia 14, NPS dia 30. Se NPS alto → MGM. Se NPS baixo → retenção."
+    outputs:
+      - nps_score: "number"
+      - ativado: "boolean"
+    checkpoint:
+      gate: "NPS coletado no dia 30 + vistoria aprovada"
+      veto: "Associado não fez vistoria após 14 dias — intervenção humana"
+
+completion_criteria:
+  - "Lead qualificado e cotação enviada"
+  - "Vendedor fechou com dados completos"
+  - "Associado cadastrado no Hinova"
+  - "Vistoria aprovada"
+  - "Onboarding de 30 dias completo"
+  - "NPS coletado"

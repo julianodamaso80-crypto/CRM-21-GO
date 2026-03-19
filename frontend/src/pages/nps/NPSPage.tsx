@@ -15,8 +15,6 @@ import {
   X,
 } from 'lucide-react'
 import {
-  BarChart,
-  Bar,
   XAxis,
   YAxis,
   CartesianGrid,
@@ -243,30 +241,8 @@ function OverviewTab({ stats }: { stats: NonNullable<ReturnType<typeof useNPSSta
         </div>
       </div>
 
-      {/* NPS by Doctor */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="bg-dark-800 rounded-lg border border-dark-700 p-5">
-          <h3 className="text-sm font-semibold text-gray-300 mb-4">NPS por Medico</h3>
-          {stats.byDoctor.length > 0 ? (
-            <ResponsiveContainer width="100%" height={220}>
-              <BarChart data={stats.byDoctor} margin={{ top: 5, right: 20, bottom: 5, left: 0 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
-                <XAxis dataKey="doctorName" tick={{ fontSize: 10 }} />
-                <YAxis domain={[-100, 100]} tick={{ fontSize: 11 }} />
-                <Tooltip contentStyle={{ borderRadius: 8, border: '1px solid #334155', fontSize: 13, backgroundColor: '#1e293b' }} />
-                <Bar dataKey="nps" name="NPS" radius={[4, 4, 0, 0]}>
-                  {stats.byDoctor.map((entry, i) => (
-                    <Cell key={i} fill={entry.nps >= 50 ? '#10B981' : entry.nps >= 0 ? '#F59E0B' : '#EF4444'} />
-                  ))}
-                </Bar>
-              </BarChart>
-            </ResponsiveContainer>
-          ) : (
-            <div className="h-[220px] flex items-center justify-center text-gray-500 text-sm">Sem dados</div>
-          )}
-        </div>
-
-        {/* Recent Comments */}
+      {/* Recent Comments */}
+      <div className="grid grid-cols-1 gap-6">
         <div className="bg-dark-800 rounded-lg border border-dark-700 p-5">
           <h3 className="text-sm font-semibold text-gray-300 mb-4">Comentarios Recentes</h3>
           <div className="space-y-3 max-h-[220px] overflow-y-auto">
@@ -279,7 +255,7 @@ function OverviewTab({ stats }: { stats: NonNullable<ReturnType<typeof useNPSSta
                       <span className="text-xs font-bold">{c.score}</span>
                     </div>
                     <div className="min-w-0">
-                      <p className="text-xs font-medium text-gray-300">{c.patientName}</p>
+                      <p className="text-xs font-medium text-gray-300">{c.associadoName}</p>
                       <p className="text-xs text-gray-400 mt-0.5 line-clamp-2">{c.comment}</p>
                     </div>
                   </div>
@@ -346,15 +322,12 @@ function ResponsesTab({
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 flex-wrap">
-                        <span className="text-sm font-medium text-white">{survey.patient.fullName}</span>
+                        <span className="text-sm font-medium text-white">{(survey as any).associadoName || survey.associado?.fullName}</span>
                         <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${cfg.bg}`}>
                           Nota {survey.score} - {cfg.label}
                         </span>
                         <span className="text-xs text-gray-500">{CHANNEL_LABELS[survey.channel]}</span>
                       </div>
-                      {survey.doctor && (
-                        <p className="text-xs text-gray-400 mt-0.5">Medico: {survey.doctor.fullName}</p>
-                      )}
                       {survey.comment && (
                         <p className="text-sm text-gray-400 mt-2 bg-dark-900 rounded-lg p-3 italic">
                           "{survey.comment}"
@@ -394,15 +367,13 @@ function RegisterTab() {
   const createSurvey = useCreateNPSSurvey()
   const [score, setScore] = useState<number | null>(null)
   const [comment, setComment] = useState('')
-  const [patientId, setPatientId] = useState('1')
-  const [doctorId, setDoctorId] = useState('')
+  const [associadoId, setAssociadoId] = useState('1')
 
   const handleSubmit = () => {
     if (score === null) return
     createSurvey.mutate(
       {
-        patientId,
-        doctorId: doctorId || undefined,
+        associadoId,
         score,
         comment: comment || undefined,
         channel: 'manual',
@@ -433,15 +404,15 @@ function RegisterTab() {
       <div className="bg-dark-800 rounded-lg border border-dark-700 p-6 space-y-6">
         <div>
           <h3 className="text-lg font-semibold text-white">Registrar Pesquisa Manual</h3>
-          <p className="text-sm text-gray-400 mt-1">Registre a avaliacao de um paciente manualmente</p>
+          <p className="text-sm text-gray-400 mt-1">Registre a avaliacao de um associado manualmente</p>
         </div>
 
-        {/* Patient */}
+        {/* Associado */}
         <div>
-          <label className="block text-sm font-medium text-gray-300 mb-1">Paciente</label>
+          <label className="block text-sm font-medium text-gray-300 mb-1">Associado</label>
           <select
-            value={patientId}
-            onChange={(e) => setPatientId(e.target.value)}
+            value={associadoId}
+            onChange={(e) => setAssociadoId(e.target.value)}
             className="w-full bg-dark-800 border border-dark-700 rounded-lg px-3 py-2 text-sm text-gray-200 focus:outline-none focus:ring-2 focus:ring-teal-500"
           >
             <option value="1">Joao Silva</option>
@@ -452,25 +423,10 @@ function RegisterTab() {
           </select>
         </div>
 
-        {/* Doctor */}
-        <div>
-          <label className="block text-sm font-medium text-gray-300 mb-1">Medico (opcional)</label>
-          <select
-            value={doctorId}
-            onChange={(e) => setDoctorId(e.target.value)}
-            className="w-full bg-dark-800 border border-dark-700 rounded-lg px-3 py-2 text-sm text-gray-200 focus:outline-none focus:ring-2 focus:ring-teal-500"
-          >
-            <option value="">Selecionar medico</option>
-            <option value="doc-1">Dr. Ricardo Mendes</option>
-            <option value="doc-2">Dra. Ana Ferreira</option>
-            <option value="doc-3">Dr. Carlos Souza</option>
-          </select>
-        </div>
-
         {/* Score */}
         <div>
           <label className="block text-sm font-medium text-gray-300 mb-2">
-            De 0 a 10, qual a probabilidade de recomendar nossa clinica?
+            De 0 a 10, quanto voce recomendaria a 21Go?
           </label>
           <div className="flex gap-2">
             {Array.from({ length: 11 }, (_, i) => (

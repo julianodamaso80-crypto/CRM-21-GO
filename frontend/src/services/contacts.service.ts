@@ -13,6 +13,8 @@ export interface ListContactsParams {
   limit?: number
   search?: string
   tags?: string[]
+  status?: string
+  origem?: string
   sortBy?: 'createdAt' | 'updatedAt' | 'fullName'
   sortOrder?: 'asc' | 'desc'
 }

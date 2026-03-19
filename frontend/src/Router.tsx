@@ -14,12 +14,9 @@ import { LoginPage } from './pages/auth/LoginPage'
 import { WebhooksPage } from './pages/webhooks/WebhooksPage'
 import { AutomationsPage } from './pages/automations/AutomationsPage'
 import { BillingPage } from './pages/billing/BillingPage'
-import { DoctorsPage } from './pages/doctors/DoctorsPage'
-import { ConveniosPage } from './pages/convenios/ConveniosPage'
-import { AgendaPage } from './pages/agenda/AgendaPage'
 import { AnalyticsPage } from './pages/analytics/AnalyticsPage'
-import { ProntuarioPage } from './pages/prontuario/ProntuarioPage'
 import { NPSPage } from './pages/nps/NPSPage'
+import { VehiclesPage } from './pages/vehicles/VehiclesPage'
 
 // Layouts
 import { AppLayout } from './components/layouts/AppLayout'
@@ -36,10 +33,24 @@ function PublicOnlyRoute() {
   return <Outlet />
 }
 
+function ComingSoon({ title }: { title: string }) {
+  return (
+    <div className="p-6 flex flex-col items-center justify-center h-full min-h-[400px]">
+      <div className="text-center">
+        <div className="w-16 h-16 bg-primary-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
+          <span className="text-2xl">🚧</span>
+        </div>
+        <h2 className="text-xl font-bold text-white mb-2">{title}</h2>
+        <p className="text-gray-400">Modulo em desenvolvimento. Em breve disponivel.</p>
+      </div>
+    </div>
+  )
+}
+
 export function Router() {
   return (
     <Routes>
-      {/* Public routes — redirect to / if already logged in */}
+      {/* Public routes */}
       <Route element={<PublicOnlyRoute />}>
         <Route path="/login" element={<LoginPage />} />
       </Route>
@@ -50,19 +61,29 @@ export function Router() {
           <Route path="/" element={<DashboardPage />} />
           <Route path="/analytics" element={<AnalyticsPage />} />
           <Route path="/leads" element={<LeadsPage />} />
-          <Route path="/deals" element={<Navigate to="/pipes" replace />} />
-          <Route path="/patients" element={<ContactsPage />} />
-          <Route path="/contacts" element={<Navigate to="/patients" replace />} />
-          <Route path="/doctors" element={<DoctorsPage />} />
-          <Route path="/convenios" element={<ConveniosPage />} />
-          <Route path="/agenda" element={<AgendaPage />} />
-          <Route path="/prontuario" element={<ProntuarioPage />} />
+
+          {/* Associados (antigo /patients e /contacts) */}
+          <Route path="/associados" element={<ContactsPage />} />
+          <Route path="/patients" element={<Navigate to="/associados" replace />} />
+          <Route path="/contacts" element={<Navigate to="/associados" replace />} />
+
+          {/* Veiculos */}
+          <Route path="/vehicles" element={<VehiclesPage />} />
+
+          {/* Em desenvolvimento */}
+          <Route path="/cotacoes" element={<ComingSoon title="Motor de Cotacao FIPE" />} />
+          <Route path="/sinistros" element={<ComingSoon title="Gestao de Sinistros" />} />
+          <Route path="/indicacoes" element={<ComingSoon title="Programa de Indicacoes (MGM)" />} />
+          <Route path="/hinova" element={<ComingSoon title="Integracao Hinova SGA" />} />
+
+          {/* Mantidos */}
           <Route path="/nps" element={<NPSPage />} />
           <Route path="/inbox" element={<InboxPage />} />
           <Route path="/ai" element={<AITrainingPage />} />
           <Route path="/pipes" element={<PipesListPage />} />
           <Route path="/pipes/new-ai" element={<PipeBuilderPage />} />
           <Route path="/pipes/:pipeId/kanban" element={<KanbanPage />} />
+          <Route path="/deals" element={<Navigate to="/pipes" replace />} />
           <Route path="/webhooks" element={<WebhooksPage />} />
           <Route path="/automations" element={<AutomationsPage />} />
           <Route path="/billing" element={<BillingPage />} />

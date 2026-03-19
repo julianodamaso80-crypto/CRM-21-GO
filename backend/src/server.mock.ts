@@ -83,187 +83,7 @@ fastify.post('/api/auth/register', async (request, reply) => {
 })
 
 // ============================================================================
-// MOCK CONVENIOS (Health Insurance)
-// ============================================================================
-
-const mockConvenios: any[] = [
-  {
-    id: 'conv-1', companyId: 'default-company', name: 'Unimed', code: '001',
-    phone: '(11) 3003-3001', email: 'convenios@unimed.com.br', website: 'https://unimed.com.br',
-    contactPerson: 'Carlos Mendes', notes: 'Tabela propria', isActive: true, patientCount: 3,
-    createdAt: new Date(Date.now() - 60 * 24 * 60 * 60 * 1000).toISOString(), updatedAt: new Date().toISOString(),
-  },
-  {
-    id: 'conv-2', companyId: 'default-company', name: 'Amil', code: '002',
-    phone: '(11) 4004-4002', email: 'credenciamento@amil.com.br', website: 'https://amil.com.br',
-    contactPerson: null, notes: null, isActive: true, patientCount: 1,
-    createdAt: new Date(Date.now() - 45 * 24 * 60 * 60 * 1000).toISOString(), updatedAt: new Date().toISOString(),
-  },
-  {
-    id: 'conv-3', companyId: 'default-company', name: 'SulAmerica', code: '003',
-    phone: '(11) 4004-4003', email: null, website: null,
-    contactPerson: 'Ana Beatriz', notes: 'Atendimento somente eletivo', isActive: true, patientCount: 1,
-    createdAt: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString(), updatedAt: new Date().toISOString(),
-  },
-  {
-    id: 'conv-4', companyId: 'default-company', name: 'Bradesco Saude', code: '004',
-    phone: null, email: null, website: null,
-    contactPerson: null, notes: null, isActive: false, patientCount: 0,
-    createdAt: new Date(Date.now() - 90 * 24 * 60 * 60 * 1000).toISOString(), updatedAt: new Date().toISOString(),
-  },
-]
-
-// GET /api/convenios
-fastify.get('/api/convenios', async (request, reply) => {
-  console.log('[MOCK] GET /api/convenios')
-  return reply.send(mockConvenios)
-})
-
-// GET /api/convenios/:id
-fastify.get('/api/convenios/:id', async (request, reply) => {
-  const { id } = request.params as { id: string }
-  const c = mockConvenios.find((x) => x.id === id)
-  if (!c) return reply.status(404).send({ message: 'Convenio not found' })
-  return reply.send(c)
-})
-
-// POST /api/convenios
-fastify.post('/api/convenios', async (request, reply) => {
-  const data = request.body as any
-  const c = {
-    id: `conv-${Date.now()}`, companyId: 'default-company',
-    ...data, isActive: true, patientCount: 0,
-    createdAt: new Date().toISOString(), updatedAt: new Date().toISOString(),
-  }
-  mockConvenios.push(c)
-  return reply.status(201).send(c)
-})
-
-// PUT /api/convenios/:id
-fastify.put('/api/convenios/:id', async (request, reply) => {
-  const { id } = request.params as { id: string }
-  const data = request.body as any
-  const index = mockConvenios.findIndex((x) => x.id === id)
-  if (index === -1) return reply.status(404).send({ message: 'Convenio not found' })
-  mockConvenios[index] = { ...mockConvenios[index], ...data, updatedAt: new Date().toISOString() }
-  return reply.send(mockConvenios[index])
-})
-
-// DELETE /api/convenios/:id
-fastify.delete('/api/convenios/:id', async (request, reply) => {
-  const { id } = request.params as { id: string }
-  const index = mockConvenios.findIndex((x) => x.id === id)
-  if (index !== -1) mockConvenios.splice(index, 1)
-  return reply.send({ success: true })
-})
-
-// ============================================================================
-// MOCK DOCTORS
-// ============================================================================
-
-const mockDoctors: any[] = [
-  {
-    id: 'doc-1', companyId: 'default-company',
-    firstName: 'Ricardo', lastName: 'Mendes', fullName: 'Dr. Ricardo Mendes',
-    email: 'ricardo@clinica.com', phone: '(11) 99999-1111',
-    crm: '123456', crmState: 'SP', specialty: 'cardiologia', specialtyOther: null,
-    avatar: null, consultationDuration: 30, consultationPrice: 350,
-    bio: 'Cardiologista com 15 anos de experiencia', isActive: true,
-    createdAt: new Date(Date.now() - 90 * 24 * 60 * 60 * 1000).toISOString(), updatedAt: new Date().toISOString(),
-  },
-  {
-    id: 'doc-2', companyId: 'default-company',
-    firstName: 'Ana', lastName: 'Ferreira', fullName: 'Dra. Ana Ferreira',
-    email: 'ana@clinica.com', phone: '(11) 99999-2222',
-    crm: '654321', crmState: 'SP', specialty: 'dermatologia', specialtyOther: null,
-    avatar: null, consultationDuration: 20, consultationPrice: 280,
-    bio: 'Especialista em dermatologia clinica e estetica', isActive: true,
-    createdAt: new Date(Date.now() - 60 * 24 * 60 * 60 * 1000).toISOString(), updatedAt: new Date().toISOString(),
-  },
-  {
-    id: 'doc-3', companyId: 'default-company',
-    firstName: 'Carlos', lastName: 'Souza', fullName: 'Dr. Carlos Souza',
-    email: 'carlos@clinica.com', phone: '(11) 99999-3333',
-    crm: '789012', crmState: 'RJ', specialty: 'clinico_geral', specialtyOther: null,
-    avatar: null, consultationDuration: 25, consultationPrice: 200,
-    bio: null, isActive: true,
-    createdAt: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString(), updatedAt: new Date().toISOString(),
-  },
-  {
-    id: 'doc-4', companyId: 'default-company',
-    firstName: 'Beatriz', lastName: 'Lima', fullName: 'Dra. Beatriz Lima',
-    email: null, phone: '(11) 99999-4444',
-    crm: '345678', crmState: 'SP', specialty: 'pediatria', specialtyOther: null,
-    avatar: null, consultationDuration: 30, consultationPrice: 300,
-    bio: 'Pediatra e neonatologista', isActive: false,
-    createdAt: new Date(Date.now() - 120 * 24 * 60 * 60 * 1000).toISOString(), updatedAt: new Date().toISOString(),
-  },
-]
-
-const SPECIALTIES_MAP: Record<string, string> = {
-  clinico_geral: 'Clinico Geral', cardiologia: 'Cardiologia', dermatologia: 'Dermatologia',
-  ginecologia: 'Ginecologia', neurologia: 'Neurologia', oftalmologia: 'Oftalmologia',
-  ortopedia: 'Ortopedia', pediatria: 'Pediatria', psiquiatria: 'Psiquiatria',
-  urologia: 'Urologia', endocrinologia: 'Endocrinologia', gastroenterologia: 'Gastroenterologia',
-  otorrinolaringologia: 'Otorrinolaringologia', cirurgia_geral: 'Cirurgia Geral', outro: 'Outro',
-}
-
-// GET /api/doctors
-fastify.get('/api/doctors', async (request, reply) => {
-  console.log('[MOCK] GET /api/doctors')
-  return reply.send(mockDoctors)
-})
-
-// GET /api/doctors/specialties
-fastify.get('/api/doctors/specialties', async (request, reply) => {
-  return reply.send(SPECIALTIES_MAP)
-})
-
-// GET /api/doctors/:id
-fastify.get('/api/doctors/:id', async (request, reply) => {
-  const { id } = request.params as { id: string }
-  const d = mockDoctors.find((x) => x.id === id)
-  if (!d) return reply.status(404).send({ message: 'Doctor not found' })
-  return reply.send(d)
-})
-
-// POST /api/doctors
-fastify.post('/api/doctors', async (request, reply) => {
-  const data = request.body as any
-  const d = {
-    id: `doc-${Date.now()}`, companyId: 'default-company',
-    fullName: `Dr(a). ${data.firstName} ${data.lastName}`,
-    ...data, avatar: null, isActive: true,
-    consultationDuration: data.consultationDuration || 30,
-    createdAt: new Date().toISOString(), updatedAt: new Date().toISOString(),
-  }
-  mockDoctors.push(d)
-  return reply.status(201).send(d)
-})
-
-// PUT /api/doctors/:id
-fastify.put('/api/doctors/:id', async (request, reply) => {
-  const { id } = request.params as { id: string }
-  const data = request.body as any
-  const index = mockDoctors.findIndex((x) => x.id === id)
-  if (index === -1) return reply.status(404).send({ message: 'Doctor not found' })
-  if (data.firstName || data.lastName) {
-    data.fullName = `Dr(a). ${data.firstName ?? mockDoctors[index].firstName} ${data.lastName ?? mockDoctors[index].lastName}`
-  }
-  mockDoctors[index] = { ...mockDoctors[index], ...data, updatedAt: new Date().toISOString() }
-  return reply.send(mockDoctors[index])
-})
-
-// DELETE /api/doctors/:id
-fastify.delete('/api/doctors/:id', async (request, reply) => {
-  const { id } = request.params as { id: string }
-  const index = mockDoctors.findIndex((x) => x.id === id)
-  if (index !== -1) mockDoctors.splice(index, 1)
-  return reply.send({ success: true })
-})
-
-// ============================================================================
-// MOCK PATIENTS API
+// MOCK PATIENTS/ASSOCIADOS API
 // ============================================================================
 
 // GET /api/patients (lista de pacientes)
@@ -374,94 +194,148 @@ fastify.delete('/api/patients/:id', async (request, reply) => {
 })
 
 // ============================================================================
-// MOCK PATIENTS (Contacts with medical data)
+// MOCK ASSOCIADOS (Contacts — Protecao Veicular)
 // ============================================================================
 
 const mockContacts: any[] = [
   {
     id: '1', companyId: 'default-company',
     firstName: 'Joao', lastName: 'Silva', fullName: 'Joao Silva',
-    email: 'joao@exemplo.com', phone: '(11) 98765-4321', avatar: null,
-    whatsapp: '(11) 98765-4321', instagram: null,
-    address: 'Rua das Flores, 123', city: 'Sao Paulo', state: 'SP', country: 'BR', zipCode: '01234-567',
-    cpf: '123.456.789-00', dateOfBirth: '1985-03-15', gender: 'male', bloodType: 'O+',
-    allergies: 'Dipirona', medicalNotes: 'Historico de hipertensao',
-    convenioId: 'conv-1', convenioName: 'Unimed', convenioNumber: 'UNI-12345',
-    responsibleName: null, responsiblePhone: null,
-    preferredDoctorId: 'doc-1', preferredDoctorName: 'Dr. Ricardo Mendes',
-    lastVisitAt: new Date(Date.now() - 15 * 24 * 60 * 60 * 1000).toISOString(),
-    nextVisitAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
-    tags: ['hipertenso', 'retorno-pendente'], customFields: {},
+    email: 'joao@exemplo.com', phone: '(21) 98765-4321', avatar: null,
+    whatsapp: '(21) 98765-4321',
+    address: 'Rua das Flores, 123', bairro: 'Copacabana', city: 'Rio de Janeiro', state: 'RJ', country: 'BR', zipCode: '22040-020',
+    cpf: '123.456.789-00', rg: '12.345.678-9', dateOfBirth: '1985-03-15',
+    status: 'ativo', dataAdesao: '2024-01-15',
+    hinovaId: 'HIN-00001', indicadoPor: null, vendedorId: 'user-1',
+    npsScore: 9, ultimoNps: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString(),
+    totalIndicacoes: 3, descontoMgm: 15,
+    origem: 'google_ads', utmSource: 'google', utmMedium: 'cpc', utmCampaign: 'protecao-rj',
+    tags: ['premium', 'indicador'], customFields: {},
     createdAt: new Date(Date.now() - 180 * 24 * 60 * 60 * 1000).toISOString(), updatedAt: new Date().toISOString(),
-    _count: { leads: 0, deals: 0, conversations: 3 },
+    _count: { leads: 1, deals: 0, conversations: 3, vehicles: 2 },
   },
   {
     id: '2', companyId: 'default-company',
     firstName: 'Maria', lastName: 'Santos', fullName: 'Maria Santos',
-    email: 'maria@exemplo.com', phone: '(11) 91234-5678', avatar: null,
-    whatsapp: '(11) 91234-5678', instagram: null,
-    address: 'Av. Brasil, 456', city: 'Sao Paulo', state: 'SP', country: 'BR', zipCode: '04567-890',
-    cpf: '987.654.321-00', dateOfBirth: '1992-07-22', gender: 'female', bloodType: 'A+',
-    allergies: null, medicalNotes: null,
-    convenioId: 'conv-1', convenioName: 'Unimed', convenioNumber: 'UNI-67890',
-    responsibleName: null, responsiblePhone: null,
-    preferredDoctorId: 'doc-2', preferredDoctorName: 'Dra. Ana Ferreira',
-    lastVisitAt: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(),
-    nextVisitAt: null,
-    tags: ['dermatologia'], customFields: {},
+    email: 'maria@exemplo.com', phone: '(21) 91234-5678', avatar: null,
+    whatsapp: '(21) 91234-5678',
+    address: 'Av. Atlantica, 456', bairro: 'Ipanema', city: 'Rio de Janeiro', state: 'RJ', country: 'BR', zipCode: '22410-000',
+    cpf: '987.654.321-00', rg: null, dateOfBirth: '1992-07-22',
+    status: 'ativo', dataAdesao: '2024-03-01',
+    hinovaId: 'HIN-00002', indicadoPor: '1', vendedorId: null,
+    npsScore: 8, ultimoNps: new Date(Date.now() - 15 * 24 * 60 * 60 * 1000).toISOString(),
+    totalIndicacoes: 1, descontoMgm: 5,
+    origem: 'indicacao', utmSource: null, utmMedium: null, utmCampaign: null,
+    tags: ['indicada'], customFields: {},
     createdAt: new Date(Date.now() - 90 * 24 * 60 * 60 * 1000).toISOString(), updatedAt: new Date().toISOString(),
-    _count: { leads: 0, deals: 0, conversations: 1 },
+    _count: { leads: 0, deals: 0, conversations: 1, vehicles: 1 },
   },
   {
     id: '3', companyId: 'default-company',
     firstName: 'Pedro', lastName: 'Oliveira', fullName: 'Pedro Oliveira',
-    email: 'pedro@empresa.com', phone: '(11) 93456-7890', avatar: null,
-    whatsapp: '(11) 93456-7890', instagram: null,
-    address: null, city: 'Campinas', state: 'SP', country: 'BR', zipCode: null,
-    cpf: '456.789.123-00', dateOfBirth: '1978-11-05', gender: 'male', bloodType: 'B-',
-    allergies: 'Penicilina, Latex', medicalNotes: 'Diabetico tipo 2',
-    convenioId: 'conv-2', convenioName: 'Amil', convenioNumber: 'AMI-11111',
-    responsibleName: null, responsiblePhone: null,
-    preferredDoctorId: 'doc-3', preferredDoctorName: 'Dr. Carlos Souza',
-    lastVisitAt: new Date(Date.now() - 60 * 24 * 60 * 60 * 1000).toISOString(),
-    nextVisitAt: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000).toISOString(),
-    tags: ['diabetico', 'alergia'], customFields: {},
+    email: 'pedro@empresa.com', phone: '(21) 93456-7890', avatar: null,
+    whatsapp: '(21) 93456-7890',
+    address: null, bairro: null, city: 'Niteroi', state: 'RJ', country: 'BR', zipCode: null,
+    cpf: '456.789.123-00', rg: null, dateOfBirth: '1978-11-05',
+    status: 'inadimplente', dataAdesao: '2023-06-10', dataCancelamento: null,
+    hinovaId: 'HIN-00003', indicadoPor: null, vendedorId: 'user-1',
+    npsScore: 5, ultimoNps: new Date(Date.now() - 60 * 24 * 60 * 60 * 1000).toISOString(),
+    totalIndicacoes: 0, descontoMgm: 0,
+    origem: 'meta_ads', utmSource: 'facebook', utmMedium: 'paid', utmCampaign: 'meta-adesao',
+    tags: ['inadimplente', 'risco-churn'], customFields: {},
     createdAt: new Date(Date.now() - 365 * 24 * 60 * 60 * 1000).toISOString(), updatedAt: new Date().toISOString(),
-    _count: { leads: 0, deals: 0, conversations: 0 },
+    _count: { leads: 0, deals: 0, conversations: 0, vehicles: 1 },
   },
   {
     id: '4', companyId: 'default-company',
     firstName: 'Ana', lastName: 'Costa', fullName: 'Ana Costa',
-    email: null, phone: '(11) 94567-8901', avatar: null,
-    whatsapp: '(11) 94567-8901', instagram: null,
-    address: null, city: 'Sao Paulo', state: 'SP', country: 'BR', zipCode: null,
-    cpf: '321.654.987-00', dateOfBirth: '2018-02-10', gender: 'female', bloodType: 'AB+',
-    allergies: null, medicalNotes: 'Paciente pediatrica',
-    convenioId: 'conv-1', convenioName: 'Unimed', convenioNumber: 'UNI-99999',
-    responsibleName: 'Lucia Costa', responsiblePhone: '(11) 94567-8901',
-    preferredDoctorId: null, preferredDoctorName: null,
-    lastVisitAt: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString(),
-    nextVisitAt: null,
-    tags: ['pediatria'], customFields: {},
-    createdAt: new Date(Date.now() - 60 * 24 * 60 * 60 * 1000).toISOString(), updatedAt: new Date().toISOString(),
-    _count: { leads: 0, deals: 0, conversations: 0 },
+    email: null, phone: '(21) 94567-8901', avatar: null,
+    whatsapp: '(21) 94567-8901',
+    address: null, bairro: null, city: 'Rio de Janeiro', state: 'RJ', country: 'BR', zipCode: null,
+    cpf: '321.654.987-00', rg: null, dateOfBirth: '1995-02-10',
+    status: 'em_adesao', dataAdesao: null,
+    hinovaId: null, indicadoPor: '1', vendedorId: null,
+    npsScore: null, ultimoNps: null,
+    totalIndicacoes: 0, descontoMgm: 0,
+    origem: 'whatsapp', utmSource: null, utmMedium: null, utmCampaign: null,
+    tags: [], customFields: {},
+    createdAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(), updatedAt: new Date().toISOString(),
+    _count: { leads: 1, deals: 0, conversations: 2, vehicles: 0 },
   },
   {
     id: '5', companyId: 'default-company',
     firstName: 'Roberto', lastName: 'Almeida', fullName: 'Roberto Almeida',
-    email: 'roberto@email.com', phone: '(11) 95678-9012', avatar: null,
-    whatsapp: null, instagram: null,
-    address: 'Rua Augusta, 789', city: 'Sao Paulo', state: 'SP', country: 'BR', zipCode: '01305-000',
-    cpf: '654.321.987-00', dateOfBirth: '1960-09-20', gender: 'male', bloodType: 'O-',
-    allergies: null, medicalNotes: 'Acompanhamento cardiologico trimestral',
-    convenioId: 'conv-3', convenioName: 'SulAmerica', convenioNumber: 'SUL-55555',
-    responsibleName: null, responsiblePhone: null,
-    preferredDoctorId: 'doc-1', preferredDoctorName: 'Dr. Ricardo Mendes',
-    lastVisitAt: new Date(Date.now() - 90 * 24 * 60 * 60 * 1000).toISOString(),
-    nextVisitAt: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000).toISOString(),
-    tags: ['cardiologia', 'idoso', 'retorno-pendente'], customFields: {},
+    email: 'roberto@email.com', phone: '(21) 95678-9012', avatar: null,
+    whatsapp: '(21) 95678-9012',
+    address: 'Rua das Laranjeiras, 789', bairro: 'Laranjeiras', city: 'Rio de Janeiro', state: 'RJ', country: 'BR', zipCode: '22240-003',
+    cpf: '654.321.987-00', rg: '98.765.432-1', dateOfBirth: '1960-09-20',
+    status: 'ativo', dataAdesao: '2022-11-20',
+    hinovaId: 'HIN-00005', indicadoPor: null, vendedorId: 'user-1',
+    npsScore: 10, ultimoNps: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(),
+    totalIndicacoes: 7, descontoMgm: 20,
+    origem: 'site_organico', utmSource: 'google', utmMedium: 'organic', utmCampaign: null,
+    tags: ['fiel', 'indicador', 'premium'], customFields: {},
     createdAt: new Date(Date.now() - 730 * 24 * 60 * 60 * 1000).toISOString(), updatedAt: new Date().toISOString(),
-    _count: { leads: 0, deals: 0, conversations: 2 },
+    _count: { leads: 0, deals: 0, conversations: 2, vehicles: 3 },
+  },
+]
+
+// ============================================================================
+// MOCK VEHICLES (Veiculos)
+// ============================================================================
+
+const mockVehicles: any[] = [
+  {
+    id: 'veh-1', companyId: 'default-company', associadoId: '1',
+    associado: { id: '1', fullName: 'Joao Silva', cpf: '123.456.789-00' },
+    placa: 'ABC1D23', renavam: '12345678901', chassi: '9BWZZZ377VT004251',
+    marca: 'Honda', modelo: 'Civic', anoFabricacao: 2020, anoModelo: 2021, cor: 'Prata',
+    combustivel: 'flex', tipo: 'carro',
+    codigoFipe: '001004-9', valorFipe: 8500000, valorFipeAtualizadoEm: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString(),
+    plano: 'premium', valorMensal: 18900,
+    temRastreador: true, rastreadorMarca: 'Sascar',
+    vistoriaStatus: 'aprovada', vistoriaData: new Date(Date.now() - 60 * 24 * 60 * 60 * 1000).toISOString(),
+    ativo: true, dataInclusao: new Date(Date.now() - 180 * 24 * 60 * 60 * 1000).toISOString(), dataExclusao: null,
+    createdAt: new Date(Date.now() - 180 * 24 * 60 * 60 * 1000).toISOString(), updatedAt: new Date().toISOString(),
+  },
+  {
+    id: 'veh-2', companyId: 'default-company', associadoId: '1',
+    associado: { id: '1', fullName: 'Joao Silva', cpf: '123.456.789-00' },
+    placa: 'XYZ5E67', renavam: '98765432109', chassi: null,
+    marca: 'Toyota', modelo: 'Corolla', anoFabricacao: 2018, anoModelo: 2019, cor: 'Preto',
+    combustivel: 'flex', tipo: 'carro',
+    codigoFipe: '005380-5', valorFipe: 7200000, valorFipeAtualizadoEm: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString(),
+    plano: 'completo', valorMensal: 14500,
+    temRastreador: false, rastreadorMarca: null,
+    vistoriaStatus: 'aprovada', vistoriaData: new Date(Date.now() - 90 * 24 * 60 * 60 * 1000).toISOString(),
+    ativo: true, dataInclusao: new Date(Date.now() - 120 * 24 * 60 * 60 * 1000).toISOString(), dataExclusao: null,
+    createdAt: new Date(Date.now() - 120 * 24 * 60 * 60 * 1000).toISOString(), updatedAt: new Date().toISOString(),
+  },
+  {
+    id: 'veh-3', companyId: 'default-company', associadoId: '2',
+    associado: { id: '2', fullName: 'Maria Santos', cpf: '987.654.321-00' },
+    placa: 'RIO2A34', renavam: '11122233344', chassi: null,
+    marca: 'Volkswagen', modelo: 'Polo', anoFabricacao: 2022, anoModelo: 2023, cor: 'Branco',
+    combustivel: 'flex', tipo: 'carro',
+    codigoFipe: null, valorFipe: null, valorFipeAtualizadoEm: null,
+    plano: 'completo', valorMensal: 15200,
+    temRastreador: true, rastreadorMarca: 'Omnilink',
+    vistoriaStatus: 'aprovada', vistoriaData: new Date(Date.now() - 45 * 24 * 60 * 60 * 1000).toISOString(),
+    ativo: true, dataInclusao: new Date(Date.now() - 90 * 24 * 60 * 60 * 1000).toISOString(), dataExclusao: null,
+    createdAt: new Date(Date.now() - 90 * 24 * 60 * 60 * 1000).toISOString(), updatedAt: new Date().toISOString(),
+  },
+  {
+    id: 'veh-4', companyId: 'default-company', associadoId: '3',
+    associado: { id: '3', fullName: 'Pedro Oliveira', cpf: '456.789.123-00' },
+    placa: 'NIT3B45', renavam: null, chassi: null,
+    marca: 'Fiat', modelo: 'Strada', anoFabricacao: 2019, anoModelo: 2020, cor: 'Vermelho',
+    combustivel: 'flex', tipo: 'caminhonete',
+    codigoFipe: null, valorFipe: null, valorFipeAtualizadoEm: null,
+    plano: 'basico', valorMensal: 8900,
+    temRastreador: false, rastreadorMarca: null,
+    vistoriaStatus: 'pendente', vistoriaData: null,
+    ativo: true, dataInclusao: new Date(Date.now() - 365 * 24 * 60 * 60 * 1000).toISOString(), dataExclusao: null,
+    createdAt: new Date(Date.now() - 365 * 24 * 60 * 60 * 1000).toISOString(), updatedAt: new Date().toISOString(),
   },
 ]
 
@@ -474,16 +348,33 @@ fastify.get('/health', async () => {
 fastify.get('/api/contacts', async (request, reply) => {
   console.log('[MOCK] GET /api/contacts called')
   const query = request.query as any
+  let filtered = [...mockContacts]
+
+  if (query.search) {
+    const s = query.search.toLowerCase()
+    filtered = filtered.filter((c: any) =>
+      c.fullName?.toLowerCase().includes(s) ||
+      c.email?.toLowerCase().includes(s) ||
+      c.phone?.includes(s) ||
+      c.cpf?.includes(s) ||
+      c.whatsapp?.includes(s)
+    )
+  }
+  if (query.status) filtered = filtered.filter((c: any) => c.status === query.status)
+  if (query.origem) filtered = filtered.filter((c: any) => c.origem === query.origem)
+
+  const page = parseInt(query.page) || 1
+  const limit = parseInt(query.limit) || 20
 
   return reply.send({
-    data: mockContacts,
+    data: filtered,
     pagination: {
-      page: parseInt(query.page) || 1,
-      limit: parseInt(query.limit) || 20,
-      total: mockContacts.length,
-      totalPages: 1,
+      page,
+      limit,
+      total: filtered.length,
+      totalPages: Math.ceil(filtered.length / limit) || 1,
       hasNext: false,
-      hasPrev: false,
+      hasPrev: page > 1,
     },
   })
 })
@@ -491,17 +382,15 @@ fastify.get('/api/contacts', async (request, reply) => {
 // GET /api/contacts/stats
 fastify.get('/api/contacts/stats', async (request, reply) => {
   console.log('[MOCK] GET /api/contacts/stats called')
-
-  const now = Date.now()
-  const thirtyDaysAgo = now - 30 * 24 * 60 * 60 * 1000
+  const thirtyDaysAgo = Date.now() - 30 * 24 * 60 * 60 * 1000
   return reply.send({
     total: mockContacts.length,
-    withEmail: mockContacts.filter((c: any) => c.email).length,
-    withPhone: mockContacts.filter((c: any) => c.phone).length,
-    withConvenio: mockContacts.filter((c: any) => c.convenioId).length,
-    withAllergies: mockContacts.filter((c: any) => c.allergies).length,
-    pendingReturn: mockContacts.filter((c: any) => c.nextVisitAt && new Date(c.nextVisitAt).getTime() <= now + 7 * 24 * 60 * 60 * 1000).length,
+    ativos: mockContacts.filter((c: any) => c.status === 'ativo').length,
+    inativos: mockContacts.filter((c: any) => c.status === 'inativo').length,
+    inadimplentes: mockContacts.filter((c: any) => c.status === 'inadimplente').length,
+    emAdesao: mockContacts.filter((c: any) => c.status === 'em_adesao').length,
     recentCount: mockContacts.filter((c: any) => new Date(c.createdAt).getTime() > thirtyDaysAgo).length,
+    totalVehicles: mockVehicles.filter((v: any) => v.ativo).length,
   })
 })
 
@@ -526,12 +415,14 @@ fastify.get('/api/contacts/:id', async (request, reply) => {
     return reply.status(404).send({ message: 'Contact not found' })
   }
 
+  const vehicles = mockVehicles.filter((v: any) => v.associadoId === id)
   return reply.send({
     ...contact,
     leads: [],
     deals: [],
     conversations: [],
     activities: [],
+    vehicles,
   })
 })
 
@@ -604,68 +495,186 @@ fastify.delete('/api/contacts/:id', async (request, reply) => {
 })
 
 // ============================================================================
+// MOCK VEHICLES ENDPOINTS
+// ============================================================================
+
+// GET /api/vehicles
+fastify.get('/api/vehicles', async (request, reply) => {
+  console.log('[MOCK] GET /api/vehicles')
+  const query = request.query as any
+  let filtered = [...mockVehicles]
+
+  if (query.associadoId) filtered = filtered.filter((v: any) => v.associadoId === query.associadoId)
+  if (query.plano) filtered = filtered.filter((v: any) => v.plano === query.plano)
+  if (query.ativo !== undefined) filtered = filtered.filter((v: any) => v.ativo === (query.ativo === 'true'))
+  if (query.search) {
+    const s = query.search.toLowerCase()
+    filtered = filtered.filter((v: any) =>
+      v.placa?.toLowerCase().includes(s) ||
+      v.marca?.toLowerCase().includes(s) ||
+      v.modelo?.toLowerCase().includes(s) ||
+      v.associado?.fullName?.toLowerCase().includes(s)
+    )
+  }
+
+  const page = parseInt(query.page) || 1
+  const limit = parseInt(query.limit) || 20
+  return reply.send({
+    data: filtered,
+    pagination: { page, limit, total: filtered.length, totalPages: Math.ceil(filtered.length / limit) || 1, hasNext: false, hasPrev: page > 1 },
+  })
+})
+
+// GET /api/contacts/:id/vehicles
+fastify.get('/api/contacts/:id/vehicles', async (request, reply) => {
+  const { id } = request.params as { id: string }
+  console.log('[MOCK] GET /api/contacts/:id/vehicles', { id })
+  const vehicles = mockVehicles.filter((v: any) => v.associadoId === id)
+  return reply.send(vehicles)
+})
+
+// GET /api/vehicles/:id
+fastify.get('/api/vehicles/:id', async (request, reply) => {
+  const { id } = request.params as { id: string }
+  const v = mockVehicles.find((x: any) => x.id === id)
+  if (!v) return reply.status(404).send({ message: 'Veiculo nao encontrado' })
+  return reply.send(v)
+})
+
+// POST /api/vehicles
+fastify.post('/api/vehicles', async (request, reply) => {
+  const data = request.body as any
+  console.log('[MOCK] POST /api/vehicles', { placa: data.placa })
+
+  const duplicate = mockVehicles.find((v: any) => v.placa === data.placa?.toUpperCase())
+  if (duplicate) return reply.status(400).send({ message: 'Ja existe um veiculo com esta placa' })
+
+  const associado = mockContacts.find((c: any) => c.id === data.associadoId)
+  const v = {
+    id: `veh-${Date.now()}`, companyId: 'default-company',
+    ...data,
+    placa: data.placa?.toUpperCase(),
+    associado: associado ? { id: associado.id, fullName: associado.fullName, cpf: associado.cpf } : null,
+    vistoriaStatus: 'pendente', ativo: true,
+    dataInclusao: new Date().toISOString(), dataExclusao: null,
+    createdAt: new Date().toISOString(), updatedAt: new Date().toISOString(),
+  }
+  mockVehicles.push(v)
+  return reply.status(201).send(v)
+})
+
+// PUT /api/vehicles/:id
+fastify.put('/api/vehicles/:id', async (request, reply) => {
+  const { id } = request.params as { id: string }
+  const data = request.body as any
+  const index = mockVehicles.findIndex((x: any) => x.id === id)
+  if (index === -1) return reply.status(404).send({ message: 'Veiculo nao encontrado' })
+  mockVehicles[index] = { ...mockVehicles[index], ...data, updatedAt: new Date().toISOString() }
+  return reply.send(mockVehicles[index])
+})
+
+// DELETE /api/vehicles/:id
+fastify.delete('/api/vehicles/:id', async (request, reply) => {
+  const { id } = request.params as { id: string }
+  const index = mockVehicles.findIndex((x: any) => x.id === id)
+  if (index !== -1) mockVehicles.splice(index, 1)
+  return reply.send({ success: true })
+})
+
+// ============================================================================
 // MOCK LEADS ENDPOINTS
 // ============================================================================
 
 const mockLeads: any[] = [
   {
-    id: 'lead-1', companyId: 'default-company', contactId: '1',
-    contact: { id: '1', firstName: 'João', lastName: 'Silva', fullName: 'João Silva', email: 'joao@exemplo.com', phone: '(11) 98765-4321' },
-    title: 'Tubos de aço inoxidável - Empresa ABC',
-    description: 'Cliente interessado em tubos para projeto industrial',
-    status: 'qualified', score: 75, source: 'website', medium: 'organic', campaign: null,
+    id: 'lead-1', companyId: 'default-company', contactId: '4',
+    contact: { id: '4', firstName: 'Ana', lastName: 'Costa', fullName: 'Ana Costa', email: null, phone: '(21) 94567-8901', whatsapp: '(21) 94567-8901' },
+    title: 'Protecao Honda City 2023 - Ana Costa',
+    description: 'Interessada em plano completo para Honda City',
+    status: 'cotacao_enviada', score: 80, source: 'whatsapp', medium: null, campaign: null,
     assignedToId: 'user-1', assignedTo: { id: 'user-1', firstName: 'Admin', lastName: 'Sistema' },
-    estimatedValue: 45000, convertedToDealId: null, convertedAt: null,
-    tags: ['industria', 'tubos'], customFields: {},
-    createdAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
-    updatedAt: new Date().toISOString(),
-  },
-  {
-    id: 'lead-2', companyId: 'default-company', contactId: '2',
-    contact: { id: '2', firstName: 'Maria', lastName: 'Santos', fullName: 'Maria Santos', email: 'maria@exemplo.com', phone: '(11) 91234-5678' },
-    title: 'Conexões para gasoduto - Tech Solutions',
-    description: 'Projeto de grande porte, conexões especiais',
-    status: 'contacted', score: 50, source: 'referral', medium: null, campaign: null,
-    assignedToId: null, assignedTo: null,
-    estimatedValue: 120000, convertedToDealId: null, convertedAt: null,
-    tags: ['conexões', 'grande-porte'], customFields: {},
+    estimatedValue: 15200, convertedToDealId: null, convertedAt: null,
+    tags: ['cotacao-enviada'], customFields: {},
+    // Campos veiculares
+    placaInteresse: null, marcaInteresse: 'Honda', modeloInteresse: 'City', anoInteresse: 2023,
+    valorFipeConsultado: 7800000, cotacaoValor: 15200, cotacaoPlano: 'completo',
+    cotacaoEnviada: true, cotacaoData: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
+    qualificadoPor: 'agente_ia', vendedorId: 'user-1',
+    etapaFunil: 'cotacao_enviada', motivoPerda: null,
+    utmSource: null, utmMedium: null, utmCampaign: null, utmContent: null, utmTerm: null,
     createdAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
     updatedAt: new Date().toISOString(),
   },
   {
-    id: 'lead-3', companyId: 'default-company', contactId: '3',
-    contact: { id: '3', firstName: 'Pedro', lastName: 'Oliveira', fullName: 'Pedro Oliveira', email: 'pedro@empresa.com', phone: null },
-    title: 'Válvulas industriais - Orçamento',
-    description: null,
-    status: 'new', score: 20, source: 'whatsapp', medium: null, campaign: null,
+    id: 'lead-2', companyId: 'default-company', contactId: '4',
+    contact: { id: '4', firstName: 'Carlos', lastName: 'Mendes', fullName: 'Carlos Mendes', email: 'carlos@gmail.com', phone: '(21) 97777-8888', whatsapp: '(21) 97777-8888' },
+    title: 'Protecao Jeep Renegade 2021',
+    description: 'Lead via Google Ads, carro na faixa dos 80k FIPE',
+    status: 'qualified', score: 65, source: 'google', medium: 'cpc', campaign: 'protecao-veicular-rj',
     assignedToId: null, assignedTo: null,
-    estimatedValue: null, convertedToDealId: null, convertedAt: null,
-    tags: [], customFields: {},
+    estimatedValue: 18900, convertedToDealId: null, convertedAt: null,
+    tags: ['google-ads', 'suv'], customFields: {},
+    placaInteresse: 'QRS4T56', marcaInteresse: 'Jeep', modeloInteresse: 'Renegade', anoInteresse: 2021,
+    valorFipeConsultado: 8200000, cotacaoValor: null, cotacaoPlano: 'premium',
+    cotacaoEnviada: false, cotacaoData: null,
+    qualificadoPor: 'agente_ia', vendedorId: null,
+    etapaFunil: 'qualified', motivoPerda: null,
+    utmSource: 'google', utmMedium: 'cpc', utmCampaign: 'protecao-veicular-rj', utmContent: null, utmTerm: null,
+    createdAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
+    updatedAt: new Date().toISOString(),
+  },
+  {
+    id: 'lead-3', companyId: 'default-company', contactId: '3',
+    contact: { id: '3', firstName: 'Pedro', lastName: 'Oliveira', fullName: 'Pedro Oliveira', email: 'pedro@empresa.com', phone: '(21) 93456-7890', whatsapp: '(21) 93456-7890' },
+    title: 'Segundo veiculo - Fiat Argo 2022',
+    description: 'Associado atual querendo adicionar segundo veiculo',
+    status: 'new', score: 45, source: 'whatsapp', medium: null, campaign: null,
+    assignedToId: null, assignedTo: null,
+    estimatedValue: 9500, convertedToDealId: null, convertedAt: null,
+    tags: ['segundo-veiculo'], customFields: {},
+    placaInteresse: null, marcaInteresse: 'Fiat', modeloInteresse: 'Argo', anoInteresse: 2022,
+    valorFipeConsultado: null, cotacaoValor: null, cotacaoPlano: 'basico',
+    cotacaoEnviada: false, cotacaoData: null,
+    qualificadoPor: 'manual', vendedorId: null,
+    etapaFunil: 'new', motivoPerda: null,
+    utmSource: null, utmMedium: null, utmCampaign: null, utmContent: null, utmTerm: null,
     createdAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
     updatedAt: new Date().toISOString(),
   },
   {
-    id: 'lead-4', companyId: 'default-company', contactId: '1',
-    contact: { id: '1', firstName: 'João', lastName: 'Silva', fullName: 'João Silva', email: 'joao@exemplo.com', phone: '(11) 98765-4321' },
-    title: 'Expansão projeto tubulação - Fase 2',
-    description: 'Continuação do projeto anterior',
-    status: 'new', score: 60, source: 'manual', medium: null, campaign: null,
+    id: 'lead-4', companyId: 'default-company', contactId: '2',
+    contact: { id: '2', firstName: 'Maria', lastName: 'Santos', fullName: 'Maria Santos', email: 'maria@exemplo.com', phone: '(21) 91234-5678', whatsapp: '(21) 91234-5678' },
+    title: 'Indicacao - Toyota HiLux 2020',
+    description: 'Indicado pela Joao Silva, dono de caminhonete Toyota',
+    status: 'negociacao', score: 90, source: 'referral', medium: null, campaign: null,
     assignedToId: 'user-1', assignedTo: { id: 'user-1', firstName: 'Admin', lastName: 'Sistema' },
-    estimatedValue: 85000, convertedToDealId: null, convertedAt: null,
-    tags: ['tubos', 'expansao'], customFields: {},
-    createdAt: new Date().toISOString(),
+    estimatedValue: 22000, convertedToDealId: null, convertedAt: null,
+    tags: ['indicacao', 'pickup'], customFields: {},
+    placaInteresse: null, marcaInteresse: 'Toyota', modeloInteresse: 'HiLux', anoInteresse: 2020,
+    valorFipeConsultado: 16500000, cotacaoValor: 22000, cotacaoPlano: 'premium',
+    cotacaoEnviada: true, cotacaoData: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
+    qualificadoPor: 'vendedor', vendedorId: 'user-1',
+    etapaFunil: 'negociacao', motivoPerda: null,
+    utmSource: null, utmMedium: null, utmCampaign: null, utmContent: null, utmTerm: null,
+    createdAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
     updatedAt: new Date().toISOString(),
   },
   {
-    id: 'lead-5', companyId: 'default-company', contactId: '2',
-    contact: { id: '2', firstName: 'Maria', lastName: 'Santos', fullName: 'Maria Santos', email: 'maria@exemplo.com', phone: '(11) 91234-5678' },
-    title: 'Campanha Google Ads - Válvulas',
-    description: 'Lead captado por campanha paga',
-    status: 'unqualified', score: 10, source: 'website', medium: 'paid', campaign: 'google-ads-valvulas',
+    id: 'lead-5', companyId: 'default-company', contactId: '1',
+    contact: { id: '1', firstName: 'Joao', lastName: 'Silva', fullName: 'Joao Silva', email: 'joao@exemplo.com', phone: '(21) 98765-4321', whatsapp: '(21) 98765-4321' },
+    title: 'Meta Ads - Chevrolet Onix 2023',
+    description: 'Lead captado via campanha Meta Ads Stories',
+    status: 'perdido', score: 15, source: 'facebook', medium: 'paid', campaign: 'meta-protecao-stories',
     assignedToId: null, assignedTo: null,
-    estimatedValue: 5000, convertedToDealId: null, convertedAt: null,
-    tags: ['ads'], customFields: {},
-    createdAt: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(),
+    estimatedValue: 8500, convertedToDealId: null, convertedAt: null,
+    tags: ['meta-ads', 'perdido'], customFields: {},
+    placaInteresse: null, marcaInteresse: 'Chevrolet', modeloInteresse: 'Onix', anoInteresse: 2023,
+    valorFipeConsultado: 7500000, cotacaoValor: 8500, cotacaoPlano: 'basico',
+    cotacaoEnviada: true, cotacaoData: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000).toISOString(),
+    qualificadoPor: 'agente_ia', vendedorId: null,
+    etapaFunil: 'perdido', motivoPerda: 'Achou o preco alto',
+    utmSource: 'facebook', utmMedium: 'paid', utmCampaign: 'meta-protecao-stories', utmContent: 'stories', utmTerm: null,
+    createdAt: new Date(Date.now() - 12 * 24 * 60 * 60 * 1000).toISOString(),
     updatedAt: new Date().toISOString(),
   },
 ]
@@ -699,19 +708,19 @@ fastify.get('/api/leads', async (request, reply) => {
 // GET /api/leads/stats
 fastify.get('/api/leads/stats', async (request, reply) => {
   console.log('[MOCK] GET /api/leads/stats')
-  const byStatus: Record<string, number> = { new: 0, contacted: 0, qualified: 0, unqualified: 0 }
-  const bySource: Record<string, number> = { website: 0, whatsapp: 0, instagram: 0, referral: 0, manual: 0 }
+  const byStatus: Record<string, number> = {}
+  const bySource: Record<string, number> = {}
   mockLeads.forEach((l) => {
     byStatus[l.status] = (byStatus[l.status] || 0) + 1
     bySource[l.source] = (bySource[l.source] || 0) + 1
   })
-  const converted = mockLeads.filter((l) => l.convertedToDealId).length
+  const fechados = mockLeads.filter((l) => l.status === 'fechado').length
   const totalValue = mockLeads.reduce((sum, l) => sum + (l.estimatedValue || 0), 0)
   return reply.send({
     total: mockLeads.length,
     byStatus,
     bySource,
-    conversionRate: mockLeads.length > 0 ? Math.round((converted / mockLeads.length) * 100) : 0,
+    conversionRate: mockLeads.length > 0 ? Math.round((fechados / mockLeads.length) * 100 * 100) / 100 : 0,
     totalEstimatedValue: totalValue,
   })
 })
@@ -732,12 +741,26 @@ fastify.post('/api/leads', async (request, reply) => {
   const lead = {
     id: `lead-${Date.now()}`, companyId: 'default-company',
     contactId: data.contactId,
-    contact: contact ? { id: contact.id, firstName: contact.firstName, lastName: contact.lastName, fullName: contact.fullName, email: contact.email, phone: contact.phone } : null,
+    contact: contact ? { id: contact.id, firstName: contact.firstName, lastName: contact.lastName, fullName: contact.fullName, email: contact.email, phone: contact.phone, cpf: contact.cpf } : null,
     title: data.title, description: data.description || null,
-    status: 'new', score: 0, source: data.source || 'manual',
+    status: data.status || 'new', score: data.score || 0, source: data.source || 'manual',
     medium: data.medium || null, campaign: data.campaign || null,
     assignedToId: data.assignedToId || null, assignedTo: null,
     estimatedValue: data.estimatedValue || null,
+    // Campos veicular
+    placaInteresse: data.placaInteresse || null,
+    marcaInteresse: data.marcaInteresse || null,
+    modeloInteresse: data.modeloInteresse || null,
+    anoInteresse: data.anoInteresse || null,
+    cotacaoValor: data.cotacaoValor || null,
+    cotacaoPlano: data.cotacaoPlano || null,
+    cotacaoEnviada: data.cotacaoEnviada || false,
+    etapaFunil: data.etapaFunil || null,
+    motivoPerda: data.motivoPerda || null,
+    // UTM / rastreamento
+    utmSource: data.utmSource || null,
+    utmMedium: data.utmMedium || null,
+    utmCampaign: data.utmCampaign || null,
     convertedToDealId: null, convertedAt: null,
     tags: data.tags || [], customFields: {},
     createdAt: new Date().toISOString(), updatedAt: new Date().toISOString(),
@@ -787,30 +810,155 @@ const mockKnowledgeBases: any[] = [
   },
 ]
 
-const mockAgents: any[] = [
+// 21Go Squad Agent Definitions
+const SQUAD_AGENTS_DATA = [
   {
-    id: 'agent-1',
-    companyId: 'default-company',
-    name: 'Assistente de Vendas',
-    description: 'Responde perguntas sobre produtos e processos de venda',
-    provider: 'openai',
-    model: 'gpt-4o-mini',
-    temperature: 0.7,
-    maxTokens: 1000,
-    systemPrompt: 'Voce e um assistente de vendas especializado. Responda perguntas sobre produtos, precos e processos.',
-    allowedScopes: ['contacts', 'deals'],
-    canCreateLeads: true,
-    canUpdateLeads: false,
-    canCreateDeals: false,
-    canTransferToHuman: true,
+    id: '21go-chief',
+    name: '21Go Chief',
+    description: 'Orquestrador Central da 21Go — diagnostica necessidade e roteia para o agente especialista certo',
+    icon: '🛡️',
+    tier: 0,
+    squad: '21go-squad',
     type: 'internal',
-    knowledgeBaseId: 'kb-1',
-    knowledgeBase: { id: 'kb-1', name: 'Base de Vendas', collectionName: 'kb_default-company_kb-1' },
-    isActive: true,
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
+    provider: 'anthropic',
+    model: 'claude-sonnet-4-6',
+    temperature: 0.5,
+    maxTokens: 2000,
+    allowedRoles: ['vendedor', 'operacao', 'gestor', 'admin'],
+    allowedScopes: ['contacts', 'leads', 'deals', 'analytics'],
+    canCreateLeads: false, canUpdateLeads: false, canCreateDeals: false, canTransferToHuman: true,
+    systemPrompt: '# 21Go Chief\n\nVoce e o 21Go Chief — o orquestrador central da squad de IA da 21Go Protecao Veicular. Voce nao executa tarefas diretamente — diagnostica a necessidade, roteia para o agente especialista certo e garante qualidade no output.\n\nRouting:\n- pre_venda: ["lead", "cotacao", "WhatsApp", "FIPE", "novo cliente"] -> agente-pre-venda\n- pos_venda: ["sinistro", "boleto", "cobranca", "vistoria", "associado existente"] -> agente-pos-venda\n- gestao: ["dashboard", "relatorio", "KPI", "meta", "desempenho", "ranking"] -> agente-gestores\n- retencao: ["churn", "cancelamento", "NPS", "insatisfeito", "risco"] -> agente-retencao\n- crescimento: ["indicacao", "MGM", "campanha", "crescer", "escalar"] -> agente-crescimento\n- trafego: ["Google Ads", "Meta Ads", "anuncio", "landing page", "trafego", "SEO"] -> agente-trafego\n- operacao: ["oficina", "mecanico", "pintura", "peca", "reparo"] -> agente-operacao\n\nA 21Go e uma associacao de protecao veicular no RJ com 20+ anos. Mutualismo — mais associados = menor rateio. Planos: Basico, Completo, Premium.',
+  },
+  {
+    id: 'agente-pre-venda',
+    name: 'Agente Pre-Venda',
+    description: 'Qualificacao e Cotacao Inteligente 24/7 — Framework CLOSER de Hormozi',
+    icon: '🤖',
+    tier: 1,
+    squad: '21go-squad',
+    type: 'customer_facing',
+    provider: 'anthropic',
+    model: 'claude-sonnet-4-6',
+    temperature: 0.7,
+    maxTokens: 2000,
+    allowedRoles: ['vendedor', 'gestor', 'admin'],
+    allowedScopes: ['contacts', 'leads', 'deals'],
+    canCreateLeads: true, canUpdateLeads: true, canCreateDeals: true, canTransferToHuman: true,
+    systemPrompt: '# Agente Pre-Venda 21Go\n\nVoce e o Agente de Pre-Venda da 21Go — primeiro contato inteligente com cada lead. Atende 24/7 via WhatsApp e chat, qualifica leads, calcula cotacoes pela tabela FIPE.\n\nFramework CLOSER (Hormozi):\nC - Clarificar: Entender situacao antes de falar preco\nL - Rotular: Reformular a dor do lead\nO - Visao Geral: Apresentar solucao sem falar preco\nS - Vender: Cotacao personalizada FIPE\nE - Explicar: Resolver objecoes\nR - Reforcar: Criar urgencia e fechar\n\nPlanos:\n- Basico: Roubo/furto + Assistencia 24h (guincho 200km)\n- Completo: + Colisao + Incendio + Carro reserva 7 dias\n- Premium: + Terceiros R$100K + Vidros + Carro reserva 15 dias + Rastreamento\n\nFormula: valor_fipe x taxa_plano + R$35 admin\nTaxas: basico 1.8%, completo 2.8%, premium 3.8%\n\nRegras: tom amigavel, sem juridiques, escalar para humano em descontos/juridico/reclamacoes.',
+  },
+  {
+    id: 'agente-pos-venda',
+    name: 'Agente Pos-Venda',
+    description: 'Atendimento e Retencao de Associados — Onboarding 30 dias, deteccao de churn',
+    icon: '🔄',
+    tier: 1,
+    squad: '21go-squad',
+    type: 'customer_facing',
+    provider: 'anthropic',
+    model: 'claude-sonnet-4-6',
+    temperature: 0.6,
+    maxTokens: 2000,
+    allowedRoles: ['vendedor', 'gestor', 'admin'],
+    allowedScopes: ['contacts', 'leads'],
+    canCreateLeads: false, canUpdateLeads: true, canCreateDeals: false, canTransferToHuman: true,
+    systemPrompt: '# Agente Pos-Venda 21Go\n\nGuardiao da satisfacao e retencao dos associados. Atende duvidas, consulta sinistros via Hinova SGA/SGC, envia lembretes de boleto, detecta churn.\n\nOnboarding 30 dias:\n- Dia 0: Boas-vindas WhatsApp\n- Dia 1: Verificar vistoria\n- Dia 7: Check-in experiencia\n- Dia 14: Conteudo de valor\n- Dia 30: Pesquisa NPS\n\nDeteccao Churn:\n- Amarelo: boleto 15+ dias -> lembrete WhatsApp\n- Laranja: boleto 30+ dias OU NPS<=6 -> agente + vendedor retencao\n- Vermelho: boleto 45+ dias + NPS baixo -> gestor + ligar 2h\n\nCobranca humanizada: nunca agressiva. Dia 5: 2a via. Dia 15: alerta suspensao. Dia 30: escalar humano.\n\nEscalacao: cancelamento -> retencao humana IMEDIATO. Juridico -> nunca responder.',
+  },
+  {
+    id: 'agente-gestores',
+    name: 'Agente Gestores',
+    description: 'Inteligencia Operacional para Diretoria — Briefing matinal, relatorios, alertas',
+    icon: '📊',
+    tier: 1,
+    squad: '21go-squad',
+    type: 'internal',
+    provider: 'anthropic',
+    model: 'claude-sonnet-4-6',
+    temperature: 0.4,
+    maxTokens: 4000,
+    allowedRoles: ['gestor', 'admin'],
+    allowedScopes: ['contacts', 'leads', 'deals', 'analytics', 'billing'],
+    canCreateLeads: false, canUpdateLeads: false, canCreateDeals: false, canTransferToHuman: false,
+    systemPrompt: '# Agente Gestores 21Go\n\nBraco direito da diretoria. Entrega briefing manha (08h), relatorio fim do dia (18h), consultas em tempo real, alertas proativos.\n\nBriefing: cotacoes, adesoes, cancelamentos, NPS, sinistros abertos 7+ dias, boletos 45+ dias, leads sem atendimento 24h+, meta do mes.\n\nConsultas: vendas (cotacoes, conversao, ranking), financeiro (receita, inadimplencia, ticket medio), operacao (sinistros, oficinas, vistorias), retencao (NPS, churn, Reclame Aqui), MGM (indicacoes, conversao, CAC).\n\nFormato resposta: DADO + CONTEXTO + RECOMENDACAO.\n\nAlertas urgentes: churn >5%, NPS -5pts/7dias, 50+ leads sem atendimento 4h+, sinistro 10+ dias parado.\nOportunidades: vendedor bateu meta, NPS promotores >50%, indicacoes +20% m/m.',
+  },
+  {
+    id: 'agente-retencao',
+    name: 'Agente Retencao',
+    description: 'Churn Killer & LTV Maximizer — Framework LTGP e Peter Fader',
+    icon: '🛡️',
+    tier: 1,
+    squad: '21go-squad',
+    type: 'internal',
+    provider: 'anthropic',
+    model: 'claude-sonnet-4-6',
+    temperature: 0.5,
+    maxTokens: 3000,
+    allowedRoles: ['gestor', 'admin'],
+    allowedScopes: ['contacts', 'analytics'],
+    canCreateLeads: false, canUpdateLeads: true, canCreateDeals: false, canTransferToHuman: true,
+    systemPrompt: '# Agente Retencao 21Go\n\nEspecialista em manter associados e maximizar LTV. Frameworks: Hormozi LTGP + Peter Fader (Customer Centricity).\n\nLTGP: Lucro Bruto / Churn. Ex: R$80/mes / 5% = R$1.600. Baixar pra 4% = R$2.000 (+25%).\n\nSegmentacao:\n- Ouro: 2+ anos, NPS 9-10, adimplentes, indicam -> PROTEGER\n- Prata: 6-24 meses, NPS 7-8 -> ENGAJAR\n- Bronze: <6 meses -> ATIVAR com onboarding\n- Risco: boleto 15+ dias OU NPS<=6 -> INTERVIR\n\nAscensao: nao e upsell, e graduacao. Timing: 6 meses adimplente + NPS>=8 + sem sinistro recente.\n\nReativacao: ex-associados 3-12 meses. Mensagem humanizada + oferta especial.',
+  },
+  {
+    id: 'agente-crescimento',
+    name: 'Agente Crescimento',
+    description: 'Growth Engine — MGM & Viral Loops (Sean Ellis + Hormozi)',
+    icon: '📈',
+    tier: 1,
+    squad: '21go-squad',
+    type: 'internal',
+    provider: 'anthropic',
+    model: 'claude-sonnet-4-6',
+    temperature: 0.6,
+    maxTokens: 3000,
+    allowedRoles: ['gestor', 'admin'],
+    allowedScopes: ['contacts', 'analytics', 'leads'],
+    canCreateLeads: false, canUpdateLeads: false, canCreateDeals: false, canTransferToHuman: false,
+    systemPrompt: '# Agente Crescimento 21Go\n\nArquiteto do MGM (Member Get Member). Baseado em Sean Ellis (viral loops) e Hormozi Leads.\n\nMecanica MGM: 10% desconto por indicacao que fecha. Acumulativo. 10 indicacoes = 100% desconto (protecao gratuita!).\n\nGamificacao:\n- Bronze: 1-2 indicacoes -> 10-20% desconto\n- Prata: 3-5 -> 30-50% + destaque app\n- Ouro: 6-9 -> 60-90% + evento exclusivo\n- Diamante: 10+ -> 100% desconto\n\nKPIs: viral coefficient >0.3, referral conversion >40%, CAC MGM = R$0.\n\nTiming convites: apos NPS 9-10, apos sinistro resolvido, aniversario adesao, 3 meses sem sinistro.\n\nPrincipio: mais gente = menor custo pra todo mundo. Indicar ajuda toda a comunidade.',
+  },
+  {
+    id: 'agente-trafego',
+    name: 'Agente Trafego',
+    description: 'Especialista em Aquisicao — Trafego Pago & Organico (Sobral + Kasim)',
+    icon: '🎯',
+    tier: 1,
+    squad: '21go-squad',
+    type: 'internal',
+    provider: 'anthropic',
+    model: 'claude-sonnet-4-6',
+    temperature: 0.5,
+    maxTokens: 3000,
+    allowedRoles: ['gestor', 'admin'],
+    allowedScopes: ['analytics', 'leads'],
+    canCreateLeads: false, canUpdateLeads: false, canCreateDeals: false, canTransferToHuman: false,
+    systemPrompt: '# Agente Trafego 21Go\n\nEspecialista em aquisicao paga e organica. Metodo Pedro Sobral (Meta Ads BR) + Kasim Aslam (Google Ads/Performance Max).\n\nGoogle Ads: busca ("protecao veicular rj" R$2-5 CPC) + Performance Max (conversao, sinais: donos veiculo RJ).\n\nMeta Ads (Sobral): audiencia (video educativo) -> captacao ("R$59/mes sem perfil") -> vendas (retargeting).\n\nSEO: blog (protecao vs seguro, mutualismo, guia completo), Google Meu Negocio (perfil completo, posts semanais, 100% reviews). Meta: top 3 "protecao veicular rj" em 6 meses.\n\nTracking UTM padrao: google/cpc, meta/paid_social, google/organic, mgm/referral. Pixel + Tag em todas LPs. Eventos: visualizou/iniciou/completou cotacao, enviou whatsapp.',
+  },
+  {
+    id: 'agente-operacao',
+    name: 'Agente Operacao',
+    description: 'Assistente de Campo — Oficina, Vistoria, Sinistros',
+    icon: '🔧',
+    tier: 1,
+    squad: '21go-squad',
+    type: 'internal',
+    provider: 'anthropic',
+    model: 'claude-sonnet-4-6',
+    temperature: 0.4,
+    maxTokens: 1500,
+    allowedRoles: ['operacao', 'gestor', 'admin'],
+    allowedScopes: ['contacts'],
+    canCreateLeads: false, canUpdateLeads: true, canCreateDeals: false, canTransferToHuman: true,
+    systemPrompt: '# Agente Operacao 21Go\n\nAssistente de pintores, mecanicos e vistoriadores. Linguagem de oficina: direto, sem frescura.\n\nCapacidades:\n- Agenda do dia: veiculo, servico, associado, prioridade, prazo\n- Atualizar status: Recebido -> Diagnostico -> Aguardando Peca -> Reparo -> Pintura -> Montagem -> Pronto -> Entregue (notifica associado automatico via WhatsApp)\n- Registrar servico: tipo, problema, pecas, fotos antes/depois\n- Consultar veiculo: por placa/nome/sinistro -> historico, sinistros anteriores, plano\n\nRegras: mobile-first, status com 1 toque, fotos obrigatorias (recebimento/conclusao/entrega), NUNCA mostrar financeiro do associado, peca indisponivel -> alerta gestor.',
   },
 ]
+
+const mockAgents: any[] = SQUAD_AGENTS_DATA.map((agent) => ({
+  ...agent,
+  companyId: 'default-company',
+  knowledgeBaseId: null,
+  knowledgeBase: null,
+  isActive: true,
+  createdAt: new Date().toISOString(),
+  updatedAt: new Date().toISOString(),
+}))
 
 const mockDocuments: any[] = [
   {
@@ -2004,263 +2152,6 @@ fastify.post('/api/billing/cancel', async (request, reply) => {
 })
 
 // ============================================================================
-// MOCK APPOINTMENTS ENDPOINTS
-// ============================================================================
-
-const APPOINTMENT_TYPES_MAP: Record<string, string> = {
-  first_visit: 'Primeira Consulta',
-  return: 'Retorno',
-  exam: 'Exame',
-  procedure: 'Procedimento',
-  consultation: 'Consulta',
-  emergency: 'Emergencia',
-}
-
-const today = new Date()
-const todayStr = today.toISOString().split('T')[0]
-const tomorrowStr = new Date(today.getTime() + 24 * 60 * 60 * 1000).toISOString().split('T')[0]
-const yesterdayStr = new Date(today.getTime() - 24 * 60 * 60 * 1000).toISOString().split('T')[0]
-const dayAfterStr = new Date(today.getTime() + 2 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
-const threeDaysStr = new Date(today.getTime() + 3 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
-
-const mockAppointments: any[] = [
-  {
-    id: 'apt-1', companyId: 'default-company',
-    patientId: '1', patient: { id: '1', fullName: 'Joao Silva', phone: '(11) 98765-4321', email: 'joao@exemplo.com', convenioName: 'Unimed', convenioNumber: 'UNI-12345' },
-    doctorId: 'doc-1', doctor: { id: 'doc-1', fullName: 'Dr. Ricardo Mendes', specialty: 'cardiologia', crm: '123456' },
-    type: 'return', status: 'confirmed', date: todayStr, startTime: '09:00', endTime: '09:30', duration: 30,
-    notes: 'Retorno cardiologico - verificar pressao', cancellationReason: null,
-    isFirstVisit: false, convenioId: 'conv-1', convenioName: 'Unimed', price: 350, isPaid: false, room: 'Sala 1',
-    createdAt: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(), updatedAt: new Date().toISOString(),
-  },
-  {
-    id: 'apt-2', companyId: 'default-company',
-    patientId: '2', patient: { id: '2', fullName: 'Maria Santos', phone: '(11) 91234-5678', email: 'maria@exemplo.com', convenioName: 'Unimed', convenioNumber: 'UNI-67890' },
-    doctorId: 'doc-2', doctor: { id: 'doc-2', fullName: 'Dra. Ana Ferreira', specialty: 'dermatologia', crm: '654321' },
-    type: 'consultation', status: 'scheduled', date: todayStr, startTime: '10:00', endTime: '10:20', duration: 20,
-    notes: null, cancellationReason: null,
-    isFirstVisit: false, convenioId: 'conv-1', convenioName: 'Unimed', price: 280, isPaid: false, room: 'Sala 2',
-    createdAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(), updatedAt: new Date().toISOString(),
-  },
-  {
-    id: 'apt-3', companyId: 'default-company',
-    patientId: '3', patient: { id: '3', fullName: 'Pedro Oliveira', phone: '(11) 93456-7890', email: 'pedro@empresa.com', convenioName: 'Amil', convenioNumber: 'AMI-11111' },
-    doctorId: 'doc-3', doctor: { id: 'doc-3', fullName: 'Dr. Carlos Souza', specialty: 'clinico_geral', crm: '789012' },
-    type: 'return', status: 'confirmed', date: todayStr, startTime: '11:00', endTime: '11:25', duration: 25,
-    notes: 'Acompanhamento diabetes', cancellationReason: null,
-    isFirstVisit: false, convenioId: 'conv-2', convenioName: 'Amil', price: 200, isPaid: false, room: 'Sala 1',
-    createdAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(), updatedAt: new Date().toISOString(),
-  },
-  {
-    id: 'apt-4', companyId: 'default-company',
-    patientId: '5', patient: { id: '5', fullName: 'Roberto Almeida', phone: '(11) 95678-9012', email: 'roberto@email.com', convenioName: 'SulAmerica', convenioNumber: 'SUL-55555' },
-    doctorId: 'doc-1', doctor: { id: 'doc-1', fullName: 'Dr. Ricardo Mendes', specialty: 'cardiologia', crm: '123456' },
-    type: 'exam', status: 'scheduled', date: todayStr, startTime: '14:00', endTime: '14:30', duration: 30,
-    notes: 'Eletrocardiograma + ecocardiograma', cancellationReason: null,
-    isFirstVisit: false, convenioId: 'conv-3', convenioName: 'SulAmerica', price: 350, isPaid: false, room: 'Sala Exames',
-    createdAt: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000).toISOString(), updatedAt: new Date().toISOString(),
-  },
-  {
-    id: 'apt-5', companyId: 'default-company',
-    patientId: '4', patient: { id: '4', fullName: 'Ana Costa', phone: '(11) 94567-8901', email: null, convenioName: 'Unimed', convenioNumber: 'UNI-99999' },
-    doctorId: 'doc-3', doctor: { id: 'doc-3', fullName: 'Dr. Carlos Souza', specialty: 'clinico_geral', crm: '789012' },
-    type: 'first_visit', status: 'confirmed', date: tomorrowStr, startTime: '08:30', endTime: '09:00', duration: 30,
-    notes: 'Primeira consulta - paciente pediatrica', cancellationReason: null,
-    isFirstVisit: true, convenioId: 'conv-1', convenioName: 'Unimed', price: 200, isPaid: false, room: 'Sala 3',
-    createdAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(), updatedAt: new Date().toISOString(),
-  },
-  {
-    id: 'apt-6', companyId: 'default-company',
-    patientId: '1', patient: { id: '1', fullName: 'Joao Silva', phone: '(11) 98765-4321', email: 'joao@exemplo.com', convenioName: 'Unimed', convenioNumber: 'UNI-12345' },
-    doctorId: 'doc-2', doctor: { id: 'doc-2', fullName: 'Dra. Ana Ferreira', specialty: 'dermatologia', crm: '654321' },
-    type: 'consultation', status: 'scheduled', date: tomorrowStr, startTime: '10:00', endTime: '10:20', duration: 20,
-    notes: null, cancellationReason: null,
-    isFirstVisit: false, convenioId: 'conv-1', convenioName: 'Unimed', price: 280, isPaid: false, room: 'Sala 2',
-    createdAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(), updatedAt: new Date().toISOString(),
-  },
-  {
-    id: 'apt-7', companyId: 'default-company',
-    patientId: '2', patient: { id: '2', fullName: 'Maria Santos', phone: '(11) 91234-5678', email: 'maria@exemplo.com', convenioName: 'Unimed', convenioNumber: 'UNI-67890' },
-    doctorId: 'doc-1', doctor: { id: 'doc-1', fullName: 'Dr. Ricardo Mendes', specialty: 'cardiologia', crm: '123456' },
-    type: 'return', status: 'scheduled', date: dayAfterStr, startTime: '09:00', endTime: '09:30', duration: 30,
-    notes: null, cancellationReason: null,
-    isFirstVisit: false, convenioId: 'conv-1', convenioName: 'Unimed', price: 350, isPaid: false, room: 'Sala 1',
-    createdAt: new Date().toISOString(), updatedAt: new Date().toISOString(),
-  },
-  {
-    id: 'apt-8', companyId: 'default-company',
-    patientId: '3', patient: { id: '3', fullName: 'Pedro Oliveira', phone: '(11) 93456-7890', email: 'pedro@empresa.com', convenioName: 'Amil', convenioNumber: 'AMI-11111' },
-    doctorId: 'doc-2', doctor: { id: 'doc-2', fullName: 'Dra. Ana Ferreira', specialty: 'dermatologia', crm: '654321' },
-    type: 'procedure', status: 'scheduled', date: threeDaysStr, startTime: '14:00', endTime: '15:00', duration: 60,
-    notes: 'Remocao de nevos', cancellationReason: null,
-    isFirstVisit: false, convenioId: 'conv-2', convenioName: 'Amil', price: 500, isPaid: false, room: 'Sala Procedimentos',
-    createdAt: new Date().toISOString(), updatedAt: new Date().toISOString(),
-  },
-  {
-    id: 'apt-9', companyId: 'default-company',
-    patientId: '5', patient: { id: '5', fullName: 'Roberto Almeida', phone: '(11) 95678-9012', email: 'roberto@email.com', convenioName: 'SulAmerica', convenioNumber: 'SUL-55555' },
-    doctorId: 'doc-1', doctor: { id: 'doc-1', fullName: 'Dr. Ricardo Mendes', specialty: 'cardiologia', crm: '123456' },
-    type: 'return', status: 'completed', date: yesterdayStr, startTime: '10:00', endTime: '10:30', duration: 30,
-    notes: 'Paciente estavel, manter medicacao', cancellationReason: null,
-    isFirstVisit: false, convenioId: 'conv-3', convenioName: 'SulAmerica', price: 350, isPaid: true, room: 'Sala 1',
-    createdAt: new Date(Date.now() - 14 * 24 * 60 * 60 * 1000).toISOString(), updatedAt: new Date().toISOString(),
-  },
-  {
-    id: 'apt-10', companyId: 'default-company',
-    patientId: '4', patient: { id: '4', fullName: 'Ana Costa', phone: '(11) 94567-8901', email: null, convenioName: 'Unimed', convenioNumber: 'UNI-99999' },
-    doctorId: 'doc-3', doctor: { id: 'doc-3', fullName: 'Dr. Carlos Souza', specialty: 'clinico_geral', crm: '789012' },
-    type: 'consultation', status: 'cancelled', date: yesterdayStr, startTime: '15:00', endTime: '15:25', duration: 25,
-    notes: null, cancellationReason: 'Paciente solicitou cancelamento',
-    isFirstVisit: false, convenioId: 'conv-1', convenioName: 'Unimed', price: 200, isPaid: false, room: 'Sala 3',
-    createdAt: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(), updatedAt: new Date().toISOString(),
-  },
-]
-
-// GET /api/appointments
-fastify.get('/api/appointments', async (request, reply) => {
-  console.log('[MOCK] GET /api/appointments')
-  const query = request.query as any
-  let filtered = [...mockAppointments]
-
-  if (query.date) filtered = filtered.filter((a) => a.date === query.date)
-  if (query.doctorId) filtered = filtered.filter((a) => a.doctorId === query.doctorId)
-  if (query.patientId) filtered = filtered.filter((a) => a.patientId === query.patientId)
-  if (query.status) filtered = filtered.filter((a) => a.status === query.status)
-  if (query.dateFrom && query.dateTo) {
-    filtered = filtered.filter((a) => a.date >= query.dateFrom && a.date <= query.dateTo)
-  }
-
-  filtered.sort((a, b) => {
-    const dateComp = a.date.localeCompare(b.date)
-    if (dateComp !== 0) return dateComp
-    return a.startTime.localeCompare(b.startTime)
-  })
-
-  return reply.send(filtered)
-})
-
-// GET /api/appointments/stats
-fastify.get('/api/appointments/stats', async (request, reply) => {
-  console.log('[MOCK] GET /api/appointments/stats')
-  const nowDate = new Date()
-  const todayDate = nowDate.toISOString().split('T')[0]
-  const weekStart = new Date(nowDate)
-  weekStart.setDate(nowDate.getDate() - nowDate.getDay())
-  const weekStartStr = weekStart.toISOString().split('T')[0]
-  const monthStart = new Date(nowDate.getFullYear(), nowDate.getMonth(), 1).toISOString().split('T')[0]
-
-  const todayApts = mockAppointments.filter((a) => a.date === todayDate)
-  const weekApts = mockAppointments.filter((a) => a.date >= weekStartStr)
-  const monthApts = mockAppointments.filter((a) => a.date >= monthStart)
-
-  return reply.send({
-    today: todayApts.filter((a) => a.status !== 'cancelled').length,
-    thisWeek: weekApts.filter((a) => a.status !== 'cancelled').length,
-    thisMonth: monthApts.filter((a) => a.status !== 'cancelled').length,
-    cancelled: monthApts.filter((a) => a.status === 'cancelled').length,
-    noShow: monthApts.filter((a) => a.status === 'no_show').length,
-    completedToday: todayApts.filter((a) => a.status === 'completed').length,
-    upcomingToday: todayApts.filter((a) => ['scheduled', 'confirmed', 'waiting'].includes(a.status)),
-  })
-})
-
-// GET /api/appointments/types
-fastify.get('/api/appointments/types', async (request, reply) => {
-  return reply.send(APPOINTMENT_TYPES_MAP)
-})
-
-// GET /api/appointments/:id
-fastify.get('/api/appointments/:id', async (request, reply) => {
-  const { id } = request.params as { id: string }
-  const apt = mockAppointments.find((a) => a.id === id)
-  if (!apt) return reply.status(404).send({ message: 'Appointment not found' })
-  return reply.send(apt)
-})
-
-// POST /api/appointments
-fastify.post('/api/appointments', async (request, reply) => {
-  const data = request.body as any
-  console.log('[MOCK] POST /api/appointments', data)
-  const patient = mockContacts.find((c) => c.id === data.patientId)
-  const doctor = mockDoctors.find((d) => d.id === data.doctorId)
-  const duration = data.duration || doctor?.consultationDuration || 30
-
-  const [h, m] = (data.startTime || '09:00').split(':').map(Number)
-  const endMinutes = h * 60 + m + duration
-  const endTime = `${String(Math.floor(endMinutes / 60)).padStart(2, '0')}:${String(endMinutes % 60).padStart(2, '0')}`
-
-  const apt = {
-    id: `apt-${Date.now()}`, companyId: 'default-company',
-    patientId: data.patientId,
-    patient: patient ? { id: patient.id, fullName: patient.fullName, phone: patient.phone, email: patient.email, convenioName: patient.convenioName, convenioNumber: patient.convenioNumber } : null,
-    doctorId: data.doctorId,
-    doctor: doctor ? { id: doctor.id, fullName: doctor.fullName, specialty: doctor.specialty, crm: doctor.crm } : null,
-    type: data.type || 'consultation', status: 'scheduled',
-    date: data.date, startTime: data.startTime, endTime, duration,
-    notes: data.notes || null, cancellationReason: null,
-    isFirstVisit: data.type === 'first_visit',
-    convenioId: data.convenioId || patient?.convenioId || null,
-    convenioName: data.convenioId ? mockConvenios.find((c) => c.id === data.convenioId)?.name : patient?.convenioName || null,
-    price: data.price ?? doctor?.consultationPrice ?? null,
-    isPaid: false, room: data.room || null,
-    createdAt: new Date().toISOString(), updatedAt: new Date().toISOString(),
-  }
-  mockAppointments.push(apt)
-  return reply.status(201).send(apt)
-})
-
-// PUT /api/appointments/:id
-fastify.put('/api/appointments/:id', async (request, reply) => {
-  const { id } = request.params as { id: string }
-  const data = request.body as any
-  const index = mockAppointments.findIndex((a) => a.id === id)
-  if (index === -1) return reply.status(404).send({ message: 'Appointment not found' })
-
-  if (data.startTime || data.duration) {
-    const startTime = data.startTime || mockAppointments[index].startTime
-    const duration = data.duration || mockAppointments[index].duration
-    const [h, m] = startTime.split(':').map(Number)
-    const endMinutes = h * 60 + m + duration
-    data.endTime = `${String(Math.floor(endMinutes / 60)).padStart(2, '0')}:${String(endMinutes % 60).padStart(2, '0')}`
-  }
-
-  mockAppointments[index] = { ...mockAppointments[index], ...data, updatedAt: new Date().toISOString() }
-  return reply.send(mockAppointments[index])
-})
-
-// DELETE /api/appointments/:id
-fastify.delete('/api/appointments/:id', async (request, reply) => {
-  const { id } = request.params as { id: string }
-  const index = mockAppointments.findIndex((a) => a.id === id)
-  if (index !== -1) mockAppointments.splice(index, 1)
-  return reply.send({ success: true })
-})
-
-// GET /api/appointments/availability
-fastify.get('/api/appointments/availability', async (request, reply) => {
-  const query = request.query as { doctorId: string; date: string }
-  console.log('[MOCK] GET /api/appointments/availability', query)
-  const doctor = mockDoctors.find((d) => d.id === query.doctorId)
-  const duration = doctor?.consultationDuration || 30
-  const bookedSlots = mockAppointments
-    .filter((a) => a.doctorId === query.doctorId && a.date === query.date && a.status !== 'cancelled')
-    .map((a) => a.startTime)
-
-  const slots: Array<{ startTime: string; endTime: string; available: boolean }> = []
-  for (let hour = 8; hour < 18; hour++) {
-    for (let min = 0; min < 60; min += duration) {
-      if (hour === 12 || hour === 13) continue
-      const st = `${String(hour).padStart(2, '0')}:${String(min).padStart(2, '0')}`
-      const endMin = hour * 60 + min + duration
-      const et = `${String(Math.floor(endMin / 60)).padStart(2, '0')}:${String(endMin % 60).padStart(2, '0')}`
-      slots.push({ startTime: st, endTime: et, available: !bookedSlots.includes(st) })
-    }
-  }
-
-  return reply.send({ doctorId: query.doctorId, date: query.date, slots })
-})
-
-// ============================================================================
 // MOCK ANALYTICS ENDPOINTS
 // ============================================================================
 
@@ -2437,185 +2328,25 @@ fastify.get('/api/analytics/trends', async (request, reply) => {
 })
 
 // ============================================================================
-// MOCK MEDICAL RECORDS ENDPOINTS
-// ============================================================================
-
-const CONSULTATION_TYPES_MAP: Record<string, string> = {
-  anamnesis: 'Anamnese', follow_up: 'Acompanhamento', exam_result: 'Resultado de Exame',
-  prescription: 'Prescricao', referral: 'Encaminhamento', procedure_note: 'Nota de Procedimento', evolution: 'Evolucao',
-}
-
-const mockMedicalRecords: any[] = [
-  {
-    id: 'rec-1', companyId: 'default-company',
-    patientId: '1', patient: { id: '1', fullName: 'Joao Silva' },
-    doctorId: 'doc-1', doctor: { id: 'doc-1', fullName: 'Dr. Ricardo Mendes', specialty: 'cardiologia', crm: '123456' },
-    appointmentId: 'apt-9', type: 'follow_up',
-    date: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-    chiefComplaint: 'Dor no peito esporadica', anamnesis: 'Paciente relata episodios de dor toracica leve ao esforco, cerca de 2x por semana. Nega dispneia. Medicacao em uso: Losartana 50mg, AAS 100mg.',
-    physicalExam: 'PA: 130/85 mmHg, FC: 72 bpm, ausculta cardiaca sem sopros, pulmoes limpos.',
-    diagnosis: 'Hipertensao arterial controlada. Angina estavel - investigar.', diagnosisCid: 'I20.0',
-    prescription: 'Manter Losartana 50mg 1x/dia\nManter AAS 100mg 1x/dia\nSolicitar teste ergometrico',
-    procedures: null, notes: 'Solicitar ECG e teste ergometrico. Retorno em 30 dias com resultados.',
-    referral: null, referralSpecialty: null,
-    vitalSigns: { bloodPressure: '130/85', heartRate: 72, temperature: 36.5, weight: 82, height: 175, oxygenSaturation: 97 },
-    attachments: [], isConfidential: false,
-    createdAt: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString(), updatedAt: new Date().toISOString(),
-  },
-  {
-    id: 'rec-2', companyId: 'default-company',
-    patientId: '1', patient: { id: '1', fullName: 'Joao Silva' },
-    doctorId: 'doc-1', doctor: { id: 'doc-1', fullName: 'Dr. Ricardo Mendes', specialty: 'cardiologia', crm: '123456' },
-    appointmentId: null, type: 'exam_result',
-    date: new Date(Date.now() - 15 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-    chiefComplaint: null, anamnesis: null, physicalExam: null,
-    diagnosis: 'Teste ergometrico sem alteracoes isquemicas. ECG normal.',
-    diagnosisCid: null,
-    prescription: null, procedures: null,
-    notes: 'Resultados tranquilizadores. Manter acompanhamento semestral.',
-    referral: null, referralSpecialty: null,
-    vitalSigns: null,
-    attachments: [
-      { id: 'att-1', recordId: 'rec-2', fileName: 'teste_ergometrico.pdf', mimeType: 'application/pdf', size: 245000, url: '/uploads/teste_ergometrico.pdf', description: 'Teste ergometrico', createdAt: new Date().toISOString() },
-      { id: 'att-2', recordId: 'rec-2', fileName: 'ecg_repouso.pdf', mimeType: 'application/pdf', size: 180000, url: '/uploads/ecg_repouso.pdf', description: 'ECG em repouso', createdAt: new Date().toISOString() },
-    ],
-    isConfidential: false,
-    createdAt: new Date(Date.now() - 15 * 24 * 60 * 60 * 1000).toISOString(), updatedAt: new Date().toISOString(),
-  },
-  {
-    id: 'rec-3', companyId: 'default-company',
-    patientId: '3', patient: { id: '3', fullName: 'Pedro Oliveira' },
-    doctorId: 'doc-3', doctor: { id: 'doc-3', fullName: 'Dr. Carlos Souza', specialty: 'clinico_geral', crm: '789012' },
-    appointmentId: null, type: 'anamnesis',
-    date: new Date(Date.now() - 60 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-    chiefComplaint: 'Controle de diabetes e check-up geral',
-    anamnesis: 'Paciente diabetico tipo 2 ha 5 anos. Uso de Metformina 850mg 2x/dia. Relata aumento de sede e poliuria. Alergia a Penicilina e Latex. Nega tabagismo.',
-    physicalExam: 'PA: 120/80 mmHg, IMC: 28.5, exame abdominal sem alteracoes, pele integra, sensibilidade periferica preservada.',
-    diagnosis: 'DM2 descompensado', diagnosisCid: 'E11',
-    prescription: 'Manter Metformina 850mg 2x/dia\nAdicionar Glicazida 30mg 1x/dia\nSolicitar HbA1c e glicemia de jejum',
-    procedures: null,
-    notes: 'Orientar dieta hipoglicidica. Encaminhar para nutricionista. Retorno em 30 dias.',
-    referral: 'Nutricionista', referralSpecialty: 'nutricao',
-    vitalSigns: { bloodPressure: '120/80', heartRate: 78, temperature: 36.2, weight: 88, height: 172, oxygenSaturation: 98 },
-    attachments: [], isConfidential: false,
-    createdAt: new Date(Date.now() - 60 * 24 * 60 * 60 * 1000).toISOString(), updatedAt: new Date().toISOString(),
-  },
-  {
-    id: 'rec-4', companyId: 'default-company',
-    patientId: '2', patient: { id: '2', fullName: 'Maria Santos' },
-    doctorId: 'doc-2', doctor: { id: 'doc-2', fullName: 'Dra. Ana Ferreira', specialty: 'dermatologia', crm: '654321' },
-    appointmentId: null, type: 'procedure_note',
-    date: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-    chiefComplaint: 'Remocao de lesao pigmentada em dorso',
-    anamnesis: null, physicalExam: 'Lesao pigmentada assimetrica 8mm em regiao dorsal superior.',
-    diagnosis: 'Nevo melanocitico atipico - excisado', diagnosisCid: 'D22',
-    prescription: 'Cefalexina 500mg 8/8h por 7 dias\nIbuprofeno 400mg se dor\nCurativo diario com soro fisiologico',
-    procedures: 'Excisao cirurgica de lesao pigmentada com margem de 2mm. Anestesia local com lidocaina 2%. Material enviado para anatomopatologico.',
-    notes: 'Retorno em 10 dias para remocao de pontos e resultado do anatomopatologico.',
-    referral: null, referralSpecialty: null,
-    vitalSigns: { bloodPressure: '110/70', heartRate: 68, temperature: 36.4, weight: 62, height: 165, oxygenSaturation: 99 },
-    attachments: [], isConfidential: false,
-    createdAt: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(), updatedAt: new Date().toISOString(),
-  },
-]
-
-// GET /api/medical-records
-fastify.get('/api/medical-records', async (request, reply) => {
-  console.log('[MOCK] GET /api/medical-records')
-  const query = request.query as any
-  let filtered = [...mockMedicalRecords]
-  if (query.patientId) filtered = filtered.filter((r) => r.patientId === query.patientId)
-  if (query.doctorId) filtered = filtered.filter((r) => r.doctorId === query.doctorId)
-  if (query.type) filtered = filtered.filter((r) => r.type === query.type)
-  filtered.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
-  return reply.send(filtered)
-})
-
-// GET /api/medical-records/types
-fastify.get('/api/medical-records/types', async (request, reply) => {
-  return reply.send(CONSULTATION_TYPES_MAP)
-})
-
-// GET /api/medical-records/:id
-fastify.get('/api/medical-records/:id', async (request, reply) => {
-  const { id } = request.params as { id: string }
-  const rec = mockMedicalRecords.find((r) => r.id === id)
-  if (!rec) return reply.status(404).send({ message: 'Record not found' })
-  return reply.send(rec)
-})
-
-// POST /api/medical-records
-fastify.post('/api/medical-records', async (request, reply) => {
-  const data = request.body as any
-  console.log('[MOCK] POST /api/medical-records', data)
-  const patient = mockContacts.find((c) => c.id === data.patientId)
-  const doctor = mockDoctors.find((d) => d.id === data.doctorId)
-  const rec = {
-    id: `rec-${Date.now()}`, companyId: 'default-company',
-    patientId: data.patientId, patient: patient ? { id: patient.id, fullName: patient.fullName } : null,
-    doctorId: data.doctorId, doctor: doctor ? { id: doctor.id, fullName: doctor.fullName, specialty: doctor.specialty, crm: doctor.crm } : null,
-    appointmentId: data.appointmentId || null,
-    type: data.type || 'evolution', date: data.date || new Date().toISOString().split('T')[0],
-    chiefComplaint: data.chiefComplaint || null, anamnesis: data.anamnesis || null,
-    physicalExam: data.physicalExam || null, diagnosis: data.diagnosis || null,
-    diagnosisCid: data.diagnosisCid || null, prescription: data.prescription || null,
-    procedures: data.procedures || null, notes: data.notes || null,
-    referral: data.referral || null, referralSpecialty: data.referralSpecialty || null,
-    vitalSigns: data.vitalSigns || null,
-    attachments: [], isConfidential: data.isConfidential || false,
-    createdAt: new Date().toISOString(), updatedAt: new Date().toISOString(),
-  }
-  mockMedicalRecords.push(rec)
-  return reply.status(201).send(rec)
-})
-
-// PUT /api/medical-records/:id
-fastify.put('/api/medical-records/:id', async (request, reply) => {
-  const { id } = request.params as { id: string }
-  const data = request.body as any
-  const index = mockMedicalRecords.findIndex((r) => r.id === id)
-  if (index === -1) return reply.status(404).send({ message: 'Record not found' })
-  mockMedicalRecords[index] = { ...mockMedicalRecords[index], ...data, updatedAt: new Date().toISOString() }
-  return reply.send(mockMedicalRecords[index])
-})
-
-// DELETE /api/medical-records/:id
-fastify.delete('/api/medical-records/:id', async (request, reply) => {
-  const { id } = request.params as { id: string }
-  const index = mockMedicalRecords.findIndex((r) => r.id === id)
-  if (index !== -1) mockMedicalRecords.splice(index, 1)
-  return reply.send({ success: true })
-})
-
-// GET /api/patients/:patientId/timeline
-fastify.get('/api/patients/:patientId/timeline', async (request, reply) => {
-  const { patientId } = request.params as { patientId: string }
-  console.log('[MOCK] GET /api/patients/:patientId/timeline', { patientId })
-  const records = mockMedicalRecords.filter((r) => r.patientId === patientId)
-  const apts = mockAppointments.filter((a) => a.patientId === patientId)
-  return reply.send({ records, appointments: apts })
-})
-
-// ============================================================================
 // MOCK NPS / SATISFACTION SURVEY ENDPOINTS
 // ============================================================================
 
 const getNPSCategory = (score: number) => score >= 9 ? 'promoter' : score >= 7 ? 'passive' : 'detractor'
 
 const mockNPSSurveys: any[] = [
-  { id: 'nps-1', companyId: 'default-company', patientId: '1', patient: { id: '1', fullName: 'Joao Silva' }, doctorId: 'doc-1', doctor: { id: 'doc-1', fullName: 'Dr. Ricardo Mendes' }, appointmentId: 'apt-1', score: 10, category: 'promoter', comment: 'Excelente atendimento! Dr. Ricardo muito atencioso e explicou tudo com clareza.', channel: 'whatsapp', sentAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(), answeredAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000 + 3600000).toISOString(), createdAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString() },
-  { id: 'nps-2', companyId: 'default-company', patientId: '2', patient: { id: '2', fullName: 'Maria Santos' }, doctorId: 'doc-2', doctor: { id: 'doc-2', fullName: 'Dra. Ana Ferreira' }, appointmentId: 'apt-2', score: 9, category: 'promoter', comment: 'Muito boa experiencia. A clinica e organizada e a Dra. Ana e otima.', channel: 'email', sentAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(), answeredAt: new Date(Date.now() - 4 * 24 * 60 * 60 * 1000).toISOString(), createdAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString() },
-  { id: 'nps-3', companyId: 'default-company', patientId: '3', patient: { id: '3', fullName: 'Pedro Oliveira' }, doctorId: 'doc-3', doctor: { id: 'doc-3', fullName: 'Dr. Carlos Souza' }, appointmentId: 'apt-3', score: 7, category: 'passive', comment: 'Consulta boa, mas esperei muito tempo na recepcao.', channel: 'whatsapp', sentAt: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(), answeredAt: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000 + 7200000).toISOString(), createdAt: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString() },
-  { id: 'nps-4', companyId: 'default-company', patientId: '4', patient: { id: '4', fullName: 'Ana Costa' }, doctorId: 'doc-1', doctor: { id: 'doc-1', fullName: 'Dr. Ricardo Mendes' }, appointmentId: 'apt-4', score: 10, category: 'promoter', comment: 'Perfeito! Sempre recomendo a clinica para amigos e familiares.', channel: 'sms', sentAt: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000).toISOString(), answeredAt: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000 + 1800000).toISOString(), createdAt: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000).toISOString() },
-  { id: 'nps-5', companyId: 'default-company', patientId: '5', patient: { id: '5', fullName: 'Carlos Ferreira' }, doctorId: 'doc-2', doctor: { id: 'doc-2', fullName: 'Dra. Ana Ferreira' }, appointmentId: null, score: 5, category: 'detractor', comment: 'Dificuldade para marcar consulta por telefone. Site nao funcionou.', channel: 'email', sentAt: new Date(Date.now() - 14 * 24 * 60 * 60 * 1000).toISOString(), answeredAt: new Date(Date.now() - 13 * 24 * 60 * 60 * 1000).toISOString(), createdAt: new Date(Date.now() - 14 * 24 * 60 * 60 * 1000).toISOString() },
-  { id: 'nps-6', companyId: 'default-company', patientId: '1', patient: { id: '1', fullName: 'Joao Silva' }, doctorId: 'doc-3', doctor: { id: 'doc-3', fullName: 'Dr. Carlos Souza' }, appointmentId: null, score: 8, category: 'passive', comment: 'Bom atendimento no geral. Poderia ter mais opcoes de horarios.', channel: 'whatsapp', sentAt: new Date(Date.now() - 20 * 24 * 60 * 60 * 1000).toISOString(), answeredAt: new Date(Date.now() - 20 * 24 * 60 * 60 * 1000 + 5400000).toISOString(), createdAt: new Date(Date.now() - 20 * 24 * 60 * 60 * 1000).toISOString() },
-  { id: 'nps-7', companyId: 'default-company', patientId: '2', patient: { id: '2', fullName: 'Maria Santos' }, doctorId: 'doc-1', doctor: { id: 'doc-1', fullName: 'Dr. Ricardo Mendes' }, appointmentId: null, score: 9, category: 'promoter', comment: null, channel: 'in_app', sentAt: new Date(Date.now() - 25 * 24 * 60 * 60 * 1000).toISOString(), answeredAt: new Date(Date.now() - 25 * 24 * 60 * 60 * 1000 + 900000).toISOString(), createdAt: new Date(Date.now() - 25 * 24 * 60 * 60 * 1000).toISOString() },
-  { id: 'nps-8', companyId: 'default-company', patientId: '3', patient: { id: '3', fullName: 'Pedro Oliveira' }, doctorId: 'doc-2', doctor: { id: 'doc-2', fullName: 'Dra. Ana Ferreira' }, appointmentId: null, score: 3, category: 'detractor', comment: 'Fui atendido com muito atraso e o medico parecia apressado.', channel: 'email', sentAt: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString(), answeredAt: new Date(Date.now() - 29 * 24 * 60 * 60 * 1000).toISOString(), createdAt: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString() },
-  { id: 'nps-9', companyId: 'default-company', patientId: '4', patient: { id: '4', fullName: 'Ana Costa' }, doctorId: 'doc-3', doctor: { id: 'doc-3', fullName: 'Dr. Carlos Souza' }, appointmentId: null, score: 10, category: 'promoter', comment: 'Melhor clinica da regiao! Equipe super profissional.', channel: 'whatsapp', sentAt: new Date(Date.now() - 35 * 24 * 60 * 60 * 1000).toISOString(), answeredAt: new Date(Date.now() - 35 * 24 * 60 * 60 * 1000 + 2700000).toISOString(), createdAt: new Date(Date.now() - 35 * 24 * 60 * 60 * 1000).toISOString() },
-  { id: 'nps-10', companyId: 'default-company', patientId: '5', patient: { id: '5', fullName: 'Carlos Ferreira' }, doctorId: 'doc-1', doctor: { id: 'doc-1', fullName: 'Dr. Ricardo Mendes' }, appointmentId: null, score: 9, category: 'promoter', comment: 'Dr. Ricardo e excelente. Recomendo!', channel: 'sms', sentAt: new Date(Date.now() - 40 * 24 * 60 * 60 * 1000).toISOString(), answeredAt: new Date(Date.now() - 40 * 24 * 60 * 60 * 1000 + 4500000).toISOString(), createdAt: new Date(Date.now() - 40 * 24 * 60 * 60 * 1000).toISOString() },
-  // Unanswered surveys
-  { id: 'nps-11', companyId: 'default-company', patientId: '4', patient: { id: '4', fullName: 'Ana Costa' }, doctorId: 'doc-2', doctor: { id: 'doc-2', fullName: 'Dra. Ana Ferreira' }, appointmentId: null, score: 0, category: 'detractor', comment: null, channel: 'whatsapp', sentAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(), answeredAt: null, createdAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString() },
-  { id: 'nps-12', companyId: 'default-company', patientId: '5', patient: { id: '5', fullName: 'Carlos Ferreira' }, doctorId: 'doc-3', doctor: { id: 'doc-3', fullName: 'Dr. Carlos Souza' }, appointmentId: null, score: 0, category: 'detractor', comment: null, channel: 'email', sentAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(), answeredAt: null, createdAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString() },
+  { id: 'nps-1', companyId: 'default-company', associadoId: '1', associadoName: 'Joao Silva', score: 10, category: 'promoter', comment: 'Excelente protecao! Me sinto seguro com a 21Go. Recomendo demais.', channel: 'whatsapp', sentAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(), answeredAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000 + 3600000).toISOString(), createdAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString() },
+  { id: 'nps-2', companyId: 'default-company', associadoId: '2', associadoName: 'Maria Santos', score: 9, category: 'promoter', comment: 'Otimo custo-beneficio. Guincho chegou rapido quando precisei.', channel: 'email', sentAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(), answeredAt: new Date(Date.now() - 4 * 24 * 60 * 60 * 1000).toISOString(), createdAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString() },
+  { id: 'nps-3', companyId: 'default-company', associadoId: '3', associadoName: 'Pedro Oliveira', score: 7, category: 'passive', comment: 'Protecao boa, mas a vistoria demorou mais do que o esperado.', channel: 'whatsapp', sentAt: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(), answeredAt: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000 + 7200000).toISOString(), createdAt: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString() },
+  { id: 'nps-4', companyId: 'default-company', associadoId: '4', associadoName: 'Ana Costa', score: 10, category: 'promoter', comment: 'Ja indiquei pra 5 amigos! Melhor protecao veicular do RJ.', channel: 'sms', sentAt: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000).toISOString(), answeredAt: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000 + 1800000).toISOString(), createdAt: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000).toISOString() },
+  { id: 'nps-5', companyId: 'default-company', associadoId: '5', associadoName: 'Carlos Ferreira', score: 5, category: 'detractor', comment: 'Demorou muito pra resolver meu sinistro. Comunicacao ruim.', channel: 'email', sentAt: new Date(Date.now() - 14 * 24 * 60 * 60 * 1000).toISOString(), answeredAt: new Date(Date.now() - 13 * 24 * 60 * 60 * 1000).toISOString(), createdAt: new Date(Date.now() - 14 * 24 * 60 * 60 * 1000).toISOString() },
+  { id: 'nps-6', companyId: 'default-company', associadoId: '1', associadoName: 'Joao Silva', score: 8, category: 'passive', comment: 'Bom no geral. Poderia ter mais opcoes de plano.', channel: 'whatsapp', sentAt: new Date(Date.now() - 20 * 24 * 60 * 60 * 1000).toISOString(), answeredAt: new Date(Date.now() - 20 * 24 * 60 * 60 * 1000 + 5400000).toISOString(), createdAt: new Date(Date.now() - 20 * 24 * 60 * 60 * 1000).toISOString() },
+  { id: 'nps-7', companyId: 'default-company', associadoId: '2', associadoName: 'Maria Santos', score: 9, category: 'promoter', comment: null, channel: 'in_app', sentAt: new Date(Date.now() - 25 * 24 * 60 * 60 * 1000).toISOString(), answeredAt: new Date(Date.now() - 25 * 24 * 60 * 60 * 1000 + 900000).toISOString(), createdAt: new Date(Date.now() - 25 * 24 * 60 * 60 * 1000).toISOString() },
+  { id: 'nps-8', companyId: 'default-company', associadoId: '3', associadoName: 'Pedro Oliveira', score: 3, category: 'detractor', comment: 'Cobranca do rateio veio errada e ninguem resolveu rapido.', channel: 'email', sentAt: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString(), answeredAt: new Date(Date.now() - 29 * 24 * 60 * 60 * 1000).toISOString(), createdAt: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString() },
+  { id: 'nps-9', companyId: 'default-company', associadoId: '4', associadoName: 'Ana Costa', score: 10, category: 'promoter', comment: 'Melhor custo-beneficio do mercado! 21Go e top.', channel: 'whatsapp', sentAt: new Date(Date.now() - 35 * 24 * 60 * 60 * 1000).toISOString(), answeredAt: new Date(Date.now() - 35 * 24 * 60 * 60 * 1000 + 2700000).toISOString(), createdAt: new Date(Date.now() - 35 * 24 * 60 * 60 * 1000).toISOString() },
+  { id: 'nps-10', companyId: 'default-company', associadoId: '5', associadoName: 'Carlos Ferreira', score: 9, category: 'promoter', comment: 'Atendimento excelente. Recomendo!', channel: 'sms', sentAt: new Date(Date.now() - 40 * 24 * 60 * 60 * 1000).toISOString(), answeredAt: new Date(Date.now() - 40 * 24 * 60 * 60 * 1000 + 4500000).toISOString(), createdAt: new Date(Date.now() - 40 * 24 * 60 * 60 * 1000).toISOString() },
+  // Pesquisas nao respondidas
+  { id: 'nps-11', companyId: 'default-company', associadoId: '4', associadoName: 'Ana Costa', score: 0, category: 'detractor', comment: null, channel: 'whatsapp', sentAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(), answeredAt: null, createdAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString() },
+  { id: 'nps-12', companyId: 'default-company', associadoId: '5', associadoName: 'Carlos Ferreira', score: 0, category: 'detractor', comment: null, channel: 'email', sentAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(), answeredAt: null, createdAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString() },
 ]
 
 // GET /api/nps
@@ -2623,8 +2354,7 @@ fastify.get('/api/nps', async (request, reply) => {
   console.log('[MOCK] GET /api/nps')
   const query = request.query as any
   let filtered = [...mockNPSSurveys]
-  if (query.patientId) filtered = filtered.filter((s) => s.patientId === query.patientId)
-  if (query.doctorId) filtered = filtered.filter((s) => s.doctorId === query.doctorId)
+  if (query.associadoId) filtered = filtered.filter((s) => s.associadoId === query.associadoId)
   if (query.category) filtered = filtered.filter((s) => s.category === query.category)
   if (query.answered === 'true') filtered = filtered.filter((s) => s.answeredAt !== null)
   if (query.answered === 'false') filtered = filtered.filter((s) => s.answeredAt === null)
@@ -2660,33 +2390,13 @@ fastify.get('/api/nps/stats', async (request, reply) => {
     byMonth.push({ month: monthLabel, nps: mNps, responses: monthSurveys.length })
   }
 
-  // By doctor
-  const doctorMap = new Map<string, { name: string; scores: number[] }>()
-  answered.forEach((s: any) => {
-    if (s.doctorId && s.doctor) {
-      const existing = doctorMap.get(s.doctorId) || { name: s.doctor.fullName, scores: [] as number[] }
-      existing.scores.push(s.score)
-      doctorMap.set(s.doctorId, existing)
-    }
-  })
-  const byDoctor = Array.from(doctorMap.entries()).map(([doctorId, data]) => {
-    const dPromoters = data.scores.filter((s) => s >= 9).length
-    const dDetractors = data.scores.filter((s) => s <= 6).length
-    return {
-      doctorId,
-      doctorName: data.name,
-      nps: data.scores.length > 0 ? Math.round(((dPromoters - dDetractors) / data.scores.length) * 100) : 0,
-      responses: data.scores.length,
-    }
-  })
-
   // Recent comments
   const recentComments = answered
     .filter((s) => s.comment)
     .slice(0, 10)
     .map((s) => ({
       id: s.id,
-      patientName: s.patient.fullName,
+      associadoName: s.associadoName,
       score: s.score,
       category: s.category,
       comment: s.comment,
@@ -2703,7 +2413,6 @@ fastify.get('/api/nps/stats', async (request, reply) => {
     npsScore,
     avgScore,
     byMonth,
-    byDoctor,
     recentComments,
   })
 })
@@ -2712,16 +2421,12 @@ fastify.get('/api/nps/stats', async (request, reply) => {
 fastify.post('/api/nps', async (request, reply) => {
   const data = request.body as any
   console.log('[MOCK] POST /api/nps', data)
-  const patient = mockContacts.find((c) => c.id === data.patientId)
-  const doctor = data.doctorId ? mockDoctors.find((d) => d.id === data.doctorId) : null
+  const associado = mockContacts.find((c) => c.id === data.associadoId)
   const survey = {
     id: `nps-${Date.now()}`,
     companyId: 'default-company',
-    patientId: data.patientId,
-    patient: patient ? { id: patient.id, fullName: patient.fullName } : { id: data.patientId, fullName: 'Paciente' },
-    doctorId: data.doctorId || null,
-    doctor: doctor ? { id: doctor.id, fullName: doctor.fullName } : null,
-    appointmentId: data.appointmentId || null,
+    associadoId: data.associadoId,
+    associadoName: associado ? associado.fullName : 'Associado',
     score: data.score,
     category: getNPSCategory(data.score),
     comment: data.comment || null,
@@ -2739,14 +2444,13 @@ fastify.post('/api/nps/send-batch', async (request, reply) => {
   const data = request.body as any
   console.log('[MOCK] POST /api/nps/send-batch', data)
   const created: any[] = []
-  for (const patientId of (data.patientIds || [])) {
-    const patient = mockContacts.find((c) => c.id === patientId)
+  for (const associadoId of (data.associadoIds || [])) {
+    const associado = mockContacts.find((c) => c.id === associadoId)
     const survey = {
-      id: `nps-${Date.now()}-${patientId}`,
+      id: `nps-${Date.now()}-${associadoId}`,
       companyId: 'default-company',
-      patientId,
-      patient: patient ? { id: patient.id, fullName: patient.fullName } : { id: patientId, fullName: 'Paciente' },
-      doctorId: null, doctor: null, appointmentId: null,
+      associadoId,
+      associadoName: associado ? associado.fullName : 'Associado',
       score: 0, category: 'detractor' as const,
       comment: null, channel: data.channel || 'whatsapp',
       sentAt: new Date().toISOString(), answeredAt: null,

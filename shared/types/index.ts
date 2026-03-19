@@ -1,4 +1,4 @@
-// SHARED TYPES - CRM IA ENTERPRISE
+// SHARED TYPES - 21Go CRM Protecao Veicular
 // Types compartilhados entre frontend e backend
 
 // ============================================================================
@@ -108,11 +108,91 @@ export interface Subscription {
 }
 
 // ============================================================================
-// PATIENTS (formerly CONTACTS)
+// VEHICLES
 // ============================================================================
 
-export type Gender = 'male' | 'female' | 'other'
-export type BloodType = 'A+' | 'A-' | 'B+' | 'B-' | 'AB+' | 'AB-' | 'O+' | 'O-'
+export type VehicleCombustivel = 'gasolina' | 'etanol' | 'flex' | 'diesel' | 'eletrico' | 'hibrido'
+export type VehicleTipo = 'carro' | 'moto' | 'caminhonete' | 'van' | 'caminhao'
+export type VehiclePlano = 'basico' | 'completo' | 'premium'
+export type VistoriaStatus = 'pendente' | 'agendada' | 'aprovada' | 'reprovada'
+
+export interface Vehicle {
+  id: string
+  companyId: string
+  associadoId: string
+  associado?: { id: string; fullName: string; cpf?: string }
+  placa: string
+  renavam?: string
+  chassi?: string
+  marca: string
+  modelo: string
+  anoFabricacao: number
+  anoModelo: number
+  cor?: string
+  combustivel?: VehicleCombustivel
+  tipo: VehicleTipo
+  codigoFipe?: string
+  valorFipe?: number
+  valorFipeAtualizadoEm?: string
+  plano: VehiclePlano
+  valorMensal?: number
+  temRastreador: boolean
+  rastreadorMarca?: string
+  vistoriaStatus: VistoriaStatus
+  vistoriaData?: string
+  ativo: boolean
+  dataInclusao: string
+  dataExclusao?: string
+  createdAt: string
+  updatedAt: string
+}
+
+export interface CreateVehicleRequest {
+  associadoId: string
+  placa: string
+  renavam?: string
+  chassi?: string
+  marca: string
+  modelo: string
+  anoFabricacao: number
+  anoModelo: number
+  cor?: string
+  combustivel?: VehicleCombustivel
+  tipo: VehicleTipo
+  codigoFipe?: string
+  valorFipe?: number
+  plano: VehiclePlano
+  valorMensal?: number
+  temRastreador?: boolean
+  rastreadorMarca?: string
+}
+
+export interface UpdateVehicleRequest extends Partial<CreateVehicleRequest> {
+  vistoriaStatus?: VistoriaStatus
+  vistoriaData?: string
+  ativo?: boolean
+}
+
+export interface VehiclesListResponse {
+  data: Vehicle[]
+  pagination: {
+    page: number
+    limit: number
+    total: number
+    totalPages: number
+    hasNext: boolean
+    hasPrev: boolean
+  }
+}
+
+// ============================================================================
+// ASSOCIADOS (formerly CONTACTS / PATIENTS)
+// ============================================================================
+
+export type AssociadoStatus = 'ativo' | 'inativo' | 'inadimplente' | 'cancelado' | 'em_adesao'
+export type AssociadoOrigem =
+  | 'google_ads' | 'meta_ads' | 'instagram' | 'site_organico'
+  | 'indicacao' | 'whatsapp' | 'direto' | 'outro'
 
 export interface Contact {
   id: string
@@ -124,32 +204,43 @@ export interface Contact {
   phone?: string
   avatar?: string
   whatsapp?: string
-  instagram?: string
   address?: string
+  bairro?: string
   city?: string
   state?: string
   country?: string
   zipCode?: string
-  // Medical fields
+  // Dados do associado
   cpf?: string
+  rg?: string
   dateOfBirth?: string
-  gender?: Gender
-  bloodType?: BloodType
-  allergies?: string
-  medicalNotes?: string
-  convenioId?: string
-  convenioName?: string
-  convenioNumber?: string
-  responsibleName?: string
-  responsiblePhone?: string
-  preferredDoctorId?: string
-  preferredDoctorName?: string
-  lastVisitAt?: string
-  nextVisitAt?: string
+  // Status de associacao
+  status?: AssociadoStatus
+  dataAdesao?: string
+  dataCancelamento?: string
+  motivoCancelamento?: string
+  // Integracao
+  hinovaId?: string
+  indicadoPor?: string
+  vendedorId?: string
+  // MGM
+  totalIndicacoes?: number
+  descontoMgm?: number
+  // NPS
+  npsScore?: number
+  ultimoNps?: string
+  // Rastreamento
+  origem?: AssociadoOrigem
+  utmSource?: string
+  utmMedium?: string
+  utmCampaign?: string
+  // Outros
   tags: string[]
   customFields: Record<string, any>
   createdAt: string
   updatedAt: string
+  // Relacionamentos inline (para listagens)
+  vehicles?: Vehicle[]
 }
 
 export interface CreateContactRequest {
@@ -158,23 +249,26 @@ export interface CreateContactRequest {
   email?: string
   phone?: string
   whatsapp?: string
-  instagram?: string
   address?: string
+  bairro?: string
   city?: string
   state?: string
   country?: string
   zipCode?: string
   cpf?: string
+  rg?: string
   dateOfBirth?: string
-  gender?: Gender
-  bloodType?: BloodType
-  allergies?: string
-  medicalNotes?: string
-  convenioId?: string
-  convenioNumber?: string
-  responsibleName?: string
-  responsiblePhone?: string
-  preferredDoctorId?: string
+  status?: AssociadoStatus
+  dataAdesao?: string
+  dataCancelamento?: string
+  motivoCancelamento?: string
+  hinovaId?: string
+  indicadoPor?: string
+  vendedorId?: string
+  origem?: AssociadoOrigem
+  utmSource?: string
+  utmMedium?: string
+  utmCampaign?: string
   tags?: string[]
   customFields?: Record<string, any>
 }
@@ -186,284 +280,8 @@ export interface ContactWithStats extends Contact {
     leads: number
     deals: number
     conversations: number
+    vehicles?: number
   }
-}
-
-// ============================================================================
-// DOCTORS
-// ============================================================================
-
-export type DoctorSpecialty =
-  | 'clinico_geral'
-  | 'cardiologia'
-  | 'dermatologia'
-  | 'ginecologia'
-  | 'neurologia'
-  | 'oftalmologia'
-  | 'ortopedia'
-  | 'pediatria'
-  | 'psiquiatria'
-  | 'urologia'
-  | 'endocrinologia'
-  | 'gastroenterologia'
-  | 'otorrinolaringologia'
-  | 'cirurgia_geral'
-  | 'outro'
-
-export interface Doctor {
-  id: string
-  companyId: string
-  firstName: string
-  lastName: string
-  fullName: string
-  email?: string
-  phone?: string
-  crm: string
-  crmState: string
-  specialty: DoctorSpecialty
-  specialtyOther?: string
-  avatar?: string
-  consultationDuration: number
-  consultationPrice?: number
-  bio?: string
-  isActive: boolean
-  createdAt: string
-  updatedAt: string
-}
-
-export interface CreateDoctorRequest {
-  firstName: string
-  lastName: string
-  email?: string
-  phone?: string
-  crm: string
-  crmState: string
-  specialty: DoctorSpecialty
-  specialtyOther?: string
-  consultationDuration?: number
-  consultationPrice?: number
-  bio?: string
-}
-
-export interface UpdateDoctorRequest extends Partial<CreateDoctorRequest> {
-  isActive?: boolean
-}
-
-// ============================================================================
-// CONVENIOS (Health Insurance)
-// ============================================================================
-
-export interface Convenio {
-  id: string
-  companyId: string
-  name: string
-  code?: string
-  phone?: string
-  email?: string
-  website?: string
-  contactPerson?: string
-  notes?: string
-  isActive: boolean
-  patientCount: number
-  createdAt: string
-  updatedAt: string
-}
-
-export interface CreateConvenioRequest {
-  name: string
-  code?: string
-  phone?: string
-  email?: string
-  website?: string
-  contactPerson?: string
-  notes?: string
-}
-
-export interface UpdateConvenioRequest extends Partial<CreateConvenioRequest> {
-  isActive?: boolean
-}
-
-// ============================================================================
-// APPOINTMENTS (Scheduling)
-// ============================================================================
-
-export type AppointmentType = 'first_visit' | 'return' | 'exam' | 'procedure' | 'consultation' | 'emergency'
-export type AppointmentStatus = 'scheduled' | 'confirmed' | 'waiting' | 'in_progress' | 'completed' | 'cancelled' | 'no_show'
-
-export interface Appointment {
-  id: string
-  companyId: string
-  patientId: string
-  patient: {
-    id: string
-    fullName: string
-    phone?: string
-    email?: string
-    convenioName?: string
-    convenioNumber?: string
-  }
-  doctorId: string
-  doctor: {
-    id: string
-    fullName: string
-    specialty: DoctorSpecialty
-    crm: string
-  }
-  type: AppointmentType
-  status: AppointmentStatus
-  date: string
-  startTime: string
-  endTime: string
-  duration: number
-  notes?: string
-  cancellationReason?: string
-  isFirstVisit: boolean
-  convenioId?: string
-  convenioName?: string
-  price?: number
-  isPaid: boolean
-  room?: string
-  createdAt: string
-  updatedAt: string
-}
-
-export interface CreateAppointmentRequest {
-  patientId: string
-  doctorId: string
-  type: AppointmentType
-  date: string
-  startTime: string
-  duration?: number
-  notes?: string
-  convenioId?: string
-  price?: number
-  room?: string
-}
-
-export interface UpdateAppointmentRequest {
-  type?: AppointmentType
-  status?: AppointmentStatus
-  date?: string
-  startTime?: string
-  duration?: number
-  notes?: string
-  cancellationReason?: string
-  price?: number
-  isPaid?: boolean
-  room?: string
-}
-
-export interface AppointmentStatsResponse {
-  today: number
-  thisWeek: number
-  thisMonth: number
-  cancelled: number
-  noShow: number
-  completedToday: number
-  upcomingToday: Appointment[]
-}
-
-export interface DoctorAvailability {
-  doctorId: string
-  date: string
-  slots: Array<{
-    startTime: string
-    endTime: string
-    available: boolean
-  }>
-}
-
-// ============================================================================
-// MEDICAL RECORDS (Prontuario)
-// ============================================================================
-
-export type ConsultationType = 'anamnesis' | 'follow_up' | 'exam_result' | 'prescription' | 'referral' | 'procedure_note' | 'evolution'
-
-export interface MedicalRecord {
-  id: string
-  companyId: string
-  patientId: string
-  patient: {
-    id: string
-    fullName: string
-  }
-  doctorId: string
-  doctor: {
-    id: string
-    fullName: string
-    specialty: DoctorSpecialty
-    crm: string
-  }
-  appointmentId?: string
-  type: ConsultationType
-  date: string
-  chiefComplaint?: string
-  anamnesis?: string
-  physicalExam?: string
-  diagnosis?: string
-  diagnosisCid?: string
-  prescription?: string
-  procedures?: string
-  notes?: string
-  referral?: string
-  referralSpecialty?: string
-  vitalSigns?: {
-    bloodPressure?: string
-    heartRate?: number
-    temperature?: number
-    weight?: number
-    height?: number
-    oxygenSaturation?: number
-  }
-  attachments: MedicalAttachment[]
-  isConfidential: boolean
-  createdAt: string
-  updatedAt: string
-}
-
-export interface MedicalAttachment {
-  id: string
-  recordId: string
-  fileName: string
-  mimeType?: string
-  size: number
-  url: string
-  description?: string
-  createdAt: string
-}
-
-export interface CreateMedicalRecordRequest {
-  patientId: string
-  doctorId: string
-  appointmentId?: string
-  type: ConsultationType
-  date: string
-  chiefComplaint?: string
-  anamnesis?: string
-  physicalExam?: string
-  diagnosis?: string
-  diagnosisCid?: string
-  prescription?: string
-  procedures?: string
-  notes?: string
-  referral?: string
-  referralSpecialty?: string
-  vitalSigns?: {
-    bloodPressure?: string
-    heartRate?: number
-    temperature?: number
-    weight?: number
-    height?: number
-    oxygenSaturation?: number
-  }
-  isConfidential?: boolean
-}
-
-export interface UpdateMedicalRecordRequest extends Partial<CreateMedicalRecordRequest> {}
-
-export interface PatientTimeline {
-  records: MedicalRecord[]
-  appointments: Appointment[]
 }
 
 export interface ContactDetails extends Contact {
@@ -496,6 +314,7 @@ export interface ContactDetails extends Contact {
     createdAt: string
   }>
   activities: Activity[]
+  vehicles: Vehicle[]
 }
 
 export interface ContactsListResponse {
@@ -512,19 +331,19 @@ export interface ContactsListResponse {
 
 export interface ContactsStatsResponse {
   total: number
-  withEmail: number
-  withPhone: number
-  withConvenio: number
-  withAllergies: number
-  pendingReturn: number
+  ativos: number
+  inativos: number
+  inadimplentes: number
+  emAdesao: number
   recentCount: number
+  totalVehicles: number
 }
 
 // ============================================================================
 // LEADS
 // ============================================================================
 
-export type LeadStatus = 'new' | 'contacted' | 'qualified' | 'unqualified'
+export type LeadStatus = 'new' | 'contacted' | 'qualified' | 'unqualified' | 'cotacao_enviada' | 'negociacao' | 'fechado' | 'perdido'
 export type LeadSource =
   | 'website' | 'whatsapp' | 'instagram' | 'referral' | 'manual'
   | 'facebook' | 'google' | 'tiktok' | 'linkedin' | 'email' | 'organic' | 'other'
@@ -548,6 +367,25 @@ export interface Lead {
   convertedAt?: string
   tags: string[]
   customFields: Record<string, any>
+  // Campos veiculares
+  placaInteresse?: string
+  marcaInteresse?: string
+  modeloInteresse?: string
+  anoInteresse?: number
+  valorFipeConsultado?: number
+  cotacaoValor?: number
+  cotacaoPlano?: VehiclePlano
+  cotacaoEnviada?: boolean
+  cotacaoData?: string
+  qualificadoPor?: 'agente_ia' | 'vendedor' | 'manual'
+  vendedorId?: string
+  etapaFunil?: LeadStatus
+  motivoPerda?: string
+  utmSource?: string
+  utmMedium?: string
+  utmCampaign?: string
+  utmContent?: string
+  utmTerm?: string
   createdAt: string
   updatedAt: string
 }
@@ -562,6 +400,11 @@ export interface CreateLeadRequest {
   assignedToId?: string
   estimatedValue?: number
   tags?: string[]
+  placaInteresse?: string
+  marcaInteresse?: string
+  modeloInteresse?: string
+  anoInteresse?: number
+  cotacaoPlano?: VehiclePlano
 }
 
 export interface UpdateLeadRequest {
@@ -575,6 +418,15 @@ export interface UpdateLeadRequest {
   assignedToId?: string | null
   estimatedValue?: number | null
   tags?: string[]
+  placaInteresse?: string
+  marcaInteresse?: string
+  modeloInteresse?: string
+  anoInteresse?: number
+  valorFipeConsultado?: number | null
+  cotacaoValor?: number | null
+  cotacaoPlano?: VehiclePlano | null
+  cotacaoEnviada?: boolean
+  motivoPerda?: string
 }
 
 export interface LeadsListResponse {
@@ -591,8 +443,8 @@ export interface LeadsListResponse {
 
 export interface LeadStatsResponse {
   total: number
-  byStatus: Record<LeadStatus, number>
-  bySource: Record<LeadSource, number>
+  byStatus: Partial<Record<LeadStatus, number>>
+  bySource: Partial<Record<LeadSource, number>>
   conversionRate: number
   totalEstimatedValue: number
 }
@@ -801,6 +653,11 @@ export interface AIAgent {
   knowledgeBaseId?: string
   knowledgeBase?: KnowledgeBase
   isActive: boolean
+  // 21Go Squad fields
+  allowedRoles?: string[]
+  icon?: string
+  squad?: string
+  tier?: number
   createdAt: string
   updatedAt: string
 }
@@ -820,6 +677,11 @@ export interface CreateAgentRequest {
   canUpdateLeads?: boolean
   canCreateDeals?: boolean
   canTransferToHuman?: boolean
+  // 21Go Squad fields
+  allowedRoles?: string[]
+  icon?: string
+  squad?: string
+  tier?: number
 }
 
 export interface UpdateAgentRequest extends Partial<CreateAgentRequest> {}
@@ -1185,8 +1047,8 @@ export interface UpdateAutomationRequest extends Partial<CreateAutomationRequest
 
 export interface LeadMetrics {
   total: number
-  byStatus: Record<LeadStatus, number>
-  bySource: Record<LeadSource, number>
+  byStatus: Partial<Record<LeadStatus, number>>
+  bySource: Partial<Record<LeadSource, number>>
   conversionRate: number
   avgScore: number
 }
@@ -1238,8 +1100,8 @@ export interface ApiError {
 export interface DashboardStats {
   contacts: {
     total: number
-    withEmail: number
-    withPhone: number
+    ativos: number
+    inativos: number
     recentCount: number
   }
   pipes: {
@@ -1452,11 +1314,8 @@ export type NPSCategory = 'promoter' | 'passive' | 'detractor'
 export interface NPSSurvey {
   id: string
   companyId: string
-  patientId: string
-  patient: { id: string; fullName: string }
-  doctorId: string | null
-  doctor: { id: string; fullName: string } | null
-  appointmentId: string | null
+  associadoId: string
+  associado: { id: string; fullName: string }
   score: number // 0-10
   category: NPSCategory
   comment: string | null
@@ -1476,20 +1335,17 @@ export interface NPSStats {
   npsScore: number // -100 to 100
   avgScore: number
   byMonth: { month: string; nps: number; responses: number }[]
-  byDoctor: { doctorId: string; doctorName: string; nps: number; responses: number }[]
-  recentComments: { id: string; patientName: string; score: number; category: NPSCategory; comment: string; date: string }[]
+  recentComments: { id: string; associadoName: string; score: number; category: NPSCategory; comment: string; date: string }[]
 }
 
 export interface CreateNPSSurveyRequest {
-  patientId: string
-  doctorId?: string
-  appointmentId?: string
+  associadoId: string
   score: number
   comment?: string
   channel: 'whatsapp' | 'email' | 'sms' | 'in_app' | 'manual'
 }
 
 export interface SendNPSBatchRequest {
-  patientIds: string[]
+  associadoIds: string[]
   channel: 'whatsapp' | 'email' | 'sms'
 }

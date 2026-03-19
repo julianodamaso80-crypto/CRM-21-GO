@@ -1,8 +1,6 @@
 import { useState, useEffect } from 'react'
 import type { Contact, CreateContactRequest } from '../../../../shared/types'
 import { X } from 'lucide-react'
-import { useDoctors } from '../../hooks/useDoctors'
-import { useConvenios } from '../../hooks/useConvenios'
 
 interface ContactFormProps {
   contact?: Contact | null
@@ -11,15 +9,17 @@ interface ContactFormProps {
   isSubmitting?: boolean
 }
 
+const UF_OPTIONS = [
+  'AC','AL','AP','AM','BA','CE','DF','ES','GO','MA','MT','MS','MG',
+  'PA','PB','PR','PE','PI','RJ','RN','RS','RO','RR','SC','SP','SE','TO',
+]
+
 export function ContactForm({
   contact,
   onSubmit,
   onClose,
   isSubmitting = false,
 }: ContactFormProps) {
-  const { data: doctors } = useDoctors()
-  const { data: convenios } = useConvenios()
-
   const [formData, setFormData] = useState<CreateContactRequest>({
     firstName: '',
     lastName: '',
@@ -27,20 +27,20 @@ export function ContactForm({
     phone: '',
     whatsapp: '',
     cpf: '',
+    rg: '',
     dateOfBirth: '',
-    gender: undefined,
-    bloodType: undefined,
-    allergies: '',
-    medicalNotes: '',
-    convenioId: '',
-    convenioNumber: '',
-    responsibleName: '',
-    responsiblePhone: '',
-    preferredDoctorId: '',
     address: '',
+    bairro: '',
     city: '',
     state: '',
     zipCode: '',
+    status: 'em_adesao',
+    dataAdesao: '',
+    origem: undefined,
+    utmSource: '',
+    utmMedium: '',
+    utmCampaign: '',
+    hinovaId: '',
     tags: [],
   })
 
@@ -55,20 +55,22 @@ export function ContactForm({
         phone: contact.phone || '',
         whatsapp: contact.whatsapp || '',
         cpf: contact.cpf || '',
+        rg: contact.rg || '',
         dateOfBirth: contact.dateOfBirth || '',
-        gender: contact.gender,
-        bloodType: contact.bloodType,
-        allergies: contact.allergies || '',
-        medicalNotes: contact.medicalNotes || '',
-        convenioId: contact.convenioId || '',
-        convenioNumber: contact.convenioNumber || '',
-        responsibleName: contact.responsibleName || '',
-        responsiblePhone: contact.responsiblePhone || '',
-        preferredDoctorId: contact.preferredDoctorId || '',
         address: contact.address || '',
+        bairro: contact.bairro || '',
         city: contact.city || '',
         state: contact.state || '',
         zipCode: contact.zipCode || '',
+        status: contact.status || 'em_adesao',
+        dataAdesao: contact.dataAdesao || '',
+        dataCancelamento: contact.dataCancelamento || '',
+        motivoCancelamento: contact.motivoCancelamento || '',
+        origem: contact.origem,
+        utmSource: contact.utmSource || '',
+        utmMedium: contact.utmMedium || '',
+        utmCampaign: contact.utmCampaign || '',
+        hinovaId: contact.hinovaId || '',
         tags: contact.tags || [],
       })
     }
@@ -92,7 +94,7 @@ export function ContactForm({
   }
 
   const removeTag = (tagToRemove: string) => {
-    setFormData((prev) => ({ ...prev, tags: prev.tags?.filter((tag) => tag !== tagToRemove) || [] }))
+    setFormData((prev) => ({ ...prev, tags: prev.tags?.filter((t) => t !== tagToRemove) || [] }))
   }
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -124,27 +126,23 @@ export function ContactForm({
               className={inputClass} placeholder="123.456.789-00" />
           </div>
           <div>
+            <label className={labelClass}>RG</label>
+            <input type="text" name="rg" value={formData.rg} onChange={handleChange}
+              className={inputClass} placeholder="12.345.678-9" />
+          </div>
+          <div>
             <label className={labelClass}>Data de Nascimento</label>
             <input type="date" name="dateOfBirth" value={formData.dateOfBirth} onChange={handleChange}
               className={inputClass} />
           </div>
           <div>
-            <label className={labelClass}>Sexo</label>
-            <select name="gender" value={formData.gender || ''} onChange={handleChange} className={inputClass}>
-              <option value="">Selecione</option>
-              <option value="male">Masculino</option>
-              <option value="female">Feminino</option>
-              <option value="other">Outro</option>
-            </select>
-          </div>
-          <div>
-            <label className={labelClass}>Tipo Sanguineo</label>
-            <select name="bloodType" value={formData.bloodType || ''} onChange={handleChange} className={inputClass}>
-              <option value="">Selecione</option>
-              <option value="A+">A+</option><option value="A-">A-</option>
-              <option value="B+">B+</option><option value="B-">B-</option>
-              <option value="AB+">AB+</option><option value="AB-">AB-</option>
-              <option value="O+">O+</option><option value="O-">O-</option>
+            <label className={labelClass}>Status</label>
+            <select name="status" value={formData.status || ''} onChange={handleChange} className={inputClass}>
+              <option value="em_adesao">Em Adesao</option>
+              <option value="ativo">Ativo</option>
+              <option value="inativo">Inativo</option>
+              <option value="inadimplente">Inadimplente</option>
+              <option value="cancelado">Cancelado</option>
             </select>
           </div>
         </div>
@@ -157,78 +155,17 @@ export function ContactForm({
           <div>
             <label className={labelClass}>Telefone</label>
             <input type="tel" name="phone" value={formData.phone} onChange={handleChange}
-              className={inputClass} placeholder="(11) 98765-4321" />
+              className={inputClass} placeholder="(21) 98765-4321" />
           </div>
           <div>
             <label className={labelClass}>WhatsApp</label>
             <input type="tel" name="whatsapp" value={formData.whatsapp} onChange={handleChange}
-              className={inputClass} placeholder="(11) 98765-4321" />
+              className={inputClass} placeholder="(21) 98765-4321" />
           </div>
           <div className="col-span-2">
             <label className={labelClass}>Email</label>
             <input type="email" name="email" value={formData.email} onChange={handleChange}
-              className={inputClass} placeholder="paciente@email.com" />
-          </div>
-        </div>
-      </div>
-
-      {/* Informacoes Medicas */}
-      <div>
-        <h3 className="text-lg font-medium text-white mb-4">Informacoes Medicas</h3>
-        <div className="space-y-4">
-          <div>
-            <label className={labelClass}>Alergias</label>
-            <input type="text" name="allergies" value={formData.allergies} onChange={handleChange}
-              className={inputClass} placeholder="Ex: Dipirona, Penicilina, Latex" />
-          </div>
-          <div>
-            <label className={labelClass}>Observacoes Medicas</label>
-            <textarea name="medicalNotes" value={formData.medicalNotes} onChange={handleChange} rows={3}
-              className={inputClass} placeholder="Historico, condicoes cronicas, medicamentos em uso..." />
-          </div>
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className={labelClass}>Medico Preferencial</label>
-              <select name="preferredDoctorId" value={formData.preferredDoctorId || ''} onChange={handleChange} className={inputClass}>
-                <option value="">Nenhum</option>
-                {doctors?.filter((d) => d.isActive).map((d) => (
-                  <option key={d.id} value={d.id}>{d.fullName}</option>
-                ))}
-              </select>
-            </div>
-            <div>
-              <label className={labelClass}>Convenio</label>
-              <select name="convenioId" value={formData.convenioId || ''} onChange={handleChange} className={inputClass}>
-                <option value="">Particular</option>
-                {convenios?.filter((c) => c.isActive).map((c) => (
-                  <option key={c.id} value={c.id}>{c.name}</option>
-                ))}
-              </select>
-            </div>
-          </div>
-          {formData.convenioId && (
-            <div>
-              <label className={labelClass}>Numero da Carteirinha</label>
-              <input type="text" name="convenioNumber" value={formData.convenioNumber} onChange={handleChange}
-                className={inputClass} placeholder="UNI-12345" />
-            </div>
-          )}
-        </div>
-      </div>
-
-      {/* Responsavel */}
-      <div>
-        <h3 className="text-lg font-medium text-white mb-4">Responsavel (menor de idade)</h3>
-        <div className="grid grid-cols-2 gap-4">
-          <div>
-            <label className={labelClass}>Nome do Responsavel</label>
-            <input type="text" name="responsibleName" value={formData.responsibleName} onChange={handleChange}
-              className={inputClass} placeholder="Nome completo" />
-          </div>
-          <div>
-            <label className={labelClass}>Telefone do Responsavel</label>
-            <input type="tel" name="responsiblePhone" value={formData.responsiblePhone} onChange={handleChange}
-              className={inputClass} placeholder="(11) 98765-4321" />
+              className={inputClass} placeholder="associado@email.com" />
           </div>
         </div>
       </div>
@@ -242,22 +179,86 @@ export function ContactForm({
             <input type="text" name="address" value={formData.address} onChange={handleChange}
               className={inputClass} placeholder="Rua Exemplo, 123" />
           </div>
-          <div className="grid grid-cols-3 gap-4">
+          <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className={labelClass}>Cidade</label>
-              <input type="text" name="city" value={formData.city} onChange={handleChange}
-                className={inputClass} placeholder="Sao Paulo" />
-            </div>
-            <div>
-              <label className={labelClass}>Estado</label>
-              <input type="text" name="state" value={formData.state} onChange={handleChange}
-                className={inputClass} placeholder="SP" />
+              <label className={labelClass}>Bairro</label>
+              <input type="text" name="bairro" value={formData.bairro} onChange={handleChange}
+                className={inputClass} placeholder="Copacabana" />
             </div>
             <div>
               <label className={labelClass}>CEP</label>
               <input type="text" name="zipCode" value={formData.zipCode} onChange={handleChange}
-                className={inputClass} placeholder="01234-567" />
+                className={inputClass} placeholder="22040-020" />
             </div>
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className={labelClass}>Cidade</label>
+              <input type="text" name="city" value={formData.city} onChange={handleChange}
+                className={inputClass} placeholder="Rio de Janeiro" />
+            </div>
+            <div>
+              <label className={labelClass}>UF</label>
+              <select name="state" value={formData.state || ''} onChange={handleChange} className={inputClass}>
+                <option value="">Selecione</option>
+                {UF_OPTIONS.map((uf) => (
+                  <option key={uf} value={uf}>{uf}</option>
+                ))}
+              </select>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Associacao */}
+      <div>
+        <h3 className="text-lg font-medium text-white mb-4">Dados de Associacao</h3>
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <label className={labelClass}>Data de Adesao</label>
+            <input type="date" name="dataAdesao" value={formData.dataAdesao} onChange={handleChange}
+              className={inputClass} />
+          </div>
+          <div>
+            <label className={labelClass}>ID Hinova (SGA)</label>
+            <input type="text" name="hinovaId" value={formData.hinovaId} onChange={handleChange}
+              className={inputClass} placeholder="HIN-12345" />
+          </div>
+        </div>
+      </div>
+
+      {/* Origem */}
+      <div>
+        <h3 className="text-lg font-medium text-white mb-4">Origem / Rastreamento</h3>
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <label className={labelClass}>Origem</label>
+            <select name="origem" value={formData.origem || ''} onChange={handleChange} className={inputClass}>
+              <option value="">Selecione</option>
+              <option value="google_ads">Google Ads</option>
+              <option value="meta_ads">Meta Ads</option>
+              <option value="instagram">Instagram</option>
+              <option value="site_organico">Site Organico</option>
+              <option value="indicacao">Indicacao</option>
+              <option value="whatsapp">WhatsApp</option>
+              <option value="direto">Direto</option>
+              <option value="outro">Outro</option>
+            </select>
+          </div>
+          <div>
+            <label className={labelClass}>UTM Source</label>
+            <input type="text" name="utmSource" value={formData.utmSource} onChange={handleChange}
+              className={inputClass} placeholder="google" />
+          </div>
+          <div>
+            <label className={labelClass}>UTM Medium</label>
+            <input type="text" name="utmMedium" value={formData.utmMedium} onChange={handleChange}
+              className={inputClass} placeholder="cpc" />
+          </div>
+          <div>
+            <label className={labelClass}>UTM Campaign</label>
+            <input type="text" name="utmCampaign" value={formData.utmCampaign} onChange={handleChange}
+              className={inputClass} placeholder="protecao-veicular-rj" />
           </div>
         </div>
       </div>
@@ -265,25 +266,23 @@ export function ContactForm({
       {/* Tags */}
       <div>
         <h3 className="text-lg font-medium text-white mb-4">Tags</h3>
-        <div>
-          <div className="flex gap-2">
-            <input type="text" value={tagInput} onChange={(e) => setTagInput(e.target.value)} onKeyDown={handleKeyDown}
-              className={`flex-1 ${inputClass}`} placeholder="Digite e pressione Enter" />
-            <button type="button" onClick={addTag} className="px-4 py-2 bg-dark-700 text-gray-300 rounded-md hover:bg-dark-600 text-sm">Adicionar</button>
-          </div>
-          {formData.tags && formData.tags.length > 0 && (
-            <div className="flex flex-wrap gap-2 mt-3">
-              {formData.tags.map((tag) => (
-                <span key={tag} className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-blue-500/15 text-blue-400">
-                  {tag}
-                  <button type="button" onClick={() => removeTag(tag)} className="ml-2 text-blue-400 hover:text-blue-300">
-                    <X className="w-3 h-3" />
-                  </button>
-                </span>
-              ))}
-            </div>
-          )}
+        <div className="flex gap-2">
+          <input type="text" value={tagInput} onChange={(e) => setTagInput(e.target.value)} onKeyDown={handleKeyDown}
+            className={`flex-1 ${inputClass}`} placeholder="Digite e pressione Enter" />
+          <button type="button" onClick={addTag} className="px-4 py-2 bg-dark-700 text-gray-300 rounded-md hover:bg-dark-600 text-sm">Adicionar</button>
         </div>
+        {formData.tags && formData.tags.length > 0 && (
+          <div className="flex flex-wrap gap-2 mt-3">
+            {formData.tags.map((tag) => (
+              <span key={tag} className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-blue-500/15 text-blue-400">
+                {tag}
+                <button type="button" onClick={() => removeTag(tag)} className="ml-2 text-blue-400 hover:text-blue-300">
+                  <X className="w-3 h-3" />
+                </button>
+              </span>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Botoes */}

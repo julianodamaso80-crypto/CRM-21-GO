@@ -16,11 +16,7 @@ import { authRoutes } from './modules/auth/auth.routes.simple'
 import { contactsRoutes } from './modules/contacts/contacts.routes'
 import { aiRoutes } from './modules/ai/ai.routes'
 import { pipesRoutes } from './modules/pipes/pipes.routes'
-import { doctorsRoutes } from './modules/doctors/doctors.routes'
-import { conveniosRoutes } from './modules/convenios/convenios.routes'
 import { leadsRoutes } from './modules/leads/leads.routes'
-import { appointmentsRoutes } from './modules/appointments/appointments.routes'
-import { medicalRecordsRoutes, patientTimelineRoutes } from './modules/medical-records/medical-records.routes'
 import { inboxRoutes } from './modules/inbox/inbox.routes'
 import { npsRoutes } from './modules/nps/nps.routes'
 import { automationsRoutes } from './modules/automations/automations.routes'
@@ -125,12 +121,7 @@ async function bootstrap() {
     await fastify.register(aiRoutes, { prefix: '/api/ai' })
     await fastify.register(pipesRoutes, { prefix: '/api/pipes' })
 
-    // Rotas - Healthcare
-    await fastify.register(doctorsRoutes, { prefix: '/api/doctors' })
-    await fastify.register(conveniosRoutes, { prefix: '/api/convenios' })
-    await fastify.register(appointmentsRoutes, { prefix: '/api/appointments' })
-    await fastify.register(medicalRecordsRoutes, { prefix: '/api/medical-records' })
-    await fastify.register(patientTimelineRoutes, { prefix: '/api/patients' })
+    // Rotas - NPS
     await fastify.register(npsRoutes, { prefix: '/api/nps' })
 
     // Rotas - CRM & Comunicação

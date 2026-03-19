@@ -255,13 +255,29 @@ export function AgentsTab() {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {agents.map((agent: AIAgent) => (
-            <div key={agent.id} className="bg-dark-800 rounded-lg border border-dark-700 p-4">
+            <div key={agent.id} className={`bg-dark-800 rounded-lg border p-4 ${
+              agent.squad === '21go-squad' ? 'border-primary-500/30' : 'border-dark-700'
+            }`}>
               <div className="flex justify-between items-start mb-3">
                 <div className="flex items-center gap-2">
-                  <Bot className="w-5 h-5 text-primary-400" />
-                  <h3 className="font-medium text-white">{agent.name}</h3>
+                  {agent.icon ? (
+                    <span className="text-xl">{agent.icon}</span>
+                  ) : (
+                    <Bot className="w-5 h-5 text-primary-400" />
+                  )}
+                  <div>
+                    <h3 className="font-medium text-white">{agent.name}</h3>
+                    {agent.tier === 0 && (
+                      <span className="text-[10px] uppercase tracking-wider text-primary-400 font-semibold">Orquestrador</span>
+                    )}
+                  </div>
                 </div>
                 <div className="flex items-center gap-1">
+                  {agent.squad === '21go-squad' && (
+                    <span className="text-[10px] px-1.5 py-0.5 bg-primary-500/15 text-primary-400 rounded-full font-medium mr-1">
+                      21Go Squad
+                    </span>
+                  )}
                   <span className={`flex items-center gap-1 text-xs px-2 py-1 rounded-full ${
                     agent.isActive ? 'bg-green-500/15 text-green-400' : 'bg-dark-700 text-gray-400'
                   }`}>
@@ -280,6 +296,23 @@ export function AgentsTab() {
                   {agent.type === 'internal' ? 'Interno' : 'Atendimento'}
                 </span>
               </div>
+
+              {agent.allowedRoles && agent.allowedRoles.length > 0 && (
+                <div className="flex flex-wrap gap-1.5 mb-3">
+                  <span className="text-[10px] text-gray-500 uppercase tracking-wider mr-1">Acesso:</span>
+                  {agent.allowedRoles.map((role: string) => (
+                    <span key={role} className={`text-[10px] px-1.5 py-0.5 rounded-full font-medium ${
+                      role === 'admin' ? 'bg-red-500/15 text-red-400' :
+                      role === 'gestor' ? 'bg-amber-500/15 text-amber-400' :
+                      role === 'vendedor' ? 'bg-emerald-500/15 text-emerald-400' :
+                      role === 'operacao' ? 'bg-blue-500/15 text-blue-400' :
+                      'bg-dark-700 text-gray-400'
+                    }`}>
+                      {role}
+                    </span>
+                  ))}
+                </div>
+              )}
 
               {agent.knowledgeBase && (
                 <p className="text-xs text-gray-400 mb-3">

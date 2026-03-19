@@ -1,0 +1,104 @@
+squad:
+  name: 21go-squad
+  display_name: "21Go Proteção Veicular Squad"
+  version: "1.0.0"
+  domain: "CRM inteligente para proteção veicular — vendas, operação, retenção e crescimento"
+  description: |
+    8 agentes especializados cobrindo toda a operação da 21Go.
+    Cada agente atende um perfil de usuário (vendedor, mecânico, gestor)
+    e domina frameworks específicos (CLOSER, LTGP, viral loops, Sobral).
+  keywords: [protecao-veicular, crm, vendas, retencao, sinistros, mgm, fipe, hinova, whatsapp]
+  entry_agent: 21go-chief
+  created_at: "2026-03-19"
+
+tiers:
+  tier_0:
+    name: "Orquestração"
+    agents: [21go-chief]
+    purpose: "Roteia cada demanda para o agente certo baseado no contexto"
+  tier_1_comercial:
+    name: "Comercial"
+    agents: [agente-pre-venda]
+    purpose: "Atendimento de leads, qualificação, cotação FIPE, preparação para vendedor"
+  tier_1_operacao:
+    name: "Operação"
+    agents: [agente-pos-venda, agente-operacao]
+    purpose: "Atendimento de associados, sinistros, vistorias, oficina"
+  tier_1_gestao:
+    name: "Gestão"
+    agents: [agente-gestores, agente-retencao, agente-crescimento, agente-trafego]
+    purpose: "Inteligência para diretoria — dashboards, retenção, growth, tráfego"
+
+agents:
+  21go-chief:
+    file: agents/21go-chief.md
+    tier: 0
+    icon: "🛡️"
+    focus: "Roteamento e orquestração"
+  agente-pre-venda:
+    file: agents/agente-pre-venda.md
+    tier: 1
+    icon: "🤖"
+    focus: "Qualificação, cotação FIPE, CLOSER framework"
+    role_acesso: [vendedor, gestor, admin]
+  agente-pos-venda:
+    file: agents/agente-pos-venda.md
+    tier: 1
+    icon: "🔄"
+    focus: "Retenção, cobrança, status de sinistro, onboarding"
+    role_acesso: [vendedor, gestor, admin]
+  agente-gestores:
+    file: agents/agente-gestores.md
+    tier: 1
+    icon: "📊"
+    focus: "Briefing diário, consultas operacionais, alertas"
+    role_acesso: [gestor, admin]
+  agente-retencao:
+    file: agents/agente-retencao.md
+    tier: 1
+    icon: "🛡️"
+    focus: "Anti-churn, LTGP, segmentação por valor"
+    role_acesso: [gestor, admin]
+  agente-crescimento:
+    file: agents/agente-crescimento.md
+    tier: 1
+    icon: "📈"
+    focus: "Member Get Member, viral loops, growth"
+    role_acesso: [gestor, admin]
+  agente-trafego:
+    file: agents/agente-trafego.md
+    tier: 1
+    icon: "🎯"
+    focus: "Google Ads, Meta Ads, SEO, landing pages"
+    role_acesso: [gestor, admin]
+  agente-operacao:
+    file: agents/agente-operacao.md
+    tier: 1
+    icon: "🔧"
+    focus: "Agenda de oficina, status de serviço, vistorias"
+    role_acesso: [operacao, gestor, admin]
+
+handoffs:
+  21go-chief:
+    routes_to: [agente-pre-venda, agente-pos-venda, agente-gestores, agente-retencao, agente-crescimento, agente-trafego, agente-operacao]
+  agente-pre-venda:
+    collaborates_with: [agente-crescimento]
+    escalates_to: [21go-chief]
+  agente-pos-venda:
+    collaborates_with: [agente-retencao, agente-operacao]
+    escalates_to: [21go-chief]
+  agente-gestores:
+    collaborates_with: [agente-retencao, agente-crescimento, agente-trafego]
+    escalates_to: [21go-chief]
+  agente-operacao:
+    collaborates_with: [agente-pos-venda]
+    escalates_to: [21go-chief]
+
+integracoes:
+  hinova_sga: "API REST — associados, veículos, vistorias"
+  hinova_sgc: "API REST — boletos, inadimplência, cobranças"
+  hinova_powercrm: "API REST — cotações, leads, funil nativo"
+  whatsapp_business: "API oficial — envio/recebimento de mensagens"
+  tabela_fipe: "API — consulta valor de veículos"
+  google_ads: "API — dados de campanha, conversões"
+  meta_ads: "API — dados de campanha, conversões"

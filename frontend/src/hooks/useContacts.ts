@@ -35,10 +35,10 @@ export function useCreateContact() {
     mutationFn: (data: CreateContactRequest) => contactsService.create(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['contacts'] })
-      toast.success('Contato criado com sucesso!')
+      toast.success('Associado criado com sucesso!')
     },
     onError: (error: any) => {
-      const message = error.response?.data?.message || 'Erro ao criar contato'
+      const message = error.response?.data?.message || 'Erro ao criar associado'
       toast.error(message)
     },
   })
@@ -56,10 +56,10 @@ export function useUpdateContact() {
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ['contacts'] })
       queryClient.invalidateQueries({ queryKey: ['contacts', variables.id] })
-      toast.success('Contato atualizado com sucesso!')
+      toast.success('Associado atualizado com sucesso!')
     },
     onError: (error: any) => {
-      const message = error.response?.data?.message || 'Erro ao atualizar contato'
+      const message = error.response?.data?.message || 'Erro ao atualizar associado'
       toast.error(message)
     },
   })
@@ -75,10 +75,10 @@ export function useDeleteContact() {
     mutationFn: (id: string) => contactsService.delete(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['contacts'] })
-      toast.success('Contato excluído com sucesso!')
+      toast.success('Associado excluido com sucesso!')
     },
     onError: (error: any) => {
-      const message = error.response?.data?.message || 'Erro ao excluir contato'
+      const message = error.response?.data?.message || 'Erro ao excluir associado'
       toast.error(message)
     },
   })
