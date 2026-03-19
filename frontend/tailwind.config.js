@@ -41,6 +41,23 @@ export default {
           amber: '#FBBF24',
           cyan: '#22D3EE',
         },
+        // Semantic — feedback e status (ver brand-guide.md)
+        success: {
+          DEFAULT: '#34D399',
+          subtle: '#065F46',
+        },
+        warning: {
+          DEFAULT: '#FBBF24',
+          subtle: '#78350F',
+        },
+        error: {
+          DEFAULT: '#FB7185',
+          subtle: '#881337',
+        },
+        info: {
+          DEFAULT: '#5B8DEF',
+          subtle: '#1E3A5F',
+        },
       },
       fontFamily: {
         display: ['Outfit', 'system-ui', 'sans-serif'],
