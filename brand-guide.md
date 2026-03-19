@@ -32,8 +32,9 @@ A diferenciacao da 21Go esta no cruzamento de **tradicao** (20+ anos) com **tecn
 
 ### Identity System (Wheeler)
 O sistema de identidade e coeso e escalavel:
-- **Logo**: "21" em quadrado dourado arredondado + "Go!" -- compacto, memoravel
-- **Cor**: dourado quente como assinatura visual unica no segmento
+- **Logo**: circulo laranja com "21Go!" -- compacto, memoravel, "PROTECAO PATRIMONIAL" abaixo
+- **Cor primaria**: azul royal -- confianca, seguranca, solidez
+- **Cor secundaria**: laranja -- energia, acao, CTAs
 - **Voz**: um unico tom em todos os canais (CRM, WhatsApp, site, agentes IA)
 - **Experiencia**: cada touchpoint (do primeiro contato a abertura de sinistro) carrega a mesma identidade
 
@@ -41,23 +42,45 @@ O sistema de identidade e coeso e escalavel:
 
 ## 2. Paleta de Cores
 
-### 2.1 Primary -- Gold (assinatura da marca)
+### 2.1 Primary -- Blue (identidade principal da marca)
+
+O azul royal e a cor dominante do site, hero, backgrounds e identidade visual.
 
 | Token         | Hex       | Uso                                          |
 |---------------|-----------|----------------------------------------------|
-| `gold-50`     | `#FDF8EC` | Background de highlight sutil                |
-| `gold-100`    | `#FBF0D4` | Background de badges e tags                  |
-| `gold-200`    | `#F6E0A8` | Bordas de elementos ativos                   |
-| `gold-300`    | `#F0CE76` | Icones secundarios, hover states             |
-| `gold-400`    | `#D4B455` | Texto de destaque, links hover               |
-| `gold-500`    | `#C9A84C` | COR PRINCIPAL -- botoes, headings, logo      |
-| `gold-600`    | `#B08F3A` | Botao hover, texto sobre fundo claro         |
-| `gold-700`    | `#8E722E` | Texto enfatizado em fundos claros            |
-| `gold-800`    | `#6B5522` | Bordas escuras, linhas de separacao          |
-| `gold-900`    | `#4A3B18` | Backgrounds profundos com tom dourado        |
-| `gold-950`    | `#2D2310` | Backgrounds mais escuros com tom dourado     |
+| `blue-50`     | `#EBF0FA` | Background de highlight sutil                |
+| `blue-100`    | `#D1DFFA` | Background de badges e tags                  |
+| `blue-200`    | `#A3BEF5` | Bordas de elementos ativos                   |
+| `blue-300`    | `#6B96EB` | Icones secundarios, hover states             |
+| `blue-400`    | `#3D72DE` | Texto de destaque, links hover               |
+| `blue-500`    | `#1B4DA1` | COR PRINCIPAL -- sidebar, headers, identidade|
+| `blue-600`    | `#164087` | Botao hover, backgrounds ativos              |
+| `blue-700`    | `#11336D` | Backgrounds profundos                        |
+| `blue-800`    | `#0D2653` | Sidebar escura, nav backgrounds              |
+| `blue-900`    | `#081A3A` | Backgrounds muito escuros com tom azul       |
+| `blue-950`    | `#050F24` | Background mais profundo (root do CRM)       |
 
-### 2.2 Neutral -- Dark Scale (backgrounds e texto)
+### 2.2 Secondary -- Orange (CTAs, logo, destaques de acao)
+
+O laranja e a cor de energia da marca: botoes de acao, logo, alertas positivos.
+
+| Token           | Hex       | Uso                                          |
+|-----------------|-----------|----------------------------------------------|
+| `orange-50`     | `#FFF4EB` | Background de highlight sutil                |
+| `orange-100`    | `#FFE4CC` | Background de badges e tags                  |
+| `orange-200`    | `#FFC999` | Bordas de elementos ativos                   |
+| `orange-300`    | `#FFAA61` | Icones secundarios, hover states             |
+| `orange-400`    | `#F08C28` | Texto de destaque, links hover               |
+| `orange-500`    | `#E07620` | COR SECUNDARIA -- botoes CTA, logo, destaques|
+| `orange-600`    | `#C46218` | Botao hover, pressed state                   |
+| `orange-700`    | `#9C4E14` | Texto enfatizado em fundos claros            |
+| `orange-800`    | `#743A0F` | Bordas escuras, linhas de separacao          |
+| `orange-900`    | `#4D260A` | Backgrounds profundos com tom laranja        |
+| `orange-950`    | `#2E1706` | Backgrounds mais escuros com tom laranja     |
+
+### 2.3 Neutral -- Dark Scale (backgrounds e texto do CRM)
+
+O CRM usa tema dark para diferenciacao do site publico e conforto visual.
 
 | Token         | Hex       | Uso                                          |
 |---------------|-----------|----------------------------------------------|
@@ -68,12 +91,12 @@ O sistema de identidade e coeso e escalavel:
 | `dark-400`    | `#55557A` | Bordas hover                                 |
 | `dark-500`    | `#3D3D5C` | Bordas ativas                                |
 | `dark-600`    | `#2A2A42` | Background de inputs, dropdowns              |
-| `dark-700`    | `#1E1E32` | Background de cards, sidebar                 |
-| `dark-800`    | `#141422` | Background de secoes                         |
-| `dark-900`    | `#0C0C18` | Background principal da pagina               |
-| `dark-950`    | `#08080F` | Background mais profundo (root)              |
+| `dark-700`    | `#1A1F35` | Background de cards, sidebar                 |
+| `dark-800`    | `#111827` | Background de secoes                         |
+| `dark-900`    | `#0B1120` | Background principal da pagina               |
+| `dark-950`    | `#060A14` | Background mais profundo (root)              |
 
-### 2.3 Semantic -- Feedback e Status
+### 2.4 Semantic -- Feedback e Status
 
 | Token             | Hex       | Uso                                      |
 |-------------------|-----------|------------------------------------------|
@@ -83,28 +106,29 @@ O sistema de identidade e coeso e escalavel:
 | `warning-subtle`  | `#78350F` | Background de alertas de atencao         |
 | `error`           | `#FB7185` | Erros, inadimplencia, cancelamentos      |
 | `error-subtle`    | `#881337` | Background de alertas de erro            |
-| `info`            | `#5B8DEF` | Informacoes, links, acoes neutras        |
+| `info`            | `#60A5FA` | Informacoes, links, acoes neutras        |
 | `info-subtle`     | `#1E3A5F` | Background de alertas informativos       |
 
-### 2.4 Accent -- Destaques Secundarios
+### 2.5 Accent -- Destaques Secundarios
 
 | Token         | Hex       | Uso                                          |
 |---------------|-----------|----------------------------------------------|
-| `accent-blue`    | `#5B8DEF` | Leads, links, graficos primarios          |
 | `accent-purple`  | `#A78BFA` | Agentes IA, automacoes                    |
 | `accent-emerald` | `#34D399` | Financeiro positivo, crescimento          |
 | `accent-rose`    | `#FB7185` | Sinistros, alertas criticos               |
 | `accent-amber`   | `#FBBF24` | MGM, gamificacao, indicacoes              |
 | `accent-cyan`    | `#22D3EE` | Operacao, vistorias, rastreamento         |
+| `accent-lime`    | `#A3E635` | Destaques positivos (presente nos arcos do site) |
 
-### 2.5 Backgrounds Compostos
+### 2.6 Backgrounds Compostos
 
-| Nome                  | Valor                                              | Uso                        |
-|-----------------------|----------------------------------------------------|----------------------------|
-| `gradient-gold`       | `linear-gradient(135deg, #C9A84C, #D4B455, #F0CE76)` | Botoes CTA, headers      |
-| `gradient-gold-subtle`| `linear-gradient(135deg, rgba(201,168,76,0.1), rgba(201,168,76,0.05))` | Cards highlight |
-| `gradient-dark`       | `linear-gradient(180deg, #141422, #0C0C18)`        | Background de pagina       |
-| `gradient-card`       | `linear-gradient(135deg, rgba(30,30,50,0.8), rgba(20,20,34,0.9))` | Cards elevados |
+| Nome                    | Valor                                                         | Uso                        |
+|-------------------------|---------------------------------------------------------------|----------------------------|
+| `gradient-blue`         | `linear-gradient(135deg, #1B4DA1, #3D72DE)`                  | Botoes primarios, headers  |
+| `gradient-blue-dark`    | `linear-gradient(180deg, #111827, #0B1120)`                   | Background de pagina CRM   |
+| `gradient-orange`       | `linear-gradient(135deg, #E07620, #F08C28, #FFAA61)`         | Botoes CTA, destaques      |
+| `gradient-orange-subtle`| `linear-gradient(135deg, rgba(224,118,32,0.1), rgba(224,118,32,0.05))` | Cards highlight |
+| `gradient-card`         | `linear-gradient(135deg, rgba(26,31,53,0.8), rgba(17,24,39,0.9))`     | Cards elevados  |
 
 ---
 
@@ -178,7 +202,8 @@ O sistema de identidade e coeso e escalavel:
 
 | Variante    | Estilo                                               |
 |-------------|------------------------------------------------------|
-| Primary     | `bg-gradient-gold text-dark-950 font-semibold`       |
+| Primary     | `bg-gradient-blue text-white font-semibold`          |
+| CTA         | `bg-gradient-orange text-white font-semibold`        |
 | Secondary   | `bg-dark-700 text-dark-50 border border-dark-500`    |
 | Ghost       | `bg-transparent text-dark-100 hover:bg-dark-700`     |
 | Danger      | `bg-error/10 text-error border border-error/20`      |
@@ -191,7 +216,7 @@ O sistema de identidade e coeso e escalavel:
 | Estado      | Estilo                                               |
 |-------------|------------------------------------------------------|
 | Default     | `bg-dark-600 border-dark-500 text-dark-50 rounded-lg`|
-| Focus       | `border-gold-500 ring-1 ring-gold-500/20`            |
+| Focus       | `border-blue-400 ring-1 ring-blue-400/20`            |
 | Error       | `border-error ring-1 ring-error/20`                  |
 | Disabled    | `opacity-50 cursor-not-allowed`                      |
 | Placeholder | `text-dark-300`                                      |
@@ -200,7 +225,8 @@ O sistema de identidade e coeso e escalavel:
 
 | Variante    | Estilo                                               |
 |-------------|------------------------------------------------------|
-| Gold        | `bg-gold-500/10 text-gold-400 border border-gold-500/20` |
+| Primary     | `bg-blue-500/10 text-blue-300 border border-blue-500/20`   |
+| CTA/Orange  | `bg-orange-500/10 text-orange-400 border border-orange-500/20` |
 | Success     | `bg-success/10 text-success border border-success/20`    |
 | Warning     | `bg-warning/10 text-warning border border-warning/20`    |
 | Error       | `bg-error/10 text-error border border-error/20`          |
@@ -231,7 +257,7 @@ p-6
 | Parte       | Estilo                                               |
 |-------------|------------------------------------------------------|
 | Container   | `bg-dark-800 rounded-xl border border-dark-500/50`  |
-| Header row  | `bg-dark-700/50 text-xs text-dark-200 uppercase tracking-wider` |
+| Header row  | `bg-blue-900/30 text-xs text-dark-200 uppercase tracking-wider` |
 | Body row    | `border-b border-dark-500/30 hover:bg-dark-600/50`  |
 | Cell        | `px-4 py-3 text-sm text-dark-100`                   |
 
@@ -241,8 +267,8 @@ p-6
 ```
 w-64 bg-dark-800 border-r border-dark-500/50
 shadow-sidebar
-Logo no topo + nav items + user info no rodape
-Nav item ativo: bg-gold-500/10 text-gold-400 border-l-2 border-gold-500
+Logo 21Go (laranja) no topo + nav items + user info no rodape
+Nav item ativo: bg-blue-500/10 text-blue-300 border-l-2 border-blue-400
 Nav item inativo: text-dark-200 hover:text-dark-50 hover:bg-dark-700
 ```
 
@@ -257,7 +283,7 @@ Acoes: botoes alinhados a direita
 #### Dashboard KPI Card
 ```
 [Card base]
-  > Icone em circulo bg-gold-500/10 text-gold-400
+  > Icone em circulo bg-blue-500/10 text-blue-300
   > Valor: font-display text-3xl font-bold text-dark-50
   > Label: text-sm text-dark-200
   > Variacao: text-success (positiva) ou text-error (negativa) + seta
@@ -280,7 +306,7 @@ Acoes: botoes alinhados a direita
 | Hero             | 32-48px   | Dashboard KPIs, empty states  |
 
 ### Cores de Icones
-- **Ativo/destaque**: `text-gold-400`
+- **Ativo/destaque**: `text-blue-300` ou `text-orange-400`
 - **Padrao**: `text-dark-200`
 - **Hover**: `text-dark-50`
 - **Semantico**: cor do status correspondente (success, error, etc.)
@@ -335,9 +361,9 @@ Acoes: botoes alinhados a direita
 
 ### Sidebar
 - Fundo: `dark-800`
-- Logo 21Go no topo com `glow-gold` sutil
+- Logo 21Go (laranja sobre dark) no topo com `glow-blue` sutil
 - Navegacao agrupada por secao (Vendas, Operacao, Gestao, Config)
-- Item ativo: barra dourada na esquerda + fundo `gold-500/10`
+- Item ativo: barra azul na esquerda + fundo `blue-500/10`
 - Icones Lucide 20px + label em `DM Sans` medium
 
 ### Header
@@ -348,18 +374,18 @@ Acoes: botoes alinhados a direita
 
 ### Dashboard
 - Grid responsivo de KPI cards no topo
-- Graficos Recharts com paleta gold + accent
+- Graficos Recharts com paleta blue + orange + accent
 - Listas de atividades recentes em cards compactos
 - Alertas e pendencias com badges coloridos
 
 ### Formularios
 - Labels em `DM Sans` medium, `text-dark-200`
 - Inputs com fundo `dark-600`, borda `dark-500`
-- Botao primario (gold gradient) a direita
+- Botao primario (blue gradient) ou CTA (orange gradient) a direita
 - Validacao inline com mensagem em `text-error`
 
 ### Tabelas
-- Header fixo com fundo sutil `dark-700/50`
+- Header fixo com fundo sutil `blue-900/30`
 - Rows com hover `dark-600/50`
 - Acoes (editar, deletar) no final de cada row
 - Paginacao com design compacto
@@ -377,8 +403,9 @@ Acoes: botoes alinhados a direita
 
 | Token           | Valor                                              | Uso                    |
 |-----------------|----------------------------------------------------|------------------------|
-| `glow-gold`     | `0 0 20px rgba(201,168,76,0.15)`                  | Logo, elementos marca  |
-| `glow-gold-lg`  | `0 0 40px rgba(201,168,76,0.2)`                   | Hover em CTAs          |
+| `glow-blue`     | `0 0 20px rgba(27,77,161,0.15)`                   | Logo, elementos marca  |
+| `glow-blue-lg`  | `0 0 40px rgba(27,77,161,0.2)`                    | Hover em primarios     |
+| `glow-orange`   | `0 0 20px rgba(224,118,32,0.15)`                  | Hover em CTAs          |
 | `glass`         | `0 8px 32px rgba(0,0,0,0.3)`                      | Modais, drawers        |
 | `glass-lg`      | `0 16px 48px rgba(0,0,0,0.4)`                     | Overlays grandes       |
 | `card`          | `0 1px 3px rgba(0,0,0,0.3), 0 1px 2px rgba(0,0,0,0.2)` | Cards em repouso |
@@ -412,8 +439,9 @@ Acoes: botoes alinhados a direita
 ## 11. Acessibilidade
 
 - Contraste minimo 4.5:1 para texto (WCAG AA)
-- Dourado `#C9A84C` sobre `#08080F` = ratio 7.2:1 (passa AAA)
-- Branco `#E8E8EE` sobre `#141422` = ratio 11.8:1 (passa AAA)
+- Azul `#3D72DE` sobre `#060A14` = ratio 6.8:1 (passa AA)
+- Laranja `#F08C28` sobre `#060A14` = ratio 7.1:1 (passa AA)
+- Branco `#E8E8EE` sobre `#111827` = ratio 12.4:1 (passa AAA)
 - Focus visible em todos os elementos interativos
 - Aria labels em icones sem texto
 - Teclado: Tab navega, Enter/Space ativa, Escape fecha

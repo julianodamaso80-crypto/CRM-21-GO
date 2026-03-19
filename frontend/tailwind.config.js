@@ -4,21 +4,35 @@ export default {
   theme: {
     extend: {
       colors: {
-        // 21Go Gold — cor principal da marca
-        gold: {
-          50: '#FDF8EC',
-          100: '#FBF0D4',
-          200: '#F6E0A8',
-          300: '#F0CE76',
-          400: '#D4B455',
-          500: '#C9A84C',
-          600: '#B08F3A',
-          700: '#8E722E',
-          800: '#6B5522',
-          900: '#4A3B18',
-          950: '#2D2310',
+        // 21Go Blue — cor primaria da marca (ver brand-guide.md)
+        blue: {
+          50: '#EBF0FA',
+          100: '#D1DFFA',
+          200: '#A3BEF5',
+          300: '#6B96EB',
+          400: '#3D72DE',
+          500: '#1B4DA1',
+          600: '#164087',
+          700: '#11336D',
+          800: '#0D2653',
+          900: '#081A3A',
+          950: '#050F24',
         },
-        // Dark palette — backgrounds sofisticados
+        // 21Go Orange — cor secundaria, CTAs, logo
+        orange: {
+          50: '#FFF4EB',
+          100: '#FFE4CC',
+          200: '#FFC999',
+          300: '#FFAA61',
+          400: '#F08C28',
+          500: '#E07620',
+          600: '#C46218',
+          700: '#9C4E14',
+          800: '#743A0F',
+          900: '#4D260A',
+          950: '#2E1706',
+        },
+        // Dark palette — backgrounds sofisticados (tema dark do CRM)
         dark: {
           50: '#E8E8EE',
           100: '#C5C5D2',
@@ -27,19 +41,19 @@ export default {
           400: '#55557A',
           500: '#3D3D5C',
           600: '#2A2A42',
-          700: '#1E1E32',
-          800: '#141422',
-          900: '#0C0C18',
-          950: '#08080F',
+          700: '#1A1F35',
+          800: '#111827',
+          900: '#0B1120',
+          950: '#060A14',
         },
-        // Accent — para destaques secundários
+        // Accent — para destaques secundarios
         accent: {
-          blue: '#5B8DEF',
           purple: '#A78BFA',
           emerald: '#34D399',
           rose: '#FB7185',
           amber: '#FBBF24',
           cyan: '#22D3EE',
+          lime: '#A3E635',
         },
         // Semantic — feedback e status (ver brand-guide.md)
         success: {
@@ -55,7 +69,7 @@ export default {
           subtle: '#881337',
         },
         info: {
-          DEFAULT: '#5B8DEF',
+          DEFAULT: '#60A5FA',
           subtle: '#1E3A5F',
         },
       },
@@ -69,8 +83,9 @@ export default {
         '3xl': '1.5rem',
       },
       boxShadow: {
-        'glow-gold': '0 0 20px rgba(201, 168, 76, 0.15)',
-        'glow-gold-lg': '0 0 40px rgba(201, 168, 76, 0.2)',
+        'glow-blue': '0 0 20px rgba(27, 77, 161, 0.15)',
+        'glow-blue-lg': '0 0 40px rgba(27, 77, 161, 0.2)',
+        'glow-orange': '0 0 20px rgba(224, 118, 32, 0.15)',
         'glass': '0 8px 32px rgba(0, 0, 0, 0.3)',
         'glass-lg': '0 16px 48px rgba(0, 0, 0, 0.4)',
         'card': '0 1px 3px rgba(0, 0, 0, 0.3), 0 1px 2px rgba(0, 0, 0, 0.2)',
@@ -78,10 +93,11 @@ export default {
         'sidebar': '4px 0 24px rgba(0, 0, 0, 0.3)',
       },
       backgroundImage: {
-        'gradient-gold': 'linear-gradient(135deg, #C9A84C, #D4B455, #F0CE76)',
-        'gradient-gold-subtle': 'linear-gradient(135deg, rgba(201, 168, 76, 0.1), rgba(201, 168, 76, 0.05))',
-        'gradient-dark': 'linear-gradient(180deg, #141422, #0C0C18)',
-        'gradient-card': 'linear-gradient(135deg, rgba(30, 30, 50, 0.8), rgba(20, 20, 34, 0.9))',
+        'gradient-blue': 'linear-gradient(135deg, #1B4DA1, #3D72DE)',
+        'gradient-blue-dark': 'linear-gradient(180deg, #111827, #0B1120)',
+        'gradient-orange': 'linear-gradient(135deg, #E07620, #F08C28, #FFAA61)',
+        'gradient-orange-subtle': 'linear-gradient(135deg, rgba(224, 118, 32, 0.1), rgba(224, 118, 32, 0.05))',
+        'gradient-card': 'linear-gradient(135deg, rgba(26, 31, 53, 0.8), rgba(17, 24, 39, 0.9))',
         'noise': "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E\")",
       },
       animation: {
@@ -125,8 +141,8 @@ export default {
           '100%': { opacity: '1', transform: 'scale(1)' },
         },
         glowPulse: {
-          '0%, 100%': { boxShadow: '0 0 15px rgba(201, 168, 76, 0.1)' },
-          '50%': { boxShadow: '0 0 25px rgba(201, 168, 76, 0.25)' },
+          '0%, 100%': { boxShadow: '0 0 15px rgba(27, 77, 161, 0.1)' },
+          '50%': { boxShadow: '0 0 25px rgba(27, 77, 161, 0.25)' },
         },
         shimmer: {
           '0%': { backgroundPosition: '-200% 0' },

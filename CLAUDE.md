@@ -166,8 +166,9 @@ Consultar **`brand-guide.md`** na raiz do projeto para a identidade visual compl
 
 Resumo rapido:
 - **Tema**: Dark luxuoso (referencias: Linear App, Raycast, Vercel, Stripe)
-- **Cor principal**: Dourado `#C9A84C` (gold-500) -- escala completa de 50 a 950
-- **Fundos**: `#08080F` (dark-950) -> `#0C0C18` (dark-900) -> `#141422` (dark-800) -> `#1E1E32` (dark-700, cards)
+- **Cor primaria**: Azul royal `#1B4DA1` (blue-500) -- identidade principal, sidebar, headers
+- **Cor secundaria**: Laranja `#E07620` (orange-500) -- CTAs, logo, botoes de acao
+- **Fundos**: `#060A14` (dark-950) -> `#0B1120` (dark-900) -> `#111827` (dark-800) -> `#1A1F35` (dark-700, cards)
 - **Tipografia**: Outfit (display) + DM Sans (body) + JetBrains Mono (codigo/placas)
 - **Tokens Tailwind**: `frontend/tailwind.config.js` (cores, sombras, animacoes, gradientes)
 - **Componentes, tom de voz, icones, espacamento**: ver brand-guide.md
