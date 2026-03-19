@@ -18,12 +18,12 @@ import { useContacts } from '../../hooks/useContacts'
 import type { Lead, CreateLeadRequest, UpdateLeadRequest, LeadStatus, LeadSource, VehiclePlano } from '../../../../shared/types'
 
 const STATUS_MAP: Partial<Record<LeadStatus, { label: string; cls: string }>> = {
-  new: { label: 'Novo', cls: 'bg-blue-500/15 text-blue-400' },
-  contacted: { label: 'Contatado', cls: 'bg-amber-500/15 text-amber-400' },
-  qualified: { label: 'Qualificado', cls: 'bg-purple-500/15 text-purple-400' },
-  cotacao_enviada: { label: 'Cotacao Enviada', cls: 'bg-cyan-500/15 text-cyan-400' },
-  negociacao: { label: 'Negociacao', cls: 'bg-orange-500/15 text-orange-400' },
-  fechado: { label: 'Fechado', cls: 'bg-emerald-500/15 text-emerald-400' },
+  new: { label: 'Novo', cls: 'bg-accent-blue/10 text-accent-blue' },
+  contacted: { label: 'Contatado', cls: 'bg-accent-amber/10 text-accent-amber' },
+  qualified: { label: 'Qualificado', cls: 'bg-accent-purple/10 text-accent-purple' },
+  cotacao_enviada: { label: 'Cotacao Enviada', cls: 'bg-accent-cyan/10 text-accent-cyan' },
+  negociacao: { label: 'Negociacao', cls: 'bg-accent-amber/10 text-accent-amber' },
+  fechado: { label: 'Fechado', cls: 'bg-accent-emerald/10 text-accent-emerald' },
   perdido: { label: 'Perdido', cls: 'bg-dark-700 text-gray-400' },
   unqualified: { label: 'Desqualificado', cls: 'bg-dark-700 text-gray-500' },
 }
@@ -144,21 +144,21 @@ export function LeadsPage() {
       {/* Tabela */}
       {isLoading ? (
         <div className="flex justify-center py-16">
-          <Loader2 className="w-8 h-8 text-primary-500 animate-spin" />
+          <Loader2 className="w-8 h-8 text-gold-400 animate-spin" />
         </div>
       ) : leads.length === 0 ? (
         <div className="text-center py-16">
           <UserCircle2 className="w-12 h-12 text-gray-300 mx-auto mb-3" />
           <h3 className="text-lg font-medium text-white">Nenhum lead encontrado</h3>
           <p className="text-sm text-gray-400 mt-1">Crie o primeiro lead para comecar</p>
-          <button onClick={openCreate} className="mt-4 px-4 py-2 text-sm bg-primary-500 text-white rounded-lg hover:bg-primary-400">
+          <button onClick={openCreate} className="btn-primary mt-4 text-sm">
             Criar Lead
           </button>
         </div>
       ) : (
-        <div className="bg-dark-800 rounded-lg border border-dark-700 overflow-hidden">
+        <div className="card overflow-hidden">
           <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-dark-700">
+            <table className="min-w-full divide-y divide-dark-700/40">
               <thead className="bg-dark-700">
                 <tr>
                   <th className="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase">Associado</th>
@@ -171,7 +171,7 @@ export function LeadsPage() {
                   <th className="px-4 py-3 text-right text-xs font-medium text-gray-400 uppercase">Acoes</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-dark-700">
+              <tbody className="divide-y divide-dark-700/40">
                 {leads.map((lead) => (
                   <tr key={lead.id} className="hover:bg-dark-700">
                     <td className="px-4 py-3">
@@ -223,7 +223,7 @@ export function LeadsPage() {
                     </td>
                     <td className="px-4 py-3 text-right">
                       <div className="flex justify-end gap-1">
-                        <button onClick={() => openEdit(lead)} className="p-1.5 text-gray-500 hover:text-primary-400 rounded">
+                        <button onClick={() => openEdit(lead)} className="p-1.5 text-gray-500 hover:text-gold-400 rounded">
                           <Edit3 className="w-4 h-4" />
                         </button>
                         <button onClick={() => setDeleteId(lead.id)} className="p-1.5 text-gray-500 hover:text-red-400 rounded">
@@ -246,8 +246,8 @@ export function LeadsPage() {
       {deleteId && (
         <div className="fixed inset-0 z-50 flex items-center justify-center">
           <div className="absolute inset-0 bg-black/30" onClick={() => setDeleteId(null)} />
-          <div className="relative bg-dark-800 rounded-lg shadow-xl p-6 w-full max-w-sm">
-            <h3 className="text-lg font-semibold text-white">Excluir Lead</h3>
+          <div className="relative card shadow-xl p-6 w-full max-w-sm">
+            <h3 className="text-lg font-display font-semibold text-white">Excluir Lead</h3>
             <p className="text-sm text-gray-400 mt-2">Tem certeza que deseja excluir este lead? Esta acao nao pode ser desfeita.</p>
             <div className="flex justify-end gap-3 mt-5">
               <button onClick={() => setDeleteId(null)} className="px-4 py-2 text-sm text-gray-300 border border-dark-600 rounded-lg hover:bg-dark-700">
@@ -268,9 +268,9 @@ export function LeadsPage() {
 
 function StatCard({ icon, label, value, bg }: { icon: React.ReactNode; label: string; value: string | number; bg: string }) {
   return (
-    <div className="bg-dark-800 rounded-lg border border-dark-700 p-4">
+    <div className="stat-card">
       <div className="flex items-center gap-3">
-        <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${bg}`}>{icon}</div>
+        <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${bg}`}>{icon}</div>
         <div>
           <p className="text-xs text-gray-400">{label}</p>
           <p className="text-xl font-bold text-white">{value}</p>
@@ -363,8 +363,8 @@ function LeadDrawer({ lead, onClose }: { lead: Lead | null; onClose: () => void 
       <div className="absolute inset-0 bg-black/30" onClick={onClose} />
       <div className="relative w-full max-w-md bg-dark-800 shadow-xl overflow-y-auto">
         {/* Header */}
-        <div className="sticky top-0 bg-dark-800 border-b border-dark-700 px-6 py-4 flex items-center justify-between z-10">
-          <h2 className="text-lg font-semibold text-white">{isEditing ? 'Editar Lead' : 'Novo Lead'}</h2>
+        <div className="sticky top-0 bg-dark-800 border-b border-dark-700/40 px-6 py-4 flex items-center justify-between z-10">
+          <h2 className="text-lg font-display font-semibold text-white">{isEditing ? 'Editar Lead' : 'Novo Lead'}</h2>
           <button onClick={onClose} className="p-1 text-gray-500 hover:text-gray-400 rounded">
             <X className="w-5 h-5" />
           </button>
@@ -509,11 +509,11 @@ function LeadDrawer({ lead, onClose }: { lead: Lead | null; onClose: () => void 
           </div>
 
           {/* Acoes */}
-          <div className="flex justify-end gap-3 pt-4 border-t border-dark-700">
+          <div className="flex justify-end gap-3 pt-4 border-t border-dark-700/40">
             <button type="button" onClick={onClose} className="px-4 py-2 text-sm text-gray-300 border border-dark-600 rounded-lg hover:bg-dark-700">
               Cancelar
             </button>
-            <button type="submit" disabled={isPending} className="px-4 py-2 text-sm bg-primary-500 text-white rounded-lg hover:bg-primary-400 disabled:opacity-50">
+            <button type="submit" disabled={isPending} className="btn-primary text-sm disabled:opacity-50">
               {isPending ? 'Salvando...' : isEditing ? 'Salvar' : 'Criar Lead'}
             </button>
           </div>

@@ -35,21 +35,21 @@ export function PipeBuilderPage() {
   }
 
   return (
-    <div className="p-6 max-w-4xl mx-auto">
+    <div className="p-6 max-w-4xl mx-auto page-enter">
       {/* Header */}
       <div className="flex items-center gap-3 mb-6">
         <Link to="/ai" className="text-gray-500 hover:text-gray-400">
           <ArrowLeft className="w-5 h-5" />
         </Link>
         <div>
-          <h1 className="text-2xl font-bold text-white">Pipe Builder com IA</h1>
+          <h1 className="text-2xl font-bold text-white font-display">Pipe Builder com IA</h1>
           <p className="text-sm text-gray-400">Descreva o processo e a IA gera a estrutura do pipe</p>
         </div>
       </div>
 
       {!suggestion ? (
         /* === Form === */
-        <div className="bg-dark-800 rounded-lg border border-dark-700 p-6">
+        <div className="card p-6">
           {/* Template */}
           <div className="mb-4">
             <label className="block text-sm font-medium text-gray-300 mb-2">Tipo de Processo</label>
@@ -60,7 +60,7 @@ export function PipeBuilderPage() {
                   onClick={() => setTemplateType(t.value)}
                   className={`px-3 py-1.5 text-sm rounded-lg border ${
                     templateType === t.value
-                      ? 'bg-primary-500/15 border-primary-500 text-primary-400'
+                      ? 'bg-gold-500/10 border-gold-500 text-gold-400'
                       : 'border-dark-600 text-gray-400 hover:bg-dark-700'
                   }`}
                 >
@@ -80,7 +80,7 @@ export function PipeBuilderPage() {
               onChange={(e) => setPromptText(e.target.value)}
               rows={5}
               placeholder="Ex: Preciso de um pipeline de vendas B2B para tubos de aco. O processo comeca com prospecção, depois qualificação, envio de proposta, negociação e fechamento. Quero campos para valor estimado, prazo de entrega e tipo de produto."
-              className="w-full px-3 py-2 bg-dark-800 border border-dark-600 text-gray-200 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 resize-none"
+              className="w-full px-3 py-2 bg-dark-800 border border-dark-600 text-gray-200 rounded-lg focus:ring-2 focus:ring-gold-500/30 focus:border-gold-500 resize-none"
             />
             <p className="text-xs text-gray-500 mt-1">{promptText.length} caracteres (minimo 10)</p>
           </div>
@@ -89,7 +89,7 @@ export function PipeBuilderPage() {
           <button
             onClick={handleGenerate}
             disabled={promptText.trim().length < 10 || pipeSuggest.isPending}
-            className="flex items-center gap-2 px-4 py-2 bg-primary-500 text-white rounded-lg hover:bg-primary-400 disabled:opacity-50"
+            className="flex items-center gap-2 px-4 py-2 btn-primary disabled:opacity-50"
           >
             {pipeSuggest.isPending ? (
               <>
@@ -108,10 +108,10 @@ export function PipeBuilderPage() {
         /* === Preview === */
         <div className="space-y-4">
           {/* Pipe Info */}
-          <div className="bg-dark-800 rounded-lg border border-dark-700 p-6">
+          <div className="card p-6">
             <div className="flex items-center justify-between mb-4">
               <div>
-                <h2 className="text-lg font-semibold text-white">{suggestion.pipeName}</h2>
+                <h2 className="text-lg font-semibold text-white font-display">{suggestion.pipeName}</h2>
                 <p className="text-sm text-gray-400">{suggestion.pipeDescription}</p>
               </div>
               <div className="flex gap-2">
@@ -125,7 +125,7 @@ export function PipeBuilderPage() {
           </div>
 
           {/* Phases */}
-          <div className="bg-dark-800 rounded-lg border border-dark-700 p-6">
+          <div className="card p-6">
             <h3 className="text-sm font-semibold text-gray-300 mb-4">Fases ({suggestion.phases.length})</h3>
             <div className="flex items-center gap-2 overflow-x-auto pb-2">
               {suggestion.phases.map((phase: SuggestedPhase, i: number) => (
@@ -148,7 +148,7 @@ export function PipeBuilderPage() {
           </div>
 
           {/* Fields */}
-          <div className="bg-dark-800 rounded-lg border border-dark-700 p-6">
+          <div className="card p-6">
             <h3 className="text-sm font-semibold text-gray-300 mb-4">Campos ({suggestion.fields.length})</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               {suggestion.fields.map((field: SuggestedField, i: number) => (

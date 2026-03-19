@@ -50,14 +50,14 @@ export function PipesListPage() {
 
       {/* New Pipe Form */}
       {showNewForm && (
-        <div className="bg-dark-800 rounded-lg border border-dark-700 p-4 mb-4">
+        <div className="card p-4 mb-4">
           <div className="flex gap-3">
             <input
               type="text"
               value={newName}
               onChange={(e) => setNewName(e.target.value)}
               placeholder="Nome do pipe..."
-              className="flex-1 px-3 py-2 bg-dark-800 border border-dark-600 text-gray-200 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+              className="flex-1 px-3 py-2 bg-dark-800 border border-dark-600 text-gray-200 rounded-lg focus:ring-2 focus:ring-gold-500/30 focus:border-gold-500"
               autoFocus
               onKeyDown={(e) => e.key === 'Enter' && handleCreate()}
             />
@@ -87,7 +87,7 @@ export function PipesListPage() {
 
       {/* Empty */}
       {!isLoading && (!pipes || pipes.length === 0) && (
-        <div className="text-center p-12 bg-dark-800 rounded-lg border border-dark-700">
+        <div className="text-center p-12 card">
           <LayoutGrid className="w-12 h-12 text-gray-500 mx-auto mb-4" />
           <h3 className="text-lg font-medium text-white">Nenhum pipe ainda</h3>
           <p className="text-gray-400 mb-4">Crie seu primeiro pipe manualmente ou com IA</p>
@@ -116,7 +116,7 @@ export function PipesListPage() {
           {pipes.map((pipe) => (
             <div
               key={pipe.id}
-              className="bg-dark-800 rounded-lg border border-dark-700 p-5 hover:shadow-md transition-shadow cursor-pointer relative"
+              className="card p-5 hover:shadow-md transition-shadow cursor-pointer relative"
               onClick={() => navigate(`/pipes/${pipe.id}/kanban`)}
             >
               <div className="flex items-start justify-between">
@@ -138,7 +138,7 @@ export function PipesListPage() {
                   <MoreVertical className="w-4 h-4" />
                 </button>
                 {menuOpen === pipe.id && (
-                  <div className="absolute right-4 top-12 bg-dark-800 border border-dark-700 rounded-lg shadow-lg z-10 py-1">
+                  <div className="absolute right-4 top-12 bg-dark-800 border border-dark-700/40 rounded-2xl shadow-lg z-10 py-1">
                     <button
                       onClick={(e) => {
                         e.stopPropagation()

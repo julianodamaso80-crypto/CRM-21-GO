@@ -48,7 +48,7 @@ export function KanbanPage() {
   if (isLoading) {
     return (
       <div className="flex justify-center items-center h-full">
-        <Loader2 className="w-8 h-8 text-primary-400 animate-spin" />
+        <Loader2 className="w-8 h-8 text-gold-400 animate-spin" />
       </div>
     )
   }
@@ -57,13 +57,13 @@ export function KanbanPage() {
     return (
       <div className="p-6 text-center">
         <p className="text-gray-400">Pipe nao encontrado</p>
-        <Link to="/pipes" className="text-primary-400 hover:underline mt-2 inline-block">Voltar para Pipes</Link>
+        <Link to="/pipes" className="text-gold-400 hover:underline mt-2 inline-block">Voltar para Pipes</Link>
       </div>
     )
   }
 
   return (
-    <div className="h-full flex flex-col">
+    <div className="h-full flex flex-col page-enter">
       {/* Header */}
       <div className="flex items-center gap-3 p-4 border-b border-dark-700 bg-dark-800">
         <Link to="/pipes" className="text-gray-500 hover:text-gray-400">
@@ -76,7 +76,7 @@ export function KanbanPage() {
           {kanban.name?.charAt(0).toUpperCase()}
         </div>
         <div>
-          <h1 className="text-lg font-semibold text-white">{kanban.name}</h1>
+          <h1 className="text-lg font-semibold text-white font-display">{kanban.name}</h1>
           {kanban.description && <p className="text-xs text-gray-400">{kanban.description}</p>}
         </div>
       </div>
@@ -116,7 +116,7 @@ export function KanbanPage() {
                     value={newCardTitle}
                     onChange={(e) => setNewCardTitle(e.target.value)}
                     placeholder="Titulo do card..."
-                    className="w-full px-2.5 py-1.5 text-sm bg-dark-800 border border-dark-600 text-gray-200 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                    className="w-full px-2.5 py-1.5 text-sm bg-dark-800 border border-dark-600 text-gray-200 rounded-lg focus:ring-2 focus:ring-gold-500/30 focus:border-gold-500"
                     autoFocus
                     onKeyDown={(e) => {
                       if (e.key === 'Enter') handleCreateCard()
@@ -127,7 +127,7 @@ export function KanbanPage() {
                     <button
                       onClick={handleCreateCard}
                       disabled={!newCardTitle.trim() || createCard.isPending}
-                      className="px-3 py-1 text-xs bg-primary-500 text-white rounded hover:bg-primary-400 disabled:opacity-50"
+                      className="px-3 py-1 text-xs btn-primary text-xs disabled:opacity-50"
                     >
                       {createCard.isPending ? 'Criando...' : 'Criar'}
                     </button>
@@ -149,7 +149,7 @@ export function KanbanPage() {
                     draggable
                     onDragStart={(e) => handleDragStart(e, card.id)}
                     onClick={() => setSelectedCardId(card.id)}
-                    className="bg-dark-800 rounded-lg border border-dark-700 p-3 cursor-pointer hover:shadow-sm transition-shadow group"
+                    className="card p-3 cursor-pointer hover:shadow-sm transition-shadow group"
                   >
                     <div className="flex items-start gap-2">
                       <GripVertical className="w-4 h-4 text-gray-600 mt-0.5 opacity-0 group-hover:opacity-100 flex-shrink-0 cursor-grab" />
@@ -160,7 +160,7 @@ export function KanbanPage() {
                         )}
                         {card.assignedTo && (
                           <div className="flex items-center gap-1.5 mt-2">
-                            <div className="w-5 h-5 rounded-full bg-primary-500/15 text-primary-400 text-xs flex items-center justify-center">
+                            <div className="w-5 h-5 rounded-full bg-gold-500/10 text-gold-400 text-xs flex items-center justify-center">
                               {(card.assignedTo as any).firstName?.charAt(0)}
                             </div>
                             <span className="text-xs text-gray-400">

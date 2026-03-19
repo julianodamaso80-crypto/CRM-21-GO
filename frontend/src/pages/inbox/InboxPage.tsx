@@ -13,10 +13,10 @@ import { useConversations, useMessages, useSendMessage, useUpdateConversationSta
 import type { Conversation, Message, ConversationStatus } from '../../../../shared/types'
 
 const STATUS_MAP: Record<ConversationStatus, { label: string; cls: string }> = {
-  open: { label: 'Aberto', cls: 'bg-blue-500/15 text-blue-400' },
-  assigned: { label: 'Atribuido', cls: 'bg-purple-500/15 text-purple-400' },
-  resolved: { label: 'Resolvido', cls: 'bg-emerald-500/15 text-emerald-400' },
-  closed: { label: 'Fechado', cls: 'bg-dark-700 text-gray-400' },
+  open: { label: 'Aberto', cls: 'bg-accent-blue/15 text-accent-blue' },
+  assigned: { label: 'Atribuido', cls: 'bg-accent-purple/15 text-accent-purple' },
+  resolved: { label: 'Resolvido', cls: 'bg-accent-emerald/15 text-accent-emerald' },
+  closed: { label: 'Fechado', cls: 'bg-dark-700/50 text-gray-400' },
 }
 
 const CHANNEL_ICON: Record<string, string> = {
@@ -49,13 +49,13 @@ export function InboxPage() {
   }
 
   return (
-    <div className="flex h-full">
+    <div className="flex h-full page-enter">
       {/* Conversations List */}
-      <div className="w-80 border-r border-dark-700 flex flex-col bg-dark-800">
+      <div className="w-80 border-r border-dark-700/40 flex flex-col bg-dark-800/60">
         {/* Header */}
-        <div className="px-4 py-3 border-b border-dark-700">
+        <div className="px-4 py-3 border-b border-dark-700/40">
           <div className="flex items-center justify-between mb-3">
-            <h2 className="text-lg font-semibold text-white">Inbox</h2>
+            <h2 className="text-lg font-display font-semibold text-white">Inbox</h2>
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
@@ -75,7 +75,7 @@ export function InboxPage() {
               placeholder="Buscar conversa..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-8 pr-3 py-1.5 text-sm bg-dark-800 border border-dark-600 text-gray-200 rounded-md focus:ring-1 focus:ring-primary-500"
+              className="w-full pl-8 pr-3 py-1.5 text-sm bg-dark-800 border border-dark-600 text-gray-200 rounded-md focus:ring-1 focus:ring-gold-500/30"
             />
           </div>
         </div>
@@ -84,7 +84,7 @@ export function InboxPage() {
         <div className="flex-1 overflow-y-auto">
           {isLoading ? (
             <div className="flex justify-center py-8">
-              <Loader2 className="w-6 h-6 text-primary-400 animate-spin" />
+              <Loader2 className="w-6 h-6 text-gold-400 animate-spin" />
             </div>
           ) : filtered.length === 0 ? (
             <div className="text-center py-8 px-4">
@@ -96,8 +96,8 @@ export function InboxPage() {
               <button
                 key={conv.id}
                 onClick={() => handleSelect(conv)}
-                className={`w-full text-left px-4 py-3 border-b border-dark-700 hover:bg-dark-700 transition-colors ${
-                  selectedId === conv.id ? 'bg-primary-500/15 border-l-2 border-l-primary-500' : ''
+                className={`w-full text-left px-4 py-3 border-b border-dark-700/40 hover:bg-dark-700/50 transition-colors ${
+                  selectedId === conv.id ? 'bg-gold-500/10 border-l-2 border-l-gold-500' : ''
                 }`}
               >
                 <div className="flex items-start gap-3">
@@ -123,7 +123,7 @@ export function InboxPage() {
                       </p>
                     </div>
                     {conv.isUnread && (
-                      <Circle className="absolute right-3 top-4 w-2 h-2 fill-primary-500 text-primary-500" />
+                      <Circle className="absolute right-3 top-4 w-2 h-2 fill-gold-500 text-gold-500" />
                     )}
                   </div>
                 </div>
@@ -178,10 +178,10 @@ function ChatPanel({ conversationId, conversation }: { conversationId: string; c
   }
 
   return (
-    <div className="flex-1 flex flex-col bg-dark-800">
+    <div className="flex-1 flex flex-col bg-dark-800/60">
       {/* Chat Header */}
       {conversation && (
-        <div className="px-5 py-3 border-b border-dark-700 flex items-center justify-between">
+        <div className="px-5 py-3 border-b border-dark-700/40 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="w-9 h-9 rounded-full bg-dark-700 flex items-center justify-center text-xs font-medium text-gray-400">
               {conversation.contact?.firstName?.[0]}{conversation.contact?.lastName?.[0]}
@@ -220,7 +220,7 @@ function ChatPanel({ conversationId, conversation }: { conversationId: string; c
       <div className="flex-1 overflow-y-auto px-5 py-4 bg-dark-900 space-y-3">
         {isLoading ? (
           <div className="flex justify-center py-8">
-            <Loader2 className="w-6 h-6 text-primary-400 animate-spin" />
+            <Loader2 className="w-6 h-6 text-gold-400 animate-spin" />
           </div>
         ) : messages && messages.length > 0 ? (
           messages.map((msg) => <MessageBubble key={msg.id} message={msg} />)
@@ -231,7 +231,7 @@ function ChatPanel({ conversationId, conversation }: { conversationId: string; c
       </div>
 
       {/* Input */}
-      <div className="px-5 py-3 border-t border-dark-700 bg-dark-800">
+      <div className="px-5 py-3 border-t border-dark-700/40 bg-dark-800/60">
         <div className="flex items-end gap-2">
           <textarea
             value={text}
@@ -239,12 +239,12 @@ function ChatPanel({ conversationId, conversation }: { conversationId: string; c
             onKeyDown={handleKeyDown}
             placeholder="Digite sua mensagem... (Enter para enviar)"
             rows={1}
-            className="flex-1 px-3 py-2 text-sm bg-dark-800 border border-dark-600 text-gray-200 rounded-lg resize-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+            className="flex-1 px-3 py-2 text-sm bg-dark-800 border border-dark-600 text-gray-200 rounded-lg resize-none focus:ring-2 focus:ring-gold-500/30 focus:border-gold-500"
           />
           <button
             onClick={handleSend}
             disabled={!text.trim() || sendMessage.isPending}
-            className="p-2.5 bg-primary-500 text-white rounded-lg hover:bg-primary-400 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="p-2.5 btn-primary rounded-lg disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {sendMessage.isPending ? (
               <Loader2 className="w-4 h-4 animate-spin" />
@@ -268,8 +268,8 @@ function MessageBubble({ message }: { message: Message }) {
       <div
         className={`max-w-[75%] rounded-xl px-3.5 py-2 ${
           isOutbound
-            ? 'bg-primary-500 text-white rounded-br-sm'
-            : 'bg-dark-800 border border-dark-700 text-gray-100 rounded-bl-sm'
+            ? 'bg-gold-500 text-white rounded-br-sm'
+            : 'bg-dark-800 border border-dark-700/40 text-gray-100 rounded-bl-sm'
         }`}
       >
         {/* Sender label */}

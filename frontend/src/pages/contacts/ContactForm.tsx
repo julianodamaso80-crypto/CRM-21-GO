@@ -101,14 +101,14 @@ export function ContactForm({
     if (e.key === 'Enter') { e.preventDefault(); addTag() }
   }
 
-  const inputClass = 'w-full px-3 py-2 border border-dark-600 rounded-md focus:ring-primary-500 focus:border-primary-500 text-sm bg-dark-800 text-gray-200 placeholder-gray-500'
+  const inputClass = 'input'
   const labelClass = 'block text-sm font-medium text-gray-300 mb-1'
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       {/* Dados Pessoais */}
       <div>
-        <h3 className="text-lg font-medium text-white mb-4">Dados Pessoais</h3>
+        <h3 className="text-lg font-medium font-display text-white mb-4">Dados Pessoais</h3>
         <div className="grid grid-cols-2 gap-4">
           <div>
             <label className={labelClass}>Nome *</label>
@@ -150,7 +150,7 @@ export function ContactForm({
 
       {/* Contato */}
       <div>
-        <h3 className="text-lg font-medium text-white mb-4">Contato</h3>
+        <h3 className="text-lg font-medium font-display text-white mb-4">Contato</h3>
         <div className="grid grid-cols-2 gap-4">
           <div>
             <label className={labelClass}>Telefone</label>
@@ -172,7 +172,7 @@ export function ContactForm({
 
       {/* Endereco */}
       <div>
-        <h3 className="text-lg font-medium text-white mb-4">Endereco</h3>
+        <h3 className="text-lg font-medium font-display text-white mb-4">Endereco</h3>
         <div className="space-y-4">
           <div>
             <label className={labelClass}>Endereco</label>
@@ -212,7 +212,7 @@ export function ContactForm({
 
       {/* Associacao */}
       <div>
-        <h3 className="text-lg font-medium text-white mb-4">Dados de Associacao</h3>
+        <h3 className="text-lg font-medium font-display text-white mb-4">Dados de Associacao</h3>
         <div className="grid grid-cols-2 gap-4">
           <div>
             <label className={labelClass}>Data de Adesao</label>
@@ -229,7 +229,7 @@ export function ContactForm({
 
       {/* Origem */}
       <div>
-        <h3 className="text-lg font-medium text-white mb-4">Origem / Rastreamento</h3>
+        <h3 className="text-lg font-medium font-display text-white mb-4">Origem / Rastreamento</h3>
         <div className="grid grid-cols-2 gap-4">
           <div>
             <label className={labelClass}>Origem</label>
@@ -265,18 +265,18 @@ export function ContactForm({
 
       {/* Tags */}
       <div>
-        <h3 className="text-lg font-medium text-white mb-4">Tags</h3>
+        <h3 className="text-lg font-medium font-display text-white mb-4">Tags</h3>
         <div className="flex gap-2">
           <input type="text" value={tagInput} onChange={(e) => setTagInput(e.target.value)} onKeyDown={handleKeyDown}
             className={`flex-1 ${inputClass}`} placeholder="Digite e pressione Enter" />
-          <button type="button" onClick={addTag} className="px-4 py-2 bg-dark-700 text-gray-300 rounded-md hover:bg-dark-600 text-sm">Adicionar</button>
+          <button type="button" onClick={addTag} className="btn-secondary text-sm">Adicionar</button>
         </div>
         {formData.tags && formData.tags.length > 0 && (
           <div className="flex flex-wrap gap-2 mt-3">
             {formData.tags.map((tag) => (
-              <span key={tag} className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-blue-500/15 text-blue-400">
+              <span key={tag} className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-gold-500/15 text-gold-400">
                 {tag}
-                <button type="button" onClick={() => removeTag(tag)} className="ml-2 text-blue-400 hover:text-blue-300">
+                <button type="button" onClick={() => removeTag(tag)} className="ml-2 text-gold-400 hover:text-gold-300">
                   <X className="w-3 h-3" />
                 </button>
               </span>
@@ -286,13 +286,13 @@ export function ContactForm({
       </div>
 
       {/* Botoes */}
-      <div className="flex justify-end gap-3 pt-6 border-t border-dark-700">
+      <div className="flex justify-end gap-3 pt-6 border-t border-dark-700/40">
         <button type="button" onClick={onClose} disabled={isSubmitting}
-          className="px-4 py-2 text-gray-300 bg-dark-800 border border-dark-600 rounded-md hover:bg-dark-700">
+          className="btn-secondary">
           Cancelar
         </button>
         <button type="submit" disabled={isSubmitting}
-          className="px-4 py-2 text-white bg-primary-500 rounded-md hover:bg-primary-400 disabled:opacity-50">
+          className="btn-primary">
           {isSubmitting ? 'Salvando...' : contact ? 'Atualizar' : 'Cadastrar'}
         </button>
       </div>

@@ -55,17 +55,17 @@ export function CardDrawer({ cardId, pipeId: _pipeId, onClose }: CardDrawerProps
       <div className="absolute inset-0 bg-black/50" onClick={onClose} />
 
       {/* Drawer */}
-      <div className="relative w-full max-w-lg bg-dark-800 shadow-xl overflow-y-auto">
+      <div className="relative w-full max-w-lg bg-dark-800 shadow-xl overflow-y-auto rounded-l-2xl">
         {isLoading ? (
           <div className="flex justify-center items-center h-64">
-            <Loader2 className="w-8 h-8 text-primary-400 animate-spin" />
+            <Loader2 className="w-8 h-8 text-gold-400 animate-spin" />
           </div>
         ) : card ? (
           <div>
             {/* Header */}
             <div className="sticky top-0 bg-dark-800 border-b border-dark-700 px-6 py-4 flex items-start justify-between z-10">
               <div>
-                <h2 className="text-lg font-semibold text-white">{card.title}</h2>
+                <h2 className="text-lg font-semibold text-white font-display">{card.title}</h2>
                 {card.currentPhase && (
                   <div className="flex items-center gap-2 mt-1">
                     <div className="w-2 h-2 rounded-full" style={{ backgroundColor: card.currentPhase.color }} />
@@ -126,7 +126,7 @@ export function CardDrawer({ cardId, pipeId: _pipeId, onClose }: CardDrawerProps
                               if (e.key === 'Escape') { setEditingField(null); setFieldValue('') }
                             }}
                           />
-                          <button onClick={() => handleFieldSave(fv.fieldDefinitionId)} className="text-xs text-primary-400">OK</button>
+                          <button onClick={() => handleFieldSave(fv.fieldDefinitionId)} className="text-xs text-gold-400">OK</button>
                         </div>
                       ) : (
                         <button

@@ -23,13 +23,13 @@ export function AutomationsPage() {
   }
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="p-6 space-y-6 page-enter">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-white">Automacoes</h1>
+          <h1 className="text-2xl font-bold text-white font-display">Automacoes</h1>
           <p className="text-sm text-gray-400 mt-1">Configure regras automaticas para seus processos</p>
         </div>
-        <button onClick={openCreate} className="flex items-center gap-2 px-4 py-2 bg-primary-500 text-white rounded-lg hover:bg-primary-400">
+        <button onClick={openCreate} className="flex items-center gap-2 px-4 py-2 btn-primary">
           <Plus size={16} />
           Nova Automacao
         </button>
@@ -37,23 +37,23 @@ export function AutomationsPage() {
 
       {/* Stats */}
       <div className="grid grid-cols-3 gap-4">
-        <div className="bg-dark-800 border border-dark-700 rounded-lg p-4">
+        <div className="stat-card">
           <p className="text-sm text-gray-400">Total</p>
           <p className="text-2xl font-bold text-white">{automations?.length || 0}</p>
         </div>
-        <div className="bg-dark-800 border border-dark-700 rounded-lg p-4">
+        <div className="stat-card">
           <p className="text-sm text-gray-400">Ativas</p>
-          <p className="text-2xl font-bold text-green-400">{activeCount}</p>
+          <p className="text-2xl font-bold text-accent-emerald">{activeCount}</p>
         </div>
-        <div className="bg-dark-800 border border-dark-700 rounded-lg p-4">
+        <div className="stat-card">
           <p className="text-sm text-gray-400">Execucoes totais</p>
-          <p className="text-2xl font-bold text-primary-400">{totalExecs}</p>
+          <p className="text-2xl font-bold text-gold-400">{totalExecs}</p>
         </div>
       </div>
 
       {isLoading && (
         <div className="flex justify-center p-12">
-          <Loader2 className="w-8 h-8 text-primary-400 animate-spin" />
+          <Loader2 className="w-8 h-8 text-gold-400 animate-spin" />
         </div>
       )}
 
@@ -106,7 +106,7 @@ function AutomationCard({ automation, onEdit, onDelete }: {
   const actionLabels = automation.actions?.map((a: any) => a.type).join(', ') || 'N/A'
 
   return (
-    <div className={`bg-dark-800 border rounded-lg p-4 ${automation.isActive ? 'border-dark-700' : 'border-dark-700 opacity-60'}`}>
+    <div className={`card p-4 ${automation.isActive ? '' : 'opacity-60'}`}>
       <div className="flex items-start justify-between">
         <div className="flex items-start gap-3 flex-1 min-w-0">
           <div className={`mt-0.5 p-2 rounded-lg ${automation.isActive ? 'bg-yellow-500/15 text-yellow-400' : 'bg-dark-900 text-gray-500'}`}>
@@ -225,14 +225,14 @@ function AutomationDrawer({ automation, onClose }: { automation: Automation | nu
           <div>
             <label className="block text-sm font-medium text-gray-300 mb-1">Nome *</label>
             <input type="text" required value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })}
-              className="w-full bg-dark-800 border border-dark-600 text-gray-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none" />
+              className="w-full bg-dark-800 border border-dark-600 text-gray-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-gold-500/30 focus:border-gold-500 outline-none" />
           </div>
 
           {/* Description */}
           <div>
             <label className="block text-sm font-medium text-gray-300 mb-1">Descricao</label>
             <input type="text" value={form.description || ''} onChange={(e) => setForm({ ...form, description: e.target.value })}
-              className="w-full bg-dark-800 border border-dark-600 text-gray-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none" />
+              className="w-full bg-dark-800 border border-dark-600 text-gray-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-gold-500/30 focus:border-gold-500 outline-none" />
           </div>
 
           {/* Trigger */}
@@ -270,14 +270,14 @@ function AutomationDrawer({ automation, onClose }: { automation: Automation | nu
                 )}
               </div>
             ))}
-            <button type="button" onClick={addAction} className="text-sm text-primary-400 hover:text-primary-200 font-medium flex items-center gap-1">
+            <button type="button" onClick={addAction} className="text-sm text-gold-400 hover:text-gold-400 font-medium flex items-center gap-1">
               <Plus size={14} /> Adicionar acao
             </button>
           </div>
 
           <div className="pt-4">
             <button type="submit" disabled={isPending}
-              className="w-full px-4 py-2 bg-primary-500 text-white rounded-lg hover:bg-primary-400 disabled:opacity-50 flex items-center justify-center gap-2">
+              className="w-full px-4 py-2 btn-primary disabled:opacity-50 flex items-center justify-center gap-2">
               {isPending && <Loader2 size={16} className="animate-spin" />}
               {isEdit ? 'Salvar' : 'Criar Automacao'}
             </button>

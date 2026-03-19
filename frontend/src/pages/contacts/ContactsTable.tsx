@@ -73,19 +73,19 @@ export function ContactsTable({ contacts, onEdit, onView }: ContactsTableProps) 
               <th className="px-6 py-3 text-right text-xs font-medium text-gray-400 uppercase tracking-wider">Acoes</th>
             </tr>
           </thead>
-          <tbody className="bg-dark-800 divide-y divide-dark-700">
+          <tbody className="bg-dark-800/60 divide-y divide-dark-700/40">
             {contacts.map((associado) => {
               const statusCfg = STATUS_CONFIG[associado.status as keyof typeof STATUS_CONFIG] || { label: associado.status || '-', cls: 'bg-dark-700 text-gray-400' }
               const vehicleCount = associado._count?.vehicles ?? (associado.vehicles?.length ?? 0)
 
               return (
-                <tr key={associado.id} className="hover:bg-dark-700 transition-colors cursor-pointer" onClick={() => onView(associado)}>
+                <tr key={associado.id} className="table-row cursor-pointer" onClick={() => onView(associado)}>
                   {/* Nome + CPF */}
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="flex items-center">
                       <div className="flex-shrink-0 h-10 w-10">
-                        <div className="h-10 w-10 rounded-full bg-primary-500/20 flex items-center justify-center">
-                          <span className="text-primary-200 font-medium text-sm">
+                        <div className="h-10 w-10 rounded-full bg-gold-500/20 flex items-center justify-center">
+                          <span className="text-gold-400 font-medium text-sm">
                             {associado.fullName.split(' ').map((n) => n[0]).slice(0, 2).join('').toUpperCase()}
                           </span>
                         </div>
@@ -143,14 +143,14 @@ export function ContactsTable({ contacts, onEdit, onView }: ContactsTableProps) 
                       {actionMenuOpen === associado.id && (
                         <>
                           <div className="fixed inset-0 z-10" onClick={(e) => { e.stopPropagation(); setActionMenuOpen(null) }} />
-                          <div className="origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg shadow-black/20 bg-dark-800 ring-1 ring-dark-600 z-20">
+                          <div className="origin-top-right absolute right-0 mt-2 w-48 rounded-xl shadow-lg shadow-black/20 bg-dark-800/60 ring-1 ring-dark-700/40 z-20">
                             <div className="py-1">
                               <button onClick={(e) => { e.stopPropagation(); onView(associado); setActionMenuOpen(null) }}
-                                className="flex items-center w-full px-4 py-2 text-sm text-gray-300 hover:bg-dark-700">
+                                className="flex items-center w-full px-4 py-2 text-sm text-gray-300 hover:bg-dark-700/50">
                                 <Eye className="w-4 h-4 mr-3" /> Visualizar
                               </button>
                               <button onClick={(e) => { e.stopPropagation(); onEdit(associado); setActionMenuOpen(null) }}
-                                className="flex items-center w-full px-4 py-2 text-sm text-gray-300 hover:bg-dark-700">
+                                className="flex items-center w-full px-4 py-2 text-sm text-gray-300 hover:bg-dark-700/50">
                                 <Edit className="w-4 h-4 mr-3" /> Editar
                               </button>
                               <button onClick={(e) => { e.stopPropagation(); handleDelete(associado.id, associado.fullName) }}

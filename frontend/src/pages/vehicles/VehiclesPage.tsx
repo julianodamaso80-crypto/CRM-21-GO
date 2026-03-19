@@ -8,16 +8,16 @@ import { useContacts } from '../../hooks/useContacts'
 import type { Vehicle, CreateVehicleRequest, UpdateVehicleRequest, VehiclePlano, VehicleTipo, VehicleCombustivel, VistoriaStatus } from '../../../../shared/types'
 
 const PLANO_CONFIG: Record<VehiclePlano, { label: string; cls: string }> = {
-  basico: { label: 'Basico', cls: 'bg-gray-500/15 text-gray-400' },
-  completo: { label: 'Completo', cls: 'bg-blue-500/15 text-blue-400' },
-  premium: { label: 'Premium', cls: 'bg-amber-500/15 text-amber-400' },
+  basico: { label: 'Basico', cls: 'bg-gray-500/10 text-gray-400' },
+  completo: { label: 'Completo', cls: 'bg-accent-blue/10 text-accent-blue' },
+  premium: { label: 'Premium', cls: 'bg-accent-amber/10 text-accent-amber' },
 }
 
 const VISTORIA_CONFIG: Record<VistoriaStatus, { label: string; cls: string }> = {
-  pendente: { label: 'Pendente', cls: 'bg-amber-500/15 text-amber-400' },
-  agendada: { label: 'Agendada', cls: 'bg-blue-500/15 text-blue-400' },
-  aprovada: { label: 'Aprovada', cls: 'bg-emerald-500/15 text-emerald-400' },
-  reprovada: { label: 'Reprovada', cls: 'bg-red-500/15 text-red-400' },
+  pendente: { label: 'Pendente', cls: 'bg-accent-amber/10 text-accent-amber' },
+  agendada: { label: 'Agendada', cls: 'bg-accent-blue/10 text-accent-blue' },
+  aprovada: { label: 'Aprovada', cls: 'bg-accent-emerald/10 text-accent-emerald' },
+  reprovada: { label: 'Reprovada', cls: 'bg-accent-rose/10 text-accent-rose' },
 }
 
 export function VehiclesPage() {
@@ -52,31 +52,31 @@ export function VehiclesPage() {
   const vistoriaPendente = vehicles.filter((v) => v.vistoriaStatus === 'pendente').length
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="p-6 space-y-6 page-enter">
       {/* Header */}
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-2xl font-bold text-white">Veiculos</h1>
+          <h1 className="text-2xl font-display font-bold text-white">Veiculos</h1>
           <p className="text-sm text-gray-400 mt-1">Gestao da frota de veiculos protegidos</p>
         </div>
-        <button onClick={openCreate} className="flex items-center gap-2 px-4 py-2 bg-primary-500 text-white rounded-lg hover:bg-primary-400 text-sm">
+        <button onClick={openCreate} className="btn-primary flex items-center gap-2 text-sm">
           <Plus className="w-4 h-4" /> Novo Veiculo
         </button>
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div className="bg-dark-800 rounded-lg border border-dark-700 p-4 flex items-center gap-3">
-          <div className="w-10 h-10 bg-emerald-500/15 rounded-lg flex items-center justify-center">
-            <CheckCircle2 className="w-5 h-5 text-emerald-400" />
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 stagger-children">
+        <div className="stat-card flex items-center gap-3">
+          <div className="w-10 h-10 bg-accent-emerald/10 rounded-xl flex items-center justify-center">
+            <CheckCircle2 className="w-5 h-5 text-accent-emerald" />
           </div>
           <div>
             <p className="text-xs text-gray-400">Ativos</p>
             <p className="text-xl font-bold text-white">{totalAtivos}</p>
           </div>
         </div>
-        <div className="bg-dark-800 rounded-lg border border-dark-700 p-4 flex items-center gap-3">
-          <div className="w-10 h-10 bg-gray-500/15 rounded-lg flex items-center justify-center">
+        <div className="stat-card flex items-center gap-3">
+          <div className="w-10 h-10 bg-gray-500/10 rounded-xl flex items-center justify-center">
             <AlertCircle className="w-5 h-5 text-gray-400" />
           </div>
           <div>
@@ -84,9 +84,9 @@ export function VehiclesPage() {
             <p className="text-xl font-bold text-white">{totalInativos}</p>
           </div>
         </div>
-        <div className="bg-dark-800 rounded-lg border border-dark-700 p-4 flex items-center gap-3">
-          <div className="w-10 h-10 bg-amber-500/15 rounded-lg flex items-center justify-center">
-            <Clock className="w-5 h-5 text-amber-400" />
+        <div className="stat-card flex items-center gap-3">
+          <div className="w-10 h-10 bg-accent-amber/10 rounded-xl flex items-center justify-center">
+            <Clock className="w-5 h-5 text-accent-amber" />
           </div>
           <div>
             <p className="text-xs text-gray-400">Vistoria Pendente</p>
@@ -104,13 +104,13 @@ export function VehiclesPage() {
             placeholder="Buscar por placa, marca, modelo ou associado..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 text-sm bg-dark-800 border border-dark-600 rounded-lg text-gray-200 focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+            className="input pl-10 pr-4"
           />
         </div>
         <select
           value={planoFilter}
           onChange={(e) => setPlanoFilter(e.target.value)}
-          className="px-3 py-2 text-sm bg-dark-800 border border-dark-600 rounded-lg text-gray-200 focus:ring-2 focus:ring-primary-500"
+          className="input"
         >
           <option value="">Todos os planos</option>
           <option value="basico">Basico</option>
@@ -127,21 +127,21 @@ export function VehiclesPage() {
       {/* Tabela */}
       {isLoading ? (
         <div className="flex justify-center py-16">
-          <Loader2 className="w-8 h-8 text-primary-500 animate-spin" />
+          <Loader2 className="w-8 h-8 text-gold-400 animate-spin" />
         </div>
       ) : vehicles.length === 0 ? (
         <div className="text-center py-16">
           <Car className="w-12 h-12 text-gray-500 mx-auto mb-3" />
           <h3 className="text-lg font-medium text-white">Nenhum veiculo encontrado</h3>
           <p className="text-sm text-gray-400 mt-1">Cadastre o primeiro veiculo protegido</p>
-          <button onClick={openCreate} className="mt-4 px-4 py-2 text-sm bg-primary-500 text-white rounded-lg hover:bg-primary-400">
+          <button onClick={openCreate} className="btn-primary mt-4 text-sm">
             Cadastrar Veiculo
           </button>
         </div>
       ) : (
-        <div className="bg-dark-800 rounded-lg border border-dark-700 overflow-hidden">
+        <div className="card overflow-hidden">
           <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-dark-700">
+            <table className="min-w-full divide-y divide-dark-700/40">
               <thead className="bg-dark-700">
                 <tr>
                   <th className="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase">Veiculo</th>
@@ -154,7 +154,7 @@ export function VehiclesPage() {
                   <th className="px-4 py-3 text-right text-xs font-medium text-gray-400 uppercase">Acoes</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-dark-700">
+              <tbody className="divide-y divide-dark-700/40">
                 {vehicles.map((vehicle) => {
                   const planoCfg = vehicle.plano ? PLANO_CONFIG[vehicle.plano] : null
                   const vistoriaCfg = VISTORIA_CONFIG[vehicle.vistoriaStatus]
@@ -162,8 +162,8 @@ export function VehiclesPage() {
                     <tr key={vehicle.id} className="hover:bg-dark-700">
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-2">
-                          <div className="w-8 h-8 bg-primary-500/15 rounded-lg flex items-center justify-center flex-shrink-0">
-                            <Car className="w-4 h-4 text-primary-400" />
+                          <div className="w-8 h-8 bg-gold-500/10 rounded-xl flex items-center justify-center flex-shrink-0">
+                            <Car className="w-4 h-4 text-gold-400" />
                           </div>
                           <div>
                             <p className="text-sm font-medium text-white">{vehicle.marca} {vehicle.modelo}</p>
@@ -195,7 +195,7 @@ export function VehiclesPage() {
                         </span>
                       </td>
                       <td className="px-4 py-3">
-                        <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${vehicle.ativo ? 'bg-emerald-500/15 text-emerald-400' : 'bg-dark-700 text-gray-500'}`}>
+                        <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${vehicle.ativo ? 'bg-accent-emerald/10 text-accent-emerald' : 'bg-dark-700 text-gray-500'}`}>
                           {vehicle.ativo ? 'Ativo' : 'Inativo'}
                         </span>
                       </td>

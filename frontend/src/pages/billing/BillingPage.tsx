@@ -16,17 +16,17 @@ export function BillingPage() {
   ]
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="p-6 space-y-6 page-enter">
       <div>
-        <h1 className="text-2xl font-bold text-white">Faturamento</h1>
+        <h1 className="text-2xl font-display font-bold text-white">Faturamento</h1>
         <p className="text-sm text-gray-400 mt-1">Gerencie seu plano, uso e faturas</p>
       </div>
 
-      <div className="flex gap-1 border-b border-dark-700">
+      <div className="flex gap-1 border-b border-dark-700/40">
         {tabs.map((tab) => (
           <button key={tab.key} onClick={() => setActiveTab(tab.key)}
             className={`flex items-center gap-2 px-4 py-2.5 text-sm font-medium border-b-2 -mb-px transition-colors ${
-              activeTab === tab.key ? 'border-primary-400 text-primary-400' : 'border-transparent text-gray-400 hover:text-gray-300'
+              activeTab === tab.key ? 'border-gold-400 text-gold-400' : 'border-transparent text-gray-400 hover:text-gray-300'
             }`}>
             {tab.icon} {tab.label}
           </button>
@@ -56,21 +56,21 @@ function SubscriptionTab() {
   const formatCurrency = (v: number) => v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
 
   const statusMap: Record<string, { label: string; color: string }> = {
-    active: { label: 'Ativa', color: 'bg-green-500/15 text-green-400' },
-    canceled: { label: 'Cancelada', color: 'bg-red-500/15 text-red-400' },
-    past_due: { label: 'Em atraso', color: 'bg-yellow-500/15 text-yellow-400' },
-    trialing: { label: 'Periodo de teste', color: 'bg-blue-500/15 text-blue-400' },
+    active: { label: 'Ativa', color: 'bg-accent-emerald/15 text-accent-emerald' },
+    canceled: { label: 'Cancelada', color: 'bg-accent-rose/15 text-accent-rose' },
+    past_due: { label: 'Em atraso', color: 'bg-accent-amber/15 text-accent-amber' },
+    trialing: { label: 'Periodo de teste', color: 'bg-accent-blue/15 text-accent-blue' },
   }
 
   const status = statusMap[sub.status] || statusMap.active
 
   return (
     <div className="space-y-6">
-      <div className="bg-dark-800 border border-dark-700 rounded-lg p-6">
+      <div className="card p-6">
         <div className="flex items-start justify-between">
           <div>
             <div className="flex items-center gap-3">
-              <h2 className="text-xl font-bold text-white">{sub.plan.displayName}</h2>
+              <h2 className="text-xl font-display font-bold text-white">{sub.plan.displayName}</h2>
               <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${status.color}`}>{status.label}</span>
             </div>
             <p className="text-gray-400 text-sm mt-1">{sub.plan.description}</p>
@@ -81,7 +81,7 @@ function SubscriptionTab() {
           <CreditCard size={40} className="text-blue-400/30" />
         </div>
 
-        <div className="grid grid-cols-2 gap-4 mt-6 pt-6 border-t border-dark-700">
+        <div className="grid grid-cols-2 gap-4 mt-6 pt-6 border-t border-dark-700/40">
           <div>
             <p className="text-xs text-gray-400">Periodo atual</p>
             <p className="text-sm font-medium text-white">{formatDate(sub.currentPeriodStart)} - {formatDate(sub.currentPeriodEnd)}</p>
@@ -93,7 +93,7 @@ function SubscriptionTab() {
         </div>
 
         {sub.status === 'active' && (
-          <div className="mt-6 pt-4 border-t border-dark-700 flex justify-end">
+          <div className="mt-6 pt-4 border-t border-dark-700/40 flex justify-end">
             <button onClick={() => setShowCancel(true)} className="text-sm text-red-400 hover:text-red-300 font-medium">
               Cancelar assinatura
             </button>
@@ -101,7 +101,7 @@ function SubscriptionTab() {
         )}
 
         {sub.status === 'canceled' && sub.cancelAt && (
-          <div className="mt-6 pt-4 border-t border-dark-700">
+          <div className="mt-6 pt-4 border-t border-dark-700/40">
             <div className="flex items-center gap-2 text-yellow-400 bg-yellow-500/15 border border-yellow-500/30 rounded-lg p-3 text-sm">
               <AlertTriangle size={16} />
               Assinatura cancelada. Acesso disponivel ate {formatDate(sub.cancelAt)}.
@@ -147,11 +147,11 @@ function PlansTab() {
       {plans?.map((plan: Plan) => {
         const isCurrent = sub?.planId === plan.id
         return (
-          <div key={plan.id} className={`bg-dark-800 border rounded-xl p-6 flex flex-col ${plan.isPopular ? 'border-primary-400 ring-2 ring-primary-500/20' : 'border-dark-700'}`}>
+          <div key={plan.id} className={`bg-dark-800/60 border rounded-2xl p-6 flex flex-col ${plan.isPopular ? 'border-gold-400 ring-2 ring-gold-500/20' : 'border-dark-700/40'}`}>
             {plan.isPopular && (
-              <div className="text-xs font-bold text-primary-400 uppercase tracking-wider mb-2">Mais popular</div>
+              <div className="text-xs font-bold text-gold-400 uppercase tracking-wider mb-2">Mais popular</div>
             )}
-            <h3 className="text-lg font-bold text-white">{plan.displayName}</h3>
+            <h3 className="text-lg font-display font-bold text-white">{plan.displayName}</h3>
             <p className="text-sm text-gray-400 mt-1">{plan.description}</p>
             <p className="text-3xl font-bold text-white mt-4">
               {plan.price === 0 ? 'Gratis' : formatCurrency(plan.price)}
@@ -179,7 +179,7 @@ function PlansTab() {
                   onClick={() => changePlanMutation.mutate(plan.id)}
                   disabled={changePlanMutation.isPending}
                   className={`w-full px-4 py-2 rounded-lg text-sm font-medium flex items-center justify-center gap-2 ${
-                    plan.isPopular ? 'bg-primary-500 text-white hover:bg-primary-400' : 'bg-gray-100 text-white hover:bg-gray-200/10'
+                    plan.isPopular ? 'btn-primary' : 'btn-secondary'
                   } disabled:opacity-50`}>
                   {changePlanMutation.isPending && <Loader2 size={14} className="animate-spin" />}
                   Escolher plano
@@ -228,7 +228,7 @@ function UsageTab() {
         const isWarning = pct > 80
         const isCritical = pct > 95
         return (
-          <div key={item.key} className="bg-dark-800 border border-dark-700 rounded-lg p-4">
+          <div key={item.key} className="card p-4">
             <div className="flex items-center justify-between mb-2">
               <span className="text-sm font-medium text-gray-300">{item.label}</span>
               <span className="text-sm text-gray-400">
@@ -238,7 +238,7 @@ function UsageTab() {
             {data.limit !== -1 && (
               <div className="w-full bg-dark-700 rounded-full h-2">
                 <div
-                  className={`h-2 rounded-full transition-all ${isCritical ? 'bg-red-500' : isWarning ? 'bg-yellow-500' : 'bg-primary-500'}`}
+                  className={`h-2 rounded-full transition-all ${isCritical ? 'bg-accent-rose' : isWarning ? 'bg-accent-amber' : 'bg-gold-500'}`}
                   style={{ width: `${pct}%` }}
                 />
               </div>

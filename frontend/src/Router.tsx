@@ -17,6 +17,7 @@ import { BillingPage } from './pages/billing/BillingPage'
 import { AnalyticsPage } from './pages/analytics/AnalyticsPage'
 import { NPSPage } from './pages/nps/NPSPage'
 import { VehiclesPage } from './pages/vehicles/VehiclesPage'
+import { ProjectsPage } from './pages/projects/ProjectsPage'
 
 // Layouts
 import { AppLayout } from './components/layouts/AppLayout'
@@ -86,6 +87,7 @@ export function Router() {
           <Route path="/deals" element={<Navigate to="/pipes" replace />} />
           <Route path="/webhooks" element={<WebhooksPage />} />
           <Route path="/automations" element={<AutomationsPage />} />
+          <Route path="/projects" element={<ProjectsPage />} />
           <Route path="/billing" element={<BillingPage />} />
         </Route>
       </Route>

@@ -23,15 +23,15 @@ export function ContactDrawer({
     <>
       {/* Overlay */}
       <div
-        className="fixed inset-0 bg-black bg-opacity-50 z-40 transition-opacity"
+        className="drawer-overlay"
         onClick={onClose}
       />
 
       {/* Drawer */}
-      <div className="fixed inset-y-0 right-0 w-full max-w-2xl bg-dark-800 shadow-lg shadow-black/20 z-50 overflow-hidden flex flex-col">
+      <div className="drawer-panel max-w-2xl">
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-dark-700">
-          <h2 className="text-xl font-semibold text-white">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-dark-700/40">
+          <h2 className="text-xl font-semibold font-display text-white">
             {contact ? 'Editar Associado' : 'Novo Associado'}
           </h2>
           <button
