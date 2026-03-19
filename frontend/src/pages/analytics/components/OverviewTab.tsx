@@ -35,7 +35,7 @@ export function OverviewTab({ filters }: OverviewTabProps) {
   if (loadingOverview) {
     return (
       <div className="flex justify-center items-center h-64">
-        <Loader2 className="w-8 h-8 text-primary-400 animate-spin" />
+        <Loader2 className="w-8 h-8 text-gold-400 animate-spin" />
       </div>
     )
   }
@@ -70,12 +70,12 @@ export function OverviewTab({ filters }: OverviewTabProps) {
           bgColor="bg-emerald-500/15"
         />
         <KpiCard
-          icon={<DollarSign className="w-5 h-5 text-primary-400" />}
+          icon={<DollarSign className="w-5 h-5 text-gold-400" />}
           label="Receita Total"
           value={formatCurrency(overview.totalRevenue)}
           sub={`Ticket medio: ${formatCurrency(overview.avgDealValue)}`}
           growth={overview.revenueGrowth}
-          bgColor="bg-primary-500/15"
+          bgColor="bg-gold-500/10"
         />
         <KpiCard
           icon={<DollarSign className="w-5 h-5 text-red-400" />}

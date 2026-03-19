@@ -32,7 +32,7 @@ export function SourcesTab({ filters }: SourcesTabProps) {
   if (isLoading) {
     return (
       <div className="flex justify-center items-center h-64">
-        <Loader2 className="w-8 h-8 text-primary-400 animate-spin" />
+        <Loader2 className="w-8 h-8 text-gold-400 animate-spin" />
       </div>
     )
   }
@@ -61,7 +61,7 @@ export function SourcesTab({ filters }: SourcesTabProps) {
         </div>
         <div className="bg-dark-800 rounded-lg border border-dark-700 p-4 text-center">
           <p className="text-xs text-gray-400">Receita Total</p>
-          <p className="text-2xl font-bold text-primary-400">{formatCurrency(data.totals.revenue)}</p>
+          <p className="text-2xl font-bold text-gold-400">{formatCurrency(data.totals.revenue)}</p>
         </div>
       </div>
 

@@ -43,7 +43,7 @@ export function KnowledgeBaseTab() {
   if (isLoading) {
     return (
       <div className="flex justify-center p-12">
-        <Loader2 className="w-8 h-8 text-primary-400 animate-spin" />
+        <Loader2 className="w-8 h-8 text-gold-400 animate-spin" />
       </div>
     )
   }
@@ -55,7 +55,7 @@ export function KnowledgeBaseTab() {
         <h2 className="text-lg font-semibold text-white">Bases de Conhecimento</h2>
         <button
           onClick={() => setShowCreateForm(!showCreateForm)}
-          className="flex items-center gap-2 px-4 py-2 bg-primary-500 text-white rounded-lg hover:bg-primary-400"
+          className="flex items-center gap-2 btn-primary"
         >
           <Plus className="w-4 h-4" />
           Nova Base
@@ -64,7 +64,7 @@ export function KnowledgeBaseTab() {
 
       {/* Create Form */}
       {showCreateForm && (
-        <div className="bg-dark-800 rounded-lg border border-dark-700 p-4 mb-4">
+        <div className="bg-dark-800/60 rounded-2xl border border-dark-700/40 p-4 mb-4">
           <h3 className="font-medium text-white mb-3">Criar Base de Conhecimento</h3>
           <div className="space-y-3">
             <input
@@ -72,20 +72,20 @@ export function KnowledgeBaseTab() {
               placeholder="Nome da base (ex: FAQ de Vendas)"
               value={newKBName}
               onChange={(e) => setNewKBName(e.target.value)}
-              className="w-full px-3 py-2 bg-dark-800 border border-dark-600 text-gray-200 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+              className="w-full px-3 py-2 bg-dark-800 border border-dark-600 text-gray-200 rounded-lg focus:ring-2 focus:ring-gold-500/30 focus:border-gold-500/30"
             />
             <input
               type="text"
               placeholder="Descricao (opcional)"
               value={newKBDesc}
               onChange={(e) => setNewKBDesc(e.target.value)}
-              className="w-full px-3 py-2 bg-dark-800 border border-dark-600 text-gray-200 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+              className="w-full px-3 py-2 bg-dark-800 border border-dark-600 text-gray-200 rounded-lg focus:ring-2 focus:ring-gold-500/30 focus:border-gold-500/30"
             />
             <div className="flex gap-2">
               <button
                 onClick={handleCreateKB}
                 disabled={!newKBName.trim() || createKB.isPending}
-                className="px-4 py-2 bg-primary-500 text-white rounded-lg hover:bg-primary-400 disabled:opacity-50"
+                className="btn-primary disabled:opacity-50"
               >
                 {createKB.isPending ? 'Criando...' : 'Criar'}
               </button>
@@ -102,7 +102,7 @@ export function KnowledgeBaseTab() {
 
       {/* Knowledge Bases List */}
       {(!knowledgeBases || knowledgeBases.length === 0) ? (
-        <div className="text-center p-12 bg-dark-800 rounded-lg border border-dark-700">
+        <div className="text-center p-12 bg-dark-800/60 rounded-2xl border border-dark-700/40">
           <Database className="w-12 h-12 text-gray-500 mx-auto mb-4" />
           <h3 className="text-lg font-medium text-white">Nenhuma base de conhecimento</h3>
           <p className="text-gray-400 mt-1">Crie sua primeira base e adicione documentos para treinar a IA</p>
@@ -168,11 +168,11 @@ function KnowledgeBaseCard({
   }
 
   return (
-    <div className="bg-dark-800 rounded-lg border border-dark-700">
+    <div className="bg-dark-800/60 rounded-2xl border border-dark-700/40">
       {/* Header */}
       <div className="flex items-center justify-between p-4 cursor-pointer" onClick={onToggle}>
         <div className="flex items-center gap-3">
-          <Database className="w-5 h-5 text-primary-400" />
+          <Database className="w-5 h-5 text-gold-400" />
           <div>
             <h3 className="font-medium text-white">{kb.name}</h3>
             {kb.description && <p className="text-sm text-gray-400">{kb.description}</p>}
@@ -195,7 +195,7 @@ function KnowledgeBaseCard({
 
       {/* Expanded Content */}
       {isExpanded && (
-        <div className="border-t border-dark-700 p-4">
+        <div className="border-t border-dark-700/40 p-4">
           {/* Ingest Buttons */}
           <div className="flex gap-2 mb-4">
             <button onClick={() => setIngestMode('text')} className="flex items-center gap-1 px-3 py-1.5 text-sm border border-dark-600 text-gray-300 rounded-lg hover:bg-dark-700">
@@ -233,7 +233,7 @@ function KnowledgeBaseCard({
               <button
                 onClick={handleIngestText}
                 disabled={ingestText.isPending || !textContent.trim() || !textName.trim()}
-                className="px-3 py-1.5 bg-primary-500 text-white text-sm rounded-lg hover:bg-primary-400 disabled:opacity-50"
+                className="px-3 py-1.5 bg-gold-500 text-dark-900 text-sm font-semibold rounded-xl hover:bg-gold-400 disabled:opacity-50"
               >
                 {ingestText.isPending ? 'Processando...' : 'Ingerir Texto'}
               </button>
@@ -256,7 +256,7 @@ function KnowledgeBaseCard({
               <button
                 onClick={handleIngestURL}
                 disabled={ingestURL.isPending || !urlInput.trim()}
-                className="px-3 py-1.5 bg-primary-500 text-white text-sm rounded-lg hover:bg-primary-400 disabled:opacity-50"
+                className="px-3 py-1.5 bg-gold-500 text-dark-900 text-sm font-semibold rounded-xl hover:bg-gold-400 disabled:opacity-50"
               >
                 {ingestURL.isPending ? 'Processando...' : 'Importar URL'}
               </button>
@@ -272,19 +272,19 @@ function KnowledgeBaseCard({
               <div className="flex gap-2">
                 <button
                   onClick={() => setCrmType('contacts')}
-                  className={`flex items-center gap-1 px-3 py-2 rounded-lg text-sm border ${crmType === 'contacts' ? 'bg-primary-500/15 border-primary-500 text-primary-400' : 'border-dark-600 text-gray-300 hover:bg-dark-700'}`}
+                  className={`flex items-center gap-1 px-3 py-2 rounded-lg text-sm border ${crmType === 'contacts' ? 'bg-gold-500/10 border-gold-500/30 text-gold-400' : 'border-dark-600 text-gray-300 hover:bg-dark-700'}`}
                 >
                   <Users className="w-4 h-4" /> Contatos
                 </button>
                 <button
                   onClick={() => setCrmType('deals')}
-                  className={`flex items-center gap-1 px-3 py-2 rounded-lg text-sm border ${crmType === 'deals' ? 'bg-primary-500/15 border-primary-500 text-primary-400' : 'border-dark-600 text-gray-300 hover:bg-dark-700'}`}
+                  className={`flex items-center gap-1 px-3 py-2 rounded-lg text-sm border ${crmType === 'deals' ? 'bg-gold-500/10 border-gold-500/30 text-gold-400' : 'border-dark-600 text-gray-300 hover:bg-dark-700'}`}
                 >
                   <ShoppingCart className="w-4 h-4" /> Deals
                 </button>
                 <button
                   onClick={() => setCrmType('conversations')}
-                  className={`flex items-center gap-1 px-3 py-2 rounded-lg text-sm border ${crmType === 'conversations' ? 'bg-primary-500/15 border-primary-500 text-primary-400' : 'border-dark-600 text-gray-300 hover:bg-dark-700'}`}
+                  className={`flex items-center gap-1 px-3 py-2 rounded-lg text-sm border ${crmType === 'conversations' ? 'bg-gold-500/10 border-gold-500/30 text-gold-400' : 'border-dark-600 text-gray-300 hover:bg-dark-700'}`}
                 >
                   <MessageSquare className="w-4 h-4" /> Conversas
                 </button>
@@ -292,7 +292,7 @@ function KnowledgeBaseCard({
               <button
                 onClick={handleIngestCRM}
                 disabled={ingestCRM.isPending}
-                className="px-3 py-1.5 bg-primary-500 text-white text-sm rounded-lg hover:bg-primary-400 disabled:opacity-50"
+                className="px-3 py-1.5 bg-gold-500 text-dark-900 text-sm font-semibold rounded-xl hover:bg-gold-400 disabled:opacity-50"
               >
                 {ingestCRM.isPending ? 'Importando...' : `Importar ${crmType}`}
               </button>

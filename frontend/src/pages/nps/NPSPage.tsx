@@ -52,7 +52,7 @@ export function NPSPage() {
   if (statsLoading || surveysLoading) {
     return (
       <div className="flex justify-center items-center h-96">
-        <Loader2 className="w-8 h-8 text-primary-400 animate-spin" />
+        <Loader2 className="w-8 h-8 text-gold-400 animate-spin" />
       </div>
     )
   }
@@ -65,17 +65,17 @@ export function NPSPage() {
   const answeredSurveys = filteredSurveys.filter((s) => s.answeredAt)
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="p-6 space-y-6 page-enter">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-white">Pesquisa de Satisfacao (NPS)</h1>
+          <h1 className="text-2xl font-display font-bold text-white">Pesquisa de Satisfacao (NPS)</h1>
           <p className="text-sm text-gray-400 mt-1">Acompanhe a satisfacao dos seus pacientes</p>
         </div>
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-1 bg-dark-700 rounded-lg p-1 w-fit">
+      <div className="flex gap-1 bg-dark-700/50 rounded-2xl p-1 w-fit">
         {[
           { key: 'overview', label: 'Visao Geral', icon: BarChart3 },
           { key: 'responses', label: 'Respostas', icon: MessageSquareText },
@@ -85,7 +85,7 @@ export function NPSPage() {
             key={key}
             onClick={() => setTab(key as typeof tab)}
             className={`flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-colors ${
-              tab === key ? 'bg-dark-800 text-primary-200 shadow-sm' : 'text-gray-400 hover:text-white'
+              tab === key ? 'bg-dark-800 text-gold-400 shadow-sm' : 'text-gray-400 hover:text-white'
             }`}
           >
             <Icon size={16} />
@@ -122,11 +122,11 @@ function OverviewTab({ stats }: { stats: NonNullable<ReturnType<typeof useNPSSta
   return (
     <div className="space-y-6">
       {/* KPI Row */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
-        <div className="bg-dark-800 rounded-lg border border-dark-700 p-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 stagger-children">
+        <div className="stat-card">
           <div className="flex items-center gap-2 mb-2">
-            <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-primary-500/15">
-              <TrendingUp className="w-4 h-4 text-primary-400" />
+            <div className="w-8 h-8 rounded-xl flex items-center justify-center bg-gold-500/10">
+              <TrendingUp className="w-4 h-4 text-gold-400" />
             </div>
             <span className="text-xs text-gray-400">NPS Score</span>
           </div>
@@ -134,10 +134,10 @@ function OverviewTab({ stats }: { stats: NonNullable<ReturnType<typeof useNPSSta
           <p className="text-xs mt-1" style={{ color: npsColor }}>{npsLabel}</p>
         </div>
 
-        <div className="bg-dark-800 rounded-lg border border-dark-700 p-4">
+        <div className="stat-card">
           <div className="flex items-center gap-2 mb-2">
-            <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-blue-500/15">
-              <Users className="w-4 h-4 text-blue-400" />
+            <div className="w-8 h-8 rounded-xl flex items-center justify-center bg-accent-blue/10">
+              <Users className="w-4 h-4 text-accent-blue" />
             </div>
             <span className="text-xs text-gray-400">Total Enviadas</span>
           </div>
@@ -145,10 +145,10 @@ function OverviewTab({ stats }: { stats: NonNullable<ReturnType<typeof useNPSSta
           <p className="text-xs text-gray-500 mt-1">{stats.answered} respondidas</p>
         </div>
 
-        <div className="bg-dark-800 rounded-lg border border-dark-700 p-4">
+        <div className="stat-card">
           <div className="flex items-center gap-2 mb-2">
-            <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-purple-500/15">
-              <Send className="w-4 h-4 text-purple-400" />
+            <div className="w-8 h-8 rounded-xl flex items-center justify-center bg-accent-purple/10">
+              <Send className="w-4 h-4 text-accent-purple" />
             </div>
             <span className="text-xs text-gray-400">Taxa de Resposta</span>
           </div>
@@ -156,10 +156,10 @@ function OverviewTab({ stats }: { stats: NonNullable<ReturnType<typeof useNPSSta
           <p className="text-xs text-gray-500 mt-1">{stats.total - stats.answered} pendentes</p>
         </div>
 
-        <div className="bg-dark-800 rounded-lg border border-dark-700 p-4">
+        <div className="stat-card">
           <div className="flex items-center gap-2 mb-2">
-            <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-yellow-500/15">
-              <Star className="w-4 h-4 text-yellow-400" />
+            <div className="w-8 h-8 rounded-xl flex items-center justify-center bg-accent-amber/10">
+              <Star className="w-4 h-4 text-accent-amber" />
             </div>
             <span className="text-xs text-gray-400">Media de Nota</span>
           </div>
@@ -167,10 +167,10 @@ function OverviewTab({ stats }: { stats: NonNullable<ReturnType<typeof useNPSSta
           <p className="text-xs text-gray-500 mt-1">de 0 a 10</p>
         </div>
 
-        <div className="bg-dark-800 rounded-lg border border-dark-700 p-4">
+        <div className="stat-card">
           <div className="flex items-center gap-2 mb-2">
-            <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-green-500/15">
-              <Smile className="w-4 h-4 text-green-400" />
+            <div className="w-8 h-8 rounded-xl flex items-center justify-center bg-accent-emerald/10">
+              <Smile className="w-4 h-4 text-accent-emerald" />
             </div>
             <span className="text-xs text-gray-400">Promotores</span>
           </div>
@@ -182,8 +182,8 @@ function OverviewTab({ stats }: { stats: NonNullable<ReturnType<typeof useNPSSta
       {/* Charts Row */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* NPS Over Time */}
-        <div className="bg-dark-800 rounded-lg border border-dark-700 p-5">
-          <h3 className="text-sm font-semibold text-gray-300 mb-4">Evolucao do NPS</h3>
+        <div className="card p-5">
+          <h3 className="text-sm font-display font-semibold text-gray-300 mb-4">Evolucao do NPS</h3>
           {stats.byMonth.length > 0 ? (
             <ResponsiveContainer width="100%" height={260}>
               <LineChart data={stats.byMonth} margin={{ top: 5, right: 20, bottom: 5, left: 0 }}>
@@ -203,8 +203,8 @@ function OverviewTab({ stats }: { stats: NonNullable<ReturnType<typeof useNPSSta
         </div>
 
         {/* Distribution Pie */}
-        <div className="bg-dark-800 rounded-lg border border-dark-700 p-5">
-          <h3 className="text-sm font-semibold text-gray-300 mb-4">Distribuicao de Respostas</h3>
+        <div className="card p-5">
+          <h3 className="text-sm font-display font-semibold text-gray-300 mb-4">Distribuicao de Respostas</h3>
           {pieData.length > 0 ? (
             <div className="flex items-center gap-4">
               <ResponsiveContainer width="60%" height={260}>
@@ -243,14 +243,14 @@ function OverviewTab({ stats }: { stats: NonNullable<ReturnType<typeof useNPSSta
 
       {/* Recent Comments */}
       <div className="grid grid-cols-1 gap-6">
-        <div className="bg-dark-800 rounded-lg border border-dark-700 p-5">
-          <h3 className="text-sm font-semibold text-gray-300 mb-4">Comentarios Recentes</h3>
+        <div className="card p-5">
+          <h3 className="text-sm font-display font-semibold text-gray-300 mb-4">Comentarios Recentes</h3>
           <div className="space-y-3 max-h-[220px] overflow-y-auto">
             {stats.recentComments.length > 0 ? (
               stats.recentComments.map((c) => {
                 const cfg = CATEGORY_CONFIG[c.category]
                 return (
-                  <div key={c.id} className="flex gap-3 p-2 rounded-lg border border-dark-700 hover:bg-dark-700">
+                  <div key={c.id} className="flex gap-3 p-2 rounded-lg border border-dark-700/40 hover:bg-dark-700/50">
                     <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${cfg.bg}`}>
                       <span className="text-xs font-bold">{c.score}</span>
                     </div>
@@ -290,7 +290,7 @@ function ResponsesTab({
           <select
             value={filterCategory}
             onChange={(e) => setFilterCategory(e.target.value)}
-            className="appearance-none bg-dark-800 border border-dark-700 rounded-lg px-3 py-2 pr-8 text-sm text-gray-300 focus:outline-none focus:ring-2 focus:ring-teal-500"
+            className="input appearance-none pr-8"
           >
             <option value="">Todas categorias</option>
             <option value="promoter">Promotores (9-10)</option>
@@ -308,14 +308,14 @@ function ResponsesTab({
       </div>
 
       {/* Survey List */}
-      <div className="bg-dark-800 rounded-lg border border-dark-700 overflow-hidden">
+      <div className="card overflow-hidden">
         {surveys.length > 0 ? (
-          <div className="divide-y divide-dark-700">
+          <div className="divide-y divide-dark-700/40">
             {surveys.map((survey) => {
               const cfg = CATEGORY_CONFIG[survey.category]
               const Icon = cfg.icon
               return (
-                <div key={survey.id} className="p-4 hover:bg-dark-700 transition-colors">
+                <div key={survey.id} className="p-4 hover:bg-dark-700/50 transition-colors">
                   <div className="flex items-start gap-3">
                     <div className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 ${cfg.bg}`}>
                       <Icon size={18} />
@@ -401,9 +401,9 @@ function RegisterTab() {
 
   return (
     <div className="max-w-2xl">
-      <div className="bg-dark-800 rounded-lg border border-dark-700 p-6 space-y-6">
+      <div className="card p-6 space-y-6">
         <div>
-          <h3 className="text-lg font-semibold text-white">Registrar Pesquisa Manual</h3>
+          <h3 className="text-lg font-display font-semibold text-white">Registrar Pesquisa Manual</h3>
           <p className="text-sm text-gray-400 mt-1">Registre a avaliacao de um associado manualmente</p>
         </div>
 
@@ -413,7 +413,7 @@ function RegisterTab() {
           <select
             value={associadoId}
             onChange={(e) => setAssociadoId(e.target.value)}
-            className="w-full bg-dark-800 border border-dark-700 rounded-lg px-3 py-2 text-sm text-gray-200 focus:outline-none focus:ring-2 focus:ring-teal-500"
+            className="input"
           >
             <option value="1">Joao Silva</option>
             <option value="2">Maria Santos</option>
@@ -433,7 +433,7 @@ function RegisterTab() {
               <button
                 key={i}
                 onClick={() => setScore(i)}
-                className={`w-10 h-10 rounded-lg text-sm font-bold transition-all ${
+                className={`w-10 h-10 rounded-xl text-sm font-bold transition-all ${
                   score === i
                     ? getScoreColor(i)
                     : `bg-dark-700 text-gray-400 ${getScoreHoverColor(i)}`
@@ -465,7 +465,7 @@ function RegisterTab() {
             onChange={(e) => setComment(e.target.value)}
             rows={3}
             placeholder="O que o paciente disse..."
-            className="w-full bg-dark-800 border border-dark-700 rounded-lg px-3 py-2 text-sm text-gray-200 focus:outline-none focus:ring-2 focus:ring-teal-500 resize-none"
+            className="input resize-none"
           />
         </div>
 
@@ -473,7 +473,7 @@ function RegisterTab() {
         <button
           onClick={handleSubmit}
           disabled={score === null || createSurvey.isPending}
-          className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-primary-500 text-white rounded-lg hover:bg-primary-400 disabled:opacity-50 disabled:cursor-not-allowed font-medium text-sm transition-colors"
+          className="btn-primary w-full flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed text-sm"
         >
           {createSurvey.isPending ? (
             <Loader2 className="w-4 h-4 animate-spin" />

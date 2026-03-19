@@ -11,7 +11,7 @@ export function AnalyticsTab() {
 
       {/* Stats */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-        <div className="bg-dark-800 rounded-lg border border-dark-700 p-4">
+        <div className="bg-dark-800/60 rounded-2xl border border-dark-700/40 p-4">
           <div className="flex items-center gap-3">
             <div className="p-2 rounded-lg bg-blue-500/15 text-blue-400">
               <MessageSquare className="w-5 h-5" />
@@ -20,14 +20,14 @@ export function AnalyticsTab() {
               {statsLoading ? (
                 <Loader2 className="w-5 h-5 animate-spin text-gray-500" />
               ) : (
-                <p className="text-2xl font-bold text-white">{stats?.totalQueries ?? 0}</p>
+                <p className="text-2xl font-display font-bold text-white">{stats?.totalQueries ?? 0}</p>
               )}
               <p className="text-sm text-gray-400">Total de Queries</p>
             </div>
           </div>
         </div>
 
-        <div className="bg-dark-800 rounded-lg border border-dark-700 p-4">
+        <div className="bg-dark-800/60 rounded-2xl border border-dark-700/40 p-4">
           <div className="flex items-center gap-3">
             <div className="p-2 rounded-lg bg-green-500/15 text-green-400">
               <Clock className="w-5 h-5" />
@@ -36,14 +36,14 @@ export function AnalyticsTab() {
               {statsLoading ? (
                 <Loader2 className="w-5 h-5 animate-spin text-gray-500" />
               ) : (
-                <p className="text-2xl font-bold text-white">{stats?.avgResponseTime ?? 0}ms</p>
+                <p className="text-2xl font-display font-bold text-white">{stats?.avgResponseTime ?? 0}ms</p>
               )}
               <p className="text-sm text-gray-400">Tempo Medio de Resposta</p>
             </div>
           </div>
         </div>
 
-        <div className="bg-dark-800 rounded-lg border border-dark-700 p-4">
+        <div className="bg-dark-800/60 rounded-2xl border border-dark-700/40 p-4">
           <div className="flex items-center gap-3">
             <div className="p-2 rounded-lg bg-purple-500/15 text-purple-400">
               <Zap className="w-5 h-5" />
@@ -52,7 +52,7 @@ export function AnalyticsTab() {
               {statsLoading ? (
                 <Loader2 className="w-5 h-5 animate-spin text-gray-500" />
               ) : (
-                <p className="text-2xl font-bold text-white">
+                <p className="text-2xl font-display font-bold text-white">
                   {stats?.totalDocuments ?? 0}
                 </p>
               )}
@@ -63,14 +63,14 @@ export function AnalyticsTab() {
       </div>
 
       {/* Recent Queries Table */}
-      <div className="bg-dark-800 rounded-lg border border-dark-700 overflow-hidden">
-        <div className="px-4 py-3 border-b border-dark-700">
+      <div className="bg-dark-800/60 rounded-2xl border border-dark-700/40 overflow-hidden">
+        <div className="px-4 py-3 border-b border-dark-700/40">
           <h3 className="font-medium text-white">Queries Recentes</h3>
         </div>
 
         {queriesLoading ? (
           <div className="flex justify-center p-8">
-            <Loader2 className="w-6 h-6 text-primary-400 animate-spin" />
+            <Loader2 className="w-6 h-6 text-gold-400 animate-spin" />
           </div>
         ) : !recentQueries || recentQueries.length === 0 ? (
           <div className="text-center p-8">

@@ -93,7 +93,7 @@ export function ChatTestTab() {
   return (
     <div className="flex flex-col h-[calc(100vh-320px)] min-h-[500px]">
       {/* Chat Config Bar */}
-      <div className="flex items-center gap-4 mb-4 p-3 bg-dark-800 rounded-lg border border-dark-700">
+      <div className="flex items-center gap-4 mb-4 p-3 bg-dark-800/60 rounded-2xl border border-dark-700/40">
         <div className="flex-1">
           <label className="block text-xs text-gray-400 mb-1">Agente</label>
           <select
@@ -121,7 +121,7 @@ export function ChatTestTab() {
       </div>
 
       {/* Messages Area */}
-      <div className="flex-1 overflow-y-auto bg-dark-800 rounded-lg border border-dark-700 p-4 space-y-4">
+      <div className="flex-1 overflow-y-auto bg-dark-800/60 rounded-2xl border border-dark-700/40 p-4 space-y-4">
         {messages.length === 0 && (
           <div className="flex flex-col items-center justify-center h-full text-gray-500">
             <Bot className="w-16 h-16 mb-4" />
@@ -133,14 +133,14 @@ export function ChatTestTab() {
         {messages.map((msg, i) => (
           <div key={i} className={`flex gap-3 ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
             {msg.role === 'assistant' && (
-              <div className="w-8 h-8 rounded-full bg-primary-500/15 flex items-center justify-center flex-shrink-0">
-                <Bot className="w-4 h-4 text-primary-400" />
+              <div className="w-8 h-8 rounded-full bg-gold-500/10 flex items-center justify-center flex-shrink-0">
+                <Bot className="w-4 h-4 text-gold-400" />
               </div>
             )}
             <div className={`max-w-[70%] ${msg.role === 'user' ? 'order-first' : ''}`}>
               <div className={`rounded-lg px-4 py-2 ${
                 msg.role === 'user'
-                  ? 'bg-primary-500 text-white'
+                  ? 'bg-gold-500 text-dark-900'
                   : 'bg-dark-700 text-white'
               }`}>
                 <p className="whitespace-pre-wrap text-sm">{msg.content}</p>
@@ -178,11 +178,11 @@ export function ChatTestTab() {
 
         {queryMutation.isPending && (
           <div className="flex gap-3">
-            <div className="w-8 h-8 rounded-full bg-primary-500/15 flex items-center justify-center">
-              <Bot className="w-4 h-4 text-primary-400" />
+            <div className="w-8 h-8 rounded-full bg-gold-500/10 flex items-center justify-center">
+              <Bot className="w-4 h-4 text-gold-400" />
             </div>
             <div className="bg-dark-700 rounded-lg px-4 py-3">
-              <Loader2 className="w-5 h-5 text-primary-400 animate-spin" />
+              <Loader2 className="w-5 h-5 text-gold-400 animate-spin" />
             </div>
           </div>
         )}
@@ -199,12 +199,12 @@ export function ChatTestTab() {
           placeholder={selectedKB ? 'Faca uma pergunta...' : 'Selecione um agente com KB primeiro'}
           disabled={!selectedKB || queryMutation.isPending}
           rows={1}
-          className="flex-1 px-4 py-3 bg-dark-800 border border-dark-600 text-gray-200 rounded-lg resize-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 disabled:opacity-50"
+          className="flex-1 px-4 py-3 bg-dark-800 border border-dark-600 text-gray-200 rounded-lg resize-none focus:ring-2 focus:ring-gold-500/30 focus:border-gold-500/30 disabled:opacity-50"
         />
         <button
           onClick={handleSend}
           disabled={!input.trim() || !selectedKB || queryMutation.isPending}
-          className="px-4 py-3 bg-primary-500 text-white rounded-lg hover:bg-primary-400 disabled:opacity-50"
+          className="px-4 py-3 bg-gold-500 text-dark-900 rounded-lg hover:bg-gold-400 disabled:opacity-50"
         >
           <Send className="w-5 h-5" />
         </button>

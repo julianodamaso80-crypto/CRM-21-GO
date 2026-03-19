@@ -17,7 +17,7 @@ export function CampaignsTab({ filters }: CampaignsTabProps) {
   if (isLoading) {
     return (
       <div className="flex justify-center items-center h-64">
-        <Loader2 className="w-8 h-8 text-primary-400 animate-spin" />
+        <Loader2 className="w-8 h-8 text-gold-400 animate-spin" />
       </div>
     )
   }
@@ -74,7 +74,7 @@ export function CampaignsTab({ filters }: CampaignsTabProps) {
         </div>
         <div className="bg-dark-800 rounded-lg border border-dark-700 p-4 text-center">
           <p className="text-xs text-gray-400">ROI Geral</p>
-          <p className="text-2xl font-bold text-primary-400">
+          <p className="text-2xl font-bold text-gold-400">
             {totals.spend > 0 ? `${(((totals.revenue - totals.spend) / totals.spend) * 100).toFixed(0)}%` : '-'}
           </p>
         </div>
@@ -164,7 +164,7 @@ function SortHeader({
       <div className="flex items-center justify-end gap-1">
         {label}
         {isActive ? (
-          <span className="text-primary-400 text-[10px]">{direction === 'asc' ? '▲' : '▼'}</span>
+          <span className="text-gold-400 text-[10px]">{direction === 'asc' ? '▲' : '▼'}</span>
         ) : (
           <ArrowUpDown className="w-3 h-3 text-dark-600" />
         )}

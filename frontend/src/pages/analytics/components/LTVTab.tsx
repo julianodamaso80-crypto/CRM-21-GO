@@ -23,7 +23,7 @@ export function LTVTab({ filters }: LTVTabProps) {
   if (isLoading) {
     return (
       <div className="flex justify-center items-center h-64">
-        <Loader2 className="w-8 h-8 text-primary-400 animate-spin" />
+        <Loader2 className="w-8 h-8 text-gold-400 animate-spin" />
       </div>
     )
   }
@@ -64,7 +64,7 @@ export function LTVTab({ filters }: LTVTabProps) {
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <div className="bg-dark-800 rounded-lg border border-dark-700 p-4 text-center">
           <p className="text-xs text-gray-400">LTV Medio</p>
-          <p className="text-2xl font-bold text-primary-400">{formatCurrency(data.avgLTV)}</p>
+          <p className="text-2xl font-bold text-gold-400">{formatCurrency(data.avgLTV)}</p>
         </div>
         <div className="bg-dark-800 rounded-lg border border-dark-700 p-4 text-center">
           <p className="text-xs text-gray-400">LTV Mediano</p>
@@ -119,7 +119,7 @@ export function LTVTab({ filters }: LTVTabProps) {
                 <tr key={item.group} className="hover:bg-dark-700">
                   <td className="px-4 py-3 text-sm font-medium text-white">{item.group}</td>
                   <td className="px-4 py-3 text-sm text-right text-gray-300">{item.customers}</td>
-                  <td className="px-4 py-3 text-sm text-right font-medium text-primary-400">{formatCurrency(item.avgLTV)}</td>
+                  <td className="px-4 py-3 text-sm text-right font-medium text-gold-400">{formatCurrency(item.avgLTV)}</td>
                   <td className="px-4 py-3 text-sm text-right text-gray-300">{formatCurrency(item.totalRevenue)}</td>
                 </tr>
               ))}
@@ -172,7 +172,7 @@ export function LTVTab({ filters }: LTVTabProps) {
                       {cohort.month12Revenue > 0 ? formatCurrency(cohort.month12Revenue) : '-'}
                     </span>
                   </td>
-                  <td className="px-4 py-3 text-sm text-center font-bold text-primary-400">{formatCurrency(cohort.currentLTV)}</td>
+                  <td className="px-4 py-3 text-sm text-center font-bold text-gold-400">{formatCurrency(cohort.currentLTV)}</td>
                 </tr>
               ))}
             </tbody>

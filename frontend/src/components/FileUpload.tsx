@@ -79,7 +79,7 @@ export function FileUpload({ onUploadComplete, multiple = false, accept, maxSize
     <div className="space-y-3">
       <div
         onClick={() => inputRef.current?.click()}
-        className="border-2 border-dashed border-dark-600 rounded-lg p-6 text-center cursor-pointer hover:border-primary-500 transition-colors"
+        className="border-2 border-dashed border-dark-600/50 rounded-2xl p-6 text-center cursor-pointer hover:border-gold-500/30 transition-colors"
       >
         <Upload className="w-8 h-8 text-gray-400 mx-auto mb-2" />
         <p className="text-sm text-gray-400">Clique para selecionar {multiple ? 'arquivos' : 'arquivo'}</p>
@@ -98,7 +98,7 @@ export function FileUpload({ onUploadComplete, multiple = false, accept, maxSize
       {files.length > 0 && (
         <div className="space-y-2">
           {files.map((file, i) => (
-            <div key={i} className="flex items-center gap-2 p-2 bg-dark-800 rounded-lg border border-dark-700">
+            <div key={i} className="flex items-center gap-2 p-2 bg-dark-800/60 rounded-xl border border-dark-700/40">
               <FileIcon className="w-4 h-4 text-gray-400" />
               <span className="text-sm text-gray-300 flex-1 truncate">{file.name}</span>
               <span className="text-xs text-gray-500">{(file.size / 1024).toFixed(0)}KB</span>
@@ -114,7 +114,7 @@ export function FileUpload({ onUploadComplete, multiple = false, accept, maxSize
           <button
             onClick={handleUpload}
             disabled={uploading}
-            className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-primary-500 text-white rounded-lg hover:bg-primary-400 disabled:opacity-50"
+            className="btn-primary w-full flex items-center justify-center gap-2 disabled:opacity-50"
           >
             {uploading ? (
               <>

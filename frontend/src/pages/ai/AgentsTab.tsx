@@ -93,7 +93,7 @@ export function AgentsTab() {
   if (isLoading) {
     return (
       <div className="flex justify-center p-12">
-        <Loader2 className="w-8 h-8 text-primary-400 animate-spin" />
+        <Loader2 className="w-8 h-8 text-gold-400 animate-spin" />
       </div>
     )
   }
@@ -102,7 +102,7 @@ export function AgentsTab() {
     <div>
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-lg font-semibold text-white">Agentes de IA</h2>
-        <button onClick={openCreateForm} className="flex items-center gap-2 px-4 py-2 bg-primary-500 text-white rounded-lg hover:bg-primary-400">
+        <button onClick={openCreateForm} className="flex items-center gap-2 px-4 py-2 bg-gold-500 text-white rounded-lg hover:bg-gold-400">
           <Plus className="w-4 h-4" /> Novo Agente
         </button>
       </div>
@@ -232,7 +232,7 @@ export function AgentsTab() {
                 <div className="flex gap-3 pt-4">
                   <button onClick={handleSubmit}
                     disabled={!formData.name.trim() || !formData.systemPrompt.trim() || createAgent.isPending || updateAgent.isPending}
-                    className="px-4 py-2 bg-primary-500 text-white rounded-lg hover:bg-primary-400 disabled:opacity-50">
+                    className="px-4 py-2 bg-gold-500 text-white rounded-lg hover:bg-gold-400 disabled:opacity-50">
                     {(createAgent.isPending || updateAgent.isPending) ? 'Salvando...' : editingAgent ? 'Atualizar' : 'Criar Agente'}
                   </button>
                   <button onClick={() => setShowForm(false)} className="px-4 py-2 border border-dark-600 text-gray-300 rounded-lg hover:bg-dark-700">
@@ -247,7 +247,7 @@ export function AgentsTab() {
 
       {/* Agents List */}
       {(!agents || agents.length === 0) ? (
-        <div className="text-center p-12 bg-dark-800 rounded-lg border border-dark-700">
+        <div className="text-center p-12 bg-dark-800/60 rounded-2xl border border-dark-700/40">
           <Bot className="w-12 h-12 text-gray-500 mx-auto mb-4" />
           <h3 className="text-lg font-medium text-white">Nenhum agente</h3>
           <p className="text-gray-400 mt-1">Crie seu primeiro agente de IA para comecar</p>
@@ -255,26 +255,26 @@ export function AgentsTab() {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {agents.map((agent: AIAgent) => (
-            <div key={agent.id} className={`bg-dark-800 rounded-lg border p-4 ${
-              agent.squad === '21go-squad' ? 'border-primary-500/30' : 'border-dark-700'
+            <div key={agent.id} className={`bg-dark-800/60 rounded-2xl border p-4 ${
+              agent.squad === '21go-squad' ? 'border-gold-500/30' : 'border-dark-700/40'
             }`}>
               <div className="flex justify-between items-start mb-3">
                 <div className="flex items-center gap-2">
                   {agent.icon ? (
                     <span className="text-xl">{agent.icon}</span>
                   ) : (
-                    <Bot className="w-5 h-5 text-primary-400" />
+                    <Bot className="w-5 h-5 text-gold-400" />
                   )}
                   <div>
                     <h3 className="font-medium text-white">{agent.name}</h3>
                     {agent.tier === 0 && (
-                      <span className="text-[10px] uppercase tracking-wider text-primary-400 font-semibold">Orquestrador</span>
+                      <span className="text-[10px] uppercase tracking-wider text-gold-400 font-semibold">Orquestrador</span>
                     )}
                   </div>
                 </div>
                 <div className="flex items-center gap-1">
                   {agent.squad === '21go-squad' && (
-                    <span className="text-[10px] px-1.5 py-0.5 bg-primary-500/15 text-primary-400 rounded-full font-medium mr-1">
+                    <span className="text-[10px] px-1.5 py-0.5 bg-gold-500/10 text-gold-400 rounded-full font-medium mr-1">
                       21Go Squad
                     </span>
                   )}
@@ -320,9 +320,9 @@ export function AgentsTab() {
                 </p>
               )}
 
-              <div className="flex gap-2 pt-2 border-t border-dark-700">
+              <div className="flex gap-2 pt-2 border-t border-dark-700/40">
                 <button onClick={() => openEditForm(agent)}
-                  className="flex items-center gap-1 text-sm text-gray-400 hover:text-primary-400">
+                  className="flex items-center gap-1 text-sm text-gray-400 hover:text-gold-400">
                   <Settings className="w-3.5 h-3.5" /> Configurar
                 </button>
                 <button onClick={() => handleDelete(agent.id)}
