@@ -108,11 +108,15 @@ Cada agente tem um system prompt completo em `21go-squad/agents/`. Todos os 11 a
 
 ### O que FALTA fazer (em ordem de prioridade):
 
+**Arquitetura de Dominios:**
+- **21go.site** → Site publico (Next.js, 21go-website/) — deploy Vercel
+- **app.21go.site** → CRM interno (React+Fastify) — deploy Railway
+- Cloudflare gerencia DNS de ambos
+
 **URGENTE — Deploy:**
-- [ ] Corrigir deploy no Railway (erro "No start command")
-- [ ] Configurar variáveis de ambiente (DATABASE_URL, REDIS_URL)
-- [ ] Backend servir frontend como static files em produção
-- [ ] Domínio 21go.site apontado e funcionando
+- [x] CRM rodando em app.21go.site (Railway)
+- [ ] Site publico rodando em 21go.site (Vercel)
+- [ ] Configurar DNS no Cloudflare (app.21go.site -> Railway, 21go.site -> Vercel)
 
 **Fase 3 — Contacts -> Associados:**
 - [ ] Adaptar modelo Contact com campos veiculares (CPF, status, hinova_id, origem, UTM)
@@ -154,7 +158,8 @@ Cada agente tem um system prompt completo em `21go-squad/agents/`. Todos os 11 a
 - **Validação**: Zod (backend), React Hook Form (frontend)
 - **IA**: Módulo em backend/src/modules/ai/ com CRUD de agentes
 - **Padrão de módulos**: service -> controller -> routes (backend)
-- **Deploy**: Railway (Postgres + Redis + App) com domínio 21go.site no Cloudflare
+- **Site Publico**: Next.js 16, Tailwind CSS 4, MDX (pasta 21go-website/) — deploy Vercel em 21go.site
+- **CRM Deploy**: Railway (Postgres + Redis + App) em app.21go.site — Cloudflare DNS
 
 ---
 

@@ -54,3 +54,6 @@ temp/
 # Docker
 docker-compose.override.yml
 nul
+21go-website/node_modules/
+21go-website/.next/
+generate_pptx.py

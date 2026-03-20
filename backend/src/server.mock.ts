@@ -11,9 +11,14 @@ const fastify = Fastify({
   trustProxy: true,
 })
 
-// CORS
+// CORS — aceita app.21go.site (CRM) e 21go.site (site publico) e localhost (dev)
 fastify.register(cors, {
-  origin: process.env.CORS_ORIGIN === '*' ? true : (process.env.CORS_ORIGIN || true),
+  origin: process.env.CORS_ORIGIN === '*' ? true : (process.env.CORS_ORIGIN || [
+    'https://app.21go.site',
+    'https://21go.site',
+    'http://localhost:5173',
+    'http://localhost:3000',
+  ]),
   credentials: true,
 })
 
