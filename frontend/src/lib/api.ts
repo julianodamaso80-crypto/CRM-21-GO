@@ -1,8 +1,11 @@
 import axios from 'axios'
 import { useAuthStore } from '../store/auth-store'
 
-// Em dev usa localhost:3333; em produção usa URL relativa (mesmo servidor)
-const API_URL = import.meta.env.VITE_API_URL || (import.meta.env.DEV ? 'http://localhost:3333' : '')
+// Em producao (browser nao-localhost), SEMPRE usa URL relativa (mesmo servidor).
+// Isso garante que mesmo se VITE_API_URL estiver setado como localhost, producao funciona.
+const envUrl = import.meta.env.VITE_API_URL as string | undefined
+const isProductionBrowser = typeof window !== 'undefined' && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1'
+const API_URL = isProductionBrowser ? '' : (envUrl || 'http://localhost:3333')
 
 export const api = axios.create({
   baseURL: `${API_URL}/api`,

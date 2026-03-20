@@ -14,7 +14,8 @@ interface SocketContextValue {
 
 const SocketContext = createContext<SocketContextValue | null>(null)
 
-const SOCKET_URL = import.meta.env.VITE_API_URL || 'http://localhost:3333'
+const _isProductionBrowser = typeof window !== 'undefined' && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1'
+const SOCKET_URL = _isProductionBrowser ? '' : (import.meta.env.VITE_API_URL || 'http://localhost:3333')
 const isDev = import.meta.env.DEV
 
 function log(...args: any[]) {
