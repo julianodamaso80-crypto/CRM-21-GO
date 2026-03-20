@@ -36,7 +36,7 @@ Uma plataforma completa que substitui e integra tudo: CRM + IA + Operação + Gr
 
 **Pilar 1 — Retenção**: NPS automatizado, gestão Reclame Aqui, detecção de churn, onboarding 30 dias. Parar a sangria de clientes.
 
-**Pilar 2 — Inteligência**: 10 agentes de IA especializados no coração da operação. Pré-venda 24/7, pós-venda proativo, briefing para gestores, gestão de sinistros inteligente.
+**Pilar 2 — Inteligência**: 11 agentes de IA especializados no coração da operação. Pré-venda 24/7, pós-venda proativo, briefing para gestores, gestão de sinistros inteligente, SEO data-driven.
 
 **Pilar 3 — Crescimento**: Tráfego pago (Google Ads + Meta Ads), SEO, landing pages com cotação automática. Sair da invisibilidade online.
 
@@ -74,9 +74,9 @@ Uma plataforma completa que substitui e integra tudo: CRM + IA + Operação + Gr
 
 ---
 
-## 4. OS 10 AGENTES DE IA
+## 4. OS 11 AGENTES DE IA
 
-Cada agente tem um system prompt completo em `21go-squad/agents/`. Os agentes já foram instalados no módulo de IA (Fase 1 concluída). Agora faltam os 2 novos.
+Cada agente tem um system prompt completo em `21go-squad/agents/`. Todos os 11 agentes estão instalados no módulo de IA do CRM.
 
 | # | Agente | Icon | Função | Acesso | Framework base |
 |---|--------|------|--------|--------|----------------|
@@ -86,18 +86,19 @@ Cada agente tem um system prompt completo em `21go-squad/agents/`. Os agentes j�
 | 4 | Gestores | brain | Briefing manhã, relatório dia, consultas | gestor, admin | Data Chief + COO |
 | 5 | Retenção | shield | Anti-churn, LTGP, segmentação por valor | gestor, admin | Hormozi + Peter Fader |
 | 6 | Crescimento | rocket | MGM, viral loops, gamificação | gestor, admin | Sean Ellis (Dropbox) |
-| 7 | Tráfego | target | Google Ads, Meta Ads, SEO | gestor, admin | Pedro Sobral + Kasim |
+| 7 | Tráfego | target | Google Ads, Meta Ads, tráfego pago | gestor, admin | Pedro Sobral + Kasim |
 | 8 | Operação | wrench | Agenda oficina, status serviço, vistorias | operação, gestor | Mobile-first |
 | 9 | Financeiro | money | Boletos, inadimplência, MRR, projeções | gestor, admin | Integração Hinova SGC |
 | 10 | Sinistros | alert | Abertura ao encerramento, oficinas, prazos | operação, gestor | Fluxo de 5 etapas |
+| 11 | Danih (SEO) | search | SEO, keywords, blog, E-E-A-T, GEO, schema | gestor, admin | 7 mestres SEO integrados |
 
 ---
 
 ## 5. ESTADO ATUAL DO PROJETO
 
 ### O que JÁ foi feito:
-- [x] Squad 21Go criada com 8 agentes (.md com system prompts)
-- [x] Fase 1: 8 agentes instalados no módulo de IA do CRM
+- [x] Squad 21Go criada com 11 agentes (.md com system prompts)
+- [x] Fase 1: 11 agentes instalados no módulo de IA do CRM (10 originais + Danih SEO)
 - [x] Fase 2: Módulos de saúde removidos (Doctors, Appointments, Prontuário, Convênios)
 - [x] Design system sofisticado aplicado (tema dark + dourado #C9A84C)
 - [x] Módulo de Projetos (Kanban) criado

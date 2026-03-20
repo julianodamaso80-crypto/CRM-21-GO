@@ -44,8 +44,11 @@ domain_routing:
     signals: ["indicação", "MGM", "campanha", "crescer", "escalar", "marketing"]
     route_to: agente-crescimento
   trafego:
-    signals: ["Google Ads", "Meta Ads", "anúncio", "landing page", "tráfego", "SEO"]
+    signals: ["Google Ads", "Meta Ads", "anúncio", "landing page", "tráfego"]
     route_to: agente-trafego
+  seo:
+    signals: ["SEO", "keyword", "blog post", "Google orgânico", "backlink", "schema", "Core Web Vitals", "ranking", "SERP", "conteúdo orgânico"]
+    route_to: danih-seo
   operacao:
     signals: ["oficina", "mecânico", "pintura", "peça", "reparo", "agenda do dia"]
     route_to: agente-operacao
