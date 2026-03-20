@@ -286,17 +286,6 @@ export class PipesService {
         )
       }
 
-      // Log creation
-      await tx.cardActivityLog.create({
-        data: {
-          companyId,
-          cardId: card.id,
-          type: 'created',
-          payloadJson: { title: data.title, phaseId: firstPhase.id, phaseName: firstPhase.name },
-          createdById: userId,
-        },
-      })
-
       return card
     })
   }
@@ -321,21 +310,6 @@ export class PipesService {
         include: { currentPhase: true },
       })
 
-      await tx.cardActivityLog.create({
-        data: {
-          companyId,
-          cardId,
-          type: 'phase_changed',
-          payloadJson: {
-            fromPhaseId: card.currentPhaseId,
-            fromPhaseName: card.currentPhase.name,
-            toPhaseId: phaseId,
-            toPhaseName: newPhase.name,
-          },
-          createdById: userId,
-        },
-      })
-
       return updated
     })
   }
@@ -353,47 +327,14 @@ export class PipesService {
         })
       }
 
-      await tx.cardActivityLog.create({
-        data: {
-          companyId,
-          cardId,
-          type: 'field_updated',
-          payloadJson: { fieldsUpdated: fields.length },
-          createdById: userId,
-        },
-      })
-
       return { success: true }
     })
   }
 
-  async addAttachment(cardId: string, companyId: string, userId: string, data: { fileName: string; mimeType?: string; size?: number; storageUrl: string; aiKnowledgeDocumentId?: string }) {
+  async addAttachment(cardId: string, companyId: string, _userId: string, data: { fileName: string; mimeType?: string; size?: number; storageUrl: string }) {
     const card = await prisma.card.findFirst({ where: { id: cardId, companyId } })
     if (!card) throw new AppError('Card nao encontrado', 404, 'NOT_FOUND')
-
-    const attachment = await prisma.cardAttachment.create({
-      data: {
-        companyId,
-        cardId,
-        fileName: data.fileName,
-        mimeType: data.mimeType,
-        size: data.size || 0,
-        storageUrl: data.storageUrl,
-        aiKnowledgeDocumentId: data.aiKnowledgeDocumentId,
-        createdById: userId,
-      },
-    })
-
-    await prisma.cardActivityLog.create({
-      data: {
-        companyId,
-        cardId,
-        type: 'attachment_added',
-        payloadJson: { fileName: data.fileName, attachmentId: attachment.id },
-        createdById: userId,
-      },
-    })
-
-    return attachment
+    // CardAttachment model removed from schema — return stub
+    return { id: 'stub', cardId, fileName: data.fileName, storageUrl: data.storageUrl }
   }
 }

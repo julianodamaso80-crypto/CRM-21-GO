@@ -2,20 +2,29 @@ import { prisma } from '../../config/database'
 import { AppError } from '../../utils/app-error'
 
 export interface CreateLeadDTO {
-  contactId: string
-  title: string
-  description?: string
-  source: string
-  medium?: string
-  campaign?: string
-  assignedToId?: string
-  estimatedValue?: number
-  tags?: string[]
+  nome: string
+  telefone?: string
+  email?: string
+  whatsapp?: string
+  marcaInteresse?: string
+  modeloInteresse?: string
+  anoInteresse?: number
+  cotacaoPlano?: string
+  origem?: string
+  vendedorId?: string
+  utmSource?: string
+  utmMedium?: string
+  utmCampaign?: string
 }
 
 export interface UpdateLeadDTO extends Partial<CreateLeadDTO> {
-  status?: string
-  score?: number
+  etapaFunil?: string
+  scoreQualificacao?: number
+  motivoPerda?: string
+  valorFipeConsultado?: number
+  cotacaoValor?: number
+  cotacaoEnviada?: boolean
+  qualificadoPor?: string
 }
 
 export interface ListLeadsQuery {
@@ -24,41 +33,35 @@ export interface ListLeadsQuery {
   search?: string
   status?: string
   source?: string
+  etapaFunil?: string
   sortBy?: string
   sortOrder?: 'asc' | 'desc'
 }
 
 export class LeadsService {
-  /**
-   * Lista leads com paginação e filtros
-   */
   async listLeads(companyId: string, query: ListLeadsQuery) {
     const page = Math.max(1, query.page || 1)
     const limit = Math.min(100, Math.max(1, query.limit || 20))
     const skip = (page - 1) * limit
 
-    const where: any = {
-      companyId,
-    }
+    const where: any = { companyId }
 
-    // Busca por título
     if (query.search) {
       where.OR = [
-        { title: { contains: query.search, mode: 'insensitive' } },
+        { nome: { contains: query.search, mode: 'insensitive' } },
+        { email: { contains: query.search, mode: 'insensitive' } },
+        { telefone: { contains: query.search } },
       ]
     }
 
-    // Filtro por status
-    if (query.status) {
-      where.status = query.status
+    if (query.etapaFunil || query.status) {
+      where.etapaFunil = query.etapaFunil || query.status
     }
 
-    // Filtro por source
     if (query.source) {
-      where.source = query.source
+      where.origem = query.source
     }
 
-    // Ordenação
     const orderBy: any = {}
     const sortBy = query.sortBy || 'createdAt'
     const sortOrder = query.sortOrder || 'desc'
@@ -71,14 +74,11 @@ export class LeadsService {
         take: limit,
         orderBy,
         include: {
-          contact: {
-            select: {
-              id: true,
-              fullName: true,
-              email: true,
-              phone: true,
-              avatar: true,
-            },
+          vendedor: {
+            select: { id: true, firstName: true, lastName: true },
+          },
+          associado: {
+            select: { id: true, nome: true },
           },
         },
       }),
@@ -87,8 +87,43 @@ export class LeadsService {
 
     const totalPages = Math.ceil(total / limit)
 
+    // Transform to API format matching what frontend expects
+    const data = leads.map(l => ({
+      id: l.id,
+      companyId: l.companyId,
+      title: l.nome,
+      nome: l.nome,
+      telefone: l.telefone,
+      email: l.email,
+      whatsapp: l.whatsapp,
+      status: l.etapaFunil,
+      etapaFunil: l.etapaFunil,
+      source: l.origem,
+      origem: l.origem,
+      scoreQualificacao: l.scoreQualificacao,
+      score: l.scoreQualificacao,
+      marcaInteresse: l.marcaInteresse,
+      modeloInteresse: l.modeloInteresse,
+      anoInteresse: l.anoInteresse,
+      valorFipeConsultado: l.valorFipeConsultado,
+      cotacaoValor: l.cotacaoValor,
+      cotacaoPlano: l.cotacaoPlano,
+      cotacaoEnviada: l.cotacaoEnviada,
+      qualificadoPor: l.qualificadoPor,
+      motivoPerda: l.motivoPerda,
+      vendedorId: l.vendedorId,
+      vendedor: l.vendedor,
+      associado: l.associado,
+      utmSource: l.utmSource,
+      utmMedium: l.utmMedium,
+      utmCampaign: l.utmCampaign,
+      createdAt: l.createdAt,
+      updatedAt: l.updatedAt,
+      contact: l.associado ? { id: l.associado.id, fullName: l.associado.nome } : null,
+    }))
+
     return {
-      data: leads,
+      data,
       pagination: {
         page,
         limit,
@@ -100,27 +135,17 @@ export class LeadsService {
     }
   }
 
-  /**
-   * Busca lead por ID
-   */
   async getLeadById(id: string, companyId: string) {
     const lead = await prisma.lead.findFirst({
-      where: {
-        id,
-        companyId,
-      },
+      where: { id, companyId },
       include: {
-        contact: {
-          select: {
-            id: true,
-            fullName: true,
-            email: true,
-            phone: true,
-            avatar: true,
-            companyName: true,
-            jobTitle: true,
-          },
+        vendedor: {
+          select: { id: true, firstName: true, lastName: true },
         },
+        associado: {
+          select: { id: true, nome: true },
+        },
+        cotacoes: true,
       },
     })
 
@@ -131,147 +156,109 @@ export class LeadsService {
     return lead
   }
 
-  /**
-   * Cria novo lead
-   */
   async createLead(companyId: string, data: CreateLeadDTO) {
     const lead = await prisma.lead.create({
       data: {
         companyId,
-        contactId: data.contactId,
-        title: data.title,
-        description: data.description,
-        source: data.source,
-        medium: data.medium,
-        campaign: data.campaign,
-        assignedToId: data.assignedToId,
-        estimatedValue: data.estimatedValue,
-        tags: data.tags || [],
-      },
-      include: {
-        contact: {
-          select: {
-            id: true,
-            fullName: true,
-            email: true,
-            phone: true,
-          },
-        },
+        nome: data.nome,
+        telefone: data.telefone,
+        email: data.email,
+        whatsapp: data.whatsapp,
+        marcaInteresse: data.marcaInteresse,
+        modeloInteresse: data.modeloInteresse,
+        anoInteresse: data.anoInteresse,
+        cotacaoPlano: data.cotacaoPlano,
+        origem: data.origem,
+        vendedorId: data.vendedorId,
+        utmSource: data.utmSource,
+        utmMedium: data.utmMedium,
+        utmCampaign: data.utmCampaign,
+        etapaFunil: 'novo',
+        scoreQualificacao: 0,
       },
     })
 
     return lead
   }
 
-  /**
-   * Atualiza lead existente
-   */
   async updateLead(id: string, companyId: string, data: UpdateLeadDTO) {
-    const existingLead = await prisma.lead.findFirst({
-      where: {
-        id,
-        companyId,
-      },
+    const existing = await prisma.lead.findFirst({
+      where: { id, companyId },
     })
 
-    if (!existingLead) {
+    if (!existing) {
       throw new AppError('Lead not found', 404, 'NOT_FOUND')
     }
 
     const lead = await prisma.lead.update({
       where: { id },
       data: {
-        ...data,
-      },
-      include: {
-        contact: {
-          select: {
-            id: true,
-            fullName: true,
-            email: true,
-            phone: true,
-          },
-        },
+        nome: data.nome,
+        telefone: data.telefone,
+        email: data.email,
+        whatsapp: data.whatsapp,
+        marcaInteresse: data.marcaInteresse,
+        modeloInteresse: data.modeloInteresse,
+        anoInteresse: data.anoInteresse,
+        etapaFunil: data.etapaFunil,
+        scoreQualificacao: data.scoreQualificacao,
+        motivoPerda: data.motivoPerda,
+        valorFipeConsultado: data.valorFipeConsultado,
+        cotacaoValor: data.cotacaoValor,
+        cotacaoPlano: data.cotacaoPlano,
+        cotacaoEnviada: data.cotacaoEnviada,
+        qualificadoPor: data.qualificadoPor,
+        origem: data.origem,
+        vendedorId: data.vendedorId,
+        utmSource: data.utmSource,
+        utmMedium: data.utmMedium,
+        utmCampaign: data.utmCampaign,
       },
     })
 
     return lead
   }
 
-  /**
-   * Deleta lead
-   */
   async deleteLead(id: string, companyId: string) {
-    const existingLead = await prisma.lead.findFirst({
-      where: {
-        id,
-        companyId,
-      },
+    const existing = await prisma.lead.findFirst({
+      where: { id, companyId },
     })
 
-    if (!existingLead) {
+    if (!existing) {
       throw new AppError('Lead not found', 404, 'NOT_FOUND')
     }
 
-    await prisma.lead.delete({
-      where: { id },
-    })
+    await prisma.lead.delete({ where: { id } })
 
     return { success: true, message: 'Lead deleted' }
   }
 
-  /**
-   * Estatísticas de leads
-   */
   async getStats(companyId: string) {
-    const [
-      total,
-      statusNew,
-      statusContacted,
-      statusQualified,
-      statusUnqualified,
-      sourceGroups,
-      estimatedValueResult,
-    ] = await Promise.all([
-      prisma.lead.count({ where: { companyId } }),
-      prisma.lead.count({ where: { companyId, status: 'new' } }),
-      prisma.lead.count({ where: { companyId, status: 'contacted' } }),
-      prisma.lead.count({ where: { companyId, status: 'qualified' } }),
-      prisma.lead.count({ where: { companyId, status: 'unqualified' } }),
-      prisma.lead.groupBy({
-        by: ['source'],
-        where: { companyId },
-        _count: { id: true },
-      }),
-      prisma.lead.aggregate({
-        where: { companyId },
-        _sum: { estimatedValue: true },
-      }),
-    ])
+    const [total, novo, qualificado, cotacaoEnviada, negociacao, fechado, perdido] =
+      await Promise.all([
+        prisma.lead.count({ where: { companyId } }),
+        prisma.lead.count({ where: { companyId, etapaFunil: 'novo' } }),
+        prisma.lead.count({ where: { companyId, etapaFunil: 'qualificado' } }),
+        prisma.lead.count({ where: { companyId, etapaFunil: 'cotacao_enviada' } }),
+        prisma.lead.count({ where: { companyId, etapaFunil: 'negociacao' } }),
+        prisma.lead.count({ where: { companyId, etapaFunil: 'fechado' } }),
+        prisma.lead.count({ where: { companyId, etapaFunil: 'perdido' } }),
+      ])
 
     const byStatus = {
-      new: statusNew,
-      contacted: statusContacted,
-      qualified: statusQualified,
-      unqualified: statusUnqualified,
+      novo, qualificado, cotacao_enviada: cotacaoEnviada,
+      negociacao, fechado, perdido,
+      new: novo, contacted: qualificado, qualified: negociacao, unqualified: perdido,
     }
 
-    const bySource: Record<string, number> = {}
-    for (const group of sourceGroups) {
-      if (group.source) {
-        bySource[group.source] = group._count.id
-      }
-    }
-
-    const conversionRate = total > 0 ? (statusQualified / total) * 100 : 0
-    const totalEstimatedValue = estimatedValueResult._sum.estimatedValue || 0
+    const conversionRate = total > 0 ? (fechado / total) * 100 : 0
 
     return {
       total,
       byStatus,
-      bySource,
+      bySource: {},
       conversionRate: Math.round(conversionRate * 100) / 100,
-      totalEstimatedValue,
+      totalEstimatedValue: 0,
     }
   }
 }

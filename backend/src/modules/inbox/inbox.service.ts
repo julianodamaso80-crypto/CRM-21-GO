@@ -12,250 +12,167 @@ export interface SendMessageDTO {
 }
 
 export class InboxService {
-  /**
-   * Lista conversas com filtros opcionais
-   */
   async listConversations(companyId: string, query: ListConversationsQuery) {
-    const where: any = {
-      companyId,
-    }
+    const where: any = { companyId }
 
-    // Filtro por status
     if (query.status) {
       where.status = query.status
     }
 
-    // Filtro por tipo de canal (via relação)
     if (query.channelType) {
-      where.channel = {
-        type: query.channelType,
-      }
+      where.channel = query.channelType
     }
 
     const conversations = await prisma.conversation.findMany({
       where,
       include: {
-        channel: {
-          select: {
-            id: true,
-            type: true,
-            name: true,
-          },
+        associado: {
+          select: { id: true, nome: true, email: true, telefone: true },
         },
-        contact: {
-          select: {
-            id: true,
-            fullName: true,
-            email: true,
-            phone: true,
-            avatar: true,
-          },
+        lead: {
+          select: { id: true, nome: true, email: true, telefone: true },
         },
         assignedTo: {
-          select: {
-            id: true,
-            firstName: true,
-            lastName: true,
-          },
+          select: { id: true, firstName: true, lastName: true },
+        },
+        messages: {
+          orderBy: { createdAt: 'desc' },
+          take: 1,
+          select: { id: true, content: true, sender: true, createdAt: true },
         },
       },
-      orderBy: {
-        lastMessageAt: 'desc',
-      },
+      orderBy: { lastMessageAt: 'desc' },
     })
 
-    return conversations
+    // Transform to match frontend expectations
+    return conversations.map(c => ({
+      ...c,
+      channel: { type: c.channel, name: c.channel },
+      contact: c.associado
+        ? { id: c.associado.id, fullName: c.associado.nome, email: c.associado.email, phone: c.associado.telefone, avatar: null }
+        : c.lead
+          ? { id: c.lead.id, fullName: c.lead.nome, email: c.lead.email, phone: c.lead.telefone, avatar: null }
+          : null,
+      lastMessage: c.messages[0] || null,
+    }))
   }
 
-  /**
-   * Busca conversa por ID
-   */
   async getConversationById(id: string, companyId: string) {
     const conversation = await prisma.conversation.findFirst({
-      where: {
-        id,
-        companyId,
-      },
+      where: { id, companyId },
       include: {
-        channel: {
-          select: {
-            id: true,
-            type: true,
-            name: true,
-          },
+        associado: {
+          select: { id: true, nome: true, email: true, telefone: true },
         },
-        contact: {
-          select: {
-            id: true,
-            fullName: true,
-            email: true,
-            phone: true,
-            avatar: true,
-          },
+        lead: {
+          select: { id: true, nome: true, email: true, telefone: true },
         },
         assignedTo: {
-          select: {
-            id: true,
-            firstName: true,
-            lastName: true,
-          },
+          select: { id: true, firstName: true, lastName: true },
         },
       },
     })
 
     if (!conversation) {
-      throw AppError.notFound('Conversation not found')
+      throw new AppError('Conversation not found', 404, 'NOT_FOUND')
     }
 
-    return conversation
+    return {
+      ...conversation,
+      channel: { type: conversation.channel, name: conversation.channel },
+      contact: conversation.associado
+        ? { id: conversation.associado.id, fullName: conversation.associado.nome, email: conversation.associado.email, phone: conversation.associado.telefone, avatar: null }
+        : conversation.lead
+          ? { id: conversation.lead.id, fullName: conversation.lead.nome, email: conversation.lead.email, phone: conversation.lead.telefone, avatar: null }
+          : null,
+    }
   }
 
-  /**
-   * Busca mensagens de uma conversa
-   */
-  async getMessages(conversationId: string, companyId: string) {
-    // Verificar se a conversa existe e pertence à empresa
+  async getConversationMessages(id: string, companyId: string) {
     const conversation = await prisma.conversation.findFirst({
-      where: {
-        id: conversationId,
-        companyId,
-      },
+      where: { id, companyId },
     })
 
     if (!conversation) {
-      throw AppError.notFound('Conversation not found')
+      throw new AppError('Conversation not found', 404, 'NOT_FOUND')
     }
 
     const messages = await prisma.message.findMany({
-      where: {
-        conversationId,
-      },
+      where: { conversationId: id },
+      orderBy: { createdAt: 'asc' },
       include: {
-        sender: {
-          select: {
-            id: true,
-            firstName: true,
-            lastName: true,
-          },
+        senderUser: {
+          select: { id: true, firstName: true, lastName: true, avatar: true },
         },
-      },
-      orderBy: {
-        createdAt: 'asc',
       },
     })
 
     return messages
   }
 
-  /**
-   * Envia uma mensagem em uma conversa
-   */
-  async sendMessage(
-    conversationId: string,
-    companyId: string,
-    userId: string,
-    data: SendMessageDTO
-  ) {
-    // Verificar se a conversa existe e pertence à empresa
+  async sendMessage(conversationId: string, companyId: string, userId: string, data: SendMessageDTO) {
     const conversation = await prisma.conversation.findFirst({
-      where: {
-        id: conversationId,
-        companyId,
-      },
+      where: { id: conversationId, companyId },
     })
 
     if (!conversation) {
-      throw AppError.notFound('Conversation not found')
+      throw new AppError('Conversation not found', 404, 'NOT_FOUND')
     }
 
-    // Criar mensagem
     const message = await prisma.message.create({
       data: {
+        companyId,
         conversationId,
-        direction: 'outbound',
-        senderId: userId,
         content: data.content,
-        contentType: data.contentType || 'text',
-        isFromBot: false,
+        sender: 'vendedor',
+        senderId: userId,
       },
       include: {
-        sender: {
-          select: {
-            id: true,
-            firstName: true,
-            lastName: true,
-          },
+        senderUser: {
+          select: { id: true, firstName: true, lastName: true, avatar: true },
         },
       },
     })
 
-    // Atualizar lastMessageAt da conversa
     await prisma.conversation.update({
       where: { id: conversationId },
-      data: {
-        lastMessageAt: new Date(),
-      },
+      data: { lastMessageAt: new Date() },
     })
 
     return message
   }
 
-  /**
-   * Atualiza o status de uma conversa
-   */
-  async updateConversationStatus(id: string, companyId: string, status: string) {
+  async assignConversation(id: string, companyId: string, userId: string) {
     const conversation = await prisma.conversation.findFirst({
-      where: {
-        id,
-        companyId,
-      },
+      where: { id, companyId },
     })
 
     if (!conversation) {
-      throw AppError.notFound('Conversation not found')
+      throw new AppError('Conversation not found', 404, 'NOT_FOUND')
     }
 
     const updated = await prisma.conversation.update({
       where: { id },
-      data: { status },
+      data: { assignedToId: userId, status: 'assigned' },
     })
 
     return updated
   }
 
-  /**
-   * Marca conversa como lida
-   */
-  async markAsRead(id: string, companyId: string) {
+  async closeConversation(id: string, companyId: string) {
     const conversation = await prisma.conversation.findFirst({
-      where: {
-        id,
-        companyId,
-      },
+      where: { id, companyId },
     })
 
     if (!conversation) {
-      throw AppError.notFound('Conversation not found')
+      throw new AppError('Conversation not found', 404, 'NOT_FOUND')
     }
 
-    // Atualizar conversa como lida
     await prisma.conversation.update({
       where: { id },
-      data: { isUnread: false },
+      data: { status: 'closed' },
     })
 
-    // Marcar todas as mensagens não lidas como lidas
-    await prisma.message.updateMany({
-      where: {
-        conversationId: id,
-        isRead: false,
-      },
-      data: {
-        isRead: true,
-        readAt: new Date(),
-      },
-    })
-
-    return { success: true, message: 'Conversation marked as read' }
+    return { success: true, message: 'Conversation closed' }
   }
 }

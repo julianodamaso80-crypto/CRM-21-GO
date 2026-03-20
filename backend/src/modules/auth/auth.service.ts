@@ -17,7 +17,6 @@ export interface LoginDTO {
 
 export class AuthService {
   async register(data: RegisterDTO) {
-    // Verificar se email já existe
     const existingUser = await prisma.user.findUnique({
       where: { email: data.email },
     })
@@ -26,10 +25,8 @@ export class AuthService {
       throw AppError.conflict('Email already registered')
     }
 
-    // Hash da senha
     const hashedPassword = await bcrypt.hash(data.password, 10)
 
-    // Criar empresa
     const slug = data.companyName
       .toLowerCase()
       .replace(/[^a-z0-9]+/g, '-')
@@ -43,58 +40,14 @@ export class AuthService {
       },
     })
 
-    // Buscar plano Free
-    const freePlan = await prisma.plan.findUnique({
-      where: { name: 'free' },
-    })
-
-    if (!freePlan) {
-      throw AppError.internal('Free plan not found. Please run seed.')
-    }
-
-    // Criar subscription
-    await prisma.subscription.create({
-      data: {
-        companyId: company.id,
-        planId: freePlan.id,
-        status: 'active',
-        currentPeriodStart: new Date(),
-        currentPeriodEnd: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
-      },
-    })
-
-    // Criar role Admin para a empresa
-    const adminRole = await prisma.role.create({
-      data: {
-        name: 'admin',
-        displayName: 'Administrador',
-        description: 'Acesso total',
-        level: 10,
-        companyId: company.id,
-        isSystem: true,
-      },
-    })
-
-    // Associar todas as permissions ao admin
-    const allPermissions = await prisma.permission.findMany()
-    for (const perm of allPermissions) {
-      await prisma.rolePermission.create({
-        data: {
-          roleId: adminRole.id,
-          permissionId: perm.id,
-        },
-      })
-    }
-
-    // Criar usuário
     const user = await prisma.user.create({
       data: {
         email: data.email,
         password: hashedPassword,
         firstName: data.firstName,
         lastName: data.lastName,
+        role: 'admin',
         companyId: company.id,
-        roleId: adminRole.id,
         isActive: true,
       },
       select: {
@@ -104,7 +57,7 @@ export class AuthService {
         lastName: true,
         avatar: true,
         companyId: true,
-        roleId: true,
+        role: true,
         createdAt: true,
       },
     })
@@ -113,11 +66,9 @@ export class AuthService {
   }
 
   async login(data: LoginDTO, fastify: any) {
-    // Buscar usuário
     const user = await prisma.user.findUnique({
       where: { email: data.email },
       include: {
-        role: true,
         company: true,
       },
     })
@@ -126,35 +77,30 @@ export class AuthService {
       throw AppError.unauthorized('Invalid credentials')
     }
 
-    // Verificar se está ativo
     if (!user.isActive) {
       throw AppError.forbidden('User is inactive')
     }
 
-    // Verificar senha
     const isPasswordValid = await bcrypt.compare(data.password, user.password)
 
     if (!isPasswordValid) {
       throw AppError.unauthorized('Invalid credentials')
     }
 
-    // Verificar se empresa está ativa
     if (!user.company.isActive) {
       throw AppError.forbidden('Company is inactive')
     }
 
-    // Atualizar último login
     await prisma.user.update({
       where: { id: user.id },
       data: { lastLoginAt: new Date() },
     })
 
-    // Gerar tokens
     const payload = {
       id: user.id,
       email: user.email,
       companyId: user.companyId,
-      roleId: user.roleId,
+      role: user.role,
     }
 
     const token = fastify.jwt.sign(payload)
@@ -163,7 +109,6 @@ export class AuthService {
       expiresIn: '7d',
     })
 
-    // Salvar refresh token no banco
     await prisma.refreshToken.create({
       data: {
         token: refreshToken,
@@ -172,18 +117,24 @@ export class AuthService {
       },
     })
 
-    // Remover senha do retorno
     const { password: _, ...userWithoutPassword } = user
 
     return {
-      user: userWithoutPassword,
+      user: {
+        ...userWithoutPassword,
+        role: {
+          id: user.role,
+          name: user.role,
+          displayName: user.role === 'admin' ? 'Administrador' : user.role === 'gestor' ? 'Gestor' : user.role === 'vendedor' ? 'Vendedor' : 'Operacao',
+          level: user.role === 'admin' ? 10 : user.role === 'gestor' ? 7 : user.role === 'vendedor' ? 5 : 3,
+        },
+      },
       token,
       refreshToken,
     }
   }
 
   async refreshToken(oldRefreshToken: string, fastify: any) {
-    // Buscar refresh token no banco
     const refreshTokenRecord = await prisma.refreshToken.findUnique({
       where: { token: oldRefreshToken },
       include: { user: true },
@@ -193,22 +144,19 @@ export class AuthService {
       throw AppError.unauthorized('Invalid refresh token')
     }
 
-    // Verificar se expirou
     if (refreshTokenRecord.expiresAt < new Date()) {
       throw AppError.unauthorized('Refresh token expired')
     }
 
-    // Deletar token antigo
     await prisma.refreshToken.delete({
       where: { id: refreshTokenRecord.id },
     })
 
-    // Gerar novos tokens
     const payload = {
       id: refreshTokenRecord.user.id,
       email: refreshTokenRecord.user.email,
       companyId: refreshTokenRecord.user.companyId,
-      roleId: refreshTokenRecord.user.roleId,
+      role: refreshTokenRecord.user.role,
     }
 
     const newToken = fastify.jwt.sign(payload)
@@ -216,7 +164,6 @@ export class AuthService {
       expiresIn: '7d',
     })
 
-    // Salvar novo refresh token
     await prisma.refreshToken.create({
       data: {
         token: newRefreshToken,
@@ -232,7 +179,6 @@ export class AuthService {
   }
 
   async logout(refreshToken: string) {
-    // Deletar refresh token
     await prisma.refreshToken.deleteMany({
       where: { token: refreshToken },
     })
@@ -250,19 +196,9 @@ export class AuthService {
         lastName: true,
         avatar: true,
         phone: true,
-        timezone: true,
-        language: true,
         isActive: true,
         companyId: true,
-        roleId: true,
-        role: {
-          select: {
-            id: true,
-            name: true,
-            displayName: true,
-            level: true,
-          },
-        },
+        role: true,
         company: {
           select: {
             id: true,
@@ -280,6 +216,30 @@ export class AuthService {
       throw AppError.notFound('User not found')
     }
 
-    return user
+    const roleDisplayNames: Record<string, string> = {
+      admin: 'Administrador',
+      gestor: 'Gestor',
+      vendedor: 'Vendedor',
+      operacao: 'Operacao',
+    }
+    const roleLevels: Record<string, number> = {
+      admin: 10,
+      gestor: 7,
+      vendedor: 5,
+      operacao: 3,
+    }
+
+    return {
+      ...user,
+      timezone: 'America/Sao_Paulo',
+      language: 'pt-BR',
+      roleId: user.role,
+      role: {
+        id: user.role,
+        name: user.role,
+        displayName: roleDisplayNames[user.role] || user.role,
+        level: roleLevels[user.role] || 1,
+      },
+    }
   }
 }

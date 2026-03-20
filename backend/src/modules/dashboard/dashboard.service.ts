@@ -1,73 +1,24 @@
 import { prisma } from '../../config/database'
 
-export interface DashboardStats {
-  contacts: {
-    total: number
-    withEmail: number
-    withPhone: number
-    recentCount: number
-  }
-  pipes: {
-    totalPipes: number
-    totalCards: number
-    activeCards: number
-    doneCards: number
-  }
-  pipesSummary: Array<{
-    id: string
-    name: string
-    color: string
-    totalCards: number
-    activeCards: number
-  }>
-  phaseDistribution: Array<{
-    phaseName: string
-    phaseColor: string
-    count: number
-  }>
-  ai: {
-    totalQueries: number
-    totalDocuments: number
-    totalAgents: number
-  }
-  recentCards: Array<{
-    id: string
-    title: string
-    status: string
-    pipeName: string
-    phaseName: string
-    phaseColor: string
-    createdAt: Date
-  }>
-  cardsByDay: Array<{
-    date: string
-    created: number
-    completed: number
-  }>
-}
-
 export class DashboardService {
-  /**
-   * Retorna estatisticas agregadas do dashboard
-   */
-  async getStats(companyId: string): Promise<DashboardStats> {
+  async getStats(companyId: string) {
     const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)
 
-    // --- Contacts ---
+    // --- Associados ---
     const [
       contactsTotal,
       contactsWithEmail,
       contactsWithPhone,
       contactsRecent,
     ] = await Promise.all([
-      prisma.contact.count({ where: { companyId } }),
-      prisma.contact.count({
+      prisma.associado.count({ where: { companyId } }),
+      prisma.associado.count({
         where: { companyId, email: { not: null } },
       }),
-      prisma.contact.count({
-        where: { companyId, phone: { not: null } },
+      prisma.associado.count({
+        where: { companyId, telefone: { not: null } },
       }),
-      prisma.contact.count({
+      prisma.associado.count({
         where: {
           companyId,
           createdAt: { gte: thirtyDaysAgo },
@@ -130,8 +81,7 @@ export class DashboardService {
     }))
 
     // --- AI Stats ---
-    const [totalQueries, totalDocuments, totalAgents] = await Promise.all([
-      prisma.aIQueryLog.count({ where: { companyId } }),
+    const [totalDocuments, totalAgents] = await Promise.all([
       prisma.knowledgeDocument.count({
         where: {
           knowledgeBase: { companyId },
@@ -218,7 +168,7 @@ export class DashboardService {
       pipesSummary,
       phaseDistribution,
       ai: {
-        totalQueries,
+        totalQueries: 0,
         totalDocuments,
         totalAgents,
       },

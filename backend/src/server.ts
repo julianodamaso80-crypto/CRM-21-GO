@@ -15,8 +15,13 @@ import { env } from './config/env'
 import { errorHandler } from './middlewares/error-handler'
 import { logger } from './utils/logger'
 import { socketService } from './websocket'
-import { authRoutes } from './modules/auth/auth.routes.simple'
+
+// Auth (Prisma real — não mais mock/json-db)
+import { authRoutes } from './modules/auth/auth.routes'
+
+// Modules existentes
 import { associadosRoutes } from './modules/associados/associados.routes'
+import { vehiclesRoutes } from './modules/vehicles/vehicles.routes'
 import { aiRoutes } from './modules/ai/ai.routes'
 import { pipesRoutes } from './modules/pipes/pipes.routes'
 import { leadsRoutes } from './modules/leads/leads.routes'
@@ -28,6 +33,12 @@ import { dashboardRoutes } from './modules/dashboard/dashboard.routes'
 import { analyticsRoutes } from './modules/analytics/analytics.routes'
 import { billingRoutes } from './modules/billing/billing.routes'
 import { uploadRoutes } from './modules/upload/upload.routes'
+
+// Novos modules 21Go
+import { sinistrosRoutes } from './modules/sinistros/sinistros.routes'
+import { cotacoesRoutes } from './modules/cotacoes/cotacoes.routes'
+import { indicacoesRoutes } from './modules/indicacoes/indicacoes.routes'
+import { projectsRoutes } from './modules/projects/projects.routes'
 
 const port = Number(process.env.PORT) || env.PORT || 3333
 
@@ -44,7 +55,22 @@ async function bootstrap() {
     })
 
     await fastify.register(cors, {
-      origin: env.CORS_ORIGIN === '*' ? true : env.CORS_ORIGIN,
+      origin: (origin, cb) => {
+        // Allow requests from 21go.site, localhost, and Railway preview URLs
+        const allowed = [
+          'https://21go.site',
+          'https://www.21go.site',
+          'http://localhost:5173',
+          'http://localhost:3333',
+        ]
+        if (!origin || allowed.includes(origin) || origin.endsWith('.railway.app')) {
+          cb(null, true)
+        } else if (env.CORS_ORIGIN === '*') {
+          cb(null, true)
+        } else {
+          cb(null, env.CORS_ORIGIN === origin)
+        }
+      },
       credentials: true,
     })
 
@@ -113,16 +139,22 @@ async function bootstrap() {
         status: 'ok',
         timestamp: new Date().toISOString(),
         uptime: process.uptime(),
+        database: 'prisma',
       }
     })
 
     // ── API Routes ──────────────────────────────────────
     await fastify.register(authRoutes, { prefix: '/api/auth' })
     await fastify.register(associadosRoutes, { prefix: '/api/associados' })
+    await fastify.register(vehiclesRoutes, { prefix: '/api/vehicles' })
+    await fastify.register(leadsRoutes, { prefix: '/api/leads' })
+    await fastify.register(sinistrosRoutes, { prefix: '/api/sinistros' })
+    await fastify.register(cotacoesRoutes, { prefix: '/api/cotacoes' })
+    await fastify.register(indicacoesRoutes, { prefix: '/api/indicacoes' })
+    await fastify.register(projectsRoutes, { prefix: '/api/projects' })
     await fastify.register(aiRoutes, { prefix: '/api/ai' })
     await fastify.register(pipesRoutes, { prefix: '/api/pipes' })
     await fastify.register(npsRoutes, { prefix: '/api/nps' })
-    await fastify.register(leadsRoutes, { prefix: '/api/leads' })
     await fastify.register(inboxRoutes, { prefix: '/api/conversations' })
     await fastify.register(automationsRoutes, { prefix: '/api/automations' })
     await fastify.register(webhooksRoutes, { prefix: '/api/webhooks' })
@@ -131,13 +163,23 @@ async function bootstrap() {
     await fastify.register(billingRoutes, { prefix: '/api/billing' })
     await fastify.register(uploadRoutes, { prefix: '/api/upload' })
 
+    // Alias: /api/contacts -> /api/associados (backward compat)
+    await fastify.register(associadosRoutes, { prefix: '/api/contacts' })
+
+    // Boletos endpoint (alias para billing/financeiro)
+    fastify.get('/api/boletos', { preHandler: [] }, async (_req, reply) => {
+      return reply.send({ data: [], message: 'Boletos via Hinova SGC (integracao pendente)' })
+    })
+
+    // Inbox alias
+    await fastify.register(inboxRoutes, { prefix: '/api/inbox' })
+
     // ── Serve frontend static files in production ───────
-    // Try multiple possible paths for the frontend dist
     const possiblePaths = [
-      path.join(process.cwd(), '..', 'frontend', 'dist'),    // cd backend && node dist/server.js
-      path.join(process.cwd(), 'frontend', 'dist'),           // node backend/dist/server.js from root
-      path.join(__dirname, '..', '..', 'frontend', 'dist'),   // relative to compiled file
-      path.join(__dirname, '..', 'frontend', 'dist'),         // alternative
+      path.join(process.cwd(), '..', 'frontend', 'dist'),
+      path.join(process.cwd(), 'frontend', 'dist'),
+      path.join(__dirname, '..', '..', 'frontend', 'dist'),
+      path.join(__dirname, '..', 'frontend', 'dist'),
     ]
 
     const frontendDistPath = possiblePaths.find(p => fs.existsSync(p))
@@ -152,7 +194,7 @@ async function bootstrap() {
 
       // SPA fallback: serve index.html for any non-API, non-health route
       fastify.setNotFoundHandler((request, reply) => {
-        if (request.url.startsWith('/api/') || request.url === '/health') {
+        if (request.url.startsWith('/api/') || request.url === '/health' || request.url === '/docs') {
           return reply.status(404).send({ error: 'Not Found', message: 'Route not found' })
         }
         return reply.sendFile('index.html')
@@ -172,18 +214,23 @@ async function bootstrap() {
     })
 
     // Initialize Socket.io AFTER server is listening
-    await socketService.initialize(fastify)
+    try {
+      await socketService.initialize(fastify)
+    } catch (err) {
+      console.warn('[WebSocket] Failed to initialize:', err)
+    }
 
     console.log(`
     ╔═══════════════════════════════════════════════════╗
     ║                                                   ║
-    ║   CRM 21Go - BACKEND STARTED                     ║
+    ║   CRM 21Go - BACKEND STARTED (PRISMA)            ║
     ║                                                   ║
     ║   Server:  http://0.0.0.0:${String(port).padEnd(25)}║
     ║   Docs:    /docs                                  ║
     ║   Health:  /health                                ║
     ║   Env:     ${env.NODE_ENV.toUpperCase().padEnd(38)}║
     ║   Static:  ${frontendDistPath ? 'YES' : 'NO'}${' '.repeat(frontendDistPath ? 37 : 37)}║
+    ║   DB:      Prisma + PostgreSQL                    ║
     ║                                                   ║
     ╚═══════════════════════════════════════════════════╝
     `)

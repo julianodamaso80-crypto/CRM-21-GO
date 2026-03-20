@@ -61,7 +61,7 @@ export class VehiclesService {
         { placa: { contains: query.search, mode: 'insensitive' } },
         { marca: { contains: query.search, mode: 'insensitive' } },
         { modelo: { contains: query.search, mode: 'insensitive' } },
-        { associado: { fullName: { contains: query.search, mode: 'insensitive' } } },
+        { associado: { nome: { contains: query.search, mode: 'insensitive' } } },
       ]
     }
 
@@ -73,7 +73,7 @@ export class VehiclesService {
         orderBy: { createdAt: 'desc' },
         include: {
           associado: {
-            select: { id: true, fullName: true, cpf: true },
+            select: { id: true, nome: true, cpf: true },
           },
         },
       }),
@@ -83,7 +83,10 @@ export class VehiclesService {
     const totalPages = Math.ceil(total / limit)
 
     return {
-      data: vehicles,
+      data: vehicles.map(v => ({
+        ...v,
+        associado: v.associado ? { ...v.associado, fullName: v.associado.nome } : null,
+      })),
       pagination: {
         page,
         limit,
@@ -100,7 +103,7 @@ export class VehiclesService {
       where: { id, companyId },
       include: {
         associado: {
-          select: { id: true, fullName: true, cpf: true, phone: true, whatsapp: true },
+          select: { id: true, nome: true, cpf: true, telefone: true, whatsapp: true },
         },
       },
     })
@@ -109,7 +112,14 @@ export class VehiclesService {
       throw new AppError('Vehicle not found', 404, 'NOT_FOUND')
     }
 
-    return vehicle
+    return {
+      ...vehicle,
+      associado: vehicle.associado ? {
+        ...vehicle.associado,
+        fullName: vehicle.associado.nome,
+        phone: vehicle.associado.telefone,
+      } : null,
+    }
   }
 
   async getVehiclesByAssociado(associadoId: string, companyId: string) {
@@ -120,7 +130,6 @@ export class VehiclesService {
   }
 
   async createVehicle(companyId: string, data: CreateVehicleDTO) {
-    // Validar placa unica na empresa
     const existing = await prisma.vehicle.findFirst({
       where: { companyId, placa: data.placa.toUpperCase() },
     })
@@ -151,14 +160,16 @@ export class VehiclesService {
         rastreadorMarca: data.rastreadorMarca,
         vistoriaStatus: 'pendente',
         ativo: true,
-        dataInclusao: new Date(),
       },
       include: {
-        associado: { select: { id: true, fullName: true, cpf: true } },
+        associado: { select: { id: true, nome: true, cpf: true } },
       },
     })
 
-    return vehicle
+    return {
+      ...vehicle,
+      associado: vehicle.associado ? { ...vehicle.associado, fullName: vehicle.associado.nome } : null,
+    }
   }
 
   async updateVehicle(id: string, companyId: string, data: UpdateVehicleDTO) {
@@ -177,19 +188,26 @@ export class VehiclesService {
       }
     }
 
+    const updateData: any = { ...data }
+    if (data.placa) updateData.placa = data.placa.toUpperCase()
+    // Remove fields that don't exist on schema
+    delete updateData.vistoriaData
+    if (data.vistoriaData) {
+      updateData.vistoriaData = new Date(data.vistoriaData)
+    }
+
     const vehicle = await prisma.vehicle.update({
       where: { id },
-      data: {
-        ...data,
-        placa: data.placa ? data.placa.toUpperCase() : undefined,
-        dataExclusao: data.ativo === false ? new Date() : undefined,
-      },
+      data: updateData,
       include: {
-        associado: { select: { id: true, fullName: true, cpf: true } },
+        associado: { select: { id: true, nome: true, cpf: true } },
       },
     })
 
-    return vehicle
+    return {
+      ...vehicle,
+      associado: vehicle.associado ? { ...vehicle.associado, fullName: vehicle.associado.nome } : null,
+    }
   }
 
   async deleteVehicle(id: string, companyId: string) {

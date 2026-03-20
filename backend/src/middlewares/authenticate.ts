@@ -8,17 +8,18 @@ export async function authenticate(
   try {
     await request.jwtVerify()
 
-    // O payload do JWT estará em request.user após jwtVerify()
     if (!request.user) {
       throw AppError.unauthorized('Invalid token payload')
     }
 
-    // Validar estrutura do payload
-    const { id, email, companyId, roleId } = request.user
+    const { id, email, companyId, role } = request.user as any
 
-    if (!id || !email || !companyId || !roleId) {
+    if (!id || !email || !companyId || !role) {
       throw AppError.unauthorized('Invalid token payload structure')
     }
+
+    // Compatibilidade: manter roleId para codigo legado
+    ;(request.user as any).roleId = role
   } catch (error) {
     throw AppError.unauthorized('Authentication failed')
   }
