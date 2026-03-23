@@ -16,7 +16,7 @@ const queryClient = new QueryClient({
 export function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <BrowserRouter basename="/crm">
+      <BrowserRouter>
         <SocketProvider>
           <NotificationProvider>
             <Router />
