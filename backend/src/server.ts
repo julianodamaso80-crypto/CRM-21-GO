@@ -174,9 +174,7 @@ async function bootstrap() {
     // Inbox alias
     await fastify.register(inboxRoutes, { prefix: '/api/inbox' })
 
-    // ── Serve static files in production ───────
-
-    // 1) CRM frontend em /crm
+    // ── Serve CRM frontend em /crm ───────
     const crmPaths = [
       path.join(process.cwd(), '..', 'frontend', 'dist'),
       path.join(process.cwd(), 'frontend', 'dist'),
@@ -190,75 +188,22 @@ async function bootstrap() {
       await fastify.register(fastifyStatic, {
         root: crmDistPath,
         prefix: '/crm/',
-        decorateReply: true,
       })
     } else {
       console.log('[Static] CRM dist not found, skipping')
       console.log('[Static] Looked in:', crmPaths)
     }
 
-    // 2) Site publico (Next.js export) na raiz /
-    const sitePaths = [
-      path.join(process.cwd(), '..', '21go-website', 'out'),
-      path.join(process.cwd(), '21go-website', 'out'),
-      path.join(__dirname, '..', '..', '21go-website', 'out'),
-      path.join(__dirname, '..', '21go-website', 'out'),
-    ]
-    const siteDistPath = sitePaths.find(p => fs.existsSync(p))
-
-    if (siteDistPath) {
-      console.log(`[Static] Serving site from: ${siteDistPath} at /`)
-      await fastify.register(fastifyStatic, {
-        root: siteDistPath,
-        prefix: '/',
-        decorateReply: false,
-      })
-    } else {
-      console.log('[Static] Site dist not found, skipping')
-      console.log('[Static] Looked in:', sitePaths)
-    }
-
-    // Helper to serve HTML files manually (sendFile doesn't work in notFoundHandler with decorateReply: false)
-    const serveHtml = (filePath: string, reply: any) => {
-      const content = fs.readFileSync(filePath, 'utf8')
-      return reply.type('text/html').send(content)
-    }
-
-    // Fallback handler for both site and CRM
+    // SPA fallback: /crm/* -> CRM index.html, API -> 404 JSON
     fastify.setNotFoundHandler((request, reply) => {
       const url = request.url.split('?')[0]
 
-      // API routes: 404 JSON
       if (url.startsWith('/api/') || url === '/health' || url === '/docs') {
         return reply.status(404).send({ error: 'Not Found', message: 'Route not found' })
       }
 
-      // CRM SPA fallback: any /crm path serves CRM index.html
       if (url.startsWith('/crm') && crmDistPath) {
-        return serveHtml(path.join(crmDistPath, 'index.html'), reply)
-      }
-
-      // Site: try serving .html file for Next.js exported pages
-      if (siteDistPath) {
-        const cleanPath = (url.endsWith('/') ? url.slice(0, -1) : url) || ''
-        const segment = cleanPath.slice(1) // remove leading /
-
-        // Try exact .html match (e.g. /cotacao -> cotacao.html)
-        if (segment) {
-          const htmlFile = path.join(siteDistPath, segment + '.html')
-          if (fs.existsSync(htmlFile)) {
-            return serveHtml(htmlFile, reply)
-          }
-
-          // Try directory index (e.g. /blog/slug -> blog/slug/index.html)
-          const indexFile = path.join(siteDistPath, segment, 'index.html')
-          if (fs.existsSync(indexFile)) {
-            return serveHtml(indexFile, reply)
-          }
-        }
-
-        // Final fallback: site index.html
-        return serveHtml(path.join(siteDistPath, 'index.html'), reply)
+        return reply.sendFile('index.html', crmDistPath)
       }
 
       return reply.status(404).send({ error: 'Not Found' })
