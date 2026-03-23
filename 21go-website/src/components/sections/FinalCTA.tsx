@@ -1,35 +1,103 @@
-import { Button } from '@/components/ui/Button'
-import { ShieldCheck } from 'lucide-react'
+'use client'
+
+import { motion, useInView } from 'framer-motion'
+import { useRef } from 'react'
+import { Lock } from 'lucide-react'
+import { fadeInUp, staggerContainer } from '@/lib/motion'
+import { ShimmerButton } from '@/components/ui/ShimmerButton'
 
 export function FinalCTA() {
+  const ref = useRef(null)
+  const isInView = useInView(ref, { once: true, margin: '-80px' })
+
   return (
-    <section className="py-24 relative overflow-hidden">
-      {/* Background gradient */}
-      <div className="absolute inset-0 bg-gradient-to-b from-dark-950 via-blue-950/20 to-dark-950" />
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full bg-blue-500/5 blur-[120px]" />
+    <section ref={ref} className="relative overflow-hidden py-32">
+      {/* Gold glow */}
+      <div className="pointer-events-none absolute left-1/2 top-1/2 h-[600px] w-[600px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#C9A84C] opacity-[0.08] blur-[120px]" />
 
-      <div className="relative max-w-3xl mx-auto px-6 text-center">
-        <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-blue-500/10 border border-blue-500/20 mb-8">
-          <ShieldCheck className="w-8 h-8 text-blue-400" />
-        </div>
+      {/* Decorative beams */}
+      <svg className="pointer-events-none absolute inset-0 h-full w-full" xmlns="http://www.w3.org/2000/svg">
+        <path
+          d="M0,200 Q400,100 800,250 T1600,180"
+          fill="none"
+          stroke="rgba(201,168,76,0.08)"
+          strokeWidth="1"
+          className="animate-[dash_8s_linear_infinite]"
+          strokeDasharray="10 20"
+        />
+        <path
+          d="M0,350 Q300,250 700,400 T1400,300"
+          fill="none"
+          stroke="rgba(201,168,76,0.06)"
+          strokeWidth="1"
+          className="animate-[dash_10s_linear_infinite]"
+          strokeDasharray="8 16"
+        />
+        <path
+          d="M200,0 Q350,200 200,400 T400,600"
+          fill="none"
+          stroke="rgba(201,168,76,0.05)"
+          strokeWidth="1"
+          className="animate-[dash_12s_linear_infinite]"
+          strokeDasharray="12 24"
+        />
+        <path
+          d="M1000,0 Q850,150 1000,350 T900,600"
+          fill="none"
+          stroke="rgba(201,168,76,0.05)"
+          strokeWidth="1"
+          className="animate-[dash_9s_linear_infinite]"
+          strokeDasharray="6 18"
+        />
+      </svg>
 
-        <h2 className="font-display text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-4">
+      {/* Content */}
+      <motion.div
+        variants={staggerContainer}
+        initial="hidden"
+        animate={isInView ? 'visible' : 'hidden'}
+        className="relative z-10 mx-auto max-w-2xl px-6 text-center"
+      >
+        <motion.h2
+          variants={fadeInUp}
+          className="font-display text-4xl font-extrabold text-[#F0F0F5] md:text-5xl"
+        >
           Proteja seu veiculo agora
-        </h2>
+        </motion.h2>
 
-        <p className="font-body text-lg text-gray-400 max-w-xl mx-auto mb-10">
-          Cotacao em 30 segundos. Sem burocracia. Sem analise de perfil.
-          Junte-se a milhares de cariocas que ja protegem seus veiculos com a 21Go.
-        </p>
+        <motion.p variants={fadeInUp} className="mt-4 text-[#8888A0]">
+          Cotacao em 30 segundos. Sem burocracia, sem analise de perfil. Junte-se a milhares de cariocas protegidos pela 21Go.
+        </motion.p>
 
-        <Button variant="cta" size="lg" href="/cotacao" className="text-lg px-10 py-4">
-          Fazer Cotacao Gratis
-        </Button>
+        {/* Inline form */}
+        <motion.div
+          variants={fadeInUp}
+          className="mt-10 flex flex-col items-center gap-3 sm:flex-row sm:justify-center"
+        >
+          <input
+            type="text"
+            placeholder="Seu nome"
+            className="w-full rounded-xl border border-white/[0.06] bg-white/[0.04] px-4 py-3 text-sm text-[#F0F0F5] placeholder-[#555570] outline-none transition-colors focus:border-[#C9A84C]/30 sm:w-auto"
+          />
+          <input
+            type="tel"
+            placeholder="WhatsApp"
+            className="w-full rounded-xl border border-white/[0.06] bg-white/[0.04] px-4 py-3 text-sm text-[#F0F0F5] placeholder-[#555570] outline-none transition-colors focus:border-[#C9A84C]/30 sm:w-auto"
+          />
+          <ShimmerButton className="w-full sm:w-auto">
+            Quero Minha Cotacao
+          </ShimmerButton>
+        </motion.div>
 
-        <p className="mt-6 text-sm text-gray-500 font-body">
-          Sem compromisso. Cancele quando quiser.
-        </p>
-      </div>
+        {/* Trust line */}
+        <motion.div
+          variants={fadeInUp}
+          className="mt-6 flex items-center justify-center gap-2 text-sm text-[#555570]"
+        >
+          <Lock className="h-3.5 w-3.5" />
+          <span>Seus dados estao protegidos. Sem spam.</span>
+        </motion.div>
+      </motion.div>
     </section>
   )
 }

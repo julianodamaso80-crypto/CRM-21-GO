@@ -1,27 +1,32 @@
-import { Shield, FileCheck, Clock, Bot } from 'lucide-react'
+'use client'
 
-const trustItems = [
-  { icon: Shield, label: '20+ Anos de Mercado' },
-  { icon: FileCheck, label: 'Cadastro SUSEP' },
-  { icon: Clock, label: 'Atendimento 24h' },
-  { icon: Bot, label: 'IA Inteligente' },
+const items = [
+  '20+ Anos de Mercado',
+  'Cadastro SUSEP',
+  'Atendimento IA 24/7',
+  'Sem Analise de Perfil',
+  '0800 Funciona',
+  'Protecao em 48h',
 ]
 
 export function TrustBar() {
+  const doubled = [...items, ...items]
+
   return (
-    <section className="bg-dark-800/50 border-y border-dark-700/50 py-4">
-      <div className="max-w-6xl mx-auto px-6">
-        <div className="flex flex-wrap items-center justify-center gap-8 md:gap-16">
-          {trustItems.map((item) => (
-            <div key={item.label} className="flex items-center gap-3">
-              <item.icon className="w-5 h-5 text-blue-400 shrink-0" />
-              <span className="font-body text-sm text-gray-300 whitespace-nowrap">
-                {item.label}
-              </span>
-            </div>
-          ))}
-        </div>
+    <div className="group overflow-hidden border-y border-white/[0.04] bg-[#0F0F18]/50 py-4">
+      <div className="flex animate-[scroll_30s_linear_infinite] group-hover:[animation-play-state:paused]">
+        {doubled.map((item, i) => (
+          <div
+            key={i}
+            className="flex flex-shrink-0 items-center gap-3 px-8"
+          >
+            <span className="h-1.5 w-1.5 rounded-full bg-[#C9A84C]" />
+            <span className="whitespace-nowrap text-sm font-medium uppercase tracking-wider text-[#555570]">
+              {item}
+            </span>
+          </div>
+        ))}
       </div>
-    </section>
+    </div>
   )
 }

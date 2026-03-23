@@ -1,20 +1,31 @@
 import type { Metadata } from 'next'
-import { Outfit, DM_Sans } from 'next/font/google'
+import { Plus_Jakarta_Sans, Outfit } from 'next/font/google'
 import './globals.css'
 import { Header } from '@/components/layout/Header'
 import { Footer } from '@/components/layout/Footer'
 import { WhatsAppButton } from '@/components/ui/WhatsAppButton'
 import { SchemaOrg } from '@/components/seo/SchemaOrg'
 
-const outfit = Outfit({ subsets: ['latin'], variable: '--font-outfit', display: 'swap' })
-const dmSans = DM_Sans({ subsets: ['latin'], variable: '--font-dm-sans', display: 'swap' })
+const jakarta = Plus_Jakarta_Sans({
+  subsets: ['latin'],
+  weight: ['600', '700', '800'],
+  variable: '--font-jakarta',
+  display: 'swap',
+})
+
+const outfit = Outfit({
+  subsets: ['latin'],
+  weight: ['400', '500', '600'],
+  variable: '--font-outfit',
+  display: 'swap',
+})
 
 export const metadata: Metadata = {
   title: {
     default: 'Protecao Veicular RJ | 21Go - Desde 200X Protegendo Seu Carro',
     template: '%s | 21Go Protecao Veicular',
   },
-  description: 'Protecao veicular no Rio de Janeiro a partir de R$XX/mes. Sem analise de perfil. Cotacao em 30 segundos. 20+ anos de mercado.',
+  description: 'Protecao veicular no Rio de Janeiro a partir de R$89/mes. Sem analise de perfil. Cotacao em 30 segundos. 20+ anos de mercado.',
   metadataBase: new URL('https://21go.site'),
   openGraph: {
     type: 'website',
@@ -28,7 +39,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="pt-BR" className={`${outfit.variable} ${dmSans.variable}`}>
+    <html lang="pt-BR" className={`${jakarta.variable} ${outfit.variable}`}>
       <body>
         <SchemaOrg />
         <Header />

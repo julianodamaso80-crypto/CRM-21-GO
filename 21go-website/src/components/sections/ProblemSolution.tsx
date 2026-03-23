@@ -1,61 +1,98 @@
 'use client'
 
-import { SectionHeading } from '@/components/ui/SectionHeading'
-import { Card } from '@/components/ui/Card'
-import { AnimatedCounter } from '@/components/ui/AnimatedCounter'
-import { AlertTriangle, TrendingDown, ShieldCheck } from 'lucide-react'
+import { motion, useInView } from 'framer-motion'
+import { useRef } from 'react'
+import { ShieldCheck, Lock, Flame, Layers, Clock, Users } from 'lucide-react'
+import { fadeInUp, staggerContainer } from '@/lib/motion'
+import { SpotlightCard } from '@/components/ui/SpotlightCard'
+
+const coverages = [
+  {
+    icon: ShieldCheck,
+    title: 'Colisao',
+    description: 'Cobertura total em caso de colisao, seja parcial ou perda total. Reparos na rede credenciada sem dor de cabeca.',
+    span: 'md:col-span-2',
+  },
+  {
+    icon: Lock,
+    title: 'Roubo e Furto',
+    description: 'Protecao contra roubo e furto com reembolso baseado na tabela FIPE. Processo rapido e descomplicado.',
+    span: 'md:col-span-1',
+  },
+  {
+    icon: Flame,
+    title: 'Incendio',
+    description: 'Cobertura completa em caso de incendio, incluindo causas eletricas e mecanicas do veiculo.',
+    span: 'md:col-span-1',
+  },
+  {
+    icon: Layers,
+    title: 'Vidros e Farois',
+    description: 'Troca de para-brisa, vidros laterais, traseiro e farois sem franquia. Pecas originais garantidas.',
+    span: 'md:col-span-2',
+  },
+  {
+    icon: Clock,
+    title: 'Assistencia 24h',
+    description: 'Guincho ate 200km, chaveiro, troca de pneu, pane seca e eletrica. Disponivel 24 horas por dia, 7 dias por semana.',
+    span: 'md:col-span-2',
+  },
+  {
+    icon: Users,
+    title: 'Terceiros R$100K',
+    description: 'Cobertura de danos materiais e corporais causados a terceiros ate R$100 mil. Tranquilidade total no transito.',
+    span: 'md:col-span-1',
+  },
+]
 
 export function ProblemSolution() {
+  const ref = useRef(null)
+  const isInView = useInView(ref, { once: true, margin: '-80px' })
+
   return (
-    <section className="py-24 relative">
-      <div className="max-w-6xl mx-auto px-6">
-        <SectionHeading
-          badge="O Problema"
-          title="26.817 veiculos roubados no RJ em 2025"
-          subtitle="O Rio de Janeiro lidera o ranking de roubos de veiculos no Brasil. Voce nao pode ficar desprotegido."
-        />
+    <section ref={ref} className="py-28">
+      <div className="mx-auto max-w-7xl px-6">
+        {/* Header */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={isInView ? { opacity: 1, y: 0 } : {}}
+          transition={{ duration: 0.6 }}
+          className="mb-16 text-center"
+        >
+          <span className="text-sm font-semibold uppercase tracking-widest text-[#C9A84C]">
+            COBERTURAS
+          </span>
+          <h2 className="mt-3 font-display text-4xl font-extrabold text-[#F0F0F5] md:text-5xl">
+            Protecao completa para seu veiculo
+          </h2>
+          <p className="mx-auto mt-4 max-w-xl text-[#8888A0]">
+            Coberturas pensadas para a realidade do Rio de Janeiro. Do basico ao premium, voce escolhe o que faz sentido.
+          </p>
+        </motion.div>
 
-        <div className="grid md:grid-cols-3 gap-6 mt-16">
-          {/* Stat card */}
-          <Card hover className="text-center p-8">
-            <div className="w-14 h-14 rounded-2xl bg-red-500/10 border border-red-500/20 flex items-center justify-center mx-auto mb-6">
-              <AlertTriangle className="w-7 h-7 text-red-400" />
-            </div>
-            <div className="text-5xl font-display font-bold text-white mb-2">
-              <AnimatedCounter target={5} duration={1500} />
-            </div>
-            <p className="text-lg font-body text-gray-400 mb-2">por hora</p>
-            <p className="text-sm font-body text-gray-500">
-              Sao 5 veiculos roubados a cada hora no estado do Rio de Janeiro. Um a cada 12 minutos.
-            </p>
-          </Card>
-
-          {/* Comparison card */}
-          <Card hover className="text-center p-8">
-            <div className="w-14 h-14 rounded-2xl bg-orange-500/10 border border-orange-500/20 flex items-center justify-center mx-auto mb-6">
-              <TrendingDown className="w-7 h-7 text-orange-400" />
-            </div>
-            <p className="text-4xl font-display font-bold text-white mb-2">2x</p>
-            <p className="text-lg font-body text-gray-400 mb-2">mais caro</p>
-            <p className="text-sm font-body text-gray-500">
-              Seguro tradicional no RJ custa o dobro da media nacional. Muitos motoristas ficam sem protecao.
-            </p>
-          </Card>
-
-          {/* Solution card */}
-          <Card hover className="text-center p-8 border-blue-500/30">
-            <div className="w-14 h-14 rounded-2xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center mx-auto mb-6">
-              <ShieldCheck className="w-7 h-7 text-blue-400" />
-            </div>
-            <p className="text-4xl font-display font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-blue-300 mb-2">
-              60%
-            </p>
-            <p className="text-lg font-body text-gray-400 mb-2">mais acessivel</p>
-            <p className="text-sm font-body text-gray-500">
-              A 21Go protege seu veiculo por ate 60% menos que o seguro tradicional. Sem analise de perfil.
-            </p>
-          </Card>
-        </div>
+        {/* Bento grid */}
+        <motion.div
+          variants={staggerContainer}
+          initial="hidden"
+          animate={isInView ? 'visible' : 'hidden'}
+          className="grid grid-cols-1 gap-4 md:grid-cols-3"
+        >
+          {coverages.map((item) => (
+            <motion.div key={item.title} variants={fadeInUp} className={item.span}>
+              <SpotlightCard className="h-full p-7">
+                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-[#C9A84C]/10">
+                  <item.icon className="h-6 w-6 text-[#C9A84C]" />
+                </div>
+                <h3 className="mt-4 font-display text-lg font-bold text-[#F0F0F5]">
+                  {item.title}
+                </h3>
+                <p className="mt-2 text-sm leading-relaxed text-[#8888A0]">
+                  {item.description}
+                </p>
+              </SpotlightCard>
+            </motion.div>
+          ))}
+        </motion.div>
       </div>
     </section>
   )

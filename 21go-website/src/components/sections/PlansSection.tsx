@@ -1,136 +1,158 @@
 'use client'
 
-import { SectionHeading } from '@/components/ui/SectionHeading'
-import { Badge } from '@/components/ui/Badge'
-import { Button } from '@/components/ui/Button'
-import { Check, X } from 'lucide-react'
-
-interface PlanFeature {
-  name: string
-  basico: boolean
-  completo: boolean
-  premium: boolean
-}
-
-const features: PlanFeature[] = [
-  { name: 'Roubo/Furto', basico: true, completo: true, premium: true },
-  { name: 'Assistencia 24h', basico: true, completo: true, premium: true },
-  { name: 'Guincho 200km', basico: true, completo: true, premium: true },
-  { name: 'Colisao', basico: false, completo: true, premium: true },
-  { name: 'Incendio', basico: false, completo: true, premium: true },
-  { name: 'Carro Reserva', basico: false, completo: true, premium: true },
-  { name: 'Terceiros R$100K', basico: false, completo: false, premium: true },
-  { name: 'Vidros', basico: false, completo: false, premium: true },
-  { name: 'Rastreamento', basico: false, completo: false, premium: true },
-]
+import { motion, useInView } from 'framer-motion'
+import { useRef } from 'react'
+import { Check } from 'lucide-react'
+import { fadeInUp, staggerContainer } from '@/lib/motion'
+import { ShimmerButton } from '@/components/ui/ShimmerButton'
+import { MovingBorder } from '@/components/ui/MovingBorder'
+import Link from 'next/link'
 
 interface Plan {
   name: string
-  key: 'basico' | 'completo' | 'premium'
   price: string
   description: string
+  features: string[]
   highlighted: boolean
 }
 
 const plans: Plan[] = [
   {
     name: 'Basico',
-    key: 'basico',
-    price: '89',
+    price: 'R$119',
     description: 'Protecao essencial contra roubo e furto',
+    features: ['Roubo/Furto', 'Assistencia 24h', 'Guincho 200km'],
     highlighted: false,
   },
   {
     name: 'Completo',
-    key: 'completo',
-    price: '149',
+    price: 'R$189',
     description: 'A protecao mais escolhida pelos cariocas',
+    features: ['Roubo/Furto', 'Assistencia 24h', 'Guincho 200km', 'Colisao', 'Incendio', 'Carro Reserva 7d'],
     highlighted: true,
   },
   {
     name: 'Premium',
-    key: 'premium',
-    price: '219',
+    price: 'R$259',
     description: 'Cobertura total com rastreamento incluso',
+    features: [
+      'Roubo/Furto',
+      'Assistencia 24h',
+      'Guincho 200km',
+      'Colisao',
+      'Incendio',
+      'Terceiros R$100K',
+      'Vidros',
+      'Carro Reserva 15d',
+      'Rastreador',
+    ],
     highlighted: false,
   },
 ]
 
 export function PlansSection() {
+  const ref = useRef(null)
+  const isInView = useInView(ref, { once: true, margin: '-80px' })
+
   return (
-    <section className="py-24 relative" id="planos">
-      <div className="max-w-6xl mx-auto px-6">
-        <SectionHeading
-          badge="Planos"
-          title="Escolha o plano ideal para voce"
-          subtitle="Todos os planos incluem assistencia 24h e guincho. Sem analise de perfil, sem burocracia."
-        />
+    <section ref={ref} className="py-28 bg-[#0F0F18]/30" id="planos">
+      <div className="mx-auto max-w-7xl px-6">
+        {/* Header */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={isInView ? { opacity: 1, y: 0 } : {}}
+          transition={{ duration: 0.6 }}
+          className="mb-16 text-center"
+        >
+          <span className="text-sm font-semibold uppercase tracking-widest text-[#C9A84C]">
+            PLANOS
+          </span>
+          <h2 className="mt-3 font-display text-4xl font-extrabold text-[#F0F0F5] md:text-5xl">
+            Escolha o plano ideal para voce
+          </h2>
+          <p className="mx-auto mt-4 max-w-xl text-[#8888A0]">
+            Todos os planos incluem assistencia 24h e guincho. Sem analise de perfil, sem burocracia.
+          </p>
+        </motion.div>
 
-        <div className="grid md:grid-cols-3 gap-6 mt-16">
-          {plans.map((plan) => (
-            <div
-              key={plan.key}
-              className={`relative rounded-2xl border p-8 transition-all duration-300 ${
-                plan.highlighted
-                  ? 'bg-dark-700/80 border-orange-500/40 shadow-[0_0_40px_-12px_rgba(224,118,32,0.15)] scale-[1.02]'
-                  : 'bg-dark-800/50 border-dark-700/50 hover:border-dark-600/50'
-              }`}
-            >
-              {plan.highlighted && (
-                <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-                  <Badge variant="orange">Mais Popular</Badge>
-                </div>
-              )}
+        {/* Plans grid */}
+        <motion.div
+          variants={staggerContainer}
+          initial="hidden"
+          animate={isInView ? 'visible' : 'hidden'}
+          className="grid grid-cols-1 gap-6 md:grid-cols-3 items-center"
+        >
+          {plans.map((plan) => {
+            const card = (
+              <div
+                className={`rounded-2xl border border-white/[0.06] bg-[#141420] p-8 ${
+                  plan.highlighted ? 'scale-[1.03]' : ''
+                }`}
+              >
+                {/* Popular badge */}
+                {plan.highlighted && (
+                  <div className="mb-4">
+                    <span className="inline-block rounded-full bg-[#C9A84C]/10 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-[#C9A84C]">
+                      MAIS POPULAR
+                    </span>
+                  </div>
+                )}
 
-              <div className="text-center mb-8">
-                <h3 className="font-display text-xl font-semibold text-white mb-2">
+                {/* Plan info */}
+                <h3 className="font-display text-xl font-bold text-[#F0F0F5]">
                   {plan.name}
                 </h3>
-                <p className="font-body text-sm text-gray-400 mb-4">{plan.description}</p>
-                <div className="flex items-baseline justify-center gap-1">
-                  <span className="text-sm text-gray-400">a partir de</span>
+                <p className="mt-1 text-sm text-[#8888A0]">{plan.description}</p>
+
+                {/* Price */}
+                <div className="mt-6 flex items-baseline gap-1">
+                  <span className="font-display text-4xl font-extrabold text-[#F0F0F5]">
+                    {plan.price}
+                  </span>
+                  <span className="text-sm text-[#555570]">/mes</span>
                 </div>
-                <div className="flex items-baseline justify-center gap-1 mt-1">
-                  <span className="text-sm text-gray-400">R$</span>
-                  <span className="text-5xl font-display font-bold text-white">{plan.price}</span>
-                  <span className="text-sm text-gray-400">/mes</span>
+
+                {/* Features */}
+                <ul className="mt-8 space-y-3">
+                  {plan.features.map((feature) => (
+                    <li key={feature} className="flex items-center gap-3">
+                      <Check className="h-4 w-4 flex-shrink-0 text-[#C9A84C]" />
+                      <span className="text-sm text-[#8888A0]">{feature}</span>
+                    </li>
+                  ))}
+                </ul>
+
+                {/* CTA */}
+                <div className="mt-8">
+                  {plan.highlighted ? (
+                    <ShimmerButton href="/cotacao" className="w-full justify-center">
+                      Quero este plano
+                    </ShimmerButton>
+                  ) : (
+                    <Link
+                      href="/cotacao"
+                      className="flex w-full items-center justify-center rounded-full border border-white/[0.06] px-7 py-3 text-sm font-semibold text-white/70 transition-all duration-300 hover:border-white/20 hover:text-white"
+                    >
+                      Quero este plano
+                    </Link>
+                  )}
                 </div>
               </div>
+            )
 
-              <div className="space-y-3 mb-8">
-                {features.map((feature) => {
-                  const included = feature[plan.key]
-                  return (
-                    <div key={feature.name} className="flex items-center gap-3">
-                      {included ? (
-                        <Check className="w-4 h-4 text-green-400 shrink-0" />
-                      ) : (
-                        <X className="w-4 h-4 text-gray-600 shrink-0" />
-                      )}
-                      <span
-                        className={`font-body text-sm ${
-                          included ? 'text-gray-300' : 'text-gray-600'
-                        }`}
-                      >
-                        {feature.name}
-                      </span>
-                    </div>
-                  )
-                })}
-              </div>
+            return (
+              <motion.div key={plan.name} variants={fadeInUp}>
+                {plan.highlighted ? (
+                  <MovingBorder>{card}</MovingBorder>
+                ) : (
+                  card
+                )}
+              </motion.div>
+            )
+          })}
+        </motion.div>
 
-              <Button
-                variant={plan.highlighted ? 'cta' : 'primary'}
-                href="/cotacao"
-                className="w-full justify-center"
-              >
-                Quero este plano
-              </Button>
-            </div>
-          ))}
-        </div>
-
-        <p className="text-center text-sm text-gray-500 font-body mt-8">
+        <p className="mt-8 text-center text-sm text-[#555570]">
           * Valores calculados com base na tabela FIPE. Valor final depende do veiculo.
         </p>
       </div>

@@ -1,84 +1,112 @@
 'use client'
 
-import { Button } from '@/components/ui/Button'
-import { Shield, MessageCircle } from 'lucide-react'
+import { motion, useInView } from 'framer-motion'
+import { useRef } from 'react'
+import { ChevronDown } from 'lucide-react'
+import { fadeInUp, staggerContainer } from '@/lib/motion'
+import { ShimmerButton } from '@/components/ui/ShimmerButton'
+import { BorderBeam } from '@/components/ui/BorderBeam'
+import { TextReveal } from '@/components/ui/TextReveal'
+import { NumberTicker } from '@/components/ui/NumberTicker'
+import Link from 'next/link'
 
 export function HeroSection() {
+  const ref = useRef(null)
+  const isInView = useInView(ref, { once: true })
+
   return (
-    <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
-      {/* Background gradient */}
-      <div className="absolute inset-0 bg-gradient-to-b from-dark-950 via-dark-900 to-dark-950" />
-
-      {/* Decorative blurred circles */}
-      <div className="absolute top-1/4 left-1/4 w-[600px] h-[600px] rounded-full bg-blue-500/10 blur-[128px] pointer-events-none" />
-      <div className="absolute bottom-1/4 right-1/4 w-[400px] h-[400px] rounded-full bg-orange-500/8 blur-[100px] pointer-events-none" />
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[300px] h-[300px] rounded-full bg-blue-500/5 blur-[80px] pointer-events-none" />
-
-      {/* Animated shield orb */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 opacity-[0.04]">
-        <Shield className="w-[500px] h-[500px] text-blue-500" strokeWidth={0.5} />
+    <section ref={ref} className="relative min-h-screen overflow-hidden pt-24 pb-16">
+      {/* Grid background */}
+      <div className="pointer-events-none absolute inset-0">
+        <div
+          className="absolute inset-0 animate-pulse"
+          style={{
+            backgroundImage:
+              'linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px)',
+            backgroundSize: '60px 60px',
+          }}
+        />
       </div>
 
-      {/* Grid pattern overlay */}
-      <div
-        className="absolute inset-0 opacity-[0.03]"
-        style={{
-          backgroundImage: 'linear-gradient(rgba(27,77,161,0.3) 1px, transparent 1px), linear-gradient(90deg, rgba(27,77,161,0.3) 1px, transparent 1px)',
-          backgroundSize: '64px 64px',
-        }}
-      />
+      {/* Gold glow */}
+      <div className="pointer-events-none absolute left-1/2 top-1/3 h-[600px] w-[600px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#C9A84C] opacity-30 blur-[80px] animate-[float_6s_ease-in-out_infinite]" />
 
-      <div className="relative z-10 max-w-5xl mx-auto px-6 text-center">
-        {/* Eyebrow badge */}
-        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-500/10 border border-blue-500/20 mb-8">
-          <Shield className="w-4 h-4 text-blue-400" />
-          <span className="text-sm font-body text-blue-300 tracking-wide">
-            Associacao com 20+ anos no Rio de Janeiro
-          </span>
-        </div>
+      {/* Content */}
+      <motion.div
+        variants={staggerContainer}
+        initial="hidden"
+        animate={isInView ? 'visible' : 'hidden'}
+        className="relative z-10 mx-auto flex max-w-4xl flex-col items-center px-6 text-center"
+      >
+        {/* Badge */}
+        <motion.div variants={fadeInUp}>
+          <BorderBeam>Nao conte com a sorte, conte com a 21Go!</BorderBeam>
+        </motion.div>
 
-        {/* Main headline */}
-        <h1 className="font-display text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-white leading-[1.1] tracking-tight mb-6">
-          5 carros sao roubados{' '}
-          <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-orange-500">
-            por hora
-          </span>{' '}
-          no RJ.{' '}
-          <br className="hidden sm:block" />
-          O seu ta protegido?
-        </h1>
+        {/* Title */}
+        <motion.h1
+          variants={fadeInUp}
+          className="mt-8 bg-gradient-to-b from-white to-white/50 bg-clip-text text-5xl font-extrabold leading-[1.05] tracking-tight text-transparent font-display md:text-7xl"
+        >
+          <TextReveal
+            text="Protecao Veicular Inteligente para o Rio de Janeiro"
+            highlightWord="Inteligente"
+            highlightClass="text-[#C9A84C]"
+          />
+        </motion.h1>
 
         {/* Subtitle */}
-        <p className="font-body text-lg sm:text-xl text-gray-400 max-w-2xl mx-auto mb-10 leading-relaxed">
-          Protecao veicular a partir de{' '}
-          <span className="text-white font-semibold">R$89/mes</span>.
-          Sem analise de perfil. Cotacao em 30 segundos.
-        </p>
+        <motion.p
+          variants={fadeInUp}
+          className="mx-auto mt-6 max-w-2xl text-lg text-[#8888A0] font-body md:text-xl"
+        >
+          Ate 60% mais barato que seguro. 20+ anos protegendo veiculos no RJ. Sem analise de perfil.
+        </motion.p>
 
-        {/* CTAs */}
-        <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-          <Button variant="cta" size="lg" href="/cotacao" className="text-lg px-8 py-4">
+        {/* Buttons */}
+        <motion.div variants={fadeInUp} className="mt-10 flex flex-wrap items-center justify-center gap-4">
+          <ShimmerButton href="/cotacao" size="lg">
             Cote em 30 Segundos
-          </Button>
-          <Button
-            variant="ghost"
-            size="lg"
-            href="https://wa.me/5521999999999?text=Oi%2C%20quero%20uma%20cota%C3%A7%C3%A3o%20de%20prote%C3%A7%C3%A3o%20veicular"
-            className="text-lg px-8 py-4 border-green-500/40 text-green-400 hover:bg-green-500/10 hover:border-green-500/60"
+          </ShimmerButton>
+          <Link
+            href="/protecao-veicular"
+            className="rounded-full border border-white/10 px-7 py-3 text-[#8888A0] transition-all duration-300 hover:border-white/20 hover:text-white"
           >
-            <MessageCircle className="w-5 h-5 mr-2" />
-            Falar no WhatsApp
-          </Button>
-        </div>
+            Ver Planos
+          </Link>
+        </motion.div>
 
-        {/* Micro proof */}
-        <p className="mt-8 text-sm text-gray-500 font-body">
-          Mais de 5.000 veiculos protegidos no Rio de Janeiro
-        </p>
-      </div>
+        {/* Stats */}
+        <motion.div
+          variants={fadeInUp}
+          className="mt-16 grid grid-cols-3 gap-8 md:gap-16"
+        >
+          {[
+            { target: 20, suffix: '+', label: 'Anos de Mercado' },
+            { target: 98, suffix: '%', label: 'Satisfacao' },
+            { target: 24, suffix: '/7', label: 'Assistencia' },
+          ].map((stat) => (
+            <div key={stat.label} className="flex flex-col items-center">
+              <NumberTicker
+                target={stat.target}
+                suffix={stat.suffix}
+                className="font-display text-4xl font-extrabold text-[#C9A84C]"
+              />
+              <span className="mt-1 text-sm text-[#555570]">{stat.label}</span>
+            </div>
+          ))}
+        </motion.div>
+      </motion.div>
 
-      {/* Bottom gradient fade */}
-      <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-dark-950 to-transparent" />
+      {/* Scroll indicator */}
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 1.5, duration: 0.6 }}
+        className="absolute bottom-8 left-1/2 -translate-x-1/2"
+      >
+        <ChevronDown className="h-6 w-6 animate-bounce text-[#555570]" />
+      </motion.div>
     </section>
   )
 }

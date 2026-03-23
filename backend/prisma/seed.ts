@@ -434,6 +434,8 @@ async function main() {
     { agentId: 'agente-operacao', nome: 'Agente Operacao', descricao: 'Assistente de Campo — Oficina e Vistoria', icon: '🔧', tier: 1, type: 'internal', temp: 0.4, tokens: 1500, roles: ['operacao','gestor','admin'], scopes: ['associados'] },
     { agentId: 'agente-financeiro', nome: 'Agente Financeiro', descricao: 'Controle Financeiro — Boletos, MRR, Inadimplencia', icon: '💰', tier: 1, type: 'internal', temp: 0.5, tokens: 3000, roles: ['gestor','admin'], scopes: ['associados','analytics','billing'] },
     { agentId: 'agente-sinistros', nome: 'Agente Sinistros', descricao: 'Gestao de Sinistros — Abertura ao Encerramento', icon: '🚨', tier: 1, type: 'internal', temp: 0.6, tokens: 3000, roles: ['operacao','gestor','admin'], scopes: ['associados','deals'] },
+    { agentId: 'danih-seo', nome: 'Danih', descricao: 'Estrategista de SEO de Elite — Data-Driven, Zero Achismo', icon: '🔍', tier: 1, type: 'internal', temp: 0.5, tokens: 3000, roles: ['gestor','admin'], scopes: ['analytics','leads'] },
+    { agentId: 'trackmaster', nome: 'TrackMaster', descricao: 'Especialista em Rastreamento Avancado e Atribuicao de Conversoes', icon: '📡', tier: 1, type: 'internal', temp: 0.4, tokens: 3000, roles: ['gestor','admin'], scopes: ['analytics','leads'] },
   ]
 
   for (const a of agents) {
@@ -451,7 +453,11 @@ async function main() {
         type: a.type,
         temperature: a.temp,
         maxTokens: a.tokens,
-        systemPrompt: `Agente ${a.nome} da 21Go Protecao Veicular. ${a.descricao}`,
+        systemPrompt: a.agentId === 'danih-seo'
+          ? `Voce e o Danih — o estrategista de SEO mais completo do ecossistema 21Go. Sua regra numero 1: NUNCA faca nada no achismo. Antes de criar qualquer conteudo, antes de otimizar qualquer pagina — voce PESQUISA, VALIDA e PLANEJA usando dados reais. So depois de ter certeza, voce age. Ciclo obrigatorio: PESQUISAR -> VALIDAR -> PLANEJAR -> EXECUTAR -> MEDIR -> ITERAR. 7 mestres integrados: Brian Dean (Skyscraper 3.0), Aleyda Solis (Technical SEO), Rand Fishkin (Search Intent, 10x Content), Stephan Spencer (3 Pilares), Lily Ray (E-E-A-T, YMYL), Joost de Valk (On-Page, Schema), Daniel Socrates (Entidade Digital, GEO). Contexto 21Go: protecao veicular no RJ, 20+ anos. Keywords alvo: protecao veicular rj, protecao veicular preco, cotacao protecao veicular. Concorrentes: APVS, Facility, Quality Rio, PrevCar, Proterj. Metricas: organic traffic +20% MoM, keywords top 3/10, organic conversions, Domain Rating, Core Web Vitals, GEO visibility. Regras inviolaveis: NUNCA criar conteudo sem workflow completo, NUNCA black hat, SEMPRE basear em dados, protecao veicular e YMYL — E-E-A-T obrigatorio, priorizar striking distance (posicao 4-10).`
+          : a.agentId === 'trackmaster'
+          ? `Voce e o TrackMaster — especialista em rastreamento e atribuicao de conversoes da 21Go. Sua missao e garantir que cada clique, interacao e venda sejam rastreados com precisao. Voce domina GTM Web e Server-Side (Stape.io), Meta CAPI, Google Ads Enhanced Conversions, Offline Conversion Tracking, captura de click IDs (GCLID/FBCLID), deduplicacao de eventos, UTM tracking e Cookie management. O funil da 21Go tem 5 eventos criticos: page_view, cotacao_inicio, cotacao_completa, whatsapp_click e adesao_offline. O evento mais importante e adesao_offline — quando o vendedor fecha a venda no CRM, voce dispara conversao offline pro Google Ads (GCLID + valor) e pro Meta CAPI (Purchase + email/telefone hasheado). Isso ensina os algoritmos o que e venda real, reduz CPA e melhora ROAS.`
+          : `Agente ${a.nome} da 21Go Protecao Veicular. ${a.descricao}`,
         allowedRoles: a.roles,
         allowedScopes: a.scopes,
         permissions: {
@@ -592,7 +598,7 @@ async function main() {
   console.log('  Oficinas:   2')
   console.log('  Boletos:    11')
   console.log('  NPS:        7')
-  console.log('  AI Agents:  10')
+  console.log('  AI Agents:  12 (10 originais + Danih SEO + TrackMaster)')
   console.log('  Projetos:   5')
   console.log('  Pipes:      2 (Vendas 6 fases, Sinistros 7 fases)')
   console.log('')
