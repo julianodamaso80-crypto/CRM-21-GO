@@ -6,7 +6,7 @@ import { Check, X } from 'lucide-react'
 import { fadeInUp, staggerContainer } from '@/lib/motion'
 
 const rows = [
-  { feature: 'Preco mensal', veicular: 'A partir de R$89', seguro: 'A partir de R$250+' },
+  { feature: 'Custo mensal', veicular: 'Ate 60% menor', seguro: 'Valor elevado' },
   { feature: 'Analise de perfil', veicular: false, seguro: true },
   { feature: 'Aceita carros antigos', veicular: true, seguro: false },
   { feature: 'Burocracia', veicular: 'Minima', seguro: 'Alta' },

@@ -42,8 +42,8 @@ export function HeroSection() {
         >
           Protecao Veicular no RJ{' '}
           <span className="block mt-2">
-            — Seu Carro Protegido por{' '}
-            <span className="text-[#E07620]">Menos de R$3/dia</span>
+            Seu Carro{' '}
+            <span className="text-[#E07620]">Protegido de Verdade</span>
           </span>
         </motion.h1>
 

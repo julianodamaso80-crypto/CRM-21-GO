@@ -9,7 +9,7 @@ import Link from 'next/link'
 const plans = [
   {
     name: 'Basico',
-    price: '89',
+    desc: 'Protecao essencial contra roubo e furto',
     popular: false,
     features: [
       { text: 'Roubo e Furto', included: true },
@@ -24,7 +24,7 @@ const plans = [
   },
   {
     name: 'Completo',
-    price: '189',
+    desc: 'A protecao mais escolhida pelos cariocas',
     popular: true,
     features: [
       { text: 'Roubo e Furto', included: true },
@@ -39,7 +39,7 @@ const plans = [
   },
   {
     name: 'Premium',
-    price: '259',
+    desc: 'Cobertura total com todos os beneficios',
     popular: false,
     features: [
       { text: 'Roubo e Furto', included: true },
@@ -93,14 +93,7 @@ export function PlansSection() {
               )}
 
               <h3 className="font-[var(--font-outfit)] text-xl font-bold text-[#0A1E3D]">{plan.name}</h3>
-              <div className="mt-4 flex items-baseline gap-1">
-                <span className="text-sm text-[#64748B]">a partir de</span>
-              </div>
-              <div className="flex items-baseline gap-1 mt-1">
-                <span className="text-sm text-[#64748B]">R$</span>
-                <span className="font-[var(--font-outfit)] text-4xl font-bold text-[#0A1E3D]">{plan.price}</span>
-                <span className="text-sm text-[#64748B]">/mes</span>
-              </div>
+              <p className="mt-2 text-sm text-[#64748B]">{plan.desc}</p>
 
               <ul className="mt-8 space-y-3">
                 {plan.features.map((f) => (
@@ -125,7 +118,7 @@ export function PlansSection() {
                     : 'bg-[#F0F4FA] text-[#1B4DA1] hover:bg-[#E2E8F0]'
                 }`}
               >
-                Cotar este plano
+                Solicitar Cotacao
               </Link>
             </motion.div>
           ))}
