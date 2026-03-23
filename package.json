@@ -13,7 +13,7 @@
     "dev:backend": "cd backend && npx tsx src/server.ts",
     "dev:frontend": "cd frontend && npx vite",
     "dev:mock": "cd backend && npx tsx src/server.mock.ts",
-    "build": "cd frontend && npm run build && cd ../21go-website && npm install && npm run build && cd ../backend && (npx prisma generate || true) && npx tsup",
+    "build": "cd frontend && npm run build && cd ../21go-website && rm -f package-lock.json && npm install --install-strategy=nested && npm run build && cd ../backend && (npx prisma generate || true) && npx tsup",
     "start": "cd backend && node dist/server.mock.js",
     "postinstall": "cd backend && npx prisma generate || true"
   },
