@@ -3,6 +3,7 @@ import { TrustBar } from '@/components/sections/TrustBar'
 import { ProblemSolution } from '@/components/sections/ProblemSolution'
 import { PlansSection } from '@/components/sections/PlansSection'
 import { HowItWorks } from '@/components/sections/HowItWorks'
+import { ComparisonSection } from '@/components/sections/ComparisonSection'
 import { SocialProof } from '@/components/sections/SocialProof'
 import { AIShowcase } from '@/components/sections/AIShowcase'
 import { MGMBanner } from '@/components/sections/MGMBanner'
@@ -18,6 +19,7 @@ export default function Home() {
       <ProblemSolution />
       <PlansSection />
       <HowItWorks />
+      <ComparisonSection />
       <SocialProof />
       <AIShowcase />
       <MGMBanner />

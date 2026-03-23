@@ -1,82 +1,67 @@
 @import "tailwindcss";
 
 @theme {
-  --color-brand: #C9A84C;
-  --color-brand-dark: #9E8540;
-  --color-accent: #F5C842;
+  /* Primary — Blue Royal 21Go */
+  --color-blue-500: #1B4DA1;
+  --color-blue-600: #164087;
+  --color-blue-700: #11336D;
+  --color-blue-800: #0D2653;
+  --color-blue-900: #0A1E3D;
 
-  --color-bg-primary: #0A0A0F;
-  --color-bg-secondary: #0F0F18;
-  --color-bg-elevated: #141420;
+  /* Secondary — Orange 21Go (CTAs) */
+  --color-orange-500: #E07620;
+  --color-orange-600: #C46218;
+  --color-orange-400: #F08C28;
 
-  --color-txt-primary: #F0F0F5;
-  --color-txt-secondary: #8888A0;
-  --color-txt-muted: #555570;
+  /* Accent — Dourado (trust elements) */
+  --color-gold: #C9A84C;
 
-  --color-border-subtle: rgba(255,255,255,0.06);
+  /* Backgrounds */
+  --color-bg-white: #FAFBFC;
+  --color-bg-gray: #F0F4FA;
+  --color-bg-hero: #0A1E3D;
 
-  --color-success: #34D399;
+  /* Text */
+  --color-txt-primary: #0A1E3D;
+  --color-txt-secondary: #64748B;
+  --color-txt-light: #FAFBFC;
+
+  /* Semantic */
+  --color-success: #10B981;
+  --color-error: #EF4444;
   --color-warning: #FBBF24;
-  --color-error: #FB7185;
 
-  --font-display: 'Plus Jakarta Sans', system-ui, sans-serif;
-  --font-body: 'Outfit', system-ui, sans-serif;
-}
-
-@property --angle {
-  syntax: "<angle>";
-  initial-value: 0deg;
-  inherits: false;
-}
-
-@keyframes rotateBorder {
-  to { --angle: 360deg; }
-}
-
-@keyframes shimmerSlide {
-  to { transform: translateX(200%); }
-}
-
-@keyframes scroll {
-  0% { transform: translateX(0); }
-  100% { transform: translateX(-50%); }
+  /* Fonts */
+  --font-display: 'Outfit', system-ui, sans-serif;
+  --font-body: 'DM Sans', system-ui, sans-serif;
 }
 
 @keyframes float {
   0%, 100% { transform: translateY(0px); }
-  50% { transform: translateY(-10px); }
+  50% { transform: translateY(-8px); }
 }
 
-@keyframes pulse-glow {
-  0%, 100% { opacity: 0.4; }
-  50% { opacity: 0.8; }
+@keyframes fade-in-up {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 @layer base {
   body {
-    background: #0A0A0F;
-    color: #F0F0F5;
-    font-family: 'Outfit', system-ui, sans-serif;
+    background: var(--color-bg-white);
+    color: var(--color-txt-primary);
+    font-family: var(--font-body);
     -webkit-font-smoothing: antialiased;
     overflow-x: hidden;
   }
 
-  /* Noise texture overlay */
-  body::before {
-    content: '';
-    position: fixed;
-    inset: 0;
-    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
-    pointer-events: none;
-    z-index: 9999;
-  }
-
   h1, h2, h3, h4, h5, h6 {
-    font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+    font-family: var(--font-display);
+    color: var(--color-txt-primary);
   }
 
   ::selection {
-    background: rgba(201, 168, 76, 0.3);
-    color: #F0F0F5;
+    background: rgba(27, 77, 161, 0.2);
+    color: var(--color-txt-primary);
   }
 }

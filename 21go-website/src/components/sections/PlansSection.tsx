@@ -2,46 +2,55 @@
 
 import { motion, useInView } from 'framer-motion'
 import { useRef } from 'react'
-import { Shield, ShieldCheck, ShieldPlus, ArrowRight, Check } from 'lucide-react'
+import { Check, X } from 'lucide-react'
 import { fadeInUp, staggerContainer } from '@/lib/motion'
-import { ShimmerButton } from '@/components/ui/ShimmerButton'
 import Link from 'next/link'
 
-interface Plan {
-  name: string
-  icon: typeof Shield
-  description: string
-  features: string[]
-  highlighted: boolean
-}
-
-const plans: Plan[] = [
+const plans = [
   {
     name: 'Basico',
-    icon: Shield,
-    description: 'Para quem quer protecao contra roubo e furto com assistencia completa.',
-    features: ['Roubo e Furto', 'Assistencia 24h', 'Guincho 200km'],
-    highlighted: false,
+    price: '89',
+    popular: false,
+    features: [
+      { text: 'Roubo e Furto', included: true },
+      { text: 'Assistencia 24h', included: true },
+      { text: 'Guincho 200km', included: true },
+      { text: 'Colisao', included: false },
+      { text: 'Incendio', included: false },
+      { text: 'Carro Reserva', included: false },
+      { text: 'Terceiros R$100K', included: false },
+      { text: 'Vidros e Farois', included: false },
+    ],
   },
   {
     name: 'Completo',
-    icon: ShieldCheck,
-    description: 'O mais escolhido. Cobertura ampla para o dia a dia no transito do RJ.',
-    features: ['Tudo do Basico', 'Colisao', 'Incendio', 'Carro Reserva 7 dias'],
-    highlighted: true,
+    price: '189',
+    popular: true,
+    features: [
+      { text: 'Roubo e Furto', included: true },
+      { text: 'Assistencia 24h', included: true },
+      { text: 'Guincho 200km', included: true },
+      { text: 'Colisao', included: true },
+      { text: 'Incendio', included: true },
+      { text: 'Carro Reserva 7 dias', included: true },
+      { text: 'Terceiros R$100K', included: false },
+      { text: 'Vidros e Farois', included: false },
+    ],
   },
   {
     name: 'Premium',
-    icon: ShieldPlus,
-    description: 'Protecao total. Para quem nao abre mao de nada.',
+    price: '259',
+    popular: false,
     features: [
-      'Tudo do Completo',
-      'Terceiros ate R$100K',
-      'Vidros e retrovisores',
-      'Carro Reserva 15 dias',
-      'Rastreamento incluso',
+      { text: 'Roubo e Furto', included: true },
+      { text: 'Assistencia 24h', included: true },
+      { text: 'Guincho 200km', included: true },
+      { text: 'Colisao', included: true },
+      { text: 'Incendio', included: true },
+      { text: 'Carro Reserva 15 dias', included: true },
+      { text: 'Terceiros R$100K', included: true },
+      { text: 'Vidros e Farois', included: true },
     ],
-    highlighted: false,
   },
 ]
 
@@ -50,105 +59,78 @@ export function PlansSection() {
   const isInView = useInView(ref, { once: true, margin: '-80px' })
 
   return (
-    <section ref={ref} className="py-28" id="planos">
-      <div className="mx-auto max-w-7xl px-6">
-        {/* Header */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={isInView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.6 }}
-          className="mb-16 text-center"
-        >
-          <span className="text-sm font-semibold uppercase tracking-widest text-[#3D72DE]">
-            PLANOS
-          </span>
-          <h2 className="mt-3 font-display text-4xl font-bold text-white md:text-5xl">
+    <section ref={ref} id="planos" className="bg-white py-20 lg:py-28">
+      <motion.div
+        variants={staggerContainer}
+        initial="hidden"
+        animate={isInView ? 'visible' : 'hidden'}
+        className="mx-auto max-w-7xl px-6"
+      >
+        <motion.div variants={fadeInUp} className="text-center mb-14">
+          <h2 className="font-[var(--font-outfit)] text-3xl md:text-4xl font-bold text-[#0A1E3D]">
             Protecao sob medida para seu veiculo
           </h2>
-          <p className="mx-auto mt-4 max-w-xl font-body text-[#9D9DB5]">
-            O valor depende do seu carro. Faca uma cotacao em 30 segundos e descubra quanto fica.
+          <p className="mt-4 text-lg text-[#64748B] max-w-2xl mx-auto">
+            Escolha o plano ideal. Todos incluem assistencia 24h e guincho em todo o Brasil.
           </p>
         </motion.div>
 
-        {/* Plans grid */}
-        <motion.div
-          variants={staggerContainer}
-          initial="hidden"
-          animate={isInView ? 'visible' : 'hidden'}
-          className="grid grid-cols-1 gap-6 md:grid-cols-3"
-        >
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8 items-stretch">
           {plans.map((plan) => (
-            <motion.div key={plan.name} variants={fadeInUp}>
-              <div
-                className={`relative rounded-2xl border p-8 transition-all duration-200 ${
-                  plan.highlighted
-                    ? 'border-[#1B4DA1]/50 bg-gradient-to-b from-[#1A1F35] to-[#111827] shadow-[0_0_40px_rgba(27,77,161,0.1)]'
-                    : 'border-[#3D3D5C]/50 bg-[#1A1F35]/50 hover:border-[#55557A]/50'
+            <motion.div
+              key={plan.name}
+              variants={fadeInUp}
+              className={`relative rounded-2xl p-8 border transition-all duration-300 hover:shadow-lg ${
+                plan.popular
+                  ? 'border-[#E07620] shadow-md scale-[1.02] bg-white'
+                  : 'border-[#E2E8F0] bg-white hover:-translate-y-1'
+              }`}
+            >
+              {plan.popular && (
+                <span className="absolute -top-3.5 left-1/2 -translate-x-1/2 bg-[#E07620] text-white text-xs font-semibold px-4 py-1.5 rounded-full">
+                  Mais escolhido
+                </span>
+              )}
+
+              <h3 className="font-[var(--font-outfit)] text-xl font-bold text-[#0A1E3D]">{plan.name}</h3>
+              <div className="mt-4 flex items-baseline gap-1">
+                <span className="text-sm text-[#64748B]">a partir de</span>
+              </div>
+              <div className="flex items-baseline gap-1 mt-1">
+                <span className="text-sm text-[#64748B]">R$</span>
+                <span className="font-[var(--font-outfit)] text-4xl font-bold text-[#0A1E3D]">{plan.price}</span>
+                <span className="text-sm text-[#64748B]">/mes</span>
+              </div>
+
+              <ul className="mt-8 space-y-3">
+                {plan.features.map((f) => (
+                  <li key={f.text} className="flex items-center gap-3">
+                    {f.included ? (
+                      <Check className="h-4 w-4 text-[#10B981] flex-shrink-0" />
+                    ) : (
+                      <X className="h-4 w-4 text-[#CBD5E1] flex-shrink-0" />
+                    )}
+                    <span className={`text-sm ${f.included ? 'text-[#0A1E3D]' : 'text-[#CBD5E1]'}`}>
+                      {f.text}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+
+              <Link
+                href="/cotacao"
+                className={`mt-8 block w-full text-center py-3 rounded-xl font-semibold text-sm transition-all duration-200 ${
+                  plan.popular
+                    ? 'bg-[#E07620] text-white hover:bg-[#C46218] shadow-sm'
+                    : 'bg-[#F0F4FA] text-[#1B4DA1] hover:bg-[#E2E8F0]'
                 }`}
               >
-                {/* Popular badge */}
-                {plan.highlighted && (
-                  <div className="mb-4">
-                    <span className="inline-block rounded-full bg-[#1B4DA1]/15 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-[#6B96EB]">
-                      Mais Escolhido
-                    </span>
-                  </div>
-                )}
-
-                {/* Icon + Name */}
-                <div className="flex items-center gap-3 mb-3">
-                  <div className={`flex h-10 w-10 items-center justify-center rounded-lg ${
-                    plan.highlighted
-                      ? 'bg-[#1B4DA1]/15 text-[#3D72DE]'
-                      : 'bg-[#2A2A42] text-[#9D9DB5]'
-                  }`}>
-                    <plan.icon className="h-5 w-5" />
-                  </div>
-                  <h3 className="font-display text-xl font-bold text-white">
-                    {plan.name}
-                  </h3>
-                </div>
-
-                <p className="text-sm font-body text-[#9D9DB5] leading-relaxed">{plan.description}</p>
-
-                {/* Features */}
-                <ul className="mt-6 space-y-3">
-                  {plan.features.map((feature) => (
-                    <li key={feature} className="flex items-center gap-3">
-                      <Check className={`h-4 w-4 flex-shrink-0 ${
-                        plan.highlighted ? 'text-[#3D72DE]' : 'text-[#55557A]'
-                      }`} />
-                      <span className="text-sm font-body text-[#C5C5D2]">{feature}</span>
-                    </li>
-                  ))}
-                </ul>
-
-                {/* CTA */}
-                <div className="mt-8">
-                  {plan.highlighted ? (
-                    <ShimmerButton href="/cotacao" className="w-full justify-center">
-                      Cotar Agora
-                      <ArrowRight className="ml-2 h-4 w-4" />
-                    </ShimmerButton>
-                  ) : (
-                    <Link
-                      href="/cotacao"
-                      className="flex w-full items-center justify-center rounded-lg border border-[#3D3D5C] bg-[#2A2A42] px-7 py-3 text-sm font-semibold text-[#C5C5D2] transition-all duration-200 hover:border-[#55557A] hover:text-white"
-                    >
-                      Cotar Agora
-                      <ArrowRight className="ml-2 h-4 w-4" />
-                    </Link>
-                  )}
-                </div>
-              </div>
+                Cotar este plano
+              </Link>
             </motion.div>
           ))}
-        </motion.div>
-
-        <p className="mt-8 text-center text-sm font-body text-[#757598]">
-          Valor calculado com base na tabela FIPE do seu veiculo + taxa administrativa de R$35.
-        </p>
-      </div>
+        </div>
+      </motion.div>
     </section>
   )
 }

@@ -1,120 +1,61 @@
 'use client'
 
-import { motion, useInView, useScroll, useTransform } from 'framer-motion'
+import { motion, useInView } from 'framer-motion'
 import { useRef } from 'react'
 import { Calculator, Camera, Zap, ShieldCheck } from 'lucide-react'
-import { fadeInUp } from '@/lib/motion'
+import { fadeInUp, staggerContainer } from '@/lib/motion'
 
 const steps = [
-  {
-    number: '1',
-    title: 'Faca sua Cotacao',
-    description: 'Preencha os dados do veiculo e receba o valor na hora. Sem burocracia, sem enrolacao.',
-    time: 'Online em 2 minutos',
-    icon: Calculator,
-  },
-  {
-    number: '2',
-    title: 'Vistoria Digital',
-    description: 'Tire fotos do veiculo pelo app. Sem precisar ir a nenhum lugar, sem sair de casa.',
-    time: 'Pelo app, sem sair de casa',
-    icon: Camera,
-  },
-  {
-    number: '3',
-    title: 'Ativacao',
-    description: 'Apos a analise das fotos e pagamento, seu veiculo ja esta protegido rapidamente.',
-    time: 'Em ate 24 horas',
-    icon: Zap,
-  },
-  {
-    number: '4',
-    title: 'Protegido!',
-    description: 'Cobertura completa ativa. Assistencia 24h, guincho, e tudo que voce contratou.',
-    time: 'Cobertura completa ativa',
-    icon: ShieldCheck,
-  },
+  { icon: Calculator, num: '1', title: 'Faca sua cotacao', desc: 'Online, em 30 segundos. Sem compromisso.' },
+  { icon: Camera, num: '2', title: 'Vistoria pelo app', desc: 'Tire fotos do veiculo. 100% digital.' },
+  { icon: Zap, num: '3', title: 'Aprovacao em 48h', desc: 'Analise rapida sem burocracia.' },
+  { icon: ShieldCheck, num: '4', title: 'Protegido!', desc: 'Seu carro coberto com assistencia 24h.' },
 ]
 
 export function HowItWorks() {
-  const sectionRef = useRef(null)
-  const isInView = useInView(sectionRef, { once: true, margin: '-80px' })
-  const { scrollYProgress } = useScroll({
-    target: sectionRef,
-    offset: ['start end', 'end start'],
-  })
-  const lineScaleY = useTransform(scrollYProgress, [0.1, 0.9], [0, 1])
+  const ref = useRef(null)
+  const isInView = useInView(ref, { once: true, margin: '-80px' })
 
   return (
-    <section ref={sectionRef} className="relative py-32">
-      {/* Header */}
+    <section ref={ref} className="bg-[#F0F4FA] py-20 lg:py-28">
       <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={isInView ? { opacity: 1, y: 0 } : {}}
-        transition={{ duration: 0.6 }}
-        className="mb-20 text-center"
+        variants={staggerContainer}
+        initial="hidden"
+        animate={isInView ? 'visible' : 'hidden'}
+        className="mx-auto max-w-7xl px-6"
       >
-        <span className="text-sm font-semibold uppercase tracking-widest text-[#C9A84C]">
-          COMO FUNCIONA
-        </span>
-        <h2 className="mt-3 font-display text-4xl font-extrabold text-[#F0F0F5] md:text-5xl">
-          4 passos para sua protecao
-        </h2>
-        <p className="mx-auto mt-4 max-w-lg text-[#8888A0]">
-          Simples, rapido e 100% digital. Do orcamento a ativacao sem complicacao.
-        </p>
+        <motion.div variants={fadeInUp} className="text-center mb-14">
+          <h2 className="font-[var(--font-outfit)] text-3xl md:text-4xl font-bold text-[#0A1E3D]">
+            4 passos para sua protecao
+          </h2>
+          <p className="mt-4 text-lg text-[#64748B]">Simples, rapido e sem burocracia</p>
+        </motion.div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+          {steps.map((step, i) => (
+            <motion.div
+              key={step.title}
+              variants={fadeInUp}
+              className="relative text-center"
+            >
+              {/* Connector line */}
+              {i < steps.length - 1 && (
+                <div className="hidden lg:block absolute top-10 left-[60%] w-[80%] h-px bg-[#1B4DA1]/15" />
+              )}
+
+              <div className="relative mx-auto w-20 h-20 rounded-2xl bg-white border border-[#E2E8F0] shadow-sm flex items-center justify-center mb-5">
+                <step.icon className="h-8 w-8 text-[#1B4DA1]" />
+                <span className="absolute -top-2 -right-2 w-7 h-7 rounded-full bg-[#E07620] text-white text-xs font-bold flex items-center justify-center">
+                  {step.num}
+                </span>
+              </div>
+
+              <h3 className="font-[var(--font-outfit)] text-lg font-semibold text-[#0A1E3D]">{step.title}</h3>
+              <p className="mt-2 text-sm text-[#64748B]">{step.desc}</p>
+            </motion.div>
+          ))}
+        </div>
       </motion.div>
-
-      <div className="relative mx-auto max-w-4xl px-6">
-        {/* Vertical animated line */}
-        <div className="absolute left-1/2 top-0 hidden h-full -translate-x-1/2 md:block">
-          <div className="h-full w-[2px] bg-white/[0.06]" />
-          <motion.div
-            className="absolute left-0 top-0 w-[2px] origin-top bg-[#C9A84C]"
-            style={{ scaleY: lineScaleY, height: '100%' }}
-          />
-        </div>
-
-        {/* Steps */}
-        <div className="space-y-16 md:space-y-24">
-          {steps.map((step, i) => {
-            const isLeft = i % 2 === 0
-            return (
-              <motion.div
-                key={step.number}
-                variants={fadeInUp}
-                initial="hidden"
-                animate={isInView ? 'visible' : 'hidden'}
-                transition={{ delay: i * 0.15 }}
-                className={`relative flex flex-col items-center gap-6 md:flex-row ${
-                  isLeft ? 'md:flex-row' : 'md:flex-row-reverse'
-                }`}
-              >
-                {/* Text side */}
-                <div className={`flex-1 ${isLeft ? 'md:text-right md:pr-16' : 'md:text-left md:pl-16'}`}>
-                  <h3 className="font-display text-xl font-bold text-[#F0F0F5]">
-                    {step.title}
-                  </h3>
-                  <p className="mt-2 text-sm leading-relaxed text-[#8888A0]">
-                    {step.description}
-                  </p>
-                  <span className="mt-3 inline-block rounded-full bg-[#C9A84C]/10 px-3 py-1 text-xs font-medium text-[#C9A84C]">
-                    {step.time}
-                  </span>
-                </div>
-
-                {/* Circle */}
-                <div className="relative z-10 flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full border-2 border-[#C9A84C] bg-[#0A0A0F]">
-                  <step.icon className="h-5 w-5 text-[#C9A84C]" />
-                </div>
-
-                {/* Empty side for alignment */}
-                <div className="hidden flex-1 md:block" />
-              </motion.div>
-            )
-          })}
-        </div>
-      </div>
     </section>
   )
 }

@@ -2,47 +2,16 @@
 
 import { motion, useInView } from 'framer-motion'
 import { useRef } from 'react'
-import { ShieldCheck, Lock, Flame, Layers, Clock, Users } from 'lucide-react'
+import { ShieldCheck, Lock, Flame, Truck, Clock, Car } from 'lucide-react'
 import { fadeInUp, staggerContainer } from '@/lib/motion'
-import { SpotlightCard } from '@/components/ui/SpotlightCard'
 
 const coverages = [
-  {
-    icon: ShieldCheck,
-    title: 'Colisao',
-    description: 'Cobertura total em caso de colisao, seja parcial ou perda total. Reparos na rede credenciada sem dor de cabeca.',
-    span: 'md:col-span-2',
-  },
-  {
-    icon: Lock,
-    title: 'Roubo e Furto',
-    description: 'Protecao contra roubo e furto com reembolso baseado na tabela FIPE. Processo rapido e descomplicado.',
-    span: 'md:col-span-1',
-  },
-  {
-    icon: Flame,
-    title: 'Incendio',
-    description: 'Cobertura completa em caso de incendio, incluindo causas eletricas e mecanicas do veiculo.',
-    span: 'md:col-span-1',
-  },
-  {
-    icon: Layers,
-    title: 'Vidros e Farois',
-    description: 'Troca de para-brisa, vidros laterais, traseiro e farois sem franquia. Pecas originais garantidas.',
-    span: 'md:col-span-2',
-  },
-  {
-    icon: Clock,
-    title: 'Assistencia 24h',
-    description: 'Guincho ate 200km, chaveiro, troca de pneu, pane seca e eletrica. Disponivel 24 horas por dia, 7 dias por semana.',
-    span: 'md:col-span-2',
-  },
-  {
-    icon: Users,
-    title: 'Terceiros R$100K',
-    description: 'Cobertura de danos materiais e corporais causados a terceiros ate R$100 mil. Tranquilidade total no transito.',
-    span: 'md:col-span-1',
-  },
+  { icon: ShieldCheck, title: 'Colisao', desc: 'Cobertura parcial e total para batidas e acidentes' },
+  { icon: Lock, title: 'Roubo e Furto', desc: 'Reembolso pela tabela FIPE em caso de perda total' },
+  { icon: Flame, title: 'Incendio', desc: 'Protecao contra incendio e eventos da natureza' },
+  { icon: Truck, title: 'Guincho 200km', desc: 'Reboque gratuito em todo o territorio nacional' },
+  { icon: Car, title: 'Carro Reserva', desc: 'Veiculo substituto por ate 15 dias nos planos' },
+  { icon: Clock, title: 'Assistencia 24h', desc: 'Chaveiro, pneu, pane seca e eletrica a qualquer hora' },
 ]
 
 export function ProblemSolution() {
@@ -50,50 +19,38 @@ export function ProblemSolution() {
   const isInView = useInView(ref, { once: true, margin: '-80px' })
 
   return (
-    <section ref={ref} className="py-28">
-      <div className="mx-auto max-w-7xl px-6">
-        {/* Header */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={isInView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.6 }}
-          className="mb-16 text-center"
-        >
-          <span className="text-sm font-semibold uppercase tracking-widest text-[#C9A84C]">
-            COBERTURAS
-          </span>
-          <h2 className="mt-3 font-display text-4xl font-extrabold text-[#F0F0F5] md:text-5xl">
+    <section ref={ref} className="bg-[#F0F4FA] py-20 lg:py-28">
+      <motion.div
+        variants={staggerContainer}
+        initial="hidden"
+        animate={isInView ? 'visible' : 'hidden'}
+        className="mx-auto max-w-7xl px-6"
+      >
+        <motion.div variants={fadeInUp} className="text-center mb-14">
+          <h2 className="font-[var(--font-outfit)] text-3xl md:text-4xl font-bold text-[#0A1E3D]">
             Protecao completa para seu veiculo
           </h2>
-          <p className="mx-auto mt-4 max-w-xl text-[#8888A0]">
-            Coberturas pensadas para a realidade do Rio de Janeiro. Do basico ao premium, voce escolhe o que faz sentido.
+          <p className="mt-4 text-lg text-[#64748B] max-w-2xl mx-auto">
+            Coberturas pensadas pra realidade do Rio de Janeiro. Tudo que voce precisa em um unico plano.
           </p>
         </motion.div>
 
-        {/* Bento grid */}
-        <motion.div
-          variants={staggerContainer}
-          initial="hidden"
-          animate={isInView ? 'visible' : 'hidden'}
-          className="grid grid-cols-1 gap-4 md:grid-cols-3"
-        >
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {coverages.map((item) => (
-            <motion.div key={item.title} variants={fadeInUp} className={item.span}>
-              <SpotlightCard className="h-full p-7">
-                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-[#C9A84C]/10">
-                  <item.icon className="h-6 w-6 text-[#C9A84C]" />
-                </div>
-                <h3 className="mt-4 font-display text-lg font-bold text-[#F0F0F5]">
-                  {item.title}
-                </h3>
-                <p className="mt-2 text-sm leading-relaxed text-[#8888A0]">
-                  {item.description}
-                </p>
-              </SpotlightCard>
+            <motion.div
+              key={item.title}
+              variants={fadeInUp}
+              className="group bg-white rounded-2xl p-6 border border-[#E2E8F0] shadow-sm hover:shadow-md hover:-translate-y-1 transition-all duration-300"
+            >
+              <div className="w-12 h-12 rounded-xl bg-[#1B4DA1]/5 flex items-center justify-center mb-4 group-hover:bg-[#1B4DA1]/10 transition-colors">
+                <item.icon className="h-6 w-6 text-[#1B4DA1]" />
+              </div>
+              <h3 className="font-[var(--font-outfit)] text-lg font-semibold text-[#0A1E3D]">{item.title}</h3>
+              <p className="mt-2 text-sm text-[#64748B] leading-relaxed">{item.desc}</p>
             </motion.div>
           ))}
-        </motion.div>
-      </div>
+        </div>
+      </motion.div>
     </section>
   )
 }
