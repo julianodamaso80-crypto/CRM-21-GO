@@ -174,35 +174,61 @@ async function bootstrap() {
     // Inbox alias
     await fastify.register(inboxRoutes, { prefix: '/api/inbox' })
 
-    // ── Serve frontend static files in production ───────
-    const possiblePaths = [
+    // ── Serve static files in production ───────────────
+    // Site publico (Next.js static export) em /
+    // CRM (React SPA) em /crm
+    const sitePaths = [
+      path.join(process.cwd(), '..', '21go-website', 'out'),
+      path.join(process.cwd(), '21go-website', 'out'),
+      path.join(__dirname, '..', '..', '21go-website', 'out'),
+    ]
+    const crmPaths = [
       path.join(process.cwd(), '..', 'frontend', 'dist'),
       path.join(process.cwd(), 'frontend', 'dist'),
       path.join(__dirname, '..', '..', 'frontend', 'dist'),
-      path.join(__dirname, '..', 'frontend', 'dist'),
     ]
 
-    const frontendDistPath = possiblePaths.find(p => fs.existsSync(p))
+    const siteDistPath = sitePaths.find(p => fs.existsSync(p))
+    const crmDistPath = crmPaths.find(p => fs.existsSync(p))
 
-    if (frontendDistPath) {
-      console.log(`[Static] Serving frontend from: ${frontendDistPath}`)
+    // CRM em /crm (registrar PRIMEIRO)
+    if (crmDistPath) {
+      console.log(`[Static] CRM from: ${crmDistPath}`)
       await fastify.register(fastifyStatic, {
-        root: frontendDistPath,
+        root: crmDistPath,
+        prefix: '/crm/',
+        wildcard: false,
+        decorateReply: !siteDistPath,
+      })
+    }
+
+    // Site publico em /
+    if (siteDistPath) {
+      console.log(`[Static] Site from: ${siteDistPath}`)
+      await fastify.register(fastifyStatic, {
+        root: siteDistPath,
         prefix: '/',
         wildcard: false,
+        decorateReply: true,
       })
-
-      // SPA fallback: serve index.html for any non-API, non-health route
-      fastify.setNotFoundHandler((request, reply) => {
-        if (request.url.startsWith('/api/') || request.url === '/health' || request.url === '/docs') {
-          return reply.status(404).send({ error: 'Not Found', message: 'Route not found' })
-        }
-        return reply.sendFile('index.html')
-      })
-    } else {
-      console.log('[Static] Frontend dist not found, skipping static file serving')
-      console.log('[Static] Looked in:', possiblePaths)
     }
+
+    // Not-found handler
+    fastify.setNotFoundHandler((request, reply) => {
+      if (request.url.startsWith('/api/') || request.url === '/health' || request.url.startsWith('/docs')) {
+        return reply.status(404).send({ error: 'Not Found', message: 'Route not found' })
+      }
+      if (request.url.startsWith('/crm') && crmDistPath) {
+        return reply.sendFile('index.html', crmDistPath)
+      }
+      if (siteDistPath) {
+        return reply.sendFile('index.html', siteDistPath)
+      }
+      return reply.status(404).send({ error: 'Not Found' })
+    })
+
+    if (!siteDistPath) console.log('[Static] Site dist not found, looked in:', sitePaths)
+    if (!crmDistPath) console.log('[Static] CRM dist not found, looked in:', crmPaths)
 
     // Error handler global
     fastify.setErrorHandler(errorHandler as any)
