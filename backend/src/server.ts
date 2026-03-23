@@ -190,7 +190,7 @@ async function bootstrap() {
       await fastify.register(fastifyStatic, {
         root: crmDistPath,
         prefix: '/crm/',
-        decorateReply: false,
+        decorateReply: true,
       })
     } else {
       console.log('[Static] CRM dist not found, skipping')
@@ -218,20 +218,49 @@ async function bootstrap() {
       console.log('[Static] Looked in:', sitePaths)
     }
 
-    // SPA fallback
+    // Helper to serve HTML files manually (sendFile doesn't work in notFoundHandler with decorateReply: false)
+    const serveHtml = (filePath: string, reply: any) => {
+      const content = fs.readFileSync(filePath, 'utf8')
+      return reply.type('text/html').send(content)
+    }
+
+    // Fallback handler for both site and CRM
     fastify.setNotFoundHandler((request, reply) => {
+      const url = request.url.split('?')[0]
+
       // API routes: 404 JSON
-      if (request.url.startsWith('/api/') || request.url === '/health' || request.url === '/docs') {
+      if (url.startsWith('/api/') || url === '/health' || url === '/docs') {
         return reply.status(404).send({ error: 'Not Found', message: 'Route not found' })
       }
-      // CRM SPA fallback
-      if (request.url.startsWith('/crm') && crmDistPath) {
-        return reply.sendFile('index.html', crmDistPath)
+
+      // CRM SPA fallback: any /crm path serves CRM index.html
+      if (url.startsWith('/crm') && crmDistPath) {
+        return serveHtml(path.join(crmDistPath, 'index.html'), reply)
       }
-      // Site fallback
+
+      // Site: try serving .html file for Next.js exported pages
       if (siteDistPath) {
-        return reply.sendFile('index.html', siteDistPath)
+        const cleanPath = (url.endsWith('/') ? url.slice(0, -1) : url) || ''
+        const segment = cleanPath.slice(1) // remove leading /
+
+        // Try exact .html match (e.g. /cotacao -> cotacao.html)
+        if (segment) {
+          const htmlFile = path.join(siteDistPath, segment + '.html')
+          if (fs.existsSync(htmlFile)) {
+            return serveHtml(htmlFile, reply)
+          }
+
+          // Try directory index (e.g. /blog/slug -> blog/slug/index.html)
+          const indexFile = path.join(siteDistPath, segment, 'index.html')
+          if (fs.existsSync(indexFile)) {
+            return serveHtml(indexFile, reply)
+          }
+        }
+
+        // Final fallback: site index.html
+        return serveHtml(path.join(siteDistPath, 'index.html'), reply)
       }
+
       return reply.status(404).send({ error: 'Not Found' })
     })
 

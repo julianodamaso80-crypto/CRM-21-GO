@@ -51,6 +51,14 @@ const relatedPosts = [
   },
 ]
 
+export async function generateStaticParams() {
+  return [
+    { slug: 'protecao-veicular-vs-seguro' },
+    { slug: '7-dicas-evitar-roubo-carro-rj' },
+    { slug: 'quanto-custa-protecao-veicular' },
+  ]
+}
+
 export default async function BlogPostPage({ params }: BlogPostPageProps) {
   const { slug } = await params
   const title = slug
