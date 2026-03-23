@@ -63,7 +63,7 @@ api.interceptors.response.use(
     if (error.response?.status === 401) {
       // Token inválido ou expirado
       useAuthStore.getState().clearAuth()
-      window.location.href = '/login'
+      window.location.href = '/crm/login'
     }
     return Promise.reject(error)
   }

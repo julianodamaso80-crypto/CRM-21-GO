@@ -1,0 +1,14 @@
+# *
+User-agent: *
+Allow: /
+
+# *
+User-agent: *
+Disallow: /api/
+Disallow: /area-do-associado
+
+# Host
+Host: https://21go.site
+
+# Sitemaps
+Sitemap: https://21go.site/sitemap.xml
