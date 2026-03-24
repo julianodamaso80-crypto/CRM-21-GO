@@ -61,20 +61,28 @@ export function HeroSection() {
           variants={fadeInUp}
           className="mt-8 font-[var(--font-outfit)] text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold leading-[1.08] tracking-tight text-white"
         >
-          Proteção Veicular no RJ{' '}
-          <span className="block mt-3">
-            Seu Carro Protegido por{' '}
-            <span className="text-gradient-orange">Menos de R$3/dia</span>
+          A Cada 17 Minutos,
+          <span className="block mt-2">
+            Um Carro é <span className="text-gradient-orange">Roubado no Rio</span>
           </span>
         </motion.h1>
+
+        {/* H2 */}
+        <motion.p
+          variants={fadeInUp}
+          className="mx-auto mt-6 max-w-2xl text-xl text-white/70 md:text-2xl font-medium leading-relaxed"
+        >
+          São 90 carros e 39 motos por dia. O seu está protegido?
+        </motion.p>
 
         {/* Subtitle */}
         <motion.p
           variants={fadeInUp}
-          className="mx-auto mt-6 max-w-2xl text-lg text-white/70 md:text-xl leading-relaxed"
+          className="mx-auto mt-4 max-w-2xl text-base text-white/60 md:text-lg leading-relaxed"
         >
-          Sem análise de perfil. Sem burocracia. Cotação em 30 segundos.
-          Até 60% mais barato que seguro tradicional.
+          Sem análise de perfil. Sem burocracia. Cotação em 30 segundos.<br />
+          Leilão pagamos 80% FIPE. Carro de App cota de 6%.<br />
+          Regulamentada pela SUSEP para sua segurança.
         </motion.p>
 
         {/* CTAs */}
