@@ -59,31 +59,34 @@ export function HeroSection() {
         {/* H1 */}
         <motion.h1
           variants={fadeInUp}
-          className="mt-8 font-[var(--font-outfit)] text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold leading-[1.08] tracking-tight text-white"
+          className="mt-8 font-[var(--font-outfit)] text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold leading-[1.12] tracking-tight text-white max-w-3xl mx-auto"
         >
-          A Cada 17 Minutos,
-          <span className="block mt-2">
-            Um Carro é <span className="text-gradient-orange">Roubado no Rio</span>
-          </span>
+          A Cada 17 Minutos, Um Carro é{' '}
+          <span className="text-gradient-orange">Roubado no Rio</span>
         </motion.h1>
 
         {/* H2 */}
         <motion.p
           variants={fadeInUp}
-          className="mx-auto mt-6 max-w-2xl text-xl text-white/70 md:text-2xl font-medium leading-relaxed"
+          className="mx-auto mt-6 max-w-xl text-lg text-white/80 md:text-xl font-medium"
         >
           São 90 carros e 39 motos por dia. O seu está protegido?
         </motion.p>
 
-        {/* Subtitle */}
-        <motion.p
+        {/* Subtitle — 3 badges em linha */}
+        <motion.div
           variants={fadeInUp}
-          className="mx-auto mt-4 max-w-2xl text-base text-white/60 md:text-lg leading-relaxed"
+          className="mx-auto mt-6 flex flex-wrap items-center justify-center gap-3"
         >
-          Sem análise de perfil. Sem burocracia. Cotação em 30 segundos.<br />
-          Leilão pagamos 80% FIPE. Carro de App cota de 6%.<br />
-          Regulamentada pela SUSEP para sua segurança.
-        </motion.p>
+          {['Sem análise de perfil', 'Leilão: 80% FIPE', 'App: cota 6%', 'SUSEP'].map((item) => (
+            <span
+              key={item}
+              className="inline-flex items-center px-3 py-1.5 rounded-full border border-white/15 bg-white/[0.06] text-sm text-white/70"
+            >
+              {item}
+            </span>
+          ))}
+        </motion.div>
 
         {/* CTAs */}
         <motion.div variants={fadeInUp} className="mt-10 flex flex-wrap items-center justify-center gap-4">
