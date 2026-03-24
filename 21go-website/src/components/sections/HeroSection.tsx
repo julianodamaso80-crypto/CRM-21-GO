@@ -61,7 +61,7 @@ export function HeroSection() {
           variants={fadeInUp}
           className="mt-8 font-[var(--font-outfit)] text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold leading-[1.08] tracking-tight text-white"
         >
-          Proteção Veicular no RJ —{' '}
+          Proteção Veicular no RJ{' '}
           <span className="block mt-3">
             Seu Carro Protegido por{' '}
             <span className="text-gradient-orange">Menos de R$3/dia</span>
