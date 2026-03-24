@@ -73,18 +73,26 @@ export function HeroSection() {
           São 90 carros e 39 motos por dia. O seu está protegido?
         </motion.p>
 
-        {/* Subtitle — 3 badges em linha */}
+        {/* Diferenciais — 3 mini-cards */}
         <motion.div
           variants={fadeInUp}
-          className="mx-auto mt-6 flex flex-wrap items-center justify-center gap-3"
+          className="mx-auto mt-8 grid grid-cols-1 sm:grid-cols-3 gap-3 max-w-2xl"
         >
-          {['Sem análise de perfil', 'Leilão: 80% FIPE', 'App: cota 6%', 'SUSEP'].map((item) => (
-            <span
-              key={item}
-              className="inline-flex items-center px-3 py-1.5 rounded-full border border-white/15 bg-white/[0.06] text-sm text-white/70"
+          {[
+            { icon: '🏷️', title: 'Carro de Leilão', desc: 'Pagamos até 80% da FIPE' },
+            { icon: '🚗', title: 'Carro de App', desc: 'Sua cota é de apenas 6%' },
+            { icon: '🛡️', title: 'SUSEP', desc: 'Cadastrada para sua segurança' },
+          ].map((item) => (
+            <div
+              key={item.title}
+              className="flex items-center gap-3 px-4 py-3 rounded-xl border border-white/10 bg-white/[0.05] backdrop-blur-sm"
             >
-              {item}
-            </span>
+              <span className="text-lg flex-shrink-0">{item.icon}</span>
+              <div>
+                <p className="text-sm font-semibold text-white/90 leading-tight">{item.title}</p>
+                <p className="text-xs text-white/50">{item.desc}</p>
+              </div>
+            </div>
           ))}
         </motion.div>
 
