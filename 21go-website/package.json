@@ -14,6 +14,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@studio-freight/lenis": "^1.0.42",
     "@tailwindcss/postcss": "^4.2.2",
     "@types/node": "^25.5.0",
     "@types/react": "^19.2.14",
@@ -21,6 +22,7 @@
     "clsx": "^2.1.1",
     "framer-motion": "^12.38.0",
     "gray-matter": "^4.0.3",
+    "gsap": "^3.14.2",
     "lucide-react": "^0.577.0",
     "next": "^15.5.14",
     "next-mdx-remote": "^6.0.0",
@@ -28,9 +30,9 @@
     "postcss": "^8.5.8",
     "react": "^19.2.4",
     "react-dom": "^19.2.4",
+    "serve": "^14.2.0",
     "tailwind-merge": "^3.5.0",
     "tailwindcss": "^4.2.2",
-    "typescript": "^5.9.3",
-    "serve": "^14.2.0"
+    "typescript": "^5.9.3"
   }
 }

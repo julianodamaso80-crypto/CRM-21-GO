@@ -5,6 +5,8 @@ import { Header } from '@/components/layout/Header'
 import { Footer } from '@/components/layout/Footer'
 import { WhatsAppButton } from '@/components/ui/WhatsAppButton'
 import { SchemaOrg } from '@/components/seo/SchemaOrg'
+import SmoothScrollProvider from '@/components/SmoothScrollProvider'
+import MobileCTA from '@/components/MobileCTA'
 
 const outfit = Outfit({
   subsets: ['latin'],
@@ -22,15 +24,15 @@ const dmSans = DM_Sans({
 
 export const metadata: Metadata = {
   title: {
-    default: 'Protecao Veicular RJ | 21Go - 20+ Anos Protegendo Seu Carro',
-    template: '%s | 21Go Protecao Veicular',
+    default: 'Proteção Veicular RJ | 21Go — 20+ Anos Protegendo Seu Carro',
+    template: '%s | 21Go Proteção Veicular',
   },
-  description: 'Protecao veicular no Rio de Janeiro a partir de R$89/mes. 20+ anos de mercado, sem analise de perfil, cotacao em 30 segundos. Faca sua cotacao gratis.',
+  description: 'Proteção veicular no Rio de Janeiro a partir de R$89/mês. 20+ anos de mercado, sem análise de perfil, cotação em 30 segundos. Faça sua cotação grátis.',
   metadataBase: new URL('https://21go.site'),
   openGraph: {
     type: 'website',
     locale: 'pt_BR',
-    siteName: '21Go Protecao Veicular',
+    siteName: '21Go Proteção Veicular',
     images: [{ url: '/og-image.jpg', width: 1200, height: 630 }],
   },
   robots: { index: true, follow: true },
@@ -42,10 +44,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="pt-BR" className={`${outfit.variable} ${dmSans.variable}`}>
       <body>
         <SchemaOrg />
-        <Header />
-        <main>{children}</main>
-        <Footer />
-        <WhatsAppButton />
+        <SmoothScrollProvider>
+          <Header />
+          <main>{children}</main>
+          <Footer />
+          <WhatsAppButton />
+          <MobileCTA />
+        </SmoothScrollProvider>
       </body>
     </html>
   )

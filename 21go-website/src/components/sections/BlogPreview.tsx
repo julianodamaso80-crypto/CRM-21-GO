@@ -7,9 +7,9 @@ import { fadeInUp, staggerContainer } from '@/lib/motion'
 import Link from 'next/link'
 
 const posts = [
-  { slug: 'protecao-veicular-vs-seguro', title: 'Protecao Veicular vs Seguro: Qual a Diferenca?', excerpt: 'Entenda as vantagens e desvantagens de cada opcao para proteger seu veiculo no Rio de Janeiro.', tag: 'Guia' },
-  { slug: '7-dicas-evitar-roubo-carro-rj', title: '7 Dicas Para Evitar Roubo de Carro no RJ', excerpt: 'Medidas praticas para reduzir o risco de roubo e furto na cidade do Rio de Janeiro.', tag: 'Seguranca' },
-  { slug: 'quanto-custa-protecao-veicular', title: 'Quanto Custa Protecao Veicular em 2026?', excerpt: 'Valores atualizados, comparativo com seguro e como economizar na protecao do seu carro.', tag: 'Precos' },
+  { slug: 'protecao-veicular-vs-seguro', title: 'Proteção Veicular vs Seguro: Qual a Diferença?', excerpt: 'Entenda as vantagens e desvantagens de cada opção para proteger seu veículo no Rio de Janeiro.', tag: 'Guia' },
+  { slug: '7-dicas-evitar-roubo-carro-rj', title: '7 Dicas Para Evitar Roubo de Carro no RJ', excerpt: 'Medidas práticas para reduzir o risco de roubo e furto na cidade do Rio de Janeiro.', tag: 'Segurança' },
+  { slug: 'quanto-custa-protecao-veicular', title: 'Quanto Custa Proteção Veicular em 2026?', excerpt: 'Valores atualizados, comparativo com seguro e como economizar na proteção do seu carro.', tag: 'Preços' },
 ]
 
 export function BlogPreview() {
@@ -29,7 +29,7 @@ export function BlogPreview() {
             <h2 className="font-[var(--font-outfit)] text-3xl md:text-4xl font-bold text-[#0A1E3D]">
               Blog 21Go
             </h2>
-            <p className="mt-4 text-lg text-[#64748B]">Conteudo para voce fazer escolhas mais inteligentes</p>
+            <p className="mt-4 text-lg text-[#64748B]">Conteúdo para você fazer escolhas mais inteligentes</p>
           </div>
           <Link href="/blog" className="hidden md:inline-flex items-center gap-1 text-sm font-semibold text-[#1B4DA1] hover:text-[#164087] transition-colors">
             Ver todos <ArrowRight className="h-4 w-4" />
@@ -37,11 +37,11 @@ export function BlogPreview() {
         </motion.div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {posts.map((post) => (
-            <motion.div key={post.slug} variants={fadeInUp}>
+          {posts.map((post, i) => (
+            <motion.div key={post.slug} variants={fadeInUp} transition={{ delay: i * 0.1 }}>
               <Link
                 href={`/blog/${post.slug}`}
-                className="block group bg-[#F0F4FA] rounded-2xl p-6 border border-[#E2E8F0] hover:shadow-md hover:-translate-y-1 transition-all duration-300"
+                className="block group bg-[#F0F4FA] rounded-2xl p-6 border border-[#E2E8F0] hover:shadow-lg hover:-translate-y-1.5 hover:border-[#1B4DA1]/20 transition-all duration-300"
               >
                 <span className="inline-block bg-[#1B4DA1]/5 text-[#1B4DA1] text-xs font-semibold px-3 py-1 rounded-full mb-4">
                   {post.tag}

@@ -7,7 +7,7 @@ import { Menu, X } from 'lucide-react'
 const navLinks = [
   { label: 'Sobre', href: '/sobre' },
   { label: 'Planos', href: '/protecao-veicular' },
-  { label: 'Cotacao', href: '/cotacao' },
+  { label: 'Cotação', href: '/cotacao' },
   { label: 'Blog', href: '/blog' },
   { label: 'FAQ', href: '/faq' },
 ]
@@ -26,14 +26,16 @@ export function Header() {
     <header
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
         scrolled
-          ? 'bg-white/95 backdrop-blur-md shadow-[0_1px_3px_rgba(0,0,0,0.08)]'
+          ? 'bg-white/95 backdrop-blur-xl shadow-[0_1px_3px_rgba(0,0,0,0.08)] border-b border-[#F0F4FA]'
           : 'bg-transparent'
       }`}
     >
       <nav className="mx-auto max-w-7xl px-6 flex items-center justify-between h-16 lg:h-20">
         <Link href="/" className="flex items-center gap-2.5">
-          <Image src="/logo21go.png" alt="21Go Protecao Veicular" width={36} height={36} className="rounded-lg" />
-          <span className="font-[var(--font-outfit)] text-xl font-bold tracking-tight text-[#1B4DA1]">21Go</span>
+          <Image src="/logo21go.png" alt="21Go Proteção Veicular" width={36} height={36} className="rounded-lg" />
+          <span className={`font-[var(--font-outfit)] text-xl font-bold tracking-tight transition-colors duration-300 ${
+            scrolled ? 'text-[#1B4DA1]' : 'text-white'
+          }`}>21Go</span>
         </Link>
 
         <div className="hidden lg:flex items-center gap-8">
@@ -41,7 +43,11 @@ export function Header() {
             <Link
               key={link.href}
               href={link.href}
-              className="text-sm font-medium text-[#64748B] hover:text-[#1B4DA1] transition-colors duration-200"
+              className={`text-sm font-medium transition-colors duration-300 ${
+                scrolled
+                  ? 'text-[#64748B] hover:text-[#1B4DA1]'
+                  : 'text-white/80 hover:text-white'
+              }`}
             >
               {link.label}
             </Link>
@@ -51,13 +57,16 @@ export function Header() {
         <div className="hidden lg:block">
           <Link
             href="/cotacao"
-            className="inline-flex items-center px-6 py-2.5 rounded-lg bg-[#E07620] text-white text-sm font-semibold hover:bg-[#C46218] transition-colors duration-200 shadow-sm"
+            className="inline-flex items-center px-6 py-2.5 rounded-lg bg-[#E07620] text-white text-sm font-semibold hover:bg-[#C46218] transition-all duration-200 shadow-sm hover:shadow-[0_4px_12px_rgba(224,118,32,0.35)] hover:-translate-y-px"
           >
             Cotar Agora
           </Link>
         </div>
 
-        <button onClick={() => setIsOpen(!isOpen)} className="lg:hidden text-[#0A1E3D]">
+        <button
+          onClick={() => setIsOpen(!isOpen)}
+          className={`lg:hidden transition-colors duration-300 ${scrolled ? 'text-[#0A1E3D]' : 'text-white'}`}
+        >
           {isOpen ? <X size={24} /> : <Menu size={24} />}
         </button>
       </nav>

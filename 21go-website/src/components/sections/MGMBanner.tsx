@@ -7,9 +7,9 @@ import { fadeInUp, staggerContainer } from '@/lib/motion'
 import Link from 'next/link'
 
 const tiers = [
-  { count: '1', discount: '10%', icon: Users },
-  { count: '5', discount: '50%', icon: Users },
-  { count: '10', discount: 'GRATIS', icon: Trophy },
+  { count: '1', discount: '10%', icon: Users, label: 'indicação' },
+  { count: '5', discount: '50%', icon: Users, label: 'indicações' },
+  { count: '10', discount: 'GRÁTIS', icon: Trophy, label: 'indicações' },
 ]
 
 export function MGMBanner() {
@@ -17,12 +17,27 @@ export function MGMBanner() {
   const isInView = useInView(ref, { once: true, margin: '-80px' })
 
   return (
-    <section ref={ref} className="bg-gradient-to-b from-[#0A1E3D] via-[#11336D] to-[#1B4DA1] py-20 lg:py-28">
+    <section ref={ref} className="relative overflow-hidden bg-gradient-to-b from-[#0A1E3D] via-[#0D2653] to-[#1B4DA1] py-20 lg:py-28">
+      {/* Orbs — same as hero */}
+      <div className="pointer-events-none absolute inset-0 overflow-hidden">
+        <div className="animate-float-slow absolute -top-20 -right-20 w-[500px] h-[500px] rounded-full bg-[#E07620]/20 blur-[120px]" />
+        <div className="animate-float-slower absolute bottom-0 -left-20 w-[500px] h-[500px] rounded-full bg-[#1B4DA1]/30 blur-[150px]" />
+        <div className="animate-pulse-slow absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[300px] h-[300px] rounded-full bg-[#C9A84C]/10 blur-[100px]" />
+        <div
+          className="absolute inset-0"
+          style={{
+            backgroundImage: 'url(/grid-pattern.svg)',
+            backgroundRepeat: 'repeat',
+            opacity: 0.03,
+          }}
+        />
+      </div>
+
       <motion.div
         variants={staggerContainer}
         initial="hidden"
         animate={isInView ? 'visible' : 'hidden'}
-        className="mx-auto max-w-5xl px-6 text-center"
+        className="relative z-10 mx-auto max-w-5xl px-6 text-center"
       >
         <motion.div variants={fadeInUp}>
           <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm rounded-full px-4 py-2 mb-6">
@@ -35,30 +50,37 @@ export function MGMBanner() {
           variants={fadeInUp}
           className="font-[var(--font-outfit)] text-3xl md:text-4xl lg:text-5xl font-bold text-white"
         >
-          Indique amigos e ganhe ate{' '}
+          Indique amigos e ganhe até{' '}
           <span className="text-[#E07620]">100% de desconto</span>
         </motion.h2>
 
         <motion.p variants={fadeInUp} className="mt-4 text-lg text-white/70 max-w-2xl mx-auto">
-          Cada indicacao que vira associado te da 10% de desconto. Acumulativo. 10 indicacoes = protecao gratuita.
+          Cada indicação que vira associado te dá 10% de desconto. Acumulativo. 10 indicações = proteção gratuita.
         </motion.p>
 
         <motion.div variants={fadeInUp} className="mt-12 grid grid-cols-3 gap-6 max-w-lg mx-auto">
-          {tiers.map((tier) => (
-            <div key={tier.count} className="flex flex-col items-center">
-              <div className="w-16 h-16 rounded-2xl bg-white/10 border border-white/20 flex items-center justify-center mb-3">
+          {tiers.map((tier, i) => (
+            <motion.div
+              key={tier.count}
+              variants={fadeInUp}
+              transition={{ delay: i * 0.12 }}
+              className="flex flex-col items-center"
+            >
+              <div className="w-16 h-16 rounded-2xl bg-white/10 border border-white/20 flex items-center justify-center mb-3 hover:bg-white/15 transition-colors">
                 <tier.icon className="h-7 w-7 text-[#C9A84C]" />
               </div>
-              <span className="text-sm text-white/60">{tier.count} {tier.count === '1' ? 'indicacao' : 'indicacoes'}</span>
-              <span className="font-[var(--font-outfit)] text-xl font-bold text-white mt-1">{tier.discount}</span>
-            </div>
+              <span className="text-sm text-white/60">{tier.count} {tier.label}</span>
+              <span className={`font-[var(--font-outfit)] text-xl font-bold mt-1 ${
+                tier.count === '10' ? 'text-[#E07620]' : 'text-white'
+              }`}>{tier.discount}</span>
+            </motion.div>
           ))}
         </motion.div>
 
         <motion.div variants={fadeInUp} className="mt-10">
           <Link
             href="/indique"
-            className="inline-flex items-center px-8 py-4 rounded-xl bg-[#E07620] text-white text-base font-semibold hover:bg-[#C46218] transition-all duration-200 shadow-lg shadow-[#E07620]/25"
+            className="shimmer-btn inline-flex items-center px-8 py-4 rounded-xl bg-[#E07620] text-white text-base font-semibold hover:bg-[#C46218] transition-all duration-200 shadow-lg shadow-[#E07620]/30 hover:-translate-y-0.5"
           >
             Comece a indicar
           </Link>

@@ -9,7 +9,7 @@ const badges = [
   { icon: ShieldCheck, label: 'Cadastro SUSEP', sublabel: 'Regulamentada' },
   { icon: Award, label: '20+ Anos', sublabel: 'De mercado no RJ' },
   { icon: Users, label: 'Milhares', sublabel: 'De associados ativos' },
-  { icon: Clock, label: '24/7', sublabel: 'Assistencia em todo Brasil' },
+  { icon: Clock, label: '24/7', sublabel: 'Assistência em todo Brasil' },
 ]
 
 export function TrustBar() {

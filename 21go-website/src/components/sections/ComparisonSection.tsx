@@ -6,14 +6,14 @@ import { Check, X } from 'lucide-react'
 import { fadeInUp, staggerContainer } from '@/lib/motion'
 
 const rows = [
-  { feature: 'Custo mensal', veicular: 'Ate 60% menor', seguro: 'Valor elevado' },
-  { feature: 'Analise de perfil', veicular: false, seguro: true },
+  { feature: 'Custo mensal', veicular: 'Até 60% menor', seguro: 'Valor elevado' },
+  { feature: 'Análise de perfil', veicular: false, seguro: true },
   { feature: 'Aceita carros antigos', veicular: true, seguro: false },
-  { feature: 'Burocracia', veicular: 'Minima', seguro: 'Alta' },
+  { feature: 'Burocracia', veicular: 'Mínima', seguro: 'Alta' },
   { feature: 'Cancelamento', veicular: 'Sem multa', seguro: 'Fidelidade 12 meses' },
-  { feature: 'Assistencia 24h', veicular: true, seguro: true },
+  { feature: 'Assistência 24h', veicular: true, seguro: true },
   { feature: 'Guincho', veicular: '200km incluso', seguro: 'Varia por plano' },
-  { feature: 'Cotacao online', veicular: '30 segundos', seguro: 'Dias para analise' },
+  { feature: 'Cotação online', veicular: '30 segundos', seguro: 'Dias para análise' },
 ]
 
 function CellValue({ value, positive }: { value: string | boolean; positive: boolean }) {
@@ -44,25 +44,31 @@ export function ComparisonSection() {
         className="mx-auto max-w-4xl px-6"
       >
         <motion.div variants={fadeInUp} className="text-center mb-14">
-          <h2 className="font-[var(--font-outfit)] text-3xl md:text-4xl font-bold text-[#0A1E3D]">
-            Protecao Veicular vs Seguro Tradicional
+          <h2 className="font-[var(--font-outfit)] text-3xl md:text-4xl font-bold text-[#1B4DA1]">
+            Proteção Veicular vs Seguro Tradicional
           </h2>
           <p className="mt-4 text-lg text-[#64748B]">
-            Entenda por que milhares de cariocas estao migrando para a protecao veicular
+            Entenda por que milhares de cariocas estão migrando para a proteção veicular
           </p>
         </motion.div>
 
-        <motion.div variants={fadeInUp} className="overflow-hidden rounded-2xl border border-[#E2E8F0]">
+        <motion.div variants={fadeInUp} className="overflow-hidden rounded-2xl border border-[#E2E8F0] shadow-sm">
           {/* Header */}
           <div className="grid grid-cols-3 bg-[#F0F4FA]">
-            <div className="p-4 text-sm font-semibold text-[#64748B]">Caracteristica</div>
-            <div className="p-4 text-center text-sm font-semibold text-[#1B4DA1]">21Go Protecao</div>
+            <div className="p-4 text-sm font-semibold text-[#64748B]">Característica</div>
+            <div className="p-4 text-center text-sm font-semibold text-[#1B4DA1]">21Go Proteção</div>
             <div className="p-4 text-center text-sm font-semibold text-[#64748B]">Seguradora</div>
           </div>
 
-          {/* Rows */}
+          {/* Rows with stagger */}
           {rows.map((row, i) => (
-            <div key={row.feature} className={`grid grid-cols-3 ${i % 2 === 0 ? 'bg-white' : 'bg-[#FAFBFC]'} border-t border-[#F0F4FA]`}>
+            <motion.div
+              key={row.feature}
+              initial={{ opacity: 0, x: -20 }}
+              animate={isInView ? { opacity: 1, x: 0 } : {}}
+              transition={{ delay: 0.3 + i * 0.06, duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+              className={`grid grid-cols-3 ${i % 2 === 0 ? 'bg-white' : 'bg-[#FAFBFC]'} border-t border-[#F0F4FA]`}
+            >
               <div className="p-4 text-sm text-[#0A1E3D] font-medium">{row.feature}</div>
               <div className="p-4 flex items-center justify-center">
                 <CellValue value={row.veicular} positive={true} />
@@ -70,7 +76,7 @@ export function ComparisonSection() {
               <div className="p-4 flex items-center justify-center">
                 <CellValue value={row.seguro} positive={false} />
               </div>
-            </div>
+            </motion.div>
           ))}
         </motion.div>
       </motion.div>
