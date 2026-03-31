@@ -1,0 +1,442 @@
+{
+  "exportFormatVersion": 2,
+  "exportTime": "2026-03-31 15:00:00",
+  "containerVersion": {
+    "path": "accounts/0/containers/0/versions/0",
+    "accountId": "0",
+    "containerId": "0",
+    "containerVersionId": "0",
+    "name": "21Go Server - TrackMaster v1",
+    "description": "Container Server 21Go (Stape.io) - Meta CAPI + GA4 Server + Google Ads Enhanced Conversions",
+    "container": {
+      "path": "accounts/0/containers/0",
+      "accountId": "0",
+      "containerId": "0",
+      "name": "21Go Server",
+      "publicId": "GTM-SRVXXXX",
+      "usageContext": ["SERVER"]
+    },
+    "builtInVariable": [
+      { "accountId": "0", "containerId": "0", "type": "EVENT_NAME", "name": "Event Name" },
+      { "accountId": "0", "containerId": "0", "type": "CLIENT_NAME", "name": "Client Name" },
+      { "accountId": "0", "containerId": "0", "type": "REQUEST_PATH", "name": "Request Path" },
+      { "accountId": "0", "containerId": "0", "type": "QUERY_STRING", "name": "Query String" }
+    ],
+    "variable": [
+      {
+        "accountId": "0",
+        "containerId": "0",
+        "variableId": "1",
+        "name": "CONST - Meta CAPI Access Token",
+        "type": "c",
+        "parameter": [
+          { "type": "TEMPLATE", "key": "value", "value": "EAAG_YOUR_META_ACCESS_TOKEN_HERE" }
+        ]
+      },
+      {
+        "accountId": "0",
+        "containerId": "0",
+        "variableId": "2",
+        "name": "CONST - Meta Pixel ID",
+        "type": "c",
+        "parameter": [
+          { "type": "TEMPLATE", "key": "value", "value": "000000000000000" }
+        ]
+      },
+      {
+        "accountId": "0",
+        "containerId": "0",
+        "variableId": "3",
+        "name": "CONST - GA4 Measurement ID",
+        "type": "c",
+        "parameter": [
+          { "type": "TEMPLATE", "key": "value", "value": "G-XXXXXXXXXX" }
+        ]
+      },
+      {
+        "accountId": "0",
+        "containerId": "0",
+        "variableId": "4",
+        "name": "CONST - Google Ads Conversion ID",
+        "type": "c",
+        "parameter": [
+          { "type": "TEMPLATE", "key": "value", "value": "AW-0000000000" }
+        ]
+      },
+      {
+        "accountId": "0",
+        "containerId": "0",
+        "variableId": "10",
+        "name": "ED - event_name",
+        "type": "smm",
+        "parameter": [
+          { "type": "TEMPLATE", "key": "defaultValue", "value": "" },
+          { "type": "TEMPLATE", "key": "name", "value": "event_name" }
+        ]
+      },
+      {
+        "accountId": "0",
+        "containerId": "0",
+        "variableId": "11",
+        "name": "ED - event_id",
+        "type": "smm",
+        "parameter": [
+          { "type": "TEMPLATE", "key": "defaultValue", "value": "" },
+          { "type": "TEMPLATE", "key": "name", "value": "event_id" }
+        ]
+      },
+      {
+        "accountId": "0",
+        "containerId": "0",
+        "variableId": "12",
+        "name": "ED - plan_name",
+        "type": "smm",
+        "parameter": [
+          { "type": "TEMPLATE", "key": "defaultValue", "value": "" },
+          { "type": "TEMPLATE", "key": "name", "value": "plan_name" }
+        ]
+      },
+      {
+        "accountId": "0",
+        "containerId": "0",
+        "variableId": "13",
+        "name": "ED - plan_value",
+        "type": "smm",
+        "parameter": [
+          { "type": "TEMPLATE", "key": "defaultValue", "value": "0" },
+          { "type": "TEMPLATE", "key": "name", "value": "value" }
+        ]
+      },
+      {
+        "accountId": "0",
+        "containerId": "0",
+        "variableId": "14",
+        "name": "ED - ip_address",
+        "type": "smm",
+        "parameter": [
+          { "type": "TEMPLATE", "key": "defaultValue", "value": "" },
+          { "type": "TEMPLATE", "key": "name", "value": "ip_override" }
+        ]
+      },
+      {
+        "accountId": "0",
+        "containerId": "0",
+        "variableId": "15",
+        "name": "ED - user_agent",
+        "type": "smm",
+        "parameter": [
+          { "type": "TEMPLATE", "key": "defaultValue", "value": "" },
+          { "type": "TEMPLATE", "key": "name", "value": "user_agent" }
+        ]
+      },
+      {
+        "accountId": "0",
+        "containerId": "0",
+        "variableId": "16",
+        "name": "ED - page_location",
+        "type": "smm",
+        "parameter": [
+          { "type": "TEMPLATE", "key": "defaultValue", "value": "" },
+          { "type": "TEMPLATE", "key": "name", "value": "page_location" }
+        ]
+      },
+      {
+        "accountId": "0",
+        "containerId": "0",
+        "variableId": "17",
+        "name": "ED - fbclid",
+        "type": "smm",
+        "parameter": [
+          { "type": "TEMPLATE", "key": "defaultValue", "value": "" },
+          { "type": "TEMPLATE", "key": "name", "value": "fbclid" }
+        ]
+      },
+      {
+        "accountId": "0",
+        "containerId": "0",
+        "variableId": "18",
+        "name": "ED - fbc",
+        "type": "smm",
+        "parameter": [
+          { "type": "TEMPLATE", "key": "defaultValue", "value": "" },
+          { "type": "TEMPLATE", "key": "name", "value": "_fbc" }
+        ]
+      },
+      {
+        "accountId": "0",
+        "containerId": "0",
+        "variableId": "19",
+        "name": "ED - fbp",
+        "type": "smm",
+        "parameter": [
+          { "type": "TEMPLATE", "key": "defaultValue", "value": "" },
+          { "type": "TEMPLATE", "key": "name", "value": "_fbp" }
+        ]
+      },
+      {
+        "accountId": "0",
+        "containerId": "0",
+        "variableId": "20",
+        "name": "ED - gclid",
+        "type": "smm",
+        "parameter": [
+          { "type": "TEMPLATE", "key": "defaultValue", "value": "" },
+          { "type": "TEMPLATE", "key": "name", "value": "gclid" }
+        ]
+      },
+      {
+        "accountId": "0",
+        "containerId": "0",
+        "variableId": "21",
+        "name": "ED - email_hash",
+        "type": "smm",
+        "parameter": [
+          { "type": "TEMPLATE", "key": "defaultValue", "value": "" },
+          { "type": "TEMPLATE", "key": "name", "value": "x-ga-ud-email" }
+        ]
+      },
+      {
+        "accountId": "0",
+        "containerId": "0",
+        "variableId": "22",
+        "name": "ED - phone_hash",
+        "type": "smm",
+        "parameter": [
+          { "type": "TEMPLATE", "key": "defaultValue", "value": "" },
+          { "type": "TEMPLATE", "key": "name", "value": "x-ga-ud-phone" }
+        ]
+      },
+      {
+        "accountId": "0",
+        "containerId": "0",
+        "variableId": "30",
+        "name": "LOOKUP - Meta Event Name",
+        "type": "smm",
+        "parameter": [
+          { "type": "TEMPLATE", "key": "defaultValue", "value": "" },
+          {
+            "type": "LIST",
+            "key": "map",
+            "list": [
+              {
+                "type": "MAP",
+                "map": [
+                  { "type": "TEMPLATE", "key": "key", "value": "page_view" },
+                  { "type": "TEMPLATE", "key": "value", "value": "PageView" }
+                ]
+              },
+              {
+                "type": "MAP",
+                "map": [
+                  { "type": "TEMPLATE", "key": "key", "value": "cotacao_inicio" },
+                  { "type": "TEMPLATE", "key": "value", "value": "InitiateCheckout" }
+                ]
+              },
+              {
+                "type": "MAP",
+                "map": [
+                  { "type": "TEMPLATE", "key": "key", "value": "cotacao_completa" },
+                  { "type": "TEMPLATE", "key": "value", "value": "Lead" }
+                ]
+              },
+              {
+                "type": "MAP",
+                "map": [
+                  { "type": "TEMPLATE", "key": "key", "value": "whatsapp_click" },
+                  { "type": "TEMPLATE", "key": "value", "value": "Contact" }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "trigger": [
+      {
+        "accountId": "0",
+        "containerId": "0",
+        "triggerId": "1",
+        "name": "Client - GA4",
+        "type": "CUSTOM_EVENT",
+        "customEventFilter": [
+          {
+            "type": "EQUALS",
+            "parameter": [
+              { "type": "TEMPLATE", "key": "arg0", "value": "{{Client Name}}" },
+              { "type": "TEMPLATE", "key": "arg1", "value": "GA4" }
+            ]
+          }
+        ]
+      },
+      {
+        "accountId": "0",
+        "containerId": "0",
+        "triggerId": "2",
+        "name": "CE - page_view",
+        "type": "CUSTOM_EVENT",
+        "customEventFilter": [
+          {
+            "type": "EQUALS",
+            "parameter": [
+              { "type": "TEMPLATE", "key": "arg0", "value": "{{Event Name}}" },
+              { "type": "TEMPLATE", "key": "arg1", "value": "page_view" }
+            ]
+          }
+        ]
+      },
+      {
+        "accountId": "0",
+        "containerId": "0",
+        "triggerId": "3",
+        "name": "CE - cotacao_inicio",
+        "type": "CUSTOM_EVENT",
+        "customEventFilter": [
+          {
+            "type": "EQUALS",
+            "parameter": [
+              { "type": "TEMPLATE", "key": "arg0", "value": "{{Event Name}}" },
+              { "type": "TEMPLATE", "key": "arg1", "value": "cotacao_inicio" }
+            ]
+          }
+        ]
+      },
+      {
+        "accountId": "0",
+        "containerId": "0",
+        "triggerId": "4",
+        "name": "CE - cotacao_completa",
+        "type": "CUSTOM_EVENT",
+        "customEventFilter": [
+          {
+            "type": "EQUALS",
+            "parameter": [
+              { "type": "TEMPLATE", "key": "arg0", "value": "{{Event Name}}" },
+              { "type": "TEMPLATE", "key": "arg1", "value": "cotacao_completa" }
+            ]
+          }
+        ]
+      },
+      {
+        "accountId": "0",
+        "containerId": "0",
+        "triggerId": "5",
+        "name": "CE - whatsapp_click",
+        "type": "CUSTOM_EVENT",
+        "customEventFilter": [
+          {
+            "type": "EQUALS",
+            "parameter": [
+              { "type": "TEMPLATE", "key": "arg0", "value": "{{Event Name}}" },
+              { "type": "TEMPLATE", "key": "arg1", "value": "whatsapp_click" }
+            ]
+          }
+        ]
+      },
+      {
+        "accountId": "0",
+        "containerId": "0",
+        "triggerId": "6",
+        "name": "CE - All 21Go Events (Meta CAPI)",
+        "type": "CUSTOM_EVENT",
+        "customEventFilter": [
+          {
+            "type": "MATCH_REGEX",
+            "parameter": [
+              { "type": "TEMPLATE", "key": "arg0", "value": "{{Event Name}}" },
+              { "type": "TEMPLATE", "key": "arg1", "value": "page_view|cotacao_inicio|cotacao_completa|whatsapp_click" }
+            ]
+          }
+        ]
+      }
+    ],
+    "tag": [
+      {
+        "accountId": "0",
+        "containerId": "0",
+        "tagId": "1",
+        "name": "GA4 Client",
+        "type": "gaaw_client",
+        "parameter": [
+          { "type": "BOOLEAN", "key": "enableAutoConfig", "value": "true" }
+        ],
+        "firingTriggerId": ["1"]
+      },
+      {
+        "accountId": "0",
+        "containerId": "0",
+        "tagId": "2",
+        "name": "GA4 Server - Forward All Events",
+        "type": "gaaw",
+        "parameter": [
+          { "type": "TEMPLATE", "key": "measurementId", "value": "{{CONST - GA4 Measurement ID}}" },
+          { "type": "BOOLEAN", "key": "sendToServerContainer", "value": "false" }
+        ],
+        "firingTriggerId": ["1"]
+      },
+      {
+        "accountId": "0",
+        "containerId": "0",
+        "tagId": "3",
+        "name": "Meta CAPI - All 21Go Events",
+        "type": "html",
+        "parameter": [
+          {
+            "type": "TEMPLATE",
+            "key": "html",
+            "value": "/* NOTA: Esta tag é um placeholder.\n   No GTM Server real, use o template oficial:\n   'Facebook Conversions API Tag' do Stape.io\n   \n   Configuração necessária:\n   - API Access Token: {{CONST - Meta CAPI Access Token}}\n   - Pixel ID: {{CONST - Meta Pixel ID}}\n   - Event Name: {{LOOKUP - Meta Event Name}}\n   - Event ID: {{ED - event_id}} (DEDUPLICAÇÃO)\n   - Action Source: website\n   - Event Source URL: {{ED - page_location}}\n   - Client IP: {{ED - ip_address}}\n   - Client User Agent: {{ED - user_agent}}\n   - FBC: {{ED - fbc}}\n   - FBP: {{ED - fbp}}\n   - FBCLID: {{ED - fbclid}}\n   \n   User Data (hashed):\n   - Email: {{ED - email_hash}}\n   - Phone: {{ED - phone_hash}}\n   \n   Custom Data (para Lead e Contact):\n   - Value: {{ED - plan_value}}\n   - Currency: BRL\n   - Content Name: plan_name\n\n   IMPORTANTE: Instalar o template 'Facebook CAPI' do Stape.io\n   no GTM Server e substituir esta tag HTML por ele.\n*/"
+          },
+          { "type": "BOOLEAN", "key": "supportDocumentWrite", "value": "false" }
+        ],
+        "firingTriggerId": ["6"]
+      },
+      {
+        "accountId": "0",
+        "containerId": "0",
+        "tagId": "4",
+        "name": "Google Ads Enhanced Conversions - Lead",
+        "type": "html",
+        "parameter": [
+          {
+            "type": "TEMPLATE",
+            "key": "html",
+            "value": "/* NOTA: Esta tag é um placeholder.\n   No GTM Server real, use o template oficial:\n   'Google Ads Conversion Tracking' server-side\n   \n   Configuração necessária:\n   - Conversion ID: {{CONST - Google Ads Conversion ID}}\n   - Conversion Label: (criar no Google Ads)\n   - Conversion Value: {{ED - plan_value}}\n   - Currency: BRL\n   - Order ID: {{ED - event_id}}\n   - GCLID: {{ED - gclid}}\n   \n   Enhanced Conversions User Data:\n   - Email (hashed): {{ED - email_hash}}\n   - Phone (hashed): {{ED - phone_hash}}\n\n   IMPORTANTE: Instalar o template 'Google Ads Conversion Tracking'\n   no GTM Server e substituir esta tag por ele.\n*/"
+          },
+          { "type": "BOOLEAN", "key": "supportDocumentWrite", "value": "false" }
+        ],
+        "firingTriggerId": ["4"]
+      }
+    ],
+    "folder": [
+      {
+        "accountId": "0",
+        "containerId": "0",
+        "folderId": "1",
+        "name": "21Go - Config"
+      },
+      {
+        "accountId": "0",
+        "containerId": "0",
+        "folderId": "2",
+        "name": "21Go - GA4 Server"
+      },
+      {
+        "accountId": "0",
+        "containerId": "0",
+        "folderId": "3",
+        "name": "21Go - Meta CAPI"
+      },
+      {
+        "accountId": "0",
+        "containerId": "0",
+        "folderId": "4",
+        "name": "21Go - Google Ads"
+      },
+      {
+        "accountId": "0",
+        "containerId": "0",
+        "folderId": "5",
+        "name": "21Go - Event Data Variables"
+      }
+    ]
+  }
+}
