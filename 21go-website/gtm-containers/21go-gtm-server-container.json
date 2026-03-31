@@ -1,107 +1,103 @@
 {
-  "exportFormatVersion": 2,
-  "containerVersion": {
-    "tag": [
-      {
-        "accountId": "0",
-        "containerId": "0",
-        "tagId": "10",
-        "name": "GA4 - Server Forward",
-        "type": "gaawc",
-        "parameter": [
-          { "type": "TEMPLATE", "key": "measurementId", "value": "G-5K5V0PM30S" },
-          { "type": "BOOLEAN", "key": "sendPageView", "value": "true" }
+    "exportFormatVersion": 2,
+    "containerVersion": {
+        "tag": [
+            {
+                "accountId": "6347308429",
+                "containerId": "247997973",
+                "tagId": "10",
+                "name": "GA4 - Server Forward",
+                "type": "gaawc",
+                "parameter": [
+                    {"type": "TEMPLATE", "key": "measurementId", "value": "G-5K5V0PM30S"},
+                    {"type": "BOOLEAN", "key": "sendPageView", "value": "true"}
+                ],
+                "firingTriggerId": ["2147479553"],
+                "tagFiringOption": "ONCE_PER_EVENT"
+            },
+            {
+                "accountId": "6347308429",
+                "containerId": "247997973",
+                "tagId": "11",
+                "name": "Meta CAPI - All Events (PAUSADA - sem Pixel ID)",
+                "type": "html",
+                "parameter": [
+                    {"type": "TEMPLATE", "key": "html", "value": "<!-- Meta CAPI: SUBSTITUIR pelo template Facebook CAPI do Stape.io apos obter Pixel ID -->"},
+                    {"type": "BOOLEAN", "key": "supportDocumentWrite", "value": "false"}
+                ],
+                "firingTriggerId": ["2147479553"],
+                "tagFiringOption": "ONCE_PER_EVENT",
+                "paused": true
+            },
+            {
+                "accountId": "6347308429",
+                "containerId": "247997973",
+                "tagId": "12",
+                "name": "GAds Enhanced - Cotacao Completa",
+                "type": "awct",
+                "parameter": [
+                    {"type": "TEMPLATE", "key": "conversionId", "value": "AW-18054567241"},
+                    {"type": "TEMPLATE", "key": "conversionLabel", "value": "gOwrCJrAppMcEMmqi6FD"},
+                    {"type": "TEMPLATE", "key": "conversionValue", "value": "{{DLV - plan_value}}"},
+                    {"type": "TEMPLATE", "key": "currencyCode", "value": "BRL"},
+                    {"type": "TEMPLATE", "key": "orderId", "value": "{{DLV - event_id}}"}
+                ],
+                "firingTriggerId": ["50"],
+                "tagFiringOption": "ONCE_PER_EVENT"
+            }
         ],
-        "firingTriggerId": ["2147479553"],
-        "tagFiringOption": "ONCE_PER_EVENT"
-      },
-      {
-        "accountId": "0",
-        "containerId": "0",
-        "tagId": "11",
-        "name": "Meta CAPI - All Events (PAUSADA - sem Pixel ID)",
-        "type": "html",
-        "parameter": [
-          {
-            "type": "TEMPLATE",
-            "key": "html",
-            "value": "<!-- Meta CAPI: SUBSTITUIR por template Facebook CAPI do Stape.io\nPixel ID: PENDENTE\nAccess Token: PENDENTE\nEvent Lookup: page_view=PageView, cotacao_inicio=InitiateCheckout, cotacao_completa=Lead, whatsapp_click=Contact\nEvent ID: {{DLV - event_id}} (deduplicacao)\nFBC/FBP/FBCLID para matching\nEmail/Phone hash para user data\nValue + Currency BRL para eventos de valor\n-->"
-          },
-          { "type": "BOOLEAN", "key": "supportDocumentWrite", "value": "false" }
+        "trigger": [
+            {
+                "accountId": "6347308429",
+                "containerId": "247997973",
+                "triggerId": "50",
+                "name": "CE - cotacao_completa",
+                "type": "CUSTOM_EVENT",
+                "customEventFilter": [
+                    {
+                        "type": "EQUALS",
+                        "parameter": [
+                            {"type": "TEMPLATE", "key": "arg0", "value": "{{_event}}"},
+                            {"type": "TEMPLATE", "key": "arg1", "value": "cotacao_completa"}
+                        ]
+                    }
+                ]
+            }
         ],
-        "firingTriggerId": ["2147479553"],
-        "tagFiringOption": "ONCE_PER_EVENT",
-        "paused": true
-      },
-      {
-        "accountId": "0",
-        "containerId": "0",
-        "tagId": "12",
-        "name": "GAds Enhanced - Cotacao Completa",
-        "type": "awct",
-        "parameter": [
-          { "type": "TEMPLATE", "key": "conversionId", "value": "AW-18054567241" },
-          { "type": "TEMPLATE", "key": "conversionLabel", "value": "gOwrCJrAppMcEMmqi6FD" },
-          { "type": "TEMPLATE", "key": "conversionValue", "value": "{{DLV - plan_value}}" },
-          { "type": "TEMPLATE", "key": "currencyCode", "value": "BRL" },
-          { "type": "TEMPLATE", "key": "orderId", "value": "{{DLV - event_id}}" }
-        ],
-        "firingTriggerId": ["50"],
-        "tagFiringOption": "ONCE_PER_EVENT"
-      }
-    ],
-    "trigger": [
-      {
-        "accountId": "0",
-        "containerId": "0",
-        "triggerId": "50",
-        "name": "CE - cotacao_completa",
-        "type": "CUSTOM_EVENT",
-        "customEventFilter": [
-          {
-            "type": "EQUALS",
-            "parameter": [
-              { "type": "TEMPLATE", "key": "arg0", "value": "{{_event}}" },
-              { "type": "TEMPLATE", "key": "arg1", "value": "cotacao_completa" }
-            ]
-          }
+        "variable": [
+            {
+                "accountId": "6347308429",
+                "containerId": "247997973",
+                "variableId": "200",
+                "name": "DLV - event_id",
+                "type": "v",
+                "parameter": [
+                    {"type": "TEMPLATE", "key": "name", "value": "event_id"},
+                    {"type": "INTEGER", "key": "dataLayerVersion", "value": "2"}
+                ]
+            },
+            {
+                "accountId": "6347308429",
+                "containerId": "247997973",
+                "variableId": "201",
+                "name": "DLV - plan_name",
+                "type": "v",
+                "parameter": [
+                    {"type": "TEMPLATE", "key": "name", "value": "plan_name"},
+                    {"type": "INTEGER", "key": "dataLayerVersion", "value": "2"}
+                ]
+            },
+            {
+                "accountId": "6347308429",
+                "containerId": "247997973",
+                "variableId": "202",
+                "name": "DLV - plan_value",
+                "type": "v",
+                "parameter": [
+                    {"type": "TEMPLATE", "key": "name", "value": "plan_value"},
+                    {"type": "INTEGER", "key": "dataLayerVersion", "value": "2"}
+                ]
+            }
         ]
-      }
-    ],
-    "variable": [
-      {
-        "accountId": "0",
-        "containerId": "0",
-        "variableId": "200",
-        "name": "DLV - event_id",
-        "type": "v",
-        "parameter": [
-          { "type": "TEMPLATE", "key": "name", "value": "event_id" },
-          { "type": "INTEGER", "key": "dataLayerVersion", "value": "2" }
-        ]
-      },
-      {
-        "accountId": "0",
-        "containerId": "0",
-        "variableId": "201",
-        "name": "DLV - plan_name",
-        "type": "v",
-        "parameter": [
-          { "type": "TEMPLATE", "key": "name", "value": "plan_name" },
-          { "type": "INTEGER", "key": "dataLayerVersion", "value": "2" }
-        ]
-      },
-      {
-        "accountId": "0",
-        "containerId": "0",
-        "variableId": "202",
-        "name": "DLV - plan_value",
-        "type": "v",
-        "parameter": [
-          { "type": "TEMPLATE", "key": "name", "value": "plan_value" },
-          { "type": "INTEGER", "key": "dataLayerVersion", "value": "2" }
-        ]
-      }
-    ]
-  }
+    }
 }
