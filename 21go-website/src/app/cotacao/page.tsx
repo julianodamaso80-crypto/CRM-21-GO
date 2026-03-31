@@ -433,27 +433,10 @@ export default function CotacaoPage() {
                     <ul className="space-y-3.5">
                       {planInfo.features.map(c => (
                         <li key={c.text} className="flex items-center gap-3">
-                          {c.included ? (
-                            c.highlight ? (
-                              <div className="w-6 h-6 rounded-full bg-[#E07620]/10 flex items-center justify-center flex-shrink-0"><Check className="w-3.5 h-3.5 text-[#E07620]" /></div>
-                            ) : c.upgrade ? (
-                              <div className="w-6 h-6 rounded-full bg-[#1B4DA1]/10 flex items-center justify-center flex-shrink-0"><ArrowRight className="w-3.5 h-3.5 text-[#1B4DA1]" /></div>
-                            ) : (
-                              <div className="w-6 h-6 rounded-full bg-[#10B981]/10 flex items-center justify-center flex-shrink-0"><Check className="w-3.5 h-3.5 text-[#10B981]" /></div>
-                            )
-                          ) : (
-                            <div className="w-6 h-6 rounded-full bg-[#F0F4FA] flex items-center justify-center flex-shrink-0"><X className="w-3.5 h-3.5 text-[#CBD5E1]" /></div>
-                          )}
-                          <span className={`text-sm ${
-                            !c.included ? 'text-[#CBD5E1] line-through' :
-                            c.highlight ? 'text-[#0A1E3D] font-semibold' :
-                            c.upgrade ? 'text-[#1B4DA1] font-medium' :
-                            'text-[#0A1E3D] font-medium'
-                          }`}>
-                            {c.text}
-                            {c.highlight && <span className="ml-1.5 text-[9px] font-bold text-[#E07620] bg-[#E07620]/10 px-1.5 py-0.5 rounded-full uppercase">Novo</span>}
-                            {c.upgrade && <span className="ml-1.5 text-[9px] font-bold text-[#1B4DA1] bg-[#1B4DA1]/10 px-1.5 py-0.5 rounded-full uppercase">Upgrade</span>}
-                          </span>
+                          {c.included
+                            ? <div className="w-6 h-6 rounded-full bg-[#10B981]/10 flex items-center justify-center flex-shrink-0"><Check className="w-3.5 h-3.5 text-[#10B981]" /></div>
+                            : <div className="w-6 h-6 rounded-full bg-[#F0F4FA] flex items-center justify-center flex-shrink-0"><X className="w-3.5 h-3.5 text-[#CBD5E1]" /></div>}
+                          <span className={`text-sm ${c.included ? 'text-[#0A1E3D] font-medium' : 'text-[#CBD5E1] line-through'}`}>{c.text}</span>
                         </li>
                       ))}
                     </ul>

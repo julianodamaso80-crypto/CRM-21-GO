@@ -2,7 +2,7 @@
 
 import { motion, useInView } from 'framer-motion'
 import { useRef, useState } from 'react'
-import { Check, X, Car, Bike, Truck, ArrowUp } from 'lucide-react'
+import { Check, X, Car, Bike, Truck } from 'lucide-react'
 import { fadeInUp, staggerContainer } from '@/lib/motion'
 import Link from 'next/link'
 
@@ -250,33 +250,16 @@ export function PlansSection() {
                 {plan.features.map((f) => (
                   <li key={f.text} className="flex items-center gap-3">
                     {f.included ? (
-                      f.highlight ? (
-                        <span className="flex-shrink-0 w-5 h-5 rounded-full bg-[#E07620]/10 flex items-center justify-center">
-                          <Check className="h-3 w-3 text-[#E07620]" />
-                        </span>
-                      ) : f.upgrade ? (
-                        <span className="flex-shrink-0 w-5 h-5 rounded-full bg-[#1B4DA1]/10 flex items-center justify-center">
-                          <ArrowUp className="h-3 w-3 text-[#1B4DA1]" />
-                        </span>
-                      ) : (
-                        <span className="flex-shrink-0 w-5 h-5 rounded-full bg-[#10B981]/10 flex items-center justify-center">
-                          <Check className="h-3 w-3 text-[#10B981]" />
-                        </span>
-                      )
+                      <span className="flex-shrink-0 w-5 h-5 rounded-full bg-[#10B981]/10 flex items-center justify-center">
+                        <Check className="h-3 w-3 text-[#10B981]" />
+                      </span>
                     ) : (
                       <span className="flex-shrink-0 w-5 h-5 rounded-full bg-[#F1F5F9] flex items-center justify-center">
                         <X className="h-3 w-3 text-[#CBD5E1]" />
                       </span>
                     )}
-                    <span className={`text-sm ${
-                      !f.included ? 'text-[#CBD5E1]' :
-                      f.highlight ? 'text-[#0A1E3D] font-semibold' :
-                      f.upgrade ? 'text-[#1B4DA1] font-medium' :
-                      'text-[#0A1E3D]'
-                    }`}>
+                    <span className={`text-sm ${f.included ? 'text-[#0A1E3D]' : 'text-[#CBD5E1]'}`}>
                       {f.text}
-                      {f.highlight && <span className="ml-1.5 text-[9px] font-bold text-[#E07620] bg-[#E07620]/10 px-1.5 py-0.5 rounded-full uppercase">Novo</span>}
-                      {f.upgrade && <span className="ml-1.5 text-[9px] font-bold text-[#1B4DA1] bg-[#1B4DA1]/10 px-1.5 py-0.5 rounded-full uppercase">Upgrade</span>}
                     </span>
                   </li>
                 ))}
