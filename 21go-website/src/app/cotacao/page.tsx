@@ -289,7 +289,7 @@ export default function CotacaoPage() {
                     </div>
                     {form.leilao !== 'nao' && (
                       <p className="mt-2 text-xs text-[#E07620] font-medium">
-                        {form.leilao === 'leilao' ? 'Indenização: 80% da tabela FIPE' : 'Indenização: 70% da tabela FIPE'}
+                        Indenização: 80% da tabela FIPE
                       </p>
                     )}
                   </div>
