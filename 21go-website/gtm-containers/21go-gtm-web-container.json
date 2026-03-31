@@ -3,8 +3,6 @@
     "containerVersion": {
         "tag": [
             {
-                "accountId": "6347281279",
-                "containerId": "247978601",
                 "tagId": "10",
                 "name": "GA4 - Config (Server-Side via Stape)",
                 "type": "gaawc",
@@ -13,12 +11,10 @@
                     {"type": "BOOLEAN", "key": "sendPageView", "value": "true"},
                     {"type": "TEMPLATE", "key": "serverContainerUrl", "value": "https://dcvkxlhx.sag.stape.io"}
                 ],
-                "firingTriggerId": ["2147479553"],
+                "firingTriggerId": ["49"],
                 "tagFiringOption": "ONCE_PER_EVENT"
             },
             {
-                "accountId": "6347281279",
-                "containerId": "247978601",
                 "tagId": "11",
                 "name": "GA4 - Event - cotacao_inicio",
                 "type": "gaawe",
@@ -36,8 +32,6 @@
                 "tagFiringOption": "ONCE_PER_EVENT"
             },
             {
-                "accountId": "6347281279",
-                "containerId": "247978601",
                 "tagId": "12",
                 "name": "GA4 - Event - cotacao_completa",
                 "type": "gaawe",
@@ -83,8 +77,6 @@
                 "tagFiringOption": "ONCE_PER_EVENT"
             },
             {
-                "accountId": "6347281279",
-                "containerId": "247978601",
                 "tagId": "13",
                 "name": "GA4 - Event - whatsapp_click",
                 "type": "gaawe",
@@ -114,8 +106,6 @@
                 "tagFiringOption": "ONCE_PER_EVENT"
             },
             {
-                "accountId": "6347281279",
-                "containerId": "247978601",
                 "tagId": "20",
                 "name": "GAds - Conversion - Cotacao Iniciada",
                 "type": "awct",
@@ -128,8 +118,6 @@
                 "tagFiringOption": "ONCE_PER_EVENT"
             },
             {
-                "accountId": "6347281279",
-                "containerId": "247978601",
                 "tagId": "21",
                 "name": "GAds - Conversion - Cotacao Completa",
                 "type": "awct",
@@ -144,8 +132,6 @@
                 "tagFiringOption": "ONCE_PER_EVENT"
             },
             {
-                "accountId": "6347281279",
-                "containerId": "247978601",
                 "tagId": "22",
                 "name": "GAds - Conversion - WhatsApp Click",
                 "type": "awct",
@@ -160,20 +146,16 @@
                 "tagFiringOption": "ONCE_PER_EVENT"
             },
             {
-                "accountId": "6347281279",
-                "containerId": "247978601",
                 "tagId": "23",
                 "name": "GAds - Remarketing",
                 "type": "sp",
                 "parameter": [
                     {"type": "TEMPLATE", "key": "conversionId", "value": "AW-18054567241"}
                 ],
-                "firingTriggerId": ["2147479553"],
+                "firingTriggerId": ["49"],
                 "tagFiringOption": "ONCE_PER_EVENT"
             },
             {
-                "accountId": "6347281279",
-                "containerId": "247978601",
                 "tagId": "30",
                 "name": "Meta Pixel - Base (Init + PageView)",
                 "type": "html",
@@ -181,12 +163,10 @@
                     {"type": "TEMPLATE", "key": "html", "value": "<script>\n!function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?\nn.callMethod.apply(n,arguments):n.queue.push(arguments)};\nif(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';\nn.queue=[];t=b.createElement(e);t.async=!0;\nt.src=v;s=b.getElementsByTagName(e)[0];\ns.parentNode.insertBefore(t,s)}(window,document,'script',\n'https://connect.facebook.net/en_US/fbevents.js');\nfbq('init','{{CONST - Meta Pixel ID}}');\nfbq('track','PageView');\n</script>\n<noscript><img height=\"1\" width=\"1\" style=\"display:none\" src=\"https://www.facebook.com/tr?id={{CONST - Meta Pixel ID}}&ev=PageView&noscript=1\"/></noscript>"},
                     {"type": "BOOLEAN", "key": "supportDocumentWrite", "value": "false"}
                 ],
-                "firingTriggerId": ["2147479553"],
+                "firingTriggerId": ["49"],
                 "tagFiringOption": "ONCE_PER_EVENT"
             },
             {
-                "accountId": "6347281279",
-                "containerId": "247978601",
                 "tagId": "31",
                 "name": "Meta Pixel - InitiateCheckout (Cotacao Inicio)",
                 "type": "html",
@@ -198,8 +178,6 @@
                 "tagFiringOption": "ONCE_PER_EVENT"
             },
             {
-                "accountId": "6347281279",
-                "containerId": "247978601",
                 "tagId": "32",
                 "name": "Meta Pixel - Lead (Cotacao Completa)",
                 "type": "html",
@@ -211,8 +189,6 @@
                 "tagFiringOption": "ONCE_PER_EVENT"
             },
             {
-                "accountId": "6347281279",
-                "containerId": "247978601",
                 "tagId": "33",
                 "name": "Meta Pixel - Contact (WhatsApp Click)",
                 "type": "html",
@@ -226,8 +202,11 @@
         ],
         "trigger": [
             {
-                "accountId": "6347281279",
-                "containerId": "247978601",
+                "triggerId": "49",
+                "name": "All Pages",
+                "type": "PAGEVIEW"
+            },
+            {
                 "triggerId": "50",
                 "name": "CE - cotacao_inicio",
                 "type": "CUSTOM_EVENT",
@@ -242,8 +221,6 @@
                 ]
             },
             {
-                "accountId": "6347281279",
-                "containerId": "247978601",
                 "triggerId": "51",
                 "name": "CE - cotacao_completa",
                 "type": "CUSTOM_EVENT",
@@ -258,8 +235,6 @@
                 ]
             },
             {
-                "accountId": "6347281279",
-                "containerId": "247978601",
                 "triggerId": "52",
                 "name": "CE - whatsapp_click",
                 "type": "CUSTOM_EVENT",
@@ -276,8 +251,6 @@
         ],
         "variable": [
             {
-                "accountId": "6347281279",
-                "containerId": "247978601",
                 "variableId": "100",
                 "name": "CONST - Meta Pixel ID",
                 "type": "c",
@@ -286,8 +259,6 @@
                 ]
             },
             {
-                "accountId": "6347281279",
-                "containerId": "247978601",
                 "variableId": "200",
                 "name": "DLV - event_id",
                 "type": "v",
@@ -297,8 +268,6 @@
                 ]
             },
             {
-                "accountId": "6347281279",
-                "containerId": "247978601",
                 "variableId": "201",
                 "name": "DLV - plan_name",
                 "type": "v",
@@ -308,8 +277,6 @@
                 ]
             },
             {
-                "accountId": "6347281279",
-                "containerId": "247978601",
                 "variableId": "202",
                 "name": "DLV - plan_value",
                 "type": "v",
@@ -319,8 +286,6 @@
                 ]
             },
             {
-                "accountId": "6347281279",
-                "containerId": "247978601",
                 "variableId": "203",
                 "name": "DLV - vehicle_marca",
                 "type": "v",
@@ -330,8 +295,6 @@
                 ]
             },
             {
-                "accountId": "6347281279",
-                "containerId": "247978601",
                 "variableId": "204",
                 "name": "DLV - vehicle_modelo",
                 "type": "v",
@@ -341,8 +304,6 @@
                 ]
             },
             {
-                "accountId": "6347281279",
-                "containerId": "247978601",
                 "variableId": "205",
                 "name": "DLV - vehicle_ano",
                 "type": "v",
@@ -352,8 +313,6 @@
                 ]
             },
             {
-                "accountId": "6347281279",
-                "containerId": "247978601",
                 "variableId": "206",
                 "name": "DLV - fipe_value",
                 "type": "v",
@@ -363,8 +322,6 @@
                 ]
             },
             {
-                "accountId": "6347281279",
-                "containerId": "247978601",
                 "variableId": "207",
                 "name": "DLV - click_origin",
                 "type": "v",
@@ -374,8 +331,6 @@
                 ]
             },
             {
-                "accountId": "6347281279",
-                "containerId": "247978601",
                 "variableId": "208",
                 "name": "DLV - gclid",
                 "type": "v",
@@ -385,8 +340,6 @@
                 ]
             },
             {
-                "accountId": "6347281279",
-                "containerId": "247978601",
                 "variableId": "209",
                 "name": "DLV - fbclid",
                 "type": "v",
@@ -396,8 +349,6 @@
                 ]
             },
             {
-                "accountId": "6347281279",
-                "containerId": "247978601",
                 "variableId": "210",
                 "name": "DLV - utm_source",
                 "type": "v",
@@ -407,8 +358,6 @@
                 ]
             },
             {
-                "accountId": "6347281279",
-                "containerId": "247978601",
                 "variableId": "211",
                 "name": "DLV - utm_medium",
                 "type": "v",
@@ -418,8 +367,6 @@
                 ]
             },
             {
-                "accountId": "6347281279",
-                "containerId": "247978601",
                 "variableId": "212",
                 "name": "DLV - utm_campaign",
                 "type": "v",

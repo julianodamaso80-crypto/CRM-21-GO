@@ -3,8 +3,8 @@
     "containerVersion": {
         "tag": [
             {
-                "accountId": "6347308429",
-                "containerId": "247997973",
+                
+                
                 "tagId": "10",
                 "name": "GA4 - Server Forward",
                 "type": "gaawc",
@@ -16,8 +16,8 @@
                 "tagFiringOption": "ONCE_PER_EVENT"
             },
             {
-                "accountId": "6347308429",
-                "containerId": "247997973",
+                
+                
                 "tagId": "11",
                 "name": "Meta CAPI - All Events (PAUSADA - sem Pixel ID)",
                 "type": "html",
@@ -30,8 +30,8 @@
                 "paused": true
             },
             {
-                "accountId": "6347308429",
-                "containerId": "247997973",
+                
+                
                 "tagId": "12",
                 "name": "GAds Enhanced - Cotacao Completa",
                 "type": "awct",
@@ -48,8 +48,8 @@
         ],
         "trigger": [
             {
-                "accountId": "6347308429",
-                "containerId": "247997973",
+                
+                
                 "triggerId": "50",
                 "name": "CE - cotacao_completa",
                 "type": "CUSTOM_EVENT",
@@ -66,8 +66,8 @@
         ],
         "variable": [
             {
-                "accountId": "6347308429",
-                "containerId": "247997973",
+                
+                
                 "variableId": "200",
                 "name": "DLV - event_id",
                 "type": "v",
@@ -77,8 +77,8 @@
                 ]
             },
             {
-                "accountId": "6347308429",
-                "containerId": "247997973",
+                
+                
                 "variableId": "201",
                 "name": "DLV - plan_name",
                 "type": "v",
@@ -88,8 +88,8 @@
                 ]
             },
             {
-                "accountId": "6347308429",
-                "containerId": "247997973",
+                
+                
                 "variableId": "202",
                 "name": "DLV - plan_value",
                 "type": "v",
