@@ -1,245 +1,25 @@
 {
   "exportFormatVersion": 2,
   "containerVersion": {
-    "variable": [
-      {
-        "variableId": "100",
-        "name": "CONST - GA4 Measurement ID",
-        "type": "c",
-        "parameter": [{ "type": "TEMPLATE", "key": "value", "value": "G-5K5V0PM30S" }]
-      },
-      {
-        "variableId": "101",
-        "name": "CONST - Stape Server URL",
-        "type": "c",
-        "parameter": [{ "type": "TEMPLATE", "key": "value", "value": "https://dcvkxlhx.sag.stape.io" }]
-      },
-      {
-        "variableId": "102",
-        "name": "CONST - Google Ads Conversion ID",
-        "type": "c",
-        "parameter": [{ "type": "TEMPLATE", "key": "value", "value": "AW-18054567241" }]
-      },
-      {
-        "variableId": "103",
-        "name": "CONST - GAds Label Cotacao Iniciada",
-        "type": "c",
-        "parameter": [{ "type": "TEMPLATE", "key": "value", "value": "UWLwCJfAppMcEMmqi6FD" }]
-      },
-      {
-        "variableId": "104",
-        "name": "CONST - GAds Label Cotacao Completa",
-        "type": "c",
-        "parameter": [{ "type": "TEMPLATE", "key": "value", "value": "gOwrCJrAppMcEMmqi6FD" }]
-      },
-      {
-        "variableId": "105",
-        "name": "CONST - GAds Label WhatsApp Click",
-        "type": "c",
-        "parameter": [{ "type": "TEMPLATE", "key": "value", "value": "xCSxCJ3AppMcEMmqi6FD" }]
-      },
-      {
-        "variableId": "106",
-        "name": "CONST - Meta Pixel ID",
-        "type": "c",
-        "parameter": [{ "type": "TEMPLATE", "key": "value", "value": "PENDENTE_META_PIXEL_ID" }]
-      },
-      {
-        "variableId": "200",
-        "name": "DLV - event_id",
-        "type": "v",
-        "parameter": [
-          { "type": "TEMPLATE", "key": "name", "value": "event_id" },
-          { "type": "INTEGER", "key": "dataLayerVersion", "value": "2" }
-        ]
-      },
-      {
-        "variableId": "201",
-        "name": "DLV - plan_name",
-        "type": "v",
-        "parameter": [
-          { "type": "TEMPLATE", "key": "name", "value": "plan_name" },
-          { "type": "INTEGER", "key": "dataLayerVersion", "value": "2" }
-        ]
-      },
-      {
-        "variableId": "202",
-        "name": "DLV - plan_value",
-        "type": "v",
-        "parameter": [
-          { "type": "TEMPLATE", "key": "name", "value": "plan_value" },
-          { "type": "INTEGER", "key": "dataLayerVersion", "value": "2" }
-        ]
-      },
-      {
-        "variableId": "203",
-        "name": "DLV - vehicle_marca",
-        "type": "v",
-        "parameter": [
-          { "type": "TEMPLATE", "key": "name", "value": "vehicle_marca" },
-          { "type": "INTEGER", "key": "dataLayerVersion", "value": "2" }
-        ]
-      },
-      {
-        "variableId": "204",
-        "name": "DLV - vehicle_modelo",
-        "type": "v",
-        "parameter": [
-          { "type": "TEMPLATE", "key": "name", "value": "vehicle_modelo" },
-          { "type": "INTEGER", "key": "dataLayerVersion", "value": "2" }
-        ]
-      },
-      {
-        "variableId": "205",
-        "name": "DLV - vehicle_ano",
-        "type": "v",
-        "parameter": [
-          { "type": "TEMPLATE", "key": "name", "value": "vehicle_ano" },
-          { "type": "INTEGER", "key": "dataLayerVersion", "value": "2" }
-        ]
-      },
-      {
-        "variableId": "206",
-        "name": "DLV - fipe_value",
-        "type": "v",
-        "parameter": [
-          { "type": "TEMPLATE", "key": "name", "value": "fipe_value" },
-          { "type": "INTEGER", "key": "dataLayerVersion", "value": "2" }
-        ]
-      },
-      {
-        "variableId": "207",
-        "name": "DLV - click_origin",
-        "type": "v",
-        "parameter": [
-          { "type": "TEMPLATE", "key": "name", "value": "click_origin" },
-          { "type": "INTEGER", "key": "dataLayerVersion", "value": "2" }
-        ]
-      },
-      {
-        "variableId": "208",
-        "name": "DLV - gclid",
-        "type": "v",
-        "parameter": [
-          { "type": "TEMPLATE", "key": "name", "value": "gclid" },
-          { "type": "INTEGER", "key": "dataLayerVersion", "value": "2" }
-        ]
-      },
-      {
-        "variableId": "209",
-        "name": "DLV - fbclid",
-        "type": "v",
-        "parameter": [
-          { "type": "TEMPLATE", "key": "name", "value": "fbclid" },
-          { "type": "INTEGER", "key": "dataLayerVersion", "value": "2" }
-        ]
-      },
-      {
-        "variableId": "210",
-        "name": "DLV - utm_source",
-        "type": "v",
-        "parameter": [
-          { "type": "TEMPLATE", "key": "name", "value": "utm_source" },
-          { "type": "INTEGER", "key": "dataLayerVersion", "value": "2" }
-        ]
-      },
-      {
-        "variableId": "211",
-        "name": "DLV - utm_medium",
-        "type": "v",
-        "parameter": [
-          { "type": "TEMPLATE", "key": "name", "value": "utm_medium" },
-          { "type": "INTEGER", "key": "dataLayerVersion", "value": "2" }
-        ]
-      },
-      {
-        "variableId": "212",
-        "name": "DLV - utm_campaign",
-        "type": "v",
-        "parameter": [
-          { "type": "TEMPLATE", "key": "name", "value": "utm_campaign" },
-          { "type": "INTEGER", "key": "dataLayerVersion", "value": "2" }
-        ]
-      }
-    ],
-    "trigger": [
-      {
-        "triggerId": "1",
-        "name": "All Pages",
-        "type": "pageview"
-      },
-      {
-        "triggerId": "2",
-        "name": "CE - cotacao_inicio",
-        "type": "customEvent",
-        "customEventFilter": [
-          {
-            "type": "EQUALS",
-            "parameter": [
-              { "type": "TEMPLATE", "key": "arg0", "value": "{{_event}}" },
-              { "type": "TEMPLATE", "key": "arg1", "value": "cotacao_inicio" }
-            ]
-          }
-        ]
-      },
-      {
-        "triggerId": "3",
-        "name": "CE - cotacao_completa",
-        "type": "customEvent",
-        "customEventFilter": [
-          {
-            "type": "EQUALS",
-            "parameter": [
-              { "type": "TEMPLATE", "key": "arg0", "value": "{{_event}}" },
-              { "type": "TEMPLATE", "key": "arg1", "value": "cotacao_completa" }
-            ]
-          }
-        ]
-      },
-      {
-        "triggerId": "4",
-        "name": "CE - whatsapp_click",
-        "type": "customEvent",
-        "customEventFilter": [
-          {
-            "type": "EQUALS",
-            "parameter": [
-              { "type": "TEMPLATE", "key": "arg0", "value": "{{_event}}" },
-              { "type": "TEMPLATE", "key": "arg1", "value": "whatsapp_click" }
-            ]
-          }
-        ]
-      },
-      {
-        "triggerId": "5",
-        "name": "CE - page_view",
-        "type": "customEvent",
-        "customEventFilter": [
-          {
-            "type": "EQUALS",
-            "parameter": [
-              { "type": "TEMPLATE", "key": "arg0", "value": "{{_event}}" },
-              { "type": "TEMPLATE", "key": "arg1", "value": "page_view" }
-            ]
-          }
-        ]
-      }
-    ],
     "tag": [
       {
-        "tagId": "1",
+        "accountId": "0",
+        "containerId": "0",
+        "tagId": "10",
         "name": "GA4 - Config (Server-Side via Stape)",
         "type": "gaawc",
         "parameter": [
-          { "type": "TEMPLATE", "key": "measurementId", "value": "{{CONST - GA4 Measurement ID}}" },
+          { "type": "TEMPLATE", "key": "measurementId", "value": "G-5K5V0PM30S" },
           { "type": "BOOLEAN", "key": "sendPageView", "value": "true" },
-          { "type": "TEMPLATE", "key": "serverContainerUrl", "value": "{{CONST - Stape Server URL}}" }
+          { "type": "TEMPLATE", "key": "serverContainerUrl", "value": "https://dcvkxlhx.sag.stape.io" }
         ],
-        "firingTriggerId": ["1"],
-        "tagFiringOption": "oncePerEvent"
+        "firingTriggerId": ["2147479553"],
+        "tagFiringOption": "ONCE_PER_EVENT"
       },
       {
-        "tagId": "2",
+        "accountId": "0",
+        "containerId": "0",
+        "tagId": "11",
         "name": "GA4 - Event - cotacao_inicio",
         "type": "gaawe",
         "parameter": [
@@ -256,11 +36,13 @@
             ]
           }
         ],
-        "firingTriggerId": ["2"],
-        "tagFiringOption": "oncePerEvent"
+        "firingTriggerId": ["50"],
+        "tagFiringOption": "ONCE_PER_EVENT"
       },
       {
-        "tagId": "3",
+        "accountId": "0",
+        "containerId": "0",
+        "tagId": "12",
         "name": "GA4 - Event - cotacao_completa",
         "type": "gaawe",
         "parameter": [
@@ -305,11 +87,13 @@
             ]
           }
         ],
-        "firingTriggerId": ["3"],
-        "tagFiringOption": "oncePerEvent"
+        "firingTriggerId": ["51"],
+        "tagFiringOption": "ONCE_PER_EVENT"
       },
       {
-        "tagId": "4",
+        "accountId": "0",
+        "containerId": "0",
+        "tagId": "13",
         "name": "GA4 - Event - whatsapp_click",
         "type": "gaawe",
         "parameter": [
@@ -338,61 +122,71 @@
             ]
           }
         ],
-        "firingTriggerId": ["4"],
-        "tagFiringOption": "oncePerEvent"
+        "firingTriggerId": ["52"],
+        "tagFiringOption": "ONCE_PER_EVENT"
       },
       {
-        "tagId": "5",
+        "accountId": "0",
+        "containerId": "0",
+        "tagId": "20",
         "name": "GAds - Conversion - Cotacao Iniciada",
         "type": "awct",
         "parameter": [
-          { "type": "TEMPLATE", "key": "conversionId", "value": "{{CONST - Google Ads Conversion ID}}" },
-          { "type": "TEMPLATE", "key": "conversionLabel", "value": "{{CONST - GAds Label Cotacao Iniciada}}" },
+          { "type": "TEMPLATE", "key": "conversionId", "value": "AW-18054567241" },
+          { "type": "TEMPLATE", "key": "conversionLabel", "value": "UWLwCJfAppMcEMmqi6FD" },
           { "type": "TEMPLATE", "key": "orderId", "value": "{{DLV - event_id}}" }
         ],
-        "firingTriggerId": ["2"],
-        "tagFiringOption": "oncePerEvent"
+        "firingTriggerId": ["50"],
+        "tagFiringOption": "ONCE_PER_EVENT"
       },
       {
-        "tagId": "6",
+        "accountId": "0",
+        "containerId": "0",
+        "tagId": "21",
         "name": "GAds - Conversion - Cotacao Completa",
         "type": "awct",
         "parameter": [
-          { "type": "TEMPLATE", "key": "conversionId", "value": "{{CONST - Google Ads Conversion ID}}" },
-          { "type": "TEMPLATE", "key": "conversionLabel", "value": "{{CONST - GAds Label Cotacao Completa}}" },
+          { "type": "TEMPLATE", "key": "conversionId", "value": "AW-18054567241" },
+          { "type": "TEMPLATE", "key": "conversionLabel", "value": "gOwrCJrAppMcEMmqi6FD" },
           { "type": "TEMPLATE", "key": "conversionValue", "value": "{{DLV - plan_value}}" },
           { "type": "TEMPLATE", "key": "currencyCode", "value": "BRL" },
           { "type": "TEMPLATE", "key": "orderId", "value": "{{DLV - event_id}}" }
         ],
-        "firingTriggerId": ["3"],
-        "tagFiringOption": "oncePerEvent"
+        "firingTriggerId": ["51"],
+        "tagFiringOption": "ONCE_PER_EVENT"
       },
       {
-        "tagId": "7",
+        "accountId": "0",
+        "containerId": "0",
+        "tagId": "22",
         "name": "GAds - Conversion - WhatsApp Click",
         "type": "awct",
         "parameter": [
-          { "type": "TEMPLATE", "key": "conversionId", "value": "{{CONST - Google Ads Conversion ID}}" },
-          { "type": "TEMPLATE", "key": "conversionLabel", "value": "{{CONST - GAds Label WhatsApp Click}}" },
+          { "type": "TEMPLATE", "key": "conversionId", "value": "AW-18054567241" },
+          { "type": "TEMPLATE", "key": "conversionLabel", "value": "xCSxCJ3AppMcEMmqi6FD" },
           { "type": "TEMPLATE", "key": "conversionValue", "value": "{{DLV - plan_value}}" },
           { "type": "TEMPLATE", "key": "currencyCode", "value": "BRL" },
           { "type": "TEMPLATE", "key": "orderId", "value": "{{DLV - event_id}}" }
         ],
-        "firingTriggerId": ["4"],
-        "tagFiringOption": "oncePerEvent"
+        "firingTriggerId": ["52"],
+        "tagFiringOption": "ONCE_PER_EVENT"
       },
       {
-        "tagId": "8",
+        "accountId": "0",
+        "containerId": "0",
+        "tagId": "23",
         "name": "GAds - Remarketing",
         "type": "sp",
         "parameter": [
-          { "type": "TEMPLATE", "key": "conversionId", "value": "{{CONST - Google Ads Conversion ID}}" }
+          { "type": "TEMPLATE", "key": "conversionId", "value": "AW-18054567241" }
         ],
-        "firingTriggerId": ["1"],
-        "tagFiringOption": "oncePerEvent"
+        "firingTriggerId": ["2147479553"],
+        "tagFiringOption": "ONCE_PER_EVENT"
       },
       {
-        "tagId": "9",
+        "accountId": "0",
+        "containerId": "0",
+        "tagId": "30",
         "name": "Meta Pixel - Base (Init + PageView)",
         "type": "html",
         "parameter": [
@@ -403,11 +197,13 @@
           },
           { "type": "BOOLEAN", "key": "supportDocumentWrite", "value": "false" }
         ],
-        "firingTriggerId": ["1"],
-        "tagFiringOption": "oncePerEvent"
+        "firingTriggerId": ["2147479553"],
+        "tagFiringOption": "ONCE_PER_EVENT"
       },
       {
-        "tagId": "10",
+        "accountId": "0",
+        "containerId": "0",
+        "tagId": "31",
         "name": "Meta Pixel - InitiateCheckout (Cotacao Inicio)",
         "type": "html",
         "parameter": [
@@ -418,11 +214,13 @@
           },
           { "type": "BOOLEAN", "key": "supportDocumentWrite", "value": "false" }
         ],
-        "firingTriggerId": ["2"],
-        "tagFiringOption": "oncePerEvent"
+        "firingTriggerId": ["50"],
+        "tagFiringOption": "ONCE_PER_EVENT"
       },
       {
-        "tagId": "11",
+        "accountId": "0",
+        "containerId": "0",
+        "tagId": "32",
         "name": "Meta Pixel - Lead (Cotacao Completa)",
         "type": "html",
         "parameter": [
@@ -433,11 +231,13 @@
           },
           { "type": "BOOLEAN", "key": "supportDocumentWrite", "value": "false" }
         ],
-        "firingTriggerId": ["3"],
-        "tagFiringOption": "oncePerEvent"
+        "firingTriggerId": ["51"],
+        "tagFiringOption": "ONCE_PER_EVENT"
       },
       {
-        "tagId": "12",
+        "accountId": "0",
+        "containerId": "0",
+        "tagId": "33",
         "name": "Meta Pixel - Contact (WhatsApp Click)",
         "type": "html",
         "parameter": [
@@ -448,8 +248,213 @@
           },
           { "type": "BOOLEAN", "key": "supportDocumentWrite", "value": "false" }
         ],
-        "firingTriggerId": ["4"],
-        "tagFiringOption": "oncePerEvent"
+        "firingTriggerId": ["52"],
+        "tagFiringOption": "ONCE_PER_EVENT"
+      }
+    ],
+    "trigger": [
+      {
+        "accountId": "0",
+        "containerId": "0",
+        "triggerId": "50",
+        "name": "CE - cotacao_inicio",
+        "type": "CUSTOM_EVENT",
+        "customEventFilter": [
+          {
+            "type": "EQUALS",
+            "parameter": [
+              { "type": "TEMPLATE", "key": "arg0", "value": "{{_event}}" },
+              { "type": "TEMPLATE", "key": "arg1", "value": "cotacao_inicio" }
+            ]
+          }
+        ]
+      },
+      {
+        "accountId": "0",
+        "containerId": "0",
+        "triggerId": "51",
+        "name": "CE - cotacao_completa",
+        "type": "CUSTOM_EVENT",
+        "customEventFilter": [
+          {
+            "type": "EQUALS",
+            "parameter": [
+              { "type": "TEMPLATE", "key": "arg0", "value": "{{_event}}" },
+              { "type": "TEMPLATE", "key": "arg1", "value": "cotacao_completa" }
+            ]
+          }
+        ]
+      },
+      {
+        "accountId": "0",
+        "containerId": "0",
+        "triggerId": "52",
+        "name": "CE - whatsapp_click",
+        "type": "CUSTOM_EVENT",
+        "customEventFilter": [
+          {
+            "type": "EQUALS",
+            "parameter": [
+              { "type": "TEMPLATE", "key": "arg0", "value": "{{_event}}" },
+              { "type": "TEMPLATE", "key": "arg1", "value": "whatsapp_click" }
+            ]
+          }
+        ]
+      }
+    ],
+    "variable": [
+      {
+        "accountId": "0",
+        "containerId": "0",
+        "variableId": "100",
+        "name": "CONST - Meta Pixel ID",
+        "type": "c",
+        "parameter": [
+          { "type": "TEMPLATE", "key": "value", "value": "PENDENTE_META_PIXEL_ID" }
+        ]
+      },
+      {
+        "accountId": "0",
+        "containerId": "0",
+        "variableId": "200",
+        "name": "DLV - event_id",
+        "type": "v",
+        "parameter": [
+          { "type": "TEMPLATE", "key": "name", "value": "event_id" },
+          { "type": "INTEGER", "key": "dataLayerVersion", "value": "2" }
+        ]
+      },
+      {
+        "accountId": "0",
+        "containerId": "0",
+        "variableId": "201",
+        "name": "DLV - plan_name",
+        "type": "v",
+        "parameter": [
+          { "type": "TEMPLATE", "key": "name", "value": "plan_name" },
+          { "type": "INTEGER", "key": "dataLayerVersion", "value": "2" }
+        ]
+      },
+      {
+        "accountId": "0",
+        "containerId": "0",
+        "variableId": "202",
+        "name": "DLV - plan_value",
+        "type": "v",
+        "parameter": [
+          { "type": "TEMPLATE", "key": "name", "value": "plan_value" },
+          { "type": "INTEGER", "key": "dataLayerVersion", "value": "2" }
+        ]
+      },
+      {
+        "accountId": "0",
+        "containerId": "0",
+        "variableId": "203",
+        "name": "DLV - vehicle_marca",
+        "type": "v",
+        "parameter": [
+          { "type": "TEMPLATE", "key": "name", "value": "vehicle_marca" },
+          { "type": "INTEGER", "key": "dataLayerVersion", "value": "2" }
+        ]
+      },
+      {
+        "accountId": "0",
+        "containerId": "0",
+        "variableId": "204",
+        "name": "DLV - vehicle_modelo",
+        "type": "v",
+        "parameter": [
+          { "type": "TEMPLATE", "key": "name", "value": "vehicle_modelo" },
+          { "type": "INTEGER", "key": "dataLayerVersion", "value": "2" }
+        ]
+      },
+      {
+        "accountId": "0",
+        "containerId": "0",
+        "variableId": "205",
+        "name": "DLV - vehicle_ano",
+        "type": "v",
+        "parameter": [
+          { "type": "TEMPLATE", "key": "name", "value": "vehicle_ano" },
+          { "type": "INTEGER", "key": "dataLayerVersion", "value": "2" }
+        ]
+      },
+      {
+        "accountId": "0",
+        "containerId": "0",
+        "variableId": "206",
+        "name": "DLV - fipe_value",
+        "type": "v",
+        "parameter": [
+          { "type": "TEMPLATE", "key": "name", "value": "fipe_value" },
+          { "type": "INTEGER", "key": "dataLayerVersion", "value": "2" }
+        ]
+      },
+      {
+        "accountId": "0",
+        "containerId": "0",
+        "variableId": "207",
+        "name": "DLV - click_origin",
+        "type": "v",
+        "parameter": [
+          { "type": "TEMPLATE", "key": "name", "value": "click_origin" },
+          { "type": "INTEGER", "key": "dataLayerVersion", "value": "2" }
+        ]
+      },
+      {
+        "accountId": "0",
+        "containerId": "0",
+        "variableId": "208",
+        "name": "DLV - gclid",
+        "type": "v",
+        "parameter": [
+          { "type": "TEMPLATE", "key": "name", "value": "gclid" },
+          { "type": "INTEGER", "key": "dataLayerVersion", "value": "2" }
+        ]
+      },
+      {
+        "accountId": "0",
+        "containerId": "0",
+        "variableId": "209",
+        "name": "DLV - fbclid",
+        "type": "v",
+        "parameter": [
+          { "type": "TEMPLATE", "key": "name", "value": "fbclid" },
+          { "type": "INTEGER", "key": "dataLayerVersion", "value": "2" }
+        ]
+      },
+      {
+        "accountId": "0",
+        "containerId": "0",
+        "variableId": "210",
+        "name": "DLV - utm_source",
+        "type": "v",
+        "parameter": [
+          { "type": "TEMPLATE", "key": "name", "value": "utm_source" },
+          { "type": "INTEGER", "key": "dataLayerVersion", "value": "2" }
+        ]
+      },
+      {
+        "accountId": "0",
+        "containerId": "0",
+        "variableId": "211",
+        "name": "DLV - utm_medium",
+        "type": "v",
+        "parameter": [
+          { "type": "TEMPLATE", "key": "name", "value": "utm_medium" },
+          { "type": "INTEGER", "key": "dataLayerVersion", "value": "2" }
+        ]
+      },
+      {
+        "accountId": "0",
+        "containerId": "0",
+        "variableId": "212",
+        "name": "DLV - utm_campaign",
+        "type": "v",
+        "parameter": [
+          { "type": "TEMPLATE", "key": "name", "value": "utm_campaign" },
+          { "type": "INTEGER", "key": "dataLayerVersion", "value": "2" }
+        ]
       }
     ]
   }
