@@ -23,6 +23,7 @@ interface FormData {
   whatsapp: string
   email: string
   placa: string
+  leilao: 'nao' | 'leilao' | 'remarcado'
 }
 
 interface VehicleData {
@@ -117,6 +118,7 @@ export default function CotacaoPage() {
     whatsapp: '',
     email: '',
     placa: '',
+    leilao: 'nao',
   })
 
   const set = useCallback((field: keyof FormData, value: string) => {
@@ -272,6 +274,37 @@ export default function CotacaoPage() {
                     mono
                     disabled={loading}
                   />
+
+                  {/* Leilão / Remarcado */}
+                  <div>
+                    <label className="block text-sm font-medium text-[#64748B] mb-2">Veículo de leilão ou remarcado?</label>
+                    <div className="grid grid-cols-3 gap-3">
+                      {([
+                        { value: 'nao', label: 'Não' },
+                        { value: 'leilao', label: 'Leilão' },
+                        { value: 'remarcado', label: 'Remarcado' },
+                      ] as const).map(opt => (
+                        <button
+                          key={opt.value}
+                          type="button"
+                          disabled={loading}
+                          onClick={() => set('leilao', opt.value)}
+                          className={`py-3 rounded-full border-2 text-sm font-semibold transition-all duration-200 disabled:opacity-50 ${
+                            form.leilao === opt.value
+                              ? 'border-[#1B4DA1] bg-[#1B4DA1]/5 text-[#1B4DA1]'
+                              : 'border-[#E2E8F0] text-[#94A3B8] hover:border-[#C1C9D6]'
+                          }`}
+                        >
+                          {opt.label}
+                        </button>
+                      ))}
+                    </div>
+                    {form.leilao !== 'nao' && (
+                      <p className="mt-2 text-xs text-[#E07620] font-medium">
+                        {form.leilao === 'leilao' ? 'Indenização: 80% da tabela FIPE' : 'Indenização: 70% da tabela FIPE'}
+                      </p>
+                    )}
+                  </div>
                 </div>
 
                 {/* API Error */}
@@ -418,7 +451,7 @@ export default function CotacaoPage() {
                     </div>
                   </div>
 
-                  <a href={`https://wa.me/5521965700021?text=${encodeURIComponent(`Olá! Fiz uma cotação no site.\nNome: ${form.nome}\nWhatsApp: ${form.whatsapp}${form.email ? `\nE-mail: ${form.email}` : ''}\nPlaca: ${form.placa}\nVeículo: ${vehicleLabel}\nFIPE: R$ ${fipeFormatted}\nPlano: ${plans[selectedPlan].name}\nValor: R$${price}/mês\nQuero contratar!`)}`}
+                  <a href={`https://wa.me/5521965700021?text=${encodeURIComponent(`Olá! Fiz uma cotação no site.\nNome: ${form.nome}\nWhatsApp: ${form.whatsapp}${form.email ? `\nE-mail: ${form.email}` : ''}\nPlaca: ${form.placa}${form.leilao !== 'nao' ? `\nOrigem: ${form.leilao === 'leilao' ? 'Leilão' : 'Remarcado'}` : ''}\nVeículo: ${vehicleLabel}\nFIPE: R$ ${fipeFormatted}\nPlano: ${plans[selectedPlan].name}\nValor: R$${price}/mês\nQuero contratar!`)}`}
                     target="_blank" rel="noopener noreferrer"
                     className="flex items-center justify-center gap-2.5 w-full py-4 bg-gradient-to-r from-[#E07620] to-[#F08C28] text-white font-bold text-base rounded-full shadow-lg shadow-[#E07620]/20 hover:shadow-xl hover:shadow-[#E07620]/30 hover:scale-[1.01] active:scale-[0.99] transition-all duration-200 mb-4">
                     <MessageCircle className="w-5 h-5" />
@@ -438,7 +471,7 @@ export default function CotacaoPage() {
                   className="inline-flex items-center gap-2 text-sm text-[#64748B] hover:text-[#0A1E3D] transition-colors">
                   <ArrowLeft className="w-4 h-4" /> Editar dados
                 </button>
-                <button onClick={() => { setStep(1); setForm({ nome: '', whatsapp: '', email: '', placa: '' }); setVehicle(null); setPlans(null) }}
+                <button onClick={() => { setStep(1); setForm({ nome: '', whatsapp: '', email: '', placa: '', leilao: 'nao' }); setVehicle(null); setPlans(null) }}
                   className="text-sm text-[#1B4DA1] hover:text-[#3D72DE] transition-colors">
                   Nova cotação
                 </button>
