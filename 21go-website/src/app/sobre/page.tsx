@@ -1,218 +1,203 @@
 'use client'
 
-import { SectionHeading } from '@/components/ui/SectionHeading'
-import { Card } from '@/components/ui/Card'
-import { AnimatedCounter } from '@/components/ui/AnimatedCounter'
-import { Button } from '@/components/ui/Button'
+import { motion, useInView } from 'framer-motion'
+import { useRef } from 'react'
+import Link from 'next/link'
 import {
   Shield,
   Heart,
   Eye,
   Target,
   Users,
-  Calendar,
-  Award,
-  TrendingUp,
+  ArrowRight,
 } from 'lucide-react'
+import { NumberTicker } from '@/components/ui/NumberTicker'
+
+const fadeInUp = { hidden: { opacity: 0, y: 30 }, visible: { opacity: 1, y: 0, transition: { duration: 0.6 } } }
+const stagger = { hidden: {}, visible: { transition: { staggerChildren: 0.12 } } }
 
 const milestones = [
-  { year: '2003', title: 'Fundacao', description: 'A 21Go nasce no Rio de Janeiro como associacao de protecao veicular.' },
-  { year: '2008', title: '1.000 Associados', description: 'Alcancamos a marca de mil veiculos protegidos na regiao metropolitana.' },
-  { year: '2015', title: 'Expansao RJ', description: 'Cobertura em todo o estado do Rio de Janeiro com rede de oficinas credenciadas.' },
-  { year: '2020', title: 'Transformacao Digital', description: 'Inicio da digitalizacao com atendimento por WhatsApp e sistemas integrados.' },
-  { year: '2025', title: 'IA e Tecnologia', description: 'Lancamento da plataforma com inteligencia artificial e cotacao automatica.' },
+  { year: '2003', title: 'Fundação', description: 'A 21Go nasce no Rio de Janeiro como associação de proteção veicular.' },
+  { year: '2008', title: '1.000 Associados', description: 'Alcançamos a marca de mil veículos protegidos na região metropolitana.' },
+  { year: '2015', title: 'Expansão RJ', description: 'Cobertura em todo o estado do Rio de Janeiro com rede de oficinas credenciadas.' },
+  { year: '2020', title: 'Transformação Digital', description: 'Início da digitalização com atendimento por WhatsApp e sistemas integrados.' },
+  { year: '2025', title: 'IA e Tecnologia', description: 'Lançamento da plataforma com inteligência artificial e cotação automática.' },
 ]
 
 const stats = [
-  { target: 20, suffix: '+', label: 'Anos de Mercado' },
-  { target: 5000, suffix: '+', label: 'Veiculos Protegidos' },
-  { target: 3500, suffix: '+', label: 'Sinistros Resolvidos' },
-  { target: 98, suffix: '%', label: 'Satisfacao' },
+  { value: '20+', label: 'Anos de Mercado' },
+  { value: '5.000+', label: 'Veículos Protegidos' },
+  { value: '3.500+', label: 'Sinistros Resolvidos' },
+  { value: '98%', label: 'Satisfação' },
 ]
 
 const values = [
-  {
-    icon: Shield,
-    title: 'Protecao',
-    description: 'Nosso compromisso e garantir que todo associado se sinta seguro e amparado.',
-  },
-  {
-    icon: Heart,
-    title: 'Mutualismo',
-    description: 'Todos contribuem, todos se beneficiam. Juntos somos mais fortes.',
-  },
-  {
-    icon: Eye,
-    title: 'Transparencia',
-    description: 'Processos claros, comunicacao aberta e prestacao de contas constante.',
-  },
-  {
-    icon: Target,
-    title: 'Inovacao',
-    description: 'Investimos em tecnologia para oferecer a melhor experiencia possivel.',
-  },
+  { icon: Shield, title: 'Proteção', description: 'Nosso compromisso é garantir que todo associado se sinta seguro e amparado.' },
+  { icon: Heart, title: 'Mutualismo', description: 'Todos contribuem, todos se beneficiam. Juntos somos mais fortes.' },
+  { icon: Eye, title: 'Transparência', description: 'Processos claros, comunicação aberta e prestação de contas constante.' },
+  { icon: Target, title: 'Inovação', description: 'Investimos em tecnologia para oferecer a melhor experiência possível.' },
 ]
 
 export default function SobrePage() {
+  const ref = useRef(null)
+  const isInView = useInView(ref, { once: true })
+
   return (
     <>
       {/* Hero */}
-      <section className="pt-32 pb-16 relative">
-        <div className="absolute inset-0 bg-gradient-to-b from-blue-950/20 to-dark-950" />
-        <div className="relative max-w-4xl mx-auto px-6 text-center">
-          <h1 className="font-display text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6">
-            Sobre a 21Go{' '}
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-blue-300">
-              Protecao Veicular
-            </span>
-          </h1>
-          <p className="font-body text-lg text-gray-400 max-w-2xl mx-auto">
-            Ha mais de 20 anos protegendo veiculos no Rio de Janeiro com transparencia, tecnologia e o poder do mutualismo.
-          </p>
+      <section className="pt-32 pb-20 bg-gradient-to-b from-[#0A1E3D] via-[#0D2653] to-[#1B4DA1] relative overflow-hidden">
+        <div className="pointer-events-none absolute inset-0">
+          <div className="absolute -top-32 -right-32 w-[600px] h-[600px] rounded-full bg-[#1B4DA1]/20 blur-[150px]" />
+          <div className="absolute bottom-0 -left-32 w-[500px] h-[500px] rounded-full bg-[#E07620]/10 blur-[120px]" />
+          <div className="absolute inset-0 bg-[url('/grid-pattern.svg')] bg-repeat opacity-[0.04]" />
         </div>
+        <motion.div
+          ref={ref}
+          variants={stagger}
+          initial="hidden"
+          animate={isInView ? 'visible' : 'hidden'}
+          className="relative z-10 max-w-4xl mx-auto px-6 text-center"
+        >
+          <motion.div variants={fadeInUp}>
+            <span className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm text-white/60 mb-6">
+              <span className="w-1.5 h-1.5 rounded-full bg-[#E07620]" />
+              Quem somos
+            </span>
+          </motion.div>
+          <motion.h1 variants={fadeInUp} className="font-[var(--font-display)] text-4xl md:text-5xl font-bold text-white mb-5 leading-tight">
+            Sobre a 21Go{' '}
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#3D72DE] to-[#6B96EB]">Proteção Veicular</span>
+          </motion.h1>
+          <motion.p variants={fadeInUp} className="text-lg text-white/50 max-w-2xl mx-auto">
+            Há mais de 20 anos protegendo veículos no Rio de Janeiro com transparência, tecnologia e o poder do mutualismo.
+          </motion.p>
+        </motion.div>
       </section>
 
       {/* Stats */}
-      <section className="py-16">
-        <div className="max-w-6xl mx-auto px-6">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+      <section className="py-10 bg-white border-b border-[#E8ECF4]">
+        <div className="max-w-5xl mx-auto px-6">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
             {stats.map((stat) => (
-              <Card key={stat.label} className="text-center p-8">
-                <div className="text-4xl md:text-5xl font-display font-bold text-white mb-2">
-                  <AnimatedCounter target={stat.target} suffix={stat.suffix} duration={2000} />
-                </div>
-                <p className="font-body text-sm text-gray-400">{stat.label}</p>
-              </Card>
+              <div key={stat.label}>
+                <p className="font-[var(--font-display)] text-3xl md:text-4xl font-bold text-[#0A1E3D]">{stat.value}</p>
+                <p className="text-xs text-[#94A3B8] mt-1">{stat.label}</p>
+              </div>
             ))}
           </div>
         </div>
       </section>
 
       {/* Timeline */}
-      <section className="py-24">
+      <section className="py-20 bg-[#F7F8FC]">
         <div className="max-w-4xl mx-auto px-6">
-          <SectionHeading
-            badge="Historia"
-            title="Nossa trajetoria"
-            subtitle="Duas decadas de compromisso com a protecao dos cariocas."
-          />
-
-          <div className="mt-16 relative">
-            {/* Vertical line */}
-            <div className="absolute left-4 md:left-1/2 top-0 bottom-0 w-px bg-gradient-to-b from-blue-500/40 via-blue-500/20 to-transparent" />
-
-            <div className="space-y-12">
-              {milestones.map((item, i) => (
-                <div
-                  key={item.year}
-                  className={`relative flex items-start gap-8 ${
-                    i % 2 === 0 ? 'md:flex-row' : 'md:flex-row-reverse'
-                  }`}
-                >
-                  {/* Dot */}
-                  <div className="absolute left-4 md:left-1/2 -translate-x-1/2 w-3 h-3 rounded-full bg-blue-500 border-2 border-dark-950 z-10" />
-
-                  {/* Content */}
-                  <div className={`ml-12 md:ml-0 md:w-1/2 ${i % 2 === 0 ? 'md:pr-16 md:text-right' : 'md:pl-16'}`}>
-                    <span className="font-display text-sm font-bold text-blue-400">{item.year}</span>
-                    <h3 className="font-display text-lg font-semibold text-white mt-1">{item.title}</h3>
-                    <p className="font-body text-sm text-gray-400 mt-1">{item.description}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Mission / Vision / Values */}
-      <section className="py-24">
-        <div className="max-w-6xl mx-auto px-6">
-          <SectionHeading
-            badge="Valores"
-            title="No que acreditamos"
-            subtitle="Nossos principios guiam cada decisao que tomamos."
-          />
-
-          <div className="grid md:grid-cols-2 gap-6 mt-16">
-            {/* Mission */}
-            <Card hover className="p-8 border-blue-500/20">
-              <div className="w-12 h-12 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center mb-4">
-                <Target className="w-6 h-6 text-blue-400" />
-              </div>
-              <h3 className="font-display text-xl font-semibold text-white mb-2">Missao</h3>
-              <p className="font-body text-sm text-gray-400 leading-relaxed">
-                Democratizar a protecao veicular no Rio de Janeiro, oferecendo cobertura acessivel e atendimento humanizado a todos os motoristas, independente de perfil ou historico.
-              </p>
-            </Card>
-
-            {/* Vision */}
-            <Card hover className="p-8 border-orange-500/20">
-              <div className="w-12 h-12 rounded-xl bg-orange-500/10 border border-orange-500/20 flex items-center justify-center mb-4">
-                <Eye className="w-6 h-6 text-orange-400" />
-              </div>
-              <h3 className="font-display text-xl font-semibold text-white mb-2">Visao</h3>
-              <p className="font-body text-sm text-gray-400 leading-relaxed">
-                Ser a maior e mais confiavel associacao de protecao veicular do Rio de Janeiro, referencia em tecnologia e satisfacao do associado.
-              </p>
-            </Card>
+          <div className="text-center mb-14">
+            <span className="inline-block text-xs font-bold text-[#E07620] bg-[#E07620]/10 px-3 py-1 rounded-full uppercase tracking-wider mb-4">História</span>
+            <h2 className="font-[var(--font-display)] text-3xl font-bold text-[#0A1E3D] mb-3">Nossa trajetória</h2>
+            <p className="text-[#64748B]">Duas décadas de compromisso com a proteção dos cariocas.</p>
           </div>
 
-          {/* Values grid */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mt-6">
-            {values.map((value) => (
-              <Card key={value.title} hover className="p-6 text-center">
-                <div className="w-10 h-10 rounded-xl bg-dark-700 border border-dark-600/50 flex items-center justify-center mx-auto mb-4">
-                  <value.icon className="w-5 h-5 text-blue-400" />
+          <div className="space-y-6">
+            {milestones.map((item) => (
+              <div key={item.year} className="flex items-start gap-5 bg-white rounded-2xl border border-[#E8ECF4] p-6 hover:shadow-md transition-all">
+                <div className="w-16 h-12 rounded-xl bg-[#1B4DA1] text-white font-[var(--font-display)] text-sm font-bold flex items-center justify-center flex-shrink-0">
+                  {item.year}
                 </div>
-                <h4 className="font-display text-sm font-semibold text-white mb-1">{value.title}</h4>
-                <p className="font-body text-xs text-gray-500">{value.description}</p>
-              </Card>
+                <div>
+                  <h3 className="font-[var(--font-display)] text-lg font-semibold text-[#0A1E3D] mb-1">{item.title}</h3>
+                  <p className="text-sm text-[#64748B]">{item.description}</p>
+                </div>
+              </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Team placeholder */}
-      <section className="py-24">
-        <div className="max-w-6xl mx-auto px-6">
-          <SectionHeading
-            badge="Equipe"
-            title="Quem faz a 21Go acontecer"
-            subtitle="Uma equipe dedicada a proteger o que importa para voce."
-          />
+      {/* Mission + Vision */}
+      <section className="py-20 bg-white">
+        <div className="max-w-5xl mx-auto px-6">
+          <div className="text-center mb-14">
+            <span className="inline-block text-xs font-bold text-[#E07620] bg-[#E07620]/10 px-3 py-1 rounded-full uppercase tracking-wider mb-4">Valores</span>
+            <h2 className="font-[var(--font-display)] text-3xl font-bold text-[#0A1E3D]">No que acreditamos</h2>
+          </div>
 
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mt-16">
+          <div className="grid md:grid-cols-2 gap-6 mb-8">
+            <div className="bg-[#1B4DA1]/5 border border-[#1B4DA1]/15 rounded-2xl p-8">
+              <div className="w-12 h-12 rounded-xl bg-[#1B4DA1]/10 flex items-center justify-center mb-4">
+                <Target className="w-6 h-6 text-[#1B4DA1]" />
+              </div>
+              <h3 className="font-[var(--font-display)] text-xl font-bold text-[#0A1E3D] mb-2">Missão</h3>
+              <p className="text-sm text-[#64748B] leading-relaxed">
+                Democratizar a proteção veicular no Rio de Janeiro, oferecendo cobertura acessível e atendimento humanizado a todos os motoristas, independente de perfil ou histórico.
+              </p>
+            </div>
+            <div className="bg-[#E07620]/5 border border-[#E07620]/15 rounded-2xl p-8">
+              <div className="w-12 h-12 rounded-xl bg-[#E07620]/10 flex items-center justify-center mb-4">
+                <Eye className="w-6 h-6 text-[#E07620]" />
+              </div>
+              <h3 className="font-[var(--font-display)] text-xl font-bold text-[#0A1E3D] mb-2">Visão</h3>
+              <p className="text-sm text-[#64748B] leading-relaxed">
+                Ser a maior e mais confiável associação de proteção veicular do Rio de Janeiro, referência em tecnologia e satisfação do associado.
+              </p>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-5">
+            {values.map((v) => (
+              <div key={v.title} className="bg-[#F7F8FC] rounded-2xl border border-[#E8ECF4] p-6 text-center hover:shadow-md hover:-translate-y-1 transition-all">
+                <div className="w-11 h-11 rounded-xl bg-white border border-[#E8ECF4] flex items-center justify-center mx-auto mb-4">
+                  <v.icon className="w-5 h-5 text-[#1B4DA1]" />
+                </div>
+                <h4 className="font-[var(--font-display)] text-sm font-semibold text-[#0A1E3D] mb-1">{v.title}</h4>
+                <p className="text-xs text-[#94A3B8]">{v.description}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Team */}
+      <section className="py-20 bg-[#F7F8FC]">
+        <div className="max-w-5xl mx-auto px-6">
+          <div className="text-center mb-14">
+            <span className="inline-block text-xs font-bold text-[#E07620] bg-[#E07620]/10 px-3 py-1 rounded-full uppercase tracking-wider mb-4">Equipe</span>
+            <h2 className="font-[var(--font-display)] text-3xl font-bold text-[#0A1E3D]">Quem faz a 21Go acontecer</h2>
+          </div>
+
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-5">
             {[
               { name: 'Equipe Comercial', role: 'Vendas e Atendimento' },
-              { name: 'Equipe Operacao', role: 'Sinistros e Vistorias' },
-              { name: 'Equipe Financeiro', role: 'Cobranca e Rateio' },
+              { name: 'Equipe Operação', role: 'Sinistros e Vistorias' },
+              { name: 'Equipe Financeiro', role: 'Cobrança e Rateio' },
               { name: 'Equipe Tech', role: 'Tecnologia e IA' },
             ].map((member) => (
-              <Card key={member.name} hover className="p-6 text-center">
-                <div className="w-16 h-16 rounded-full bg-gradient-to-br from-blue-500/20 to-blue-600/10 border border-blue-500/20 flex items-center justify-center mx-auto mb-4">
-                  <Users className="w-7 h-7 text-blue-400" />
+              <div key={member.name} className="bg-white rounded-2xl border border-[#E8ECF4] p-6 text-center hover:shadow-md transition-all">
+                <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[#1B4DA1]/10 to-[#3D72DE]/5 border border-[#1B4DA1]/15 flex items-center justify-center mx-auto mb-4">
+                  <Users className="w-7 h-7 text-[#1B4DA1]" />
                 </div>
-                <h4 className="font-display text-sm font-semibold text-white">{member.name}</h4>
-                <p className="font-body text-xs text-gray-500 mt-1">{member.role}</p>
-              </Card>
+                <h4 className="font-[var(--font-display)] text-sm font-semibold text-[#0A1E3D]">{member.name}</h4>
+                <p className="text-xs text-[#94A3B8] mt-1">{member.role}</p>
+              </div>
             ))}
           </div>
         </div>
       </section>
 
       {/* CTA */}
-      <section className="py-24">
-        <div className="max-w-3xl mx-auto px-6 text-center">
-          <h2 className="font-display text-3xl md:text-4xl font-bold text-white mb-4">
-            Faca parte da 21Go
+      <section className="py-20 bg-gradient-to-b from-[#0A1E3D] to-[#1B4DA1] relative overflow-hidden">
+        <div className="pointer-events-none absolute inset-0">
+          <div className="absolute top-0 right-1/4 w-[400px] h-[400px] rounded-full bg-[#E07620]/10 blur-[100px]" />
+        </div>
+        <div className="relative z-10 max-w-3xl mx-auto px-6 text-center">
+          <h2 className="font-[var(--font-display)] text-3xl md:text-4xl font-bold text-white mb-4">
+            Faça parte da 21Go
           </h2>
-          <p className="font-body text-lg text-gray-400 mb-8">
-            Junte-se a milhares de cariocas que confiam na 21Go para proteger seus veiculos.
+          <p className="text-lg text-white/50 mb-8">
+            Junte-se a milhares de cariocas que confiam na 21Go para proteger seus veículos.
           </p>
-          <Button variant="cta" size="lg" href="/cotacao">
-            Fazer Cotacao Gratis
-          </Button>
+          <Link href="/cotacao" className="inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-[#E07620] to-[#F08C28] text-white font-bold rounded-full shadow-lg shadow-[#E07620]/25 hover:shadow-xl hover:scale-[1.02] active:scale-[0.98] transition-all">
+            Fazer Cotação Grátis <ArrowRight className="w-4 h-4" />
+          </Link>
         </div>
       </section>
     </>

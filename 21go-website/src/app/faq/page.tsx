@@ -1,9 +1,6 @@
 import { Metadata } from 'next'
-import { SectionHeading } from '@/components/ui/SectionHeading'
-import { Accordion } from '@/components/ui/Accordion'
-import { Button } from '@/components/ui/Button'
-import { Card } from '@/components/ui/Card'
-import { MessageCircle, ShieldCheck, ArrowRight } from 'lucide-react'
+import Link from 'next/link'
+import { MessageCircle, ShieldCheck, ArrowRight, ChevronDown } from 'lucide-react'
 
 export const metadata: Metadata = {
   title: 'Perguntas Frequentes | 21Go Protecao Veicular',
@@ -13,47 +10,40 @@ export const metadata: Metadata = {
 
 const categories = [
   {
-    title: 'Sobre Protecao Veicular',
+    title: 'Sobre Proteção Veicular',
     items: [
       {
-        question: 'O que e protecao veicular?',
-        answer:
-          'Protecao veicular e um sistema cooperativo (mutualismo) em que todos os associados contribuem mensalmente para um fundo comum. Quando alguem sofre um sinistro — roubo, furto, colisao ou incendio — o fundo cobre a indenizacao. Diferente do seguro tradicional, nao ha analise de perfil e os custos sao muito menores.',
+        q: 'O que é proteção veicular?',
+        a: 'Proteção veicular é um sistema cooperativo (mutualismo) em que todos os associados contribuem mensalmente para um fundo comum. Quando alguém sofre um sinistro — roubo, furto, colisão ou incêndio — o fundo cobre a indenização. Diferente do seguro tradicional, não há análise de perfil e os custos são muito menores.',
       },
       {
-        question: 'Protecao veicular e legal?',
-        answer:
-          'Sim! A protecao veicular por cooperativas e associacoes e 100% legal no Brasil, amparada pelo artigo 5 da Constituicao Federal (liberdade de associacao) e pelo Codigo Civil. A 21Go atua ha mais de 20 anos no Rio de Janeiro com total transparencia.',
+        q: 'Proteção veicular é legal?',
+        a: 'Sim! A proteção veicular por cooperativas e associações é 100% legal no Brasil, amparada pelo artigo 5 da Constituição Federal (liberdade de associação) e pelo Código Civil. A 21Go atua há mais de 20 anos no Rio de Janeiro com total transparência.',
       },
       {
-        question: 'Qual a diferenca entre protecao veicular e seguro?',
-        answer:
-          'O seguro e vendido por seguradoras reguladas pela SUSEP e tem analise de perfil. A protecao veicular funciona por associacao mutua — todos contribuem para um fundo e nao ha restricoes de perfil, idade ou regiao. O resultado e um custo ate 60% menor.',
+        q: 'Qual a diferença entre proteção veicular e seguro?',
+        a: 'O seguro é vendido por seguradoras reguladas pela SUSEP e tem análise de perfil. A proteção veicular funciona por associação mútua — todos contribuem para um fundo e não há restrições de perfil, idade ou região. O resultado é um custo até 60% menor.',
       },
     ],
   },
   {
-    title: 'Planos e Precos',
+    title: 'Planos e Preços',
     items: [
       {
-        question: 'Quanto custa a protecao veicular?',
-        answer:
-          'O valor depende do modelo e ano do seu veiculo (tabela FIPE). Nossos planos comecam a partir de R$89/mes para o Basico, R$149/mes para o Completo e R$219/mes para o Premium. Faca uma cotacao gratuita em 30 segundos para saber o valor exato.',
+        q: 'Quanto custa a proteção veicular?',
+        a: 'O valor depende do modelo e ano do seu veículo (tabela FIPE). Nossos planos começam a partir de R$89/mês para o Básico, R$149/mês para o Completo e R$219/mês para o Premium. Faça uma cotação gratuita em 30 segundos para saber o valor exato.',
       },
       {
-        question: 'Qual a diferenca entre os planos Basico, Completo e Premium?',
-        answer:
-          'O Basico cobre roubo/furto e assistencia 24h com guincho 200km. O Completo adiciona colisao, incendio e carro reserva por 7 dias. O Premium inclui tudo do Completo mais cobertura de terceiros ate R$100K, vidros, rastreamento e carro reserva por 15 dias.',
+        q: 'Qual a diferença entre os planos Básico, Completo e Premium?',
+        a: 'O Básico cobre roubo/furto e assistência 24h com guincho 200km. O Completo adiciona colisão, incêndio e carro reserva por 7 dias. O Premium inclui tudo do Completo mais cobertura de terceiros até R$100K, vidros, rastreamento e carro reserva por 15 dias.',
       },
       {
-        question: 'Posso trocar de plano depois?',
-        answer:
-          'Sim! Voce pode fazer upgrade ou downgrade do seu plano a qualquer momento. A mudanca entra em vigor no proximo ciclo de cobranca, sem custos adicionais.',
+        q: 'Posso trocar de plano depois?',
+        a: 'Sim! Você pode fazer upgrade ou downgrade do seu plano a qualquer momento. A mudança entra em vigor no próximo ciclo de cobrança, sem custos adicionais.',
       },
       {
-        question: 'Como e calculada a mensalidade?',
-        answer:
-          'A formula e: valor FIPE do veiculo x taxa do plano (Basico 1.8%, Completo 2.8%, Premium 3.8%) + taxa administrativa de R$35. Exemplo: carro de R$60.000 no plano Basico = R$60.000 x 1.8% + R$35 = R$1.115/mes.',
+        q: 'Como é calculada a mensalidade?',
+        a: 'A fórmula é: valor FIPE do veículo × taxa do plano (Básico 1.8%, Completo 2.8%, Premium 3.8%) ÷ 12 + taxa administrativa de R$35. Faça a cotação no site e veja o valor exato para o seu veículo.',
       },
     ],
   },
@@ -61,19 +51,16 @@ const categories = [
     title: 'Sinistros',
     items: [
       {
-        question: 'Como funciona o sinistro?',
-        answer:
-          'Em caso de sinistro, entre em contato pelo WhatsApp ou app. Abrimos o processo imediatamente, direcionamos para uma oficina credenciada e acompanhamos tudo ate a resolucao. Para roubo/furto com perda total, a indenizacao e baseada na tabela FIPE.',
+        q: 'Como funciona o sinistro?',
+        a: 'Em caso de sinistro, entre em contato pelo WhatsApp ou app. Abrimos o processo imediatamente, direcionamos para uma oficina credenciada e acompanhamos tudo até a resolução. Para roubo/furto com perda total, a indenização é baseada na tabela FIPE.',
       },
       {
-        question: 'Qual o prazo de resolucao do sinistro?',
-        answer:
-          'Para reparos (colisao, vidros), o prazo medio e de 7 a 15 dias uteis dependendo da oficina. Para indenizacao por perda total (roubo/furto), o prazo e de 15 a 30 dias apos a entrega de toda documentacao.',
+        q: 'Qual o prazo de resolução do sinistro?',
+        a: 'Para reparos (colisão, vidros), o prazo médio é de 7 a 15 dias úteis dependendo da oficina. Para indenização por perda total (roubo/furto), o prazo é de 15 a 30 dias após a entrega de toda documentação.',
       },
       {
-        question: 'Existe carencia para sinistros?',
-        answer:
-          'Sim. Ha uma carencia de 90 dias para sinistros de roubo/furto e colisao apos a ativacao da protecao. A assistencia 24h (guincho, pane mecanica) esta disponivel imediatamente apos a ativacao.',
+        q: 'Existe carência para sinistros?',
+        a: 'Sim. Há uma carência de 90 dias para sinistros de roubo/furto e colisão após a ativação da proteção. A assistência 24h (guincho, pane mecânica) está disponível imediatamente após a ativação.',
       },
     ],
   },
@@ -81,14 +68,12 @@ const categories = [
     title: 'Pagamento',
     items: [
       {
-        question: 'Quais as formas de pagamento?',
-        answer:
-          'Aceitamos boleto bancario e PIX. O boleto e gerado automaticamente todo mes e voce tambem pode pagar via PIX com QR Code. Em breve, cartao de credito.',
+        q: 'Quais as formas de pagamento?',
+        a: 'Aceitamos boleto bancário e PIX. O boleto é gerado automaticamente todo mês e você também pode pagar via PIX com QR Code. Em breve, cartão de crédito.',
       },
       {
-        question: 'O que acontece se eu atrasar o pagamento?',
-        answer:
-          'Voce tem 15 dias de tolerancia apos o vencimento. Apos esse prazo, a protecao e suspensa e voce nao tera cobertura ate a regularizacao. Apos 60 dias, a associacao e cancelada automaticamente.',
+        q: 'O que acontece se eu atrasar o pagamento?',
+        a: 'Você tem 15 dias de tolerância após o vencimento. Após esse prazo, a proteção é suspensa e você não terá cobertura até a regularização. Após 60 dias, a associação é cancelada automaticamente.',
       },
     ],
   },
@@ -96,19 +81,16 @@ const categories = [
     title: 'Cancelamento',
     items: [
       {
-        question: 'Posso cancelar quando quiser?',
-        answer:
-          'Sim! Nao existe fidelidade ou multa de cancelamento. Voce pode cancelar sua protecao a qualquer momento sem burocracia. Basta entrar em contato pelo WhatsApp ou e-mail.',
+        q: 'Posso cancelar quando quiser?',
+        a: 'Sim! Não existe fidelidade ou multa de cancelamento. Você pode cancelar sua proteção a qualquer momento sem burocracia. Basta entrar em contato pelo WhatsApp.',
       },
       {
-        question: 'Tem multa de cancelamento?',
-        answer:
-          'Nao. A 21Go nao cobra multa de cancelamento. Voce paga apenas ate o ultimo mes de utilizacao.',
+        q: 'Tem multa de cancelamento?',
+        a: 'Não. A 21Go não cobra multa de cancelamento. Você paga apenas até o último mês de utilização.',
       },
       {
-        question: 'Posso voltar depois de cancelar?',
-        answer:
-          'Sim! Voce pode se reassociar a qualquer momento. Sera necessario fazer uma nova vistoria e o periodo de carencia sera reiniciado.',
+        q: 'Posso voltar depois de cancelar?',
+        a: 'Sim! Você pode se reassociar a qualquer momento. Será necessário fazer uma nova vistoria e o período de carência será reiniciado.',
       },
     ],
   },
@@ -118,73 +100,86 @@ export default function FAQPage() {
   return (
     <>
       {/* Hero */}
-      <section className="pt-32 pb-16 relative">
-        <div className="absolute inset-0 bg-gradient-to-b from-blue-950/20 to-dark-950" />
-        <div className="relative max-w-4xl mx-auto px-6 text-center">
-          <h1 className="font-display text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6">
+      <section className="pt-32 pb-16 bg-gradient-to-b from-[#0A1E3D] via-[#0D2653] to-[#1B4DA1] relative overflow-hidden">
+        <div className="pointer-events-none absolute inset-0">
+          <div className="absolute -top-32 -right-32 w-[500px] h-[500px] rounded-full bg-[#1B4DA1]/20 blur-[120px]" />
+          <div className="absolute bottom-0 -left-32 w-[400px] h-[400px] rounded-full bg-[#E07620]/10 blur-[100px]" />
+          <div className="absolute inset-0 bg-[url('/grid-pattern.svg')] bg-repeat opacity-[0.04]" />
+        </div>
+        <div className="relative z-10 max-w-4xl mx-auto px-6 text-center">
+          <span className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm text-white/60 mb-6">
+            <span className="w-1.5 h-1.5 rounded-full bg-[#E07620]" />
+            Tire suas dúvidas
+          </span>
+          <h1 className="font-[var(--font-display)] text-4xl md:text-5xl font-bold text-white mb-4">
             Perguntas Frequentes
           </h1>
-          <p className="font-body text-lg text-gray-400 max-w-2xl mx-auto">
-            Tudo o que voce precisa saber sobre protecao veicular, planos, sinistros e mais.
+          <p className="text-lg text-white/50 max-w-2xl mx-auto">
+            Tudo o que você precisa saber sobre proteção veicular, planos, sinistros e mais.
           </p>
         </div>
       </section>
 
       {/* FAQ Content */}
-      <section className="py-16">
+      <section className="py-16 bg-[#F7F8FC]">
         <div className="max-w-6xl mx-auto px-6">
-          <div className="grid lg:grid-cols-[1fr_320px] gap-12">
+          <div className="grid lg:grid-cols-[1fr_340px] gap-10">
             {/* Main content */}
-            <div className="space-y-16">
+            <div className="space-y-10">
               {categories.map((category) => (
                 <div key={category.title}>
-                  <h2 className="font-display text-2xl font-bold text-white mb-6 flex items-center gap-3">
-                    <div className="w-1 h-6 rounded-full bg-blue-500" />
+                  <h2 className="font-[var(--font-display)] text-xl font-bold text-[#0A1E3D] mb-4 flex items-center gap-3">
+                    <div className="w-1 h-6 rounded-full bg-[#E07620]" />
                     {category.title}
                   </h2>
-                  <Accordion items={category.items} />
+                  <div className="space-y-3">
+                    {category.items.map((item) => (
+                      <details key={item.q} className="group bg-white rounded-xl border border-[#E8ECF4] overflow-hidden shadow-sm">
+                        <summary className="flex items-center justify-between px-6 py-4 cursor-pointer list-none text-[#0A1E3D] font-medium text-[15px] hover:bg-[#F7F8FC] transition-colors">
+                          {item.q}
+                          <ChevronDown className="w-5 h-5 text-[#94A3B8] group-open:rotate-180 transition-transform flex-shrink-0 ml-4" />
+                        </summary>
+                        <div className="px-6 pb-5 text-sm text-[#64748B] leading-relaxed border-t border-[#E8ECF4] pt-4">
+                          {item.a}
+                        </div>
+                      </details>
+                    ))}
+                  </div>
                 </div>
               ))}
             </div>
 
             {/* Sidebar CTA */}
-            <div className="lg:sticky lg:top-32 h-fit">
-              <Card className="p-8 border-blue-500/20">
-                <div className="w-12 h-12 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center mb-4">
-                  <ShieldCheck className="w-6 h-6 text-blue-400" />
+            <div className="lg:sticky lg:top-28 h-fit space-y-6">
+              <div className="bg-gradient-to-br from-[#0A1E3D] to-[#1B4DA1] rounded-2xl p-8 text-white">
+                <div className="w-12 h-12 rounded-xl bg-white/10 flex items-center justify-center mb-4">
+                  <ShieldCheck className="w-6 h-6 text-[#E07620]" />
                 </div>
-
-                <h3 className="font-display text-lg font-semibold text-white mb-2">
-                  Nao encontrou sua resposta?
+                <h3 className="font-[var(--font-display)] text-lg font-bold mb-2">
+                  Não encontrou sua resposta?
                 </h3>
-
-                <p className="font-body text-sm text-gray-400 mb-6">
+                <p className="text-sm text-white/60 mb-6">
                   Fale com nosso time pelo WhatsApp. Estamos prontos para ajudar.
                 </p>
-
-                <Button
-                  variant="primary"
-                  href="/cotacao"
-                  className="w-full justify-center mb-4"
+                <a
+                  href="https://wa.me/5521965700021?text=Ol%C3%A1!%20Tenho%20uma%20d%C3%BAvida%20sobre%20prote%C3%A7%C3%A3o%20veicular."
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center justify-center gap-2 w-full py-3.5 rounded-xl bg-[#10B981] text-white font-semibold text-sm hover:bg-[#059669] transition-colors mb-4"
                 >
-                  <MessageCircle className="w-4 h-4 mr-2" />
+                  <MessageCircle className="w-4 h-4" />
                   Falar no WhatsApp
-                </Button>
-
-                <div className="w-full h-px bg-dark-700/50 my-6" />
-
-                <h3 className="font-display text-lg font-semibold text-white mb-2">
-                  Pronto para cotar?
-                </h3>
-                <p className="font-body text-sm text-gray-400 mb-4">
-                  Descubra quanto custa proteger seu veiculo.
-                </p>
-
-                <Button variant="cta" href="/cotacao" className="w-full justify-center">
-                  Fazer Cotacao
-                  <ArrowRight className="w-4 h-4 ml-2" />
-                </Button>
-              </Card>
+                </a>
+                <div className="w-full h-px bg-white/10 my-5" />
+                <h3 className="font-[var(--font-display)] text-base font-semibold mb-2">Pronto para cotar?</h3>
+                <p className="text-sm text-white/50 mb-4">Descubra quanto custa proteger seu veículo.</p>
+                <Link
+                  href="/cotacao"
+                  className="flex items-center justify-center gap-2 w-full py-3.5 rounded-xl bg-gradient-to-r from-[#E07620] to-[#F08C28] text-white font-semibold text-sm hover:shadow-lg hover:shadow-[#E07620]/20 transition-all"
+                >
+                  Fazer Cotação <ArrowRight className="w-4 h-4" />
+                </Link>
+              </div>
             </div>
           </div>
         </div>
