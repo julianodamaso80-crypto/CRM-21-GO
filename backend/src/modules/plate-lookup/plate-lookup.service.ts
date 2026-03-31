@@ -1,32 +1,37 @@
 import axios from 'axios'
 import { prisma } from '../../config/database'
+
 const TAXA_ADMIN = 35
 const TAXAS = { basico: 0.018, completo: 0.028, premium: 0.038 } as const
 const DAILY_LIMIT = 100
-const API_TIMEOUT = 8000 // 8s (API Brasil pode demorar)
+const API_TIMEOUT = 10000 // 10s
 
-interface ApiBrasilResponse {
-  response?: {
-    MARCA?: string
-    MODELO?: string
-    ano?: string
-    anoModelo?: string
-    cor?: string
-    chassi?: string
-    extra?: {
-      fipe?: {
-        dados?: Array<{
-          valor?: string
-          codigo_fipe?: string
-          combustivel?: string
-        }>
-      }
-    }
-  }
-  error?: boolean
-  message?: string
+/* ─── API Brasil Response Types ─── */
+interface ApiBrasilVeiculo {
+  marca: string
+  modelo: string
+  anoFabricacao: number
+  anoModelo: string
+  cor: string
+  chassi: string
+  codigoFipe: string
+  combustivel: string
+  categoria: string
+  valor: number
+  principal: boolean
+  historico?: Array<{ mes: string; valor: number }>
 }
 
+interface ApiBrasilResponse {
+  error: boolean
+  message: string
+  balance?: string
+  data?: {
+    resultados: ApiBrasilVeiculo[]
+  }
+}
+
+/* ─── Output Types ─── */
 interface VehicleResult {
   marca: string
   modelo: string
@@ -60,12 +65,6 @@ function calcMonthly(fipeValue: number, plan: keyof typeof TAXAS): number {
   return Math.round((fipeValue * TAXAS[plan]) / 12 + TAXA_ADMIN)
 }
 
-function parseFipeValue(raw: string | undefined): number {
-  if (!raw) return 0
-  // "R$ 78.000,00" -> 78000
-  return Number(raw.replace(/[^\d,]/g, '').replace(',', '.')) || 0
-}
-
 export async function lookupPlate(placa: string): Promise<PlateResponse | PlateErrorResponse> {
   const normalized = placa.toUpperCase().replace(/[^A-Z0-9]/g, '')
 
@@ -87,8 +86,7 @@ export async function lookupPlate(placa: string): Promise<PlateResponse | PlateE
   })
 
   if (cached && cached.result) {
-    const result = cached.result as unknown as PlateResponse
-    return result
+    return cached.result as unknown as PlateResponse
   }
 
   // 2. Check daily rate limit
@@ -112,7 +110,11 @@ export async function lookupPlate(placa: string): Promise<PlateResponse | PlateE
   try {
     const { data } = await axios.post<ApiBrasilResponse>(
       'https://gateway.apibrasil.io/api/v2/consulta/veiculos/credits',
-      { placa: normalized },
+      {
+        tipo: 'fipe-chassi',
+        placa: normalized,
+        homolog: false,
+      },
       {
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -123,7 +125,7 @@ export async function lookupPlate(placa: string): Promise<PlateResponse | PlateE
     )
 
     // API returned error
-    if (data.error || !data.response) {
+    if (data.error || !data.data?.resultados?.length) {
       await prisma.plateLookup.create({
         data: {
           placa: normalized,
@@ -136,9 +138,9 @@ export async function lookupPlate(placa: string): Promise<PlateResponse | PlateE
       return { success: false, error: data.message || 'Veículo não encontrado' }
     }
 
-    const r = data.response
-    const fipeData = r.extra?.fipe?.dados?.[0]
-    const fipeValue = parseFipeValue(fipeData?.valor)
+    // Get the principal result (or first one)
+    const veiculo = data.data.resultados.find(r => r.principal) || data.data.resultados[0]
+    const fipeValue = veiculo.valor
 
     if (fipeValue <= 0) {
       await prisma.plateLookup.create({
@@ -156,12 +158,12 @@ export async function lookupPlate(placa: string): Promise<PlateResponse | PlateE
     const response: PlateResponse = {
       success: true,
       vehicle: {
-        marca: r.MARCA || '',
-        modelo: r.MODELO || '',
-        ano: r.anoModelo || r.ano || '',
-        cor: r.cor || '',
+        marca: veiculo.marca,
+        modelo: veiculo.modelo,
+        ano: veiculo.anoModelo,
+        cor: veiculo.cor,
         fipeValue,
-        fipeCode: fipeData?.codigo_fipe || '',
+        fipeCode: veiculo.codigoFipe,
       },
       plans: {
         basico: { monthly: calcMonthly(fipeValue, 'basico'), name: 'Básico' },
@@ -177,9 +179,9 @@ export async function lookupPlate(placa: string): Promise<PlateResponse | PlateE
         success: true,
         fromCache: false,
         fipeValue,
-        marca: response.vehicle.marca,
-        modelo: response.vehicle.modelo,
-        ano: response.vehicle.ano,
+        marca: veiculo.marca,
+        modelo: veiculo.modelo,
+        ano: veiculo.anoModelo,
         result: response as any,
       },
     })
