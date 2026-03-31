@@ -1,7 +1,6 @@
 'use client'
 
 import { useState, useCallback } from 'react'
-import Image from 'next/image'
 import {
   ArrowRight,
   ArrowLeft,
@@ -12,7 +11,7 @@ import {
   ChevronDown,
   ChevronUp,
   MessageCircle,
-  Phone,
+  Mail,
   Sparkles,
 } from 'lucide-react'
 
@@ -20,7 +19,7 @@ import {
 interface FormData {
   nome: string
   whatsapp: string
-  telefone: string
+  email: string
   placa: string
 }
 
@@ -99,7 +98,7 @@ export default function CotacaoPage() {
   const [form, setForm] = useState<FormData>({
     nome: '',
     whatsapp: '',
-    telefone: '',
+    email: '',
     placa: '',
   })
 
@@ -141,18 +140,9 @@ export default function CotacaoPage() {
       }} />
 
       <div className="relative z-10">
-        {/* Logo header */}
-        <div className="pt-10 pb-2 flex justify-center">
-          <div className="relative">
-            <div className="w-[200px] h-[70px] bg-gradient-to-r from-[#0A1E3D] to-[#1B4DA1] rounded-2xl flex items-center justify-center shadow-lg shadow-[#1B4DA1]/10">
-              <Image src="/logo-21go-white.png" alt="21Go Proteção Veicular" width={160} height={50} className="object-contain" />
-            </div>
-          </div>
-        </div>
-
         {/* Stepper */}
         {step <= 1 && (
-          <div className="py-8">
+          <div className="pt-28 pb-8">
             <div className="max-w-sm mx-auto px-6">
               <div className="flex items-center justify-center gap-4">
                 {STEPS.map((s, i) => {
@@ -223,12 +213,13 @@ export default function CotacaoPage() {
                       icon={<MessageCircle className="w-4 h-4 text-[#25D366]" />}
                     />
                     <PillInput
-                      label="Telefone (opcional)"
-                      name="telefone"
-                      value={form.telefone}
-                      onChange={v => set('telefone', maskPhone(v))}
-                      placeholder="(21) 3333-4444"
-                      icon={<Phone className="w-4 h-4 text-[#94A3B8]" />}
+                      label="E-mail (opcional)"
+                      name="email"
+                      type="email"
+                      value={form.email}
+                      onChange={v => set('email', v)}
+                      placeholder="seu@email.com"
+                      icon={<Mail className="w-4 h-4 text-[#94A3B8]" />}
                     />
                   </div>
                   <PillInput
@@ -359,7 +350,7 @@ export default function CotacaoPage() {
                     </div>
                   </div>
 
-                  <a href={`https://wa.me/5521965700021?text=${encodeURIComponent(`Olá! Fiz uma cotação no site.\nNome: ${form.nome}\nWhatsApp: ${form.whatsapp}\nPlaca: ${form.placa}\nVeículo: ${veiculoIdentificado || 'A identificar'}\nPlano: ${selectedPlan}\nValor: R$${price}/mês\nQuero contratar!`)}`}
+                  <a href={`https://wa.me/5521965700021?text=${encodeURIComponent(`Olá! Fiz uma cotação no site.\nNome: ${form.nome}\nWhatsApp: ${form.whatsapp}${form.email ? `\nE-mail: ${form.email}` : ''}\nPlaca: ${form.placa}\nVeículo: ${veiculoIdentificado || 'A identificar'}\nPlano: ${selectedPlan}\nValor: R$${price}/mês\nQuero contratar!`)}`}
                     target="_blank" rel="noopener noreferrer"
                     className="flex items-center justify-center gap-2.5 w-full py-4 bg-gradient-to-r from-[#E07620] to-[#F08C28] text-white font-bold text-base rounded-full shadow-lg shadow-[#E07620]/20 hover:shadow-xl hover:shadow-[#E07620]/30 hover:scale-[1.01] active:scale-[0.99] transition-all duration-200 mb-4">
                     <MessageCircle className="w-5 h-5" />
@@ -379,7 +370,7 @@ export default function CotacaoPage() {
                   className="inline-flex items-center gap-2 text-sm text-[#64748B] hover:text-[#0A1E3D] transition-colors">
                   <ArrowLeft className="w-4 h-4" /> Editar dados
                 </button>
-                <button onClick={() => { setStep(1); setForm({ nome: '', whatsapp: '', telefone: '', placa: '' }); setVeiculoIdentificado('') }}
+                <button onClick={() => { setStep(1); setForm({ nome: '', whatsapp: '', email: '', placa: '' }); setVeiculoIdentificado('') }}
                   className="text-sm text-[#1B4DA1] hover:text-[#3D72DE] transition-colors">
                   Nova cotação
                 </button>
