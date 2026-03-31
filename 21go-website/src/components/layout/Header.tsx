@@ -5,9 +5,10 @@ import Image from 'next/image'
 import { Menu, X } from 'lucide-react'
 
 const navLinks = [
-  { label: 'Sobre', href: '/sobre' },
   { label: 'Planos', href: '/protecao-veicular' },
   { label: 'Cotação', href: '/cotacao' },
+  { label: 'Indique', href: '/indique' },
+  { label: 'Seja Consultor', href: '/seja-consultor' },
   { label: 'Blog', href: '/blog' },
   { label: 'FAQ', href: '/faq' },
 ]
