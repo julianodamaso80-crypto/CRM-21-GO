@@ -79,9 +79,8 @@ const envSchema = z.object({
   RATE_LIMIT_WINDOW_MS: z.coerce.number().default(900000),
   RATE_LIMIT_MAX_REQUESTS: z.coerce.number().default(100),
 
-  // API Brasil (consulta de placa + FIPE)
+  // API Brasil (consulta de placa + FIPE — endpoint de crédito)
   APIBRASIL_TOKEN: z.string().optional(),
-  APIBRASIL_DEVICE_TOKEN: z.string().optional(),
 })
 
 const _env = envSchema.safeParse(process.env)
