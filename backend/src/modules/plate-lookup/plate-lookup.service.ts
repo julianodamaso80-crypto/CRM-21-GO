@@ -111,7 +111,7 @@ export async function lookupPlate(placa: string): Promise<PlateResponse | PlateE
 
   try {
     const { data } = await axios.post<ApiBrasilResponse>(
-      'https://gateway.apibrasil.io/api/v2/vehicles/dados',
+      'https://gateway.apibrasil.io/api/v2/consulta/veiculos/credits',
       { placa: normalized },
       {
         headers: {
