@@ -3,8 +3,7 @@ import { prisma } from '../../config/database'
 
 const TAXA_ADMIN = 35
 const TAXAS = { basico: 0.018, completo: 0.028, premium: 0.038 } as const
-const DAILY_LIMIT = 100
-const API_TIMEOUT = 10000 // 10s
+const API_TIMEOUT = 10000
 
 /* ─── API Brasil Response Types ─── */
 interface ApiBrasilVeiculo {
@@ -19,7 +18,6 @@ interface ApiBrasilVeiculo {
   categoria: string
   valor: number
   principal: boolean
-  historico?: Array<{ mes: string; valor: number }>
 }
 
 interface ApiBrasilResponse {
@@ -32,27 +30,20 @@ interface ApiBrasilResponse {
 }
 
 /* ─── Output Types ─── */
-interface VehicleResult {
-  marca: string
-  modelo: string
-  ano: string
-  cor: string
-  fipeValue: number
-  fipeCode: string
-}
-
-interface PlanResult {
-  monthly: number
-  name: string
-}
-
 export interface PlateResponse {
   success: true
-  vehicle: VehicleResult
+  vehicle: {
+    marca: string
+    modelo: string
+    ano: string
+    cor: string
+    fipeValue: number
+    fipeCode: string
+  }
   plans: {
-    basico: PlanResult
-    completo: PlanResult
-    premium: PlanResult
+    basico: { monthly: number; name: string }
+    completo: { monthly: number; name: string }
+    premium: { monthly: number; name: string }
   }
 }
 
@@ -65,6 +56,26 @@ function calcMonthly(fipeValue: number, plan: keyof typeof TAXAS): number {
   return Math.round((fipeValue * TAXAS[plan]) / 12 + TAXA_ADMIN)
 }
 
+// Safe DB operations — don't crash if table doesn't exist yet
+async function tryCache(placa: string): Promise<PlateResponse | null> {
+  try {
+    const todayStart = new Date()
+    todayStart.setHours(0, 0, 0, 0)
+    const cached = await prisma.plateLookup.findFirst({
+      where: { placa, success: true, createdAt: { gte: todayStart } },
+      orderBy: { createdAt: 'desc' },
+    })
+    if (cached?.result) return cached.result as unknown as PlateResponse
+  } catch { /* table may not exist yet */ }
+  return null
+}
+
+async function tryLog(data: Record<string, unknown>): Promise<void> {
+  try {
+    await prisma.plateLookup.create({ data: data as any })
+  } catch { /* table may not exist yet */ }
+}
+
 export async function lookupPlate(placa: string): Promise<PlateResponse | PlateErrorResponse> {
   const normalized = placa.toUpperCase().replace(/[^A-Z0-9]/g, '')
 
@@ -72,36 +83,11 @@ export async function lookupPlate(placa: string): Promise<PlateResponse | PlateE
     return { success: false, error: 'Placa deve ter 7 caracteres' }
   }
 
-  // 1. Check cache (same plate queried today)
-  const todayStart = new Date()
-  todayStart.setHours(0, 0, 0, 0)
+  // 1. Check cache
+  const cached = await tryCache(normalized)
+  if (cached) return cached
 
-  const cached = await prisma.plateLookup.findFirst({
-    where: {
-      placa: normalized,
-      success: true,
-      createdAt: { gte: todayStart },
-    },
-    orderBy: { createdAt: 'desc' },
-  })
-
-  if (cached && cached.result) {
-    return cached.result as unknown as PlateResponse
-  }
-
-  // 2. Check daily rate limit
-  const todayCount = await prisma.plateLookup.count({
-    where: {
-      createdAt: { gte: todayStart },
-      fromCache: false,
-    },
-  })
-
-  if (todayCount >= DAILY_LIMIT) {
-    return { success: false, error: 'Limite diário de consultas atingido. Tente novamente amanhã.' }
-  }
-
-  // 3. Call API Brasil
+  // 2. Call API Brasil
   const token = process.env.APIBRASIL_TOKEN
   if (!token) {
     return { success: false, error: 'Serviço de consulta indisponível no momento.' }
@@ -124,34 +110,16 @@ export async function lookupPlate(placa: string): Promise<PlateResponse | PlateE
       },
     )
 
-    // API returned error
     if (data.error || !data.data?.resultados?.length) {
-      await prisma.plateLookup.create({
-        data: {
-          placa: normalized,
-          success: false,
-          fromCache: false,
-          errorMessage: data.message || 'Veículo não encontrado',
-          result: {},
-        },
-      })
+      await tryLog({ placa: normalized, success: false, fromCache: false, errorMessage: data.message || 'Veículo não encontrado', result: {} })
       return { success: false, error: data.message || 'Veículo não encontrado' }
     }
 
-    // Get the principal result (or first one)
     const veiculo = data.data.resultados.find(r => r.principal) || data.data.resultados[0]
     const fipeValue = veiculo.valor
 
     if (fipeValue <= 0) {
-      await prisma.plateLookup.create({
-        data: {
-          placa: normalized,
-          success: false,
-          fromCache: false,
-          errorMessage: 'Valor FIPE não encontrado para este veículo',
-          result: {},
-        },
-      })
+      await tryLog({ placa: normalized, success: false, fromCache: false, errorMessage: 'Valor FIPE não encontrado', result: {} })
       return { success: false, error: 'Valor FIPE não encontrado para este veículo' }
     }
 
@@ -172,19 +140,7 @@ export async function lookupPlate(placa: string): Promise<PlateResponse | PlateE
       },
     }
 
-    // Save to cache + log
-    await prisma.plateLookup.create({
-      data: {
-        placa: normalized,
-        success: true,
-        fromCache: false,
-        fipeValue,
-        marca: veiculo.marca,
-        modelo: veiculo.modelo,
-        ano: veiculo.anoModelo,
-        result: response as any,
-      },
-    })
+    await tryLog({ placa: normalized, success: true, fromCache: false, fipeValue, marca: veiculo.marca, modelo: veiculo.modelo, ano: veiculo.anoModelo, result: response as any })
 
     return response
   } catch (err: any) {
@@ -192,16 +148,7 @@ export async function lookupPlate(placa: string): Promise<PlateResponse | PlateE
       ? 'Consulta demorou demais. Tente novamente.'
       : 'Erro ao consultar veículo. Tente novamente.'
 
-    await prisma.plateLookup.create({
-      data: {
-        placa: normalized,
-        success: false,
-        fromCache: false,
-        errorMessage: message,
-        result: {},
-      },
-    })
-
+    await tryLog({ placa: normalized, success: false, fromCache: false, errorMessage: message, result: {} })
     return { success: false, error: message }
   }
 }

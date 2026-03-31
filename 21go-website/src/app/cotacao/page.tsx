@@ -41,7 +41,7 @@ interface PlansData {
 }
 
 /* ─── API Config ─── */
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'https://app.21go.site'
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'https://21go.site'
 
 /* ─── Masks ─── */
 function maskPhone(v: string) {
