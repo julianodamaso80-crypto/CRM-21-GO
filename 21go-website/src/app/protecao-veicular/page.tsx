@@ -1,9 +1,5 @@
 import { Metadata } from 'next'
-import { SectionHeading } from '@/components/ui/SectionHeading'
-import { Card } from '@/components/ui/Card'
-import { Badge } from '@/components/ui/Badge'
-import { Button } from '@/components/ui/Button'
-import { Accordion } from '@/components/ui/Accordion'
+import Link from 'next/link'
 import {
   Check,
   X,
@@ -13,29 +9,30 @@ import {
   ArrowRight,
   Building2,
   Sparkles,
+  ChevronDown,
 } from 'lucide-react'
 
 export const metadata: Metadata = {
   title: 'Planos de Protecao Veicular | Basico, Completo e Premium | 21Go',
   description:
-    'Conhega os planos de protecao veicular da 21Go. A partir de R$89/mes, sem analise de perfil. Basico, Completo e Premium. Cotacao em 30 segundos.',
+    'Conheca os planos de protecao veicular da 21Go. A partir de R$89/mes, sem analise de perfil. Basico, Completo e Premium. Cotacao em 30 segundos.',
 }
 
 const mutualSteps = [
   {
     icon: Users,
     title: 'Todos Contribuem',
-    description: 'Associados pagam uma mensalidade que forma um fundo comum de protecao.',
+    description: 'Associados pagam uma mensalidade que forma um fundo comum de proteção.',
   },
   {
     icon: HandCoins,
     title: 'Fundo Coletivo',
-    description: 'O fundo e administrado com transparencia para cobrir sinistros dos associados.',
+    description: 'O fundo é administrado com transparência para cobrir sinistros dos associados.',
   },
   {
     icon: ShieldCheck,
     title: 'Todos Protegidos',
-    description: 'Quando alguem sofre um sinistro, o fundo cobre. Quanto mais associados, menor o rateio.',
+    description: 'Quando alguém sofre um sinistro, o fundo cobre. Quanto mais associados, menor o rateio.',
   },
 ]
 
@@ -48,70 +45,62 @@ interface FeatureRow {
 
 const comparisonFeatures: FeatureRow[] = [
   { feature: 'Roubo/Furto', basico: true, completo: true, premium: true },
-  { feature: 'Assistencia 24h', basico: true, completo: true, premium: true },
+  { feature: 'Assistência 24h', basico: true, completo: true, premium: true },
   { feature: 'Guincho 200km', basico: true, completo: true, premium: true },
-  { feature: 'Colisao', basico: false, completo: true, premium: true },
-  { feature: 'Incendio', basico: false, completo: true, premium: true },
+  { feature: 'Colisão', basico: false, completo: true, premium: true },
+  { feature: 'Incêndio', basico: false, completo: true, premium: true },
   { feature: 'Carro Reserva', basico: false, completo: '7 dias', premium: '15 dias' },
   { feature: 'Terceiros', basico: false, completo: false, premium: 'R$100K' },
   { feature: 'Vidros', basico: false, completo: false, premium: true },
   { feature: 'Rastreamento', basico: false, completo: false, premium: true },
-  { feature: 'Preco a partir de', basico: 'R$89/mes', completo: 'R$149/mes', premium: 'R$219/mes' },
 ]
 
-interface ComparisonRow {
-  item: string
-  seguro: string
-  go21: string
-}
-
-const vsSeguro: ComparisonRow[] = [
-  { item: 'Analise de perfil', seguro: 'Obrigatoria', go21: 'Nao exigida' },
-  { item: 'Restricao de idade', seguro: 'Sim', go21: 'Nao' },
-  { item: 'Restricao de regiao', seguro: 'Sim (RJ penalizado)', go21: 'Nao' },
-  { item: 'Preco medio mensal', seguro: 'R$350 — R$800', go21: 'R$89 — R$219' },
-  { item: 'Burocracia', seguro: 'Alta', go21: 'Minima' },
-  { item: 'Tempo de contratacao', seguro: '7 a 15 dias', go21: '48 horas' },
-  { item: 'Guincho', seguro: '100km (media)', go21: '200km' },
+const vsSeguro = [
+  { item: 'Análise de perfil', seguro: 'Obrigatória', go21: 'Não exigida' },
+  { item: 'Restrição de idade', seguro: 'Sim', go21: 'Não' },
+  { item: 'Restrição de região', seguro: 'Sim (RJ penalizado)', go21: 'Não' },
+  { item: 'Preço médio mensal', seguro: 'R$350 — R$800', go21: 'R$89 — R$219' },
+  { item: 'Burocracia', seguro: 'Alta', go21: 'Mínima' },
+  { item: 'Tempo de contratação', seguro: '7 a 15 dias', go21: '48 horas' },
+  { item: 'Guincho', seguro: '100km (média)', go21: '200km' },
   { item: 'Cancelamento', seguro: 'Multa proporcional', go21: 'Sem multa' },
 ]
 
 const planFAQ = [
   {
-    question: 'Qual a diferenca entre os planos Basico, Completo e Premium?',
-    answer:
-      'O Basico cobre roubo/furto e assistencia 24h. O Completo adiciona colisao, incendio e carro reserva por 7 dias. O Premium inclui tudo do Completo mais cobertura de terceiros ate R$100K, vidros, rastreamento e carro reserva estendido por 15 dias.',
+    q: 'Qual a diferença entre os planos Básico, Completo e Premium?',
+    a: 'O Básico cobre roubo/furto e assistência 24h. O Completo adiciona colisão, incêndio e carro reserva por 7 dias. O Premium inclui tudo do Completo mais cobertura de terceiros até R$100K, vidros, rastreamento e carro reserva estendido por 15 dias.',
   },
   {
-    question: 'Como e calculada a mensalidade?',
-    answer:
-      'A mensalidade e calculada com base no valor FIPE do seu veiculo multiplicado pela taxa do plano escolhido (Basico 1.8%, Completo 2.8%, Premium 3.8%), mais uma taxa administrativa fixa de R$35.',
+    q: 'Como é calculada a mensalidade?',
+    a: 'A mensalidade é calculada com base no valor FIPE do seu veículo multiplicado pela taxa do plano escolhido (Básico 1.8%, Completo 2.8%, Premium 3.8%), mais uma taxa administrativa fixa de R$35.',
   },
   {
-    question: 'Posso trocar de plano depois?',
-    answer:
-      'Sim! Voce pode fazer upgrade ou downgrade do seu plano a qualquer momento. A mudanca entra em vigor no proximo ciclo de cobranca.',
+    q: 'Posso trocar de plano depois?',
+    a: 'Sim! Você pode fazer upgrade ou downgrade do seu plano a qualquer momento. A mudança entra em vigor no próximo ciclo de cobrança.',
   },
   {
-    question: 'O que e a tabela FIPE e por que ela importa?',
-    answer:
-      'A tabela FIPE (Fundacao Instituto de Pesquisas Economicas) e a referencia de precos de veiculos no Brasil. Usamos ela para calcular sua mensalidade e para definir o valor de indenizacao em caso de sinistro de perda total.',
+    q: 'O que é a tabela FIPE e por que ela importa?',
+    a: 'A tabela FIPE (Fundação Instituto de Pesquisas Econômicas) é a referência de preços de veículos no Brasil. Usamos ela para calcular sua mensalidade e para definir o valor de indenização em caso de sinistro de perda total.',
   },
   {
-    question: 'Existe carencia?',
-    answer:
-      'Sim, ha uma carencia de 90 dias para sinistros de roubo/furto e colisao apos a ativacao. A assistencia 24h (guincho) esta disponivel imediatamente.',
+    q: 'Existe carência?',
+    a: 'Sim, há uma carência de 90 dias para sinistros de roubo/furto e colisão após a ativação. A assistência 24h (guincho) está disponível imediatamente.',
   },
 ]
 
 function FeatureCell({ value }: { value: boolean | string }) {
   if (typeof value === 'string') {
-    return <span className="font-body text-sm text-white font-medium">{value}</span>
+    return <span className="text-sm text-[#0A1E3D] font-semibold">{value}</span>
   }
   return value ? (
-    <Check className="w-5 h-5 text-green-400 mx-auto" />
+    <div className="w-6 h-6 rounded-full bg-[#10B981]/10 flex items-center justify-center mx-auto">
+      <Check className="w-3.5 h-3.5 text-[#10B981]" />
+    </div>
   ) : (
-    <X className="w-5 h-5 text-gray-600 mx-auto" />
+    <div className="w-6 h-6 rounded-full bg-[#F0F4FA] flex items-center justify-center mx-auto">
+      <X className="w-3.5 h-3.5 text-[#CBD5E1]" />
+    </div>
   )
 }
 
@@ -119,175 +108,179 @@ export default function ProtecaoVeicularPage() {
   return (
     <>
       {/* Hero */}
-      <section className="pt-32 pb-16 relative">
-        <div className="absolute inset-0 bg-gradient-to-b from-blue-950/20 to-dark-950" />
-        <div className="relative max-w-4xl mx-auto px-6 text-center">
-          <Badge variant="blue" className="mb-6">Planos de Protecao</Badge>
-          <h1 className="font-display text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6">
-            Planos de Protecao Veicular 21Go
+      <section className="pt-32 pb-16 bg-gradient-to-b from-[#0A1E3D] via-[#0D2653] to-[#1B4DA1] relative overflow-hidden">
+        <div className="pointer-events-none absolute inset-0">
+          <div className="absolute -top-32 -right-32 w-[500px] h-[500px] rounded-full bg-[#E07620]/10 blur-[120px]" />
+          <div className="absolute bottom-0 -left-32 w-[400px] h-[400px] rounded-full bg-[#1B4DA1]/20 blur-[100px]" />
+        </div>
+        <div className="relative z-10 max-w-4xl mx-auto px-6 text-center">
+          <span className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm text-[#E07620] font-semibold mb-6">
+            Planos de Proteção
+          </span>
+          <h1 className="font-[var(--font-display)] text-4xl md:text-5xl font-bold text-white mb-5">
+            Planos de Proteção Veicular 21Go
           </h1>
-          <p className="font-body text-lg text-gray-400 max-w-2xl mx-auto">
-            Protecao completa para seu veiculo a partir de R$89/mes. Sem analise de perfil, sem burocracia. Escolha o plano ideal e faca sua cotacao agora.
+          <p className="text-lg text-white/50 max-w-2xl mx-auto">
+            Proteção completa para seu veículo a partir de R$89/mês. Sem análise de perfil, sem burocracia.
           </p>
         </div>
       </section>
 
       {/* How Mutualismo Works */}
-      <section className="py-24">
-        <div className="max-w-6xl mx-auto px-6">
-          <SectionHeading
-            badge="Mutualismo"
-            title="Como funciona a protecao veicular"
-            subtitle="Diferente do seguro, a protecao veicular funciona pelo principio do mutualismo — todos cuidam de todos."
-          />
+      <section className="py-20 bg-[#F7F8FC]">
+        <div className="max-w-5xl mx-auto px-6">
+          <div className="text-center mb-14">
+            <span className="inline-block text-xs font-bold text-[#E07620] bg-[#E07620]/10 px-3 py-1 rounded-full uppercase tracking-wider mb-4">
+              Mutualismo
+            </span>
+            <h2 className="font-[var(--font-display)] text-3xl font-bold text-[#0A1E3D] mb-3">
+              Como funciona a proteção veicular
+            </h2>
+            <p className="text-[#64748B] max-w-xl mx-auto">
+              Diferente do seguro, a proteção veicular funciona pelo princípio do mutualismo — todos cuidam de todos.
+            </p>
+          </div>
 
-          <div className="grid md:grid-cols-3 gap-6 mt-16">
+          <div className="grid md:grid-cols-3 gap-6">
             {mutualSteps.map((step, i) => (
-              <div key={step.title} className="relative">
-                <Card hover className="p-8 text-center h-full">
-                  <div className="w-12 h-12 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center mx-auto mb-4">
-                    <step.icon className="w-6 h-6 text-blue-400" />
-                  </div>
-                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 w-7 h-7 rounded-full bg-dark-800 border border-blue-500/30 flex items-center justify-center">
-                    <span className="text-xs font-display font-bold text-blue-300">{i + 1}</span>
-                  </div>
-                  <h3 className="font-display text-lg font-semibold text-white mb-2">{step.title}</h3>
-                  <p className="font-body text-sm text-gray-400">{step.description}</p>
-                </Card>
+              <div key={step.title} className="relative bg-white rounded-2xl border border-[#E8ECF4] p-8 text-center hover:shadow-lg hover:shadow-black/[0.03] transition-all">
+                <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 w-7 h-7 rounded-full bg-[#1B4DA1] text-white text-xs font-bold flex items-center justify-center">
+                  {i + 1}
+                </div>
+                <div className="w-14 h-14 rounded-2xl bg-[#1B4DA1]/5 flex items-center justify-center mx-auto mb-5">
+                  <step.icon className="w-7 h-7 text-[#1B4DA1]" />
+                </div>
+                <h3 className="font-[var(--font-display)] text-lg font-semibold text-[#0A1E3D] mb-2">{step.title}</h3>
+                <p className="text-sm text-[#64748B] leading-relaxed">{step.description}</p>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Full Plan Comparison Table */}
-      <section className="py-24">
+      {/* Plan Comparison Table */}
+      <section className="py-20 bg-white">
         <div className="max-w-4xl mx-auto px-6">
-          <SectionHeading
-            badge="Comparativo"
-            title="Compare os planos"
-            subtitle="Veja lado a lado o que cada plano oferece."
-          />
-
-          <div className="mt-16 rounded-2xl border border-dark-700/50 overflow-hidden">
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead>
-                  <tr className="bg-dark-800/80">
-                    <th className="text-left font-display text-sm font-semibold text-gray-300 px-6 py-4">
-                      Cobertura
-                    </th>
-                    <th className="text-center font-display text-sm font-semibold text-gray-300 px-6 py-4">
-                      Basico
-                    </th>
-                    <th className="text-center font-display text-sm font-semibold text-orange-400 px-6 py-4 bg-orange-500/5">
-                      Completo
-                    </th>
-                    <th className="text-center font-display text-sm font-semibold text-gray-300 px-6 py-4">
-                      Premium
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {comparisonFeatures.map((row, i) => (
-                    <tr
-                      key={row.feature}
-                      className={`border-t border-dark-700/30 ${i % 2 === 0 ? '' : 'bg-dark-800/20'}`}
-                    >
-                      <td className="font-body text-sm text-gray-300 px-6 py-3">{row.feature}</td>
-                      <td className="text-center px-6 py-3">
-                        <FeatureCell value={row.basico} />
-                      </td>
-                      <td className="text-center px-6 py-3 bg-orange-500/5">
-                        <FeatureCell value={row.completo} />
-                      </td>
-                      <td className="text-center px-6 py-3">
-                        <FeatureCell value={row.premium} />
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+          <div className="text-center mb-14">
+            <span className="inline-block text-xs font-bold text-[#E07620] bg-[#E07620]/10 px-3 py-1 rounded-full uppercase tracking-wider mb-4">
+              Comparativo
+            </span>
+            <h2 className="font-[var(--font-display)] text-3xl font-bold text-[#0A1E3D] mb-3">
+              Compare os planos
+            </h2>
+            <p className="text-[#64748B]">Veja lado a lado o que cada plano oferece.</p>
           </div>
 
-          <div className="text-center mt-8">
-            <Button variant="cta" size="lg" href="/cotacao">
-              Fazer Cotacao Agora
-              <ArrowRight className="w-4 h-4 ml-2" />
-            </Button>
+          <div className="rounded-2xl border border-[#E8ECF4] overflow-hidden shadow-sm">
+            <table className="w-full">
+              <thead>
+                <tr className="bg-[#0A1E3D]">
+                  <th className="text-left text-sm font-semibold text-white/70 px-6 py-4 w-[35%]">Cobertura</th>
+                  <th className="text-center text-sm font-semibold text-white/70 px-4 py-4">Básico</th>
+                  <th className="text-center text-sm font-semibold text-[#E07620] px-4 py-4 bg-white/5">
+                    <div className="flex flex-col items-center">
+                      <span className="text-[10px] text-[#E07620] bg-[#E07620]/20 px-2 py-0.5 rounded-full mb-1">Popular</span>
+                      Completo
+                    </div>
+                  </th>
+                  <th className="text-center text-sm font-semibold text-white/70 px-4 py-4">Premium</th>
+                </tr>
+              </thead>
+              <tbody>
+                {comparisonFeatures.map((row, i) => (
+                  <tr key={row.feature} className={`border-t border-[#E8ECF4] ${i % 2 === 0 ? 'bg-white' : 'bg-[#F7F8FC]'}`}>
+                    <td className="text-sm text-[#475569] px-6 py-3.5 font-medium">{row.feature}</td>
+                    <td className="text-center px-4 py-3.5"><FeatureCell value={row.basico} /></td>
+                    <td className="text-center px-4 py-3.5 bg-[#E07620]/[0.02]"><FeatureCell value={row.completo} /></td>
+                    <td className="text-center px-4 py-3.5"><FeatureCell value={row.premium} /></td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          <div className="text-center mt-10">
+            <Link href="/cotacao" className="inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-[#E07620] to-[#F08C28] text-white font-bold rounded-full shadow-lg shadow-[#E07620]/20 hover:shadow-xl hover:shadow-[#E07620]/30 hover:scale-[1.02] active:scale-[0.98] transition-all">
+              Fazer Cotação Agora <ArrowRight className="w-4 h-4" />
+            </Link>
           </div>
         </div>
       </section>
 
       {/* Seguro vs 21Go */}
-      <section className="py-24">
+      <section className="py-20 bg-[#F7F8FC]">
         <div className="max-w-4xl mx-auto px-6">
-          <SectionHeading
-            badge="Comparacao"
-            title="Seguro Tradicional vs 21Go"
-            subtitle="Veja por que cada vez mais motoristas estao escolhendo a protecao veicular."
-          />
+          <div className="text-center mb-14">
+            <span className="inline-block text-xs font-bold text-[#E07620] bg-[#E07620]/10 px-3 py-1 rounded-full uppercase tracking-wider mb-4">
+              Comparação
+            </span>
+            <h2 className="font-[var(--font-display)] text-3xl font-bold text-[#0A1E3D] mb-3">
+              Seguro Tradicional vs 21Go
+            </h2>
+            <p className="text-[#64748B]">Veja por que cada vez mais motoristas estão escolhendo a proteção veicular.</p>
+          </div>
 
-          <div className="mt-16 rounded-2xl border border-dark-700/50 overflow-hidden">
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead>
-                  <tr className="bg-dark-800/80">
-                    <th className="text-left font-display text-sm font-semibold text-gray-300 px-6 py-4">
-                      Item
-                    </th>
-                    <th className="text-center font-display text-sm font-semibold text-gray-400 px-6 py-4">
-                      <div className="flex items-center justify-center gap-2">
-                        <Building2 className="w-4 h-4" />
-                        Seguro
-                      </div>
-                    </th>
-                    <th className="text-center font-display text-sm font-semibold text-blue-400 px-6 py-4 bg-blue-500/5">
-                      <div className="flex items-center justify-center gap-2">
-                        <Sparkles className="w-4 h-4" />
-                        21Go
-                      </div>
-                    </th>
+          <div className="rounded-2xl border border-[#E8ECF4] overflow-hidden shadow-sm bg-white">
+            <table className="w-full">
+              <thead>
+                <tr className="bg-[#0A1E3D]">
+                  <th className="text-left text-sm font-semibold text-white/70 px-6 py-4">Item</th>
+                  <th className="text-center text-sm font-semibold text-white/50 px-6 py-4">
+                    <div className="flex items-center justify-center gap-2">
+                      <Building2 className="w-4 h-4" /> Seguro
+                    </div>
+                  </th>
+                  <th className="text-center text-sm font-semibold text-[#E07620] px-6 py-4 bg-white/5">
+                    <div className="flex items-center justify-center gap-2">
+                      <Sparkles className="w-4 h-4" /> 21Go
+                    </div>
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {vsSeguro.map((row, i) => (
+                  <tr key={row.item} className={`border-t border-[#E8ECF4] ${i % 2 === 0 ? '' : 'bg-[#F7F8FC]'}`}>
+                    <td className="text-sm text-[#475569] px-6 py-3.5 font-medium">{row.item}</td>
+                    <td className="text-sm text-[#94A3B8] text-center px-6 py-3.5">{row.seguro}</td>
+                    <td className="text-sm text-[#10B981] text-center px-6 py-3.5 font-semibold bg-[#10B981]/[0.02]">{row.go21}</td>
                   </tr>
-                </thead>
-                <tbody>
-                  {vsSeguro.map((row, i) => (
-                    <tr
-                      key={row.item}
-                      className={`border-t border-dark-700/30 ${i % 2 === 0 ? '' : 'bg-dark-800/20'}`}
-                    >
-                      <td className="font-body text-sm text-gray-300 px-6 py-3">{row.item}</td>
-                      <td className="font-body text-sm text-gray-500 text-center px-6 py-3">{row.seguro}</td>
-                      <td className="font-body text-sm text-green-400 text-center px-6 py-3 bg-blue-500/5 font-medium">
-                        {row.go21}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                ))}
+              </tbody>
+            </table>
           </div>
         </div>
       </section>
 
-      {/* Plan-specific FAQ */}
-      <section className="py-24">
+      {/* FAQ */}
+      <section className="py-20 bg-white">
         <div className="max-w-3xl mx-auto px-6">
-          <SectionHeading
-            badge="Duvidas"
-            title="Duvidas sobre os planos"
-          />
+          <div className="text-center mb-14">
+            <span className="inline-block text-xs font-bold text-[#E07620] bg-[#E07620]/10 px-3 py-1 rounded-full uppercase tracking-wider mb-4">
+              Dúvidas
+            </span>
+            <h2 className="font-[var(--font-display)] text-3xl font-bold text-[#0A1E3D]">
+              Dúvidas sobre os planos
+            </h2>
+          </div>
 
-          <div className="mt-16">
-            <Accordion items={planFAQ} />
+          <div className="space-y-3">
+            {planFAQ.map((item) => (
+              <details key={item.q} className="group bg-[#F7F8FC] rounded-xl border border-[#E8ECF4] overflow-hidden">
+                <summary className="flex items-center justify-between px-6 py-4 cursor-pointer list-none text-[#0A1E3D] font-semibold text-[15px] hover:bg-[#F0F4FA] transition-colors">
+                  {item.q}
+                  <ChevronDown className="w-5 h-5 text-[#94A3B8] group-open:rotate-180 transition-transform flex-shrink-0 ml-4" />
+                </summary>
+                <div className="px-6 pb-5 text-sm text-[#64748B] leading-relaxed">
+                  {item.a}
+                </div>
+              </details>
+            ))}
           </div>
 
           <div className="text-center mt-10">
-            <Button variant="ghost" href="/faq">
-              Ver todas as perguntas
-              <ArrowRight className="w-4 h-4 ml-2" />
-            </Button>
+            <Link href="/faq" className="inline-flex items-center gap-2 text-sm font-semibold text-[#1B4DA1] hover:text-[#3D72DE] transition-colors">
+              Ver todas as perguntas <ArrowRight className="w-4 h-4" />
+            </Link>
           </div>
         </div>
       </section>

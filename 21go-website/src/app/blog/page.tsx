@@ -1,5 +1,5 @@
 import { Metadata } from 'next'
-import { Calendar, ArrowRight } from 'lucide-react'
+import { Calendar, ArrowRight, Clock } from 'lucide-react'
 import Link from 'next/link'
 import { getAllPosts } from '@/lib/blog'
 
@@ -9,13 +9,13 @@ export const metadata: Metadata = {
 }
 
 const categoryColors: Record<string, string> = {
-  Seguranca: 'bg-[#EF4444]/10 text-[#EF4444]',
-  Dicas: 'bg-[#1B4DA1]/10 text-[#1B4DA1]',
-  Guia: 'bg-[#1B4DA1]/10 text-[#1B4DA1]',
-  Economia: 'bg-[#10B981]/10 text-[#10B981]',
-  Tecnologia: 'bg-[#8B5CF6]/10 text-[#8B5CF6]',
-  Comparativo: 'bg-[#E07620]/10 text-[#E07620]',
-  Geral: 'bg-[#64748B]/10 text-[#64748B]',
+  Seguranca: 'bg-[#EF4444]/10 text-[#EF4444] border-[#EF4444]/20',
+  Dicas: 'bg-[#1B4DA1]/10 text-[#1B4DA1] border-[#1B4DA1]/20',
+  Guia: 'bg-[#1B4DA1]/10 text-[#1B4DA1] border-[#1B4DA1]/20',
+  Economia: 'bg-[#10B981]/10 text-[#10B981] border-[#10B981]/20',
+  Tecnologia: 'bg-[#8B5CF6]/10 text-[#8B5CF6] border-[#8B5CF6]/20',
+  Comparativo: 'bg-[#E07620]/10 text-[#E07620] border-[#E07620]/20',
+  Geral: 'bg-[#64748B]/10 text-[#64748B] border-[#64748B]/20',
 }
 
 export default function BlogPage() {
@@ -24,44 +24,60 @@ export default function BlogPage() {
   return (
     <>
       {/* Hero */}
-      <section className="pt-32 pb-16 bg-gradient-to-b from-[#0A1E3D] to-[#1B4DA1]">
-        <div className="max-w-4xl mx-auto px-6 text-center">
-          <h1 className="font-[var(--font-outfit)] text-4xl md:text-5xl font-bold text-white mb-6">
+      <section className="pt-32 pb-16 bg-gradient-to-b from-[#0A1E3D] via-[#0D2653] to-[#1B4DA1] relative overflow-hidden">
+        <div className="pointer-events-none absolute inset-0">
+          <div className="absolute -top-32 -right-32 w-[500px] h-[500px] rounded-full bg-[#E07620]/10 blur-[120px]" />
+          <div className="absolute bottom-0 -left-32 w-[400px] h-[400px] rounded-full bg-[#1B4DA1]/20 blur-[100px]" />
+        </div>
+        <div className="relative z-10 max-w-4xl mx-auto px-6 text-center">
+          <span className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm text-white/60 mb-6">
+            <span className="w-1.5 h-1.5 rounded-full bg-[#E07620]" />
+            Conteúdo exclusivo
+          </span>
+          <h1 className="font-[var(--font-display)] text-4xl md:text-5xl font-bold text-white mb-4">
             Blog 21Go
           </h1>
-          <p className="text-lg text-white/70 max-w-2xl mx-auto">
-            Artigos, dicas e guias para voce tomar decisoes mais inteligentes sobre seu veiculo.
+          <p className="text-lg text-white/50 max-w-2xl mx-auto">
+            Artigos, dicas e guias para você tomar decisões mais inteligentes sobre seu veículo.
           </p>
         </div>
       </section>
 
       {/* Posts grid */}
-      <section className="py-16 bg-[#FAFBFC]">
+      <section className="py-16 bg-[#F7F8FC]">
         <div className="max-w-6xl mx-auto px-6">
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {posts.map((post) => (
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-7">
+            {posts.map((post, i) => (
               <Link
                 key={post.slug}
                 href={`/blog/${post.slug}`}
-                className="group bg-white rounded-2xl border border-[#E2E8F0] overflow-hidden hover:shadow-md hover:-translate-y-1 transition-all duration-300"
+                className={`group bg-white rounded-2xl border border-[#E8ECF4] overflow-hidden hover:shadow-xl hover:shadow-black/[0.04] hover:-translate-y-1 transition-all duration-300 ${
+                  i === 0 ? 'md:col-span-2 lg:col-span-2' : ''
+                }`}
               >
-                {/* Image placeholder */}
-                <div className="h-44 bg-gradient-to-br from-[#F0F4FA] to-[#E2E8F0] flex items-center justify-center">
-                  <span className="font-[var(--font-outfit)] text-3xl font-bold text-[#1B4DA1]/20">21Go</span>
+                {/* Cover gradient */}
+                <div className={`${i === 0 ? 'h-56' : 'h-44'} bg-gradient-to-br from-[#0A1E3D] to-[#1B4DA1] relative overflow-hidden flex items-end p-6`}>
+                  <div className="absolute inset-0 bg-[url('/grid-pattern.svg')] opacity-[0.06]" />
+                  <span className={`relative z-10 text-xs font-bold px-3 py-1 rounded-full border ${categoryColors[post.category] || categoryColors.Geral}`}>
+                    {post.category}
+                  </span>
                 </div>
 
                 <div className="p-6">
-                  <div className="flex items-center gap-3 mb-3">
-                    <span className={`text-xs font-semibold px-2.5 py-1 rounded-full ${categoryColors[post.category] || categoryColors.Geral}`}>
-                      {post.category}
-                    </span>
-                    <div className="flex items-center gap-1 text-[#64748B]">
-                      <Calendar className="w-3 h-3" />
-                      <span className="text-xs">{new Date(post.date).toLocaleDateString('pt-BR', { day: 'numeric', month: 'short', year: 'numeric' })}</span>
+                  <div className="flex items-center gap-4 mb-3 text-xs text-[#94A3B8]">
+                    <div className="flex items-center gap-1.5">
+                      <Calendar className="w-3.5 h-3.5" />
+                      <span>{new Date(post.date).toLocaleDateString('pt-BR', { day: 'numeric', month: 'short', year: 'numeric' })}</span>
+                    </div>
+                    <div className="flex items-center gap-1.5">
+                      <Clock className="w-3.5 h-3.5" />
+                      <span>{post.readTime} min</span>
                     </div>
                   </div>
 
-                  <h2 className="font-[var(--font-outfit)] text-base font-semibold text-[#0A1E3D] mb-2 leading-tight group-hover:text-[#1B4DA1] transition-colors">
+                  <h2 className={`font-[var(--font-display)] font-semibold text-[#0A1E3D] mb-2.5 leading-tight group-hover:text-[#1B4DA1] transition-colors ${
+                    i === 0 ? 'text-xl' : 'text-base'
+                  }`}>
                     {post.title}
                   </h2>
 
@@ -69,8 +85,8 @@ export default function BlogPage() {
                     {post.description}
                   </p>
 
-                  <span className="inline-flex items-center gap-1 text-sm font-medium text-[#1B4DA1]">
-                    Ler mais <ArrowRight className="w-3.5 h-3.5" />
+                  <span className="inline-flex items-center gap-1.5 text-sm font-semibold text-[#1B4DA1] group-hover:gap-2.5 transition-all">
+                    Ler artigo <ArrowRight className="w-3.5 h-3.5" />
                   </span>
                 </div>
               </Link>
