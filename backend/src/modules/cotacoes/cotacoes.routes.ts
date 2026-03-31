@@ -1,6 +1,7 @@
 import { FastifyInstance } from 'fastify'
 import { authenticate } from '../../middlewares/authenticate'
 import { prisma } from '../../config/database'
+import { getApplicablePlans } from '../plate-lookup/pricing'
 
 export async function cotacoesRoutes(fastify: FastifyInstance) {
   fastify.addHook('onRequest', authenticate)
@@ -41,11 +42,17 @@ export async function cotacoesRoutes(fastify: FastifyInstance) {
     const { companyId } = (request as any).user
     const body = request.body as any
 
-    // Calculo da mensalidade: valor_fipe * taxa_plano + R$35
-    const taxas: Record<string, number> = { basico: 0.018, completo: 0.028, premium: 0.038 }
-    const taxaAdmin = 35.0
-    const taxaPlano = taxas[body.plano] || 0.028
-    const valorMensal = (body.valorFipe * taxaPlano) + taxaAdmin
+    // Busca preco na tabela real
+    const applicablePlans = getApplicablePlans(
+      body.valorFipe,
+      body.categoria,
+      body.combustivel,
+      body.cilindrada,
+    )
+    const matched = applicablePlans.find(p => p.id === body.plano) || applicablePlans[0]
+    const valorMensal = matched?.monthly || 0
+    const taxaPlano = 0
+    const taxaAdmin = 0
 
     const cotacao = await prisma.cotacao.create({
       data: {
@@ -66,22 +73,23 @@ export async function cotacoesRoutes(fastify: FastifyInstance) {
     return reply.status(201).send(cotacao)
   })
 
-  // POST /cotacoes/calcular — calculo FIPE rapido
+  // POST /cotacoes/calcular — calculo por tabela real
   fastify.post('/calcular', async (request, reply) => {
     const body = request.body as any
-    const taxas: Record<string, number> = { basico: 0.018, completo: 0.028, premium: 0.038 }
-    const taxaAdmin = 35.0
+    const plans = getApplicablePlans(
+      body.valorFipe,
+      body.categoria,
+      body.combustivel,
+      body.cilindrada,
+    )
 
-    const resultados = (body.planos || ['basico', 'completo', 'premium']).map((plano: string) => {
-      const taxa = taxas[plano] || 0.028
-      return {
-        plano,
-        taxa,
-        taxaAdmin,
-        valorFipe: body.valorFipe,
-        valorMensal: Math.round((body.valorFipe * taxa + taxaAdmin) * 100) / 100,
-      }
-    })
+    const resultados = plans.map(p => ({
+      plano: p.id,
+      nome: p.name,
+      valorFipe: body.valorFipe,
+      valorMensal: p.monthly,
+      popular: p.popular || false,
+    }))
 
     return reply.send({ resultados })
   })

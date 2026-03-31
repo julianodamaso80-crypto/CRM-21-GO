@@ -1,8 +1,7 @@
 import axios from 'axios'
 import { prisma } from '../../config/database'
+import { getApplicablePlans, type QuotePlan } from './pricing'
 
-const TAXA_ADMIN = 35
-const TAXAS = { basico: 0.018, completo: 0.028, premium: 0.038 } as const
 const API_TIMEOUT = 10000
 
 /* ─── API Brasil Response Types ─── */
@@ -18,6 +17,7 @@ interface ApiBrasilVeiculo {
   categoria: string
   valor: number
   principal: boolean
+  cilindrada?: number
 }
 
 interface ApiBrasilResponse {
@@ -39,21 +39,15 @@ export interface PlateResponse {
     cor: string
     fipeValue: number
     fipeCode: string
+    categoria: string
+    combustivel: string
   }
-  plans: {
-    basico: { monthly: number; name: string }
-    completo: { monthly: number; name: string }
-    premium: { monthly: number; name: string }
-  }
+  plans: QuotePlan[]
 }
 
 export interface PlateErrorResponse {
   success: false
   error: string
-}
-
-function calcMonthly(fipeValue: number, plan: keyof typeof TAXAS): number {
-  return Math.round((fipeValue * TAXAS[plan]) / 12 + TAXA_ADMIN)
 }
 
 // Safe DB operations — don't crash if table doesn't exist yet
@@ -123,6 +117,14 @@ export async function lookupPlate(placa: string): Promise<PlateResponse | PlateE
       return { success: false, error: 'Valor FIPE não encontrado para este veículo' }
     }
 
+    // Usa tabela real de precos
+    const plans = getApplicablePlans(
+      fipeValue,
+      veiculo.categoria,
+      veiculo.combustivel,
+      veiculo.cilindrada,
+    )
+
     const response: PlateResponse = {
       success: true,
       vehicle: {
@@ -132,12 +134,10 @@ export async function lookupPlate(placa: string): Promise<PlateResponse | PlateE
         cor: veiculo.cor,
         fipeValue,
         fipeCode: veiculo.codigoFipe,
+        categoria: veiculo.categoria,
+        combustivel: veiculo.combustivel,
       },
-      plans: {
-        basico: { monthly: calcMonthly(fipeValue, 'basico'), name: 'Básico' },
-        completo: { monthly: calcMonthly(fipeValue, 'completo'), name: 'Completo' },
-        premium: { monthly: calcMonthly(fipeValue, 'premium'), name: 'Premium' },
-      },
+      plans,
     }
 
     await tryLog({ placa: normalized, success: true, fromCache: false, fipeValue, marca: veiculo.marca, modelo: veiculo.modelo, ano: veiculo.anoModelo, result: response as any })

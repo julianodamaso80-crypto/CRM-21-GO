@@ -17,6 +17,14 @@ import {
   Loader2,
   AlertCircle,
 } from 'lucide-react'
+import {
+  type PlanId,
+  type QuotePlan,
+  type PlanInfo,
+  PLAN_INFO,
+  formatPrice,
+  getApplicablePlans,
+} from '@/data/pricing'
 
 /* ─── Types ─── */
 interface FormData {
@@ -34,12 +42,8 @@ interface VehicleData {
   cor: string
   fipeValue: number
   fipeCode: string
-}
-
-interface PlansData {
-  basico: { monthly: number; name: string }
-  completo: { monthly: number; name: string }
-  premium: { monthly: number; name: string }
+  categoria?: string
+  combustivel?: string
 }
 
 /* ─── API Config ─── */
@@ -57,44 +61,6 @@ function maskPlaca(v: string) {
   return v.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 7)
 }
 
-/* ─── Coberturas ─── */
-const COBERTURA_BASICO = [
-  { text: 'Furto e Roubo — Reembolso FIPE', included: true },
-  { text: 'Assistência 24h + Guincho 200km', included: true },
-  { text: 'Colisão Total e Parcial', included: false },
-  { text: 'Incêndio', included: false },
-  { text: 'Carro Reserva', included: false },
-  { text: 'Terceiros até R$100K', included: false },
-  { text: 'Vidros e Retrovisores', included: false },
-  { text: 'Rastreamento', included: false },
-]
-const COBERTURA_COMPLETO = [
-  { text: 'Furto e Roubo — Reembolso FIPE', included: true },
-  { text: 'Assistência 24h + Guincho 200km', included: true },
-  { text: 'Colisão Total e Parcial', included: true },
-  { text: 'Incêndio', included: true },
-  { text: 'Carro Reserva 7 dias', included: true },
-  { text: 'Terceiros até R$100K', included: false },
-  { text: 'Vidros e Retrovisores', included: false },
-  { text: 'Rastreamento', included: false },
-]
-const COBERTURA_PREMIUM = [
-  { text: 'Furto e Roubo — Reembolso FIPE', included: true },
-  { text: 'Assistência 24h + Guincho 200km', included: true },
-  { text: 'Colisão Total e Parcial', included: true },
-  { text: 'Incêndio', included: true },
-  { text: 'Carro Reserva 15 dias', included: true },
-  { text: 'Terceiros até R$100K', included: true },
-  { text: 'Vidros e Retrovisores', included: true },
-  { text: 'Rastreamento incluso', included: true },
-]
-
-const COBERTURAS: Record<string, typeof COBERTURA_BASICO> = {
-  basico: COBERTURA_BASICO,
-  completo: COBERTURA_COMPLETO,
-  premium: COBERTURA_PREMIUM,
-}
-
 /* ─── Steps ─── */
 const STEPS = [
   { num: '01', label: 'Seus Dados' },
@@ -105,14 +71,14 @@ const STEPS = [
 export default function CotacaoPage() {
   const [step, setStep] = useState(1)
   const [errors, setErrors] = useState<Record<string, string>>({})
-  const [selectedPlan, setSelectedPlan] = useState<'basico' | 'completo' | 'premium'>('completo')
+  const [selectedPlanIdx, setSelectedPlanIdx] = useState(0)
   const [showCoberturas, setShowCoberturas] = useState(true)
 
   // API state
   const [loading, setLoading] = useState(false)
   const [apiError, setApiError] = useState('')
   const [vehicle, setVehicle] = useState<VehicleData | null>(null)
-  const [plans, setPlans] = useState<PlansData | null>(null)
+  const [plans, setPlans] = useState<QuotePlan[]>([])
 
   const [form, setForm] = useState<FormData>({
     nome: '',
@@ -150,20 +116,30 @@ export default function CotacaoPage() {
 
       if (data.success) {
         setVehicle(data.vehicle)
-        setPlans(data.plans)
+
+        // A API agora retorna um array de planos
+        const apiPlans: QuotePlan[] = data.plans
+        setPlans(apiPlans)
+
+        // Selecionar o plano popular por padrao, senao o primeiro
+        const popularIdx = apiPlans.findIndex(p => p.popular)
+        setSelectedPlanIdx(popularIdx >= 0 ? popularIdx : 0)
         setStep(2)
 
-        // Track cotação completa with vehicle data
-        trackCotacaoCompleta({
-          marca: data.vehicle.marca,
-          modelo: data.vehicle.modelo,
-          ano: data.vehicle.ano,
-          plano: 'completo',
-          valorMensal: data.plans.completo.monthly,
-          valorFipe: data.vehicle.fipeValue,
-          email: form.email || undefined,
-          phone: form.whatsapp || undefined,
-        })
+        // Track cotação completa
+        const defaultPlan = apiPlans[popularIdx >= 0 ? popularIdx : 0]
+        if (defaultPlan) {
+          trackCotacaoCompleta({
+            marca: data.vehicle.marca,
+            modelo: data.vehicle.modelo,
+            ano: data.vehicle.ano,
+            plano: defaultPlan.name,
+            valorMensal: defaultPlan.monthly,
+            valorFipe: data.vehicle.fipeValue,
+            email: form.email || undefined,
+            phone: form.whatsapp || undefined,
+          })
+        }
       } else {
         setApiError(data.error || 'Veículo não encontrado.')
       }
@@ -174,15 +150,13 @@ export default function CotacaoPage() {
     }
   }
 
-  // Get price from API plans or fallback
-  function getPrice(plan: 'basico' | 'completo' | 'premium'): number {
-    if (plans) return plans[plan].monthly
-    return 0
-  }
-
-  const price = getPrice(selectedPlan)
+  const selectedPlan = plans[selectedPlanIdx] || null
+  const planInfo = selectedPlan ? PLAN_INFO[selectedPlan.id as PlanId] : null
+  const price = selectedPlan?.monthly || 0
+  const priceFormatted = formatPrice(price)
   const vehicleLabel = vehicle ? `${vehicle.marca} ${vehicle.modelo} ${vehicle.ano}` : ''
   const fipeFormatted = vehicle ? vehicle.fipeValue.toLocaleString('pt-BR') : '0'
+  const firstPayment = formatPrice(price + 299.90)
 
   return (
     <div className="min-h-screen bg-[#F7F8FC] relative">
@@ -379,7 +353,7 @@ export default function CotacaoPage() {
           )}
 
           {/* ── STEP 2: Resultado ── */}
-          {step === 2 && vehicle && plans && (
+          {step === 2 && vehicle && plans.length > 0 && selectedPlan && (
             <div className="max-w-5xl mx-auto pt-28">
               {/* Header */}
               <div className="text-center mb-10">
@@ -400,18 +374,18 @@ export default function CotacaoPage() {
                 {/* Coberturas */}
                 <div className="bg-white rounded-3xl shadow-xl shadow-black/[0.04] border border-[#E8ECF4] p-6 md:p-8">
                   {/* Plan tabs */}
-                  <div className="flex gap-1 bg-[#F0F4FA] rounded-2xl p-1.5 mb-8">
-                    {(['basico', 'completo', 'premium'] as const).map(plan => (
-                      <button key={plan} onClick={() => setSelectedPlan(plan)}
-                        className={`relative flex-1 py-3 rounded-xl text-sm font-semibold transition-all duration-200 ${
-                          selectedPlan === plan
+                  <div className={`flex gap-1 bg-[#F0F4FA] rounded-2xl p-1.5 mb-8 ${plans.length > 4 ? 'flex-wrap' : ''}`}>
+                    {plans.map((plan, idx) => (
+                      <button key={plan.id} onClick={() => setSelectedPlanIdx(idx)}
+                        className={`relative flex-1 min-w-[100px] py-3 rounded-xl text-sm font-semibold transition-all duration-200 ${
+                          selectedPlanIdx === idx
                             ? 'bg-white text-[#0A1E3D] shadow-md'
                             : 'text-[#64748B] hover:text-[#0A1E3D]'
                         }`}>
-                        {plans[plan].name}
-                        {plan === 'completo' && (
-                          <span className="absolute -top-2 left-1/2 -translate-x-1/2 text-[9px] font-bold text-[#E07620] bg-[#E07620]/10 px-2 py-0.5 rounded-full uppercase tracking-wider">
-                            Popular
+                        {plan.name}
+                        {plan.popular && (
+                          <span className="absolute -top-2 left-1/2 -translate-x-1/2 text-[9px] font-bold text-[#E07620] bg-[#E07620]/10 px-2 py-0.5 rounded-full uppercase tracking-wider whitespace-nowrap">
+                            Mais escolhido
                           </span>
                         )}
                       </button>
@@ -425,14 +399,31 @@ export default function CotacaoPage() {
                     {showCoberturas ? <ChevronUp className="w-4 h-4 text-[#94A3B8]" /> : <ChevronDown className="w-4 h-4 text-[#94A3B8]" />}
                   </button>
 
-                  {showCoberturas && (
+                  {showCoberturas && planInfo && (
                     <ul className="space-y-3.5">
-                      {COBERTURAS[selectedPlan].map(c => (
+                      {planInfo.features.map(c => (
                         <li key={c.text} className="flex items-center gap-3">
-                          {c.included
-                            ? <div className="w-6 h-6 rounded-full bg-[#10B981]/10 flex items-center justify-center flex-shrink-0"><Check className="w-3.5 h-3.5 text-[#10B981]" /></div>
-                            : <div className="w-6 h-6 rounded-full bg-[#F0F4FA] flex items-center justify-center flex-shrink-0"><X className="w-3.5 h-3.5 text-[#CBD5E1]" /></div>}
-                          <span className={`text-sm ${c.included ? 'text-[#0A1E3D] font-medium' : 'text-[#CBD5E1] line-through'}`}>{c.text}</span>
+                          {c.included ? (
+                            c.highlight ? (
+                              <div className="w-6 h-6 rounded-full bg-[#E07620]/10 flex items-center justify-center flex-shrink-0"><Check className="w-3.5 h-3.5 text-[#E07620]" /></div>
+                            ) : c.upgrade ? (
+                              <div className="w-6 h-6 rounded-full bg-[#1B4DA1]/10 flex items-center justify-center flex-shrink-0"><ArrowRight className="w-3.5 h-3.5 text-[#1B4DA1]" /></div>
+                            ) : (
+                              <div className="w-6 h-6 rounded-full bg-[#10B981]/10 flex items-center justify-center flex-shrink-0"><Check className="w-3.5 h-3.5 text-[#10B981]" /></div>
+                            )
+                          ) : (
+                            <div className="w-6 h-6 rounded-full bg-[#F0F4FA] flex items-center justify-center flex-shrink-0"><X className="w-3.5 h-3.5 text-[#CBD5E1]" /></div>
+                          )}
+                          <span className={`text-sm ${
+                            !c.included ? 'text-[#CBD5E1] line-through' :
+                            c.highlight ? 'text-[#0A1E3D] font-semibold' :
+                            c.upgrade ? 'text-[#1B4DA1] font-medium' :
+                            'text-[#0A1E3D] font-medium'
+                          }`}>
+                            {c.text}
+                            {c.highlight && <span className="ml-1.5 text-[9px] font-bold text-[#E07620] bg-[#E07620]/10 px-1.5 py-0.5 rounded-full uppercase">Novo</span>}
+                            {c.upgrade && <span className="ml-1.5 text-[9px] font-bold text-[#1B4DA1] bg-[#1B4DA1]/10 px-1.5 py-0.5 rounded-full uppercase">Upgrade</span>}
+                          </span>
                         </li>
                       ))}
                     </ul>
@@ -442,10 +433,10 @@ export default function CotacaoPage() {
                 {/* Preço / CTA */}
                 <div className="bg-white rounded-3xl shadow-xl shadow-black/[0.04] border border-[#E8ECF4] p-6 md:p-8 h-fit lg:sticky lg:top-28">
                   <div className="text-center mb-6">
-                    <p className="text-sm text-[#64748B] mb-1">Plano {plans[selectedPlan].name}</p>
+                    <p className="text-sm text-[#64748B] mb-1">Plano {selectedPlan.name}</p>
                     <div className="flex items-baseline justify-center gap-1">
                       <span className="text-lg text-[#64748B] font-medium">R$</span>
-                      <span className="font-[var(--font-display)] text-6xl font-bold text-[#0A1E3D] leading-none">{price}</span>
+                      <span className="font-[var(--font-display)] text-5xl font-bold text-[#0A1E3D] leading-none">{priceFormatted}</span>
                       <span className="text-lg text-[#64748B] font-medium">/mês</span>
                     </div>
                   </div>
@@ -453,7 +444,7 @@ export default function CotacaoPage() {
                   <div className="border-t border-[#E8ECF4] pt-4 mb-6 space-y-2.5 text-sm">
                     <div className="flex justify-between text-[#64748B]">
                       <span>Mensalidade</span>
-                      <span className="font-medium">R$ {price},00</span>
+                      <span className="font-medium">R$ {priceFormatted}</span>
                     </div>
                     <div className="flex justify-between text-[#64748B]">
                       <span>Taxa de ativação (única)</span>
@@ -461,13 +452,13 @@ export default function CotacaoPage() {
                     </div>
                     <div className="flex justify-between font-bold text-[#0A1E3D] pt-3 border-t border-[#E8ECF4]">
                       <span>1º pagamento</span>
-                      <span>R$ {price + 299},90</span>
+                      <span>R$ {firstPayment}</span>
                     </div>
                   </div>
 
-                  <a href={`https://wa.me/5521965700021?text=${encodeURIComponent(`Olá! Fiz uma cotação no site.\nNome: ${form.nome}\nWhatsApp: ${form.whatsapp}${form.email ? `\nE-mail: ${form.email}` : ''}\nPlaca: ${form.placa}${form.leilao !== 'nao' ? `\nOrigem: ${form.leilao === 'leilao' ? 'Leilão' : 'Remarcado'}` : ''}\nVeículo: ${vehicleLabel}\nFIPE: R$ ${fipeFormatted}\nPlano: ${plans[selectedPlan].name}\nValor: R$${price}/mês\nQuero contratar!`)}`}
+                  <a href={`https://wa.me/5521965700021?text=${encodeURIComponent(`Olá! Fiz uma cotação no site.\nNome: ${form.nome}\nWhatsApp: ${form.whatsapp}${form.email ? `\nE-mail: ${form.email}` : ''}\nPlaca: ${form.placa}${form.leilao !== 'nao' ? `\nOrigem: ${form.leilao === 'leilao' ? 'Leilão' : 'Remarcado'}` : ''}\nVeículo: ${vehicleLabel}\nFIPE: R$ ${fipeFormatted}\nPlano: ${selectedPlan.name}\nValor: R$ ${priceFormatted}/mês\nQuero contratar!`)}`}
                     target="_blank" rel="noopener noreferrer"
-                    onClick={() => trackWhatsAppClick('cotacao_resultado', { plano: plans[selectedPlan].name, valor: price })}
+                    onClick={() => trackWhatsAppClick('cotacao_resultado', { plano: selectedPlan.name, valor: price })}
                     className="flex items-center justify-center gap-2.5 w-full py-4 bg-gradient-to-r from-[#E07620] to-[#F08C28] text-white font-bold text-base rounded-full shadow-lg shadow-[#E07620]/20 hover:shadow-xl hover:shadow-[#E07620]/30 hover:scale-[1.01] active:scale-[0.99] transition-all duration-200 mb-4">
                     <MessageCircle className="w-5 h-5" />
                     Contratar pelo WhatsApp
@@ -486,7 +477,7 @@ export default function CotacaoPage() {
                   className="inline-flex items-center gap-2 text-sm text-[#64748B] hover:text-[#0A1E3D] transition-colors">
                   <ArrowLeft className="w-4 h-4" /> Editar dados
                 </button>
-                <button onClick={() => { setStep(1); setForm({ nome: '', whatsapp: '', email: '', placa: '', leilao: 'nao' }); setVehicle(null); setPlans(null) }}
+                <button onClick={() => { setStep(1); setForm({ nome: '', whatsapp: '', email: '', placa: '', leilao: 'nao' }); setVehicle(null); setPlans([]) }}
                   className="text-sm text-[#1B4DA1] hover:text-[#3D72DE] transition-colors">
                   Nova cotação
                 </button>

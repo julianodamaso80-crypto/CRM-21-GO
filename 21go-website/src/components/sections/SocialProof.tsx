@@ -7,7 +7,7 @@ import { fadeInUp, staggerContainer } from '@/lib/motion'
 
 const testimonials = [
   { name: 'Roberto Silva', bairro: 'Copacabana', carro: 'Honda Civic 2019', text: 'Guincho chegou em 25 minutos na Atlântica. Atendimento nota 10. Já indiquei pra família inteira.', stars: 5 },
-  { name: 'Patrícia Mendes', bairro: 'Barra da Tijuca', carro: 'Hyundai HB20 2022', text: 'Pagava R$380 de seguro. Na 21Go pago R$159 com as mesmas coberturas. Economizo mais de R$2.600 por ano.', stars: 5 },
+  { name: 'Patrícia Mendes', bairro: 'Barra da Tijuca', carro: 'Hyundai HB20 2022', text: 'Pagava R$380 de seguro. Na 21Go pago R$227 no plano VIP com as mesmas coberturas. Economizo mais de R$1.800 por ano.', stars: 5 },
   { name: 'Carlos Eduardo', bairro: 'Méier', carro: 'Toyota Corolla 2020', text: 'Meu carro foi roubado e em 15 dias resolvi tudo. Ninguém acredita na velocidade. Recomendo demais.', stars: 5 },
   { name: 'Amanda Costa', bairro: 'Niterói', carro: 'Fiat Pulse 2023', text: 'Melhor custo-benefício que já encontrei. A vistoria pelo app foi super prática, não precisei sair de casa.', stars: 5 },
 ]

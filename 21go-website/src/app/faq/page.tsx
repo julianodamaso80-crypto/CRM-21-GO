@@ -31,11 +31,11 @@ const categories = [
     items: [
       {
         q: 'Quanto custa a proteção veicular?',
-        a: 'O valor depende do modelo e ano do seu veículo (tabela FIPE). Nossos planos começam a partir de R$89/mês para o Básico, R$149/mês para o Completo e R$219/mês para o Premium. Faça uma cotação gratuita em 30 segundos para saber o valor exato.',
+        a: 'O valor depende do plano e da faixa de valor FIPE do veículo. Para carros temos 4 planos: Básico (a partir de R$106,50/mês), Do Seu Jeito, VIP e Premium. Também temos planos para motos (a partir de R$77,50/mês), SUVs e veículos especiais. Faça uma cotação gratuita em 30 segundos.',
       },
       {
-        q: 'Qual a diferença entre os planos Básico, Completo e Premium?',
-        a: 'O Básico cobre roubo/furto e assistência 24h com guincho 200km. O Completo adiciona colisão, incêndio e carro reserva por 7 dias. O Premium inclui tudo do Completo mais cobertura de terceiros até R$100K, vidros, rastreamento e carro reserva por 15 dias.',
+        q: 'Quais são os planos disponíveis?',
+        a: 'Para carros: Básico (roubo/furto + assistência 24h), Do Seu Jeito (personalizável), VIP (cobertura completa, mais escolhido) e Premium (máxima proteção com rastreamento). Para SUVs/pick-ups temos plano específico. Para motos: VIP até 400cc e VIP 450-1000cc. Para elétricos ou veículos acima de R$150 mil: plano Veículos Especiais.',
       },
       {
         q: 'Posso trocar de plano depois?',
@@ -43,7 +43,7 @@ const categories = [
       },
       {
         q: 'Como é calculada a mensalidade?',
-        a: 'A fórmula é: valor FIPE do veículo × taxa do plano (Básico 1.8%, Completo 2.8%, Premium 3.8%) ÷ 12 + taxa administrativa de R$35. Faça a cotação no site e veja o valor exato para o seu veículo.',
+        a: 'A mensalidade é definida pela faixa de valor FIPE do seu veículo e pelo plano escolhido. Cada plano tem uma tabela de preços por faixa. Faça a cotação no site e veja o valor exato para o seu veículo em segundos.',
       },
     ],
   },

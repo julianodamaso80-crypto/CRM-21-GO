@@ -80,7 +80,7 @@ export function AIShowcase() {
                 </div>
                 <div className="flex justify-start">
                   <div className="bg-white text-[#0A1E3D] text-sm rounded-2xl rounded-tl-sm px-4 py-3 max-w-[80%] border border-[#E2E8F0]">
-                    Para um HB20 2022, temos 3 opções: Básico R$89/mês, Completo R$159/mês, Premium R$219/mês. Qual te interessa?
+                    Para um HB20 2022, temos 4 opções: Básico R$172,70/mês, Do Seu Jeito R$184,70/mês, VIP R$227,41/mês ou Premium R$292,53/mês. O VIP é o mais escolhido!
                   </div>
                 </div>
                 <div className="flex justify-end">

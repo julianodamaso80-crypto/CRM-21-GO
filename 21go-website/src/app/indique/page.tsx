@@ -36,11 +36,11 @@ const tiers = [
 ]
 
 const discountRows = [
-  { friends: 1, discount: '10%', monthly: 'R$ 134' },
-  { friends: 2, discount: '20%', monthly: 'R$ 119' },
-  { friends: 3, discount: '30%', monthly: 'R$ 104' },
-  { friends: 5, discount: '50%', monthly: 'R$ 74' },
-  { friends: 7, discount: '70%', monthly: 'R$ 44' },
+  { friends: 1, discount: '10%', monthly: 'R$ 204' },
+  { friends: 2, discount: '20%', monthly: 'R$ 182' },
+  { friends: 3, discount: '30%', monthly: 'R$ 159' },
+  { friends: 5, discount: '50%', monthly: 'R$ 114' },
+  { friends: 7, discount: '70%', monthly: 'R$ 68' },
   { friends: 10, discount: '100%', monthly: 'GRÁTIS' },
 ]
 
@@ -157,7 +157,7 @@ export default function IndiquePage() {
           <div className="text-center mb-14">
             <span className="inline-block text-xs font-bold text-[#E07620] bg-[#E07620]/10 px-3 py-1 rounded-full uppercase tracking-wider mb-4">Simulação</span>
             <h2 className="font-[var(--font-display)] text-3xl font-bold text-[#0A1E3D] mb-3">Veja quanto você economiza</h2>
-            <p className="text-[#64748B]">Exemplo com plano Completo (R$149/mês)</p>
+            <p className="text-[#64748B]">Exemplo com plano VIP (R$227/mês)</p>
           </div>
 
           <div className="rounded-2xl border border-[#E8ECF4] overflow-hidden shadow-sm bg-white">

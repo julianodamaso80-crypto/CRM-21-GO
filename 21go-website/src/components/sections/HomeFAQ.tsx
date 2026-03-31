@@ -9,7 +9,7 @@ const faqs = [
   { q: 'O que é proteção veicular?', a: 'Proteção veicular é um sistema cooperativo (mutualismo) onde associados dividem os custos de sinistros. Diferente do seguro tradicional, não há análise de perfil e o custo é significativamente menor.' },
   { q: 'Qual a diferença entre proteção veicular e seguro?', a: 'O seguro é oferecido por seguradoras com análise de perfil e preços altos. A proteção veicular funciona por mutualismo — todos contribuem para um fundo comum, o que reduz o custo em até 60%.' },
   { q: 'Como funciona o mutualismo?', a: 'Todos os associados contribuem mensalmente para um fundo comum. Quando alguém sofre um sinistro, o fundo cobre. Quanto mais associados, menor o custo para cada um.' },
-  { q: 'Quanto custa a proteção veicular na 21Go?', a: 'Os planos começam a partir de R$89/mês para o Básico. O valor exato depende do veículo (tabela FIPE) e do plano escolhido. Faça uma cotação gratuita em 30 segundos.' },
+  { q: 'Quanto custa a proteção veicular na 21Go?', a: 'Para carros a partir de R$106,50/mês (Básico) e para motos a partir de R$77,50/mês. Temos 8 planos para todos os tipos de veículos. Faça uma cotação gratuita em 30 segundos.' },
   { q: 'Como aciono o guincho?', a: 'Basta ligar para nossa central 24h ou usar o app. O guincho atende em todo o Brasil com cobertura de até 200km inclusos em todos os planos.' },
   { q: 'Posso cancelar a qualquer momento?', a: 'Sim. Não existe fidelidade nem multa por cancelamento. Você pode cancelar quando quiser, sem burocracia.' },
   { q: 'A 21Go aceita carros antigos?', a: 'Sim! Diferente das seguradoras que recusam veículos acima de 10 anos, a 21Go protege qualquer carro, qualquer ano, sem análise de perfil.' },

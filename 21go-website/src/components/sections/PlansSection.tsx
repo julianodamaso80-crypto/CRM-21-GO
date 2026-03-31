@@ -1,65 +1,165 @@
 'use client'
 
 import { motion, useInView } from 'framer-motion'
-import { useRef } from 'react'
-import { Check, X } from 'lucide-react'
+import { useRef, useState } from 'react'
+import { Check, X, Car, Bike, Truck, ArrowUp } from 'lucide-react'
 import { fadeInUp, staggerContainer } from '@/lib/motion'
 import Link from 'next/link'
 
-const plans = [
-  {
-    name: 'Básico',
-    desc: 'Proteção essencial contra roubo e furto',
-    popular: false,
-    delay: 0,
-    features: [
-      { text: 'Roubo e Furto', included: true },
-      { text: 'Assistência 24h', included: true },
-      { text: 'Guincho 200km', included: true },
-      { text: 'Colisão', included: false },
-      { text: 'Incêndio', included: false },
-      { text: 'Carro Reserva', included: false },
-      { text: 'Terceiros R$100K', included: false },
-      { text: 'Vidros e Faróis', included: false },
-    ],
-  },
-  {
-    name: 'Completo',
-    desc: 'A proteção mais escolhida pelos cariocas',
-    popular: true,
-    delay: 0.1,
-    features: [
-      { text: 'Roubo e Furto', included: true },
-      { text: 'Assistência 24h', included: true },
-      { text: 'Guincho 200km', included: true },
-      { text: 'Colisão', included: true },
-      { text: 'Incêndio', included: true },
-      { text: 'Carro Reserva 7 dias', included: true },
-      { text: 'Terceiros R$100K', included: false },
-      { text: 'Vidros e Faróis', included: false },
-    ],
-  },
-  {
-    name: 'Premium',
-    desc: 'Cobertura total com todos os benefícios',
-    popular: false,
-    delay: 0.2,
-    features: [
-      { text: 'Roubo e Furto', included: true },
-      { text: 'Assistência 24h', included: true },
-      { text: 'Guincho 200km', included: true },
-      { text: 'Colisão', included: true },
-      { text: 'Incêndio', included: true },
-      { text: 'Carro Reserva 15 dias', included: true },
-      { text: 'Terceiros R$100K', included: true },
-      { text: 'Vidros e Faróis', included: true },
-    ],
-  },
+type Category = 'carros' | 'motos' | 'especiais'
+
+const categories: { id: Category; label: string; icon: React.ReactNode }[] = [
+  { id: 'carros', label: 'Carros', icon: <Car className="w-4 h-4" /> },
+  { id: 'motos', label: 'Motos', icon: <Bike className="w-4 h-4" /> },
+  { id: 'especiais', label: 'SUV & Especiais', icon: <Truck className="w-4 h-4" /> },
 ]
+
+interface PlanFeature {
+  text: string
+  included: boolean
+  /** New in this plan vs previous tier */
+  highlight?: boolean
+  /** Upgraded from previous tier */
+  upgrade?: boolean
+}
+
+const plansByCategory: Record<Category, {
+  name: string
+  desc: string
+  popular?: boolean
+  startingPrice: string
+  delay: number
+  features: PlanFeature[]
+}[]> = {
+  carros: [
+    {
+      name: 'Básico',
+      desc: 'Proteção essencial contra roubo e furto',
+      startingPrice: '106,50',
+      delay: 0,
+      features: [
+        { text: 'Roubo e Furto (reembolso FIPE)', included: true },
+        { text: 'Assistência 24h', included: true },
+        { text: 'Guincho 200km', included: true },
+        { text: 'Colisão', included: false },
+        { text: 'Incêndio', included: false },
+        { text: 'Terceiros', included: false },
+        { text: 'Carro Reserva', included: false },
+        { text: 'Vidros e Faróis', included: false },
+      ],
+    },
+    {
+      name: 'Do Seu Jeito',
+      desc: 'Tudo do Básico + colisão, incêndio e mais',
+      startingPrice: '107,40',
+      delay: 0.05,
+      features: [
+        { text: 'Tudo do Básico', included: true },
+        { text: 'Colisão Total e Parcial', included: true, highlight: true },
+        { text: 'Incêndio e Eventos da Natureza', included: true, highlight: true },
+        { text: 'Terceiros R$10.000', included: true, highlight: true },
+        { text: 'Assistência Residencial', included: true, highlight: true },
+        { text: 'Carro Reserva', included: false },
+        { text: 'Vidros e Faróis', included: false },
+      ],
+    },
+    {
+      name: 'VIP',
+      desc: 'O mais escolhido — cobertura completa',
+      popular: true,
+      startingPrice: '126,50',
+      delay: 0.1,
+      features: [
+        { text: 'Tudo do "Do Seu Jeito"', included: true },
+        { text: 'Terceiros R$20.000', included: true, upgrade: true },
+        { text: 'Carro Reserva 7 dias', included: true, highlight: true },
+        { text: 'Vidros e Faróis', included: true, highlight: true },
+      ],
+    },
+    {
+      name: 'Premium',
+      desc: 'Máxima proteção — tudo incluído',
+      startingPrice: '165,35',
+      delay: 0.15,
+      features: [
+        { text: 'Tudo do VIP', included: true },
+        { text: 'Cobertura Total (todos os sinistros)', included: true, highlight: true },
+        { text: 'Reboque 600km', included: true, upgrade: true },
+        { text: 'Terceiros R$30.000', included: true, upgrade: true },
+        { text: 'Carro Reserva 15 dias', included: true, upgrade: true },
+        { text: 'Assistência Residencial Completa', included: true, upgrade: true },
+      ],
+    },
+  ],
+  motos: [
+    {
+      name: 'VIP Moto até 400cc',
+      desc: 'Proteção completa para motos até 400cc',
+      popular: true,
+      startingPrice: '77,50',
+      delay: 0,
+      features: [
+        { text: 'Roubo e Furto', included: true },
+        { text: 'Assistência 24h', included: true },
+        { text: 'Guincho', included: true },
+        { text: 'Colisão', included: true },
+        { text: 'Terceiros', included: true },
+      ],
+    },
+    {
+      name: 'VIP Moto 450-1000cc',
+      desc: 'Proteção para motos de alta cilindrada',
+      startingPrice: '102,50',
+      delay: 0.1,
+      features: [
+        { text: 'Roubo e Furto', included: true },
+        { text: 'Assistência 24h', included: true },
+        { text: 'Guincho', included: true },
+        { text: 'Colisão', included: true },
+        { text: 'Terceiros', included: true },
+      ],
+    },
+  ],
+  especiais: [
+    {
+      name: 'SUV',
+      desc: 'Para pick-ups, caminhonetes e SUVs',
+      popular: true,
+      startingPrice: '145,00',
+      delay: 0,
+      features: [
+        { text: 'Roubo e Furto (reembolso FIPE)', included: true },
+        { text: 'Assistência 24h', included: true },
+        { text: 'Guincho/Reboque 200km', included: true },
+        { text: 'Colisão Total e Parcial', included: true },
+        { text: 'Incêndio e Eventos da Natureza', included: true },
+        { text: 'Terceiros R$20.000', included: true },
+        { text: 'Carro Reserva 7 dias', included: true },
+        { text: 'Vidros e Faróis', included: true },
+      ],
+    },
+    {
+      name: 'Veículos Especiais',
+      desc: 'Elétricos e acima de R$150 mil',
+      startingPrice: '238,50',
+      delay: 0.1,
+      features: [
+        { text: 'Cobertura customizada por veículo', included: true },
+        { text: 'Roubo e Furto (reembolso FIPE)', included: true },
+        { text: 'Assistência 24h', included: true },
+        { text: 'Guincho', included: true },
+        { text: 'Colisão Total e Parcial', included: true },
+        { text: 'Incêndio', included: true },
+      ],
+    },
+  ],
+}
 
 export function PlansSection() {
   const ref = useRef(null)
   const isInView = useInView(ref, { once: true, margin: '-80px' })
+  const [activeCategory, setActiveCategory] = useState<Category>('carros')
+  const plans = plansByCategory[activeCategory]
 
   return (
     <section ref={ref} id="planos" className="bg-white py-20 lg:py-28">
@@ -69,16 +169,38 @@ export function PlansSection() {
         animate={isInView ? 'visible' : 'hidden'}
         className="mx-auto max-w-7xl px-6"
       >
-        <motion.div variants={fadeInUp} className="text-center mb-14">
+        <motion.div variants={fadeInUp} className="text-center mb-10">
           <h2 className="font-[var(--font-outfit)] text-3xl md:text-4xl font-bold text-[#1B4DA1]">
             Proteção sob medida para seu veículo
           </h2>
           <p className="mt-4 text-lg text-[#64748B] max-w-2xl mx-auto">
-            Escolha o plano ideal. Todos incluem assistência 24h e guincho em todo o Brasil.
+            8 planos para carros, motos, SUVs e veículos especiais. Todos com assistência 24h.
           </p>
         </motion.div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8 items-center">
+        {/* Category tabs */}
+        <motion.div variants={fadeInUp} className="flex justify-center gap-2 mb-12">
+          {categories.map(cat => (
+            <button
+              key={cat.id}
+              onClick={() => setActiveCategory(cat.id)}
+              className={`inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-semibold transition-all duration-200 ${
+                activeCategory === cat.id
+                  ? 'bg-[#1B4DA1] text-white shadow-md'
+                  : 'bg-[#F0F4FA] text-[#64748B] hover:bg-[#E2E8F0]'
+              }`}
+            >
+              {cat.icon}
+              {cat.label}
+            </button>
+          ))}
+        </motion.div>
+
+        <div className={`grid grid-cols-1 gap-6 lg:gap-8 items-start ${
+          plans.length === 2 ? 'md:grid-cols-2 max-w-3xl mx-auto' :
+          plans.length === 3 ? 'md:grid-cols-3' :
+          'md:grid-cols-2 lg:grid-cols-4'
+        }`}>
           {plans.map((plan) => (
             <motion.div
               key={plan.name}
@@ -90,7 +212,6 @@ export function PlansSection() {
                   : 'border-[#E2E8F0] bg-white hover:shadow-lg hover:-translate-y-1'
               }`}
             >
-              {/* Glow behind popular card */}
               {plan.popular && (
                 <div className="absolute inset-0 rounded-2xl -z-10 animate-glow-pulse opacity-60"
                   style={{ background: 'radial-gradient(ellipse at 50% 100%, rgba(224,118,32,0.15) 0%, transparent 70%)' }}
@@ -98,7 +219,7 @@ export function PlansSection() {
               )}
 
               {plan.popular && (
-                <span className="absolute -top-3.5 left-1/2 -translate-x-1/2 bg-gradient-to-r from-[#E07620] to-[#C9A84C] text-white text-xs font-bold px-5 py-1.5 rounded-full shadow-lg">
+                <span className="absolute -top-3.5 left-1/2 -translate-x-1/2 bg-gradient-to-r from-[#E07620] to-[#C9A84C] text-white text-xs font-bold px-5 py-1.5 rounded-full shadow-lg whitespace-nowrap">
                   Mais escolhido
                 </span>
               )}
@@ -115,20 +236,47 @@ export function PlansSection() {
                 )}
               </div>
 
-              <ul className="mt-8 space-y-3">
+              {/* Starting price */}
+              <div className="mt-4 mb-6">
+                <p className="text-xs text-[#94A3B8] uppercase tracking-wider">a partir de</p>
+                <div className="flex items-baseline gap-1 mt-1">
+                  <span className="text-sm text-[#64748B]">R$</span>
+                  <span className="font-[var(--font-outfit)] text-3xl font-bold text-[#0A1E3D]">{plan.startingPrice}</span>
+                  <span className="text-sm text-[#64748B]">/mês</span>
+                </div>
+              </div>
+
+              <ul className="space-y-3">
                 {plan.features.map((f) => (
                   <li key={f.text} className="flex items-center gap-3">
                     {f.included ? (
-                      <span className="flex-shrink-0 w-5 h-5 rounded-full bg-[#10B981]/10 flex items-center justify-center">
-                        <Check className="h-3 w-3 text-[#10B981]" />
-                      </span>
+                      f.highlight ? (
+                        <span className="flex-shrink-0 w-5 h-5 rounded-full bg-[#E07620]/10 flex items-center justify-center">
+                          <Check className="h-3 w-3 text-[#E07620]" />
+                        </span>
+                      ) : f.upgrade ? (
+                        <span className="flex-shrink-0 w-5 h-5 rounded-full bg-[#1B4DA1]/10 flex items-center justify-center">
+                          <ArrowUp className="h-3 w-3 text-[#1B4DA1]" />
+                        </span>
+                      ) : (
+                        <span className="flex-shrink-0 w-5 h-5 rounded-full bg-[#10B981]/10 flex items-center justify-center">
+                          <Check className="h-3 w-3 text-[#10B981]" />
+                        </span>
+                      )
                     ) : (
                       <span className="flex-shrink-0 w-5 h-5 rounded-full bg-[#F1F5F9] flex items-center justify-center">
                         <X className="h-3 w-3 text-[#CBD5E1]" />
                       </span>
                     )}
-                    <span className={`text-sm ${f.included ? 'text-[#0A1E3D]' : 'text-[#CBD5E1]'}`}>
+                    <span className={`text-sm ${
+                      !f.included ? 'text-[#CBD5E1]' :
+                      f.highlight ? 'text-[#0A1E3D] font-semibold' :
+                      f.upgrade ? 'text-[#1B4DA1] font-medium' :
+                      'text-[#0A1E3D]'
+                    }`}>
                       {f.text}
+                      {f.highlight && <span className="ml-1.5 text-[9px] font-bold text-[#E07620] bg-[#E07620]/10 px-1.5 py-0.5 rounded-full uppercase">Novo</span>}
+                      {f.upgrade && <span className="ml-1.5 text-[9px] font-bold text-[#1B4DA1] bg-[#1B4DA1]/10 px-1.5 py-0.5 rounded-full uppercase">Upgrade</span>}
                     </span>
                   </li>
                 ))}

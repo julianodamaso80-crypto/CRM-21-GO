@@ -13,9 +13,9 @@ import {
 } from 'lucide-react'
 
 export const metadata: Metadata = {
-  title: 'Planos de Protecao Veicular | Basico, Completo e Premium | 21Go',
+  title: 'Planos de Protecao Veicular | 8 Planos para Carros, Motos e SUVs | 21Go',
   description:
-    'Conheca os planos de protecao veicular da 21Go. A partir de R$89/mes, sem analise de perfil. Basico, Completo e Premium. Cotacao em 30 segundos.',
+    'Conheca os 8 planos de protecao veicular da 21Go. Carros a partir de R$106,50/mes, motos a partir de R$77,50/mes. Sem analise de perfil. Cotacao em 30 segundos.',
 }
 
 const mutualSteps = [
@@ -39,27 +39,29 @@ const mutualSteps = [
 interface FeatureRow {
   feature: string
   basico: boolean | string
-  completo: boolean | string
+  jeito: boolean | string
+  vip: boolean | string
   premium: boolean | string
 }
 
 const comparisonFeatures: FeatureRow[] = [
-  { feature: 'Roubo/Furto', basico: true, completo: true, premium: true },
-  { feature: 'Assistência 24h', basico: true, completo: true, premium: true },
-  { feature: 'Guincho 200km', basico: true, completo: true, premium: true },
-  { feature: 'Colisão', basico: false, completo: true, premium: true },
-  { feature: 'Incêndio', basico: false, completo: true, premium: true },
-  { feature: 'Carro Reserva', basico: false, completo: '7 dias', premium: '15 dias' },
-  { feature: 'Terceiros', basico: false, completo: false, premium: 'R$100K' },
-  { feature: 'Vidros', basico: false, completo: false, premium: true },
-  { feature: 'Rastreamento', basico: false, completo: false, premium: true },
+  { feature: 'Roubo/Furto (FIPE)', basico: true, jeito: true, vip: true, premium: true },
+  { feature: 'Assistência 24h', basico: true, jeito: true, vip: true, premium: true },
+  { feature: 'Guincho/Reboque', basico: '200km', jeito: '200km', vip: '200km', premium: '600km' },
+  { feature: 'Colisão', basico: false, jeito: true, vip: true, premium: true },
+  { feature: 'Incêndio', basico: false, jeito: true, vip: true, premium: true },
+  { feature: 'Terceiros', basico: false, jeito: 'R$10K', vip: 'R$20K', premium: 'R$30K' },
+  { feature: 'Assist. Residencial', basico: false, jeito: true, vip: true, premium: 'Completa' },
+  { feature: 'Carro Reserva', basico: false, jeito: false, vip: '7 dias', premium: '15 dias' },
+  { feature: 'Vidros e Faróis', basico: false, jeito: false, vip: true, premium: true },
+  { feature: 'Cobertura Total', basico: false, jeito: false, vip: false, premium: true },
 ]
 
 const vsSeguro = [
   { item: 'Análise de perfil', seguro: 'Obrigatória', go21: 'Não exigida' },
   { item: 'Restrição de idade', seguro: 'Sim', go21: 'Não' },
   { item: 'Restrição de região', seguro: 'Sim (RJ penalizado)', go21: 'Não' },
-  { item: 'Preço médio mensal', seguro: 'R$350 — R$800', go21: 'R$89 — R$219' },
+  { item: 'Preço médio mensal', seguro: 'R$350 — R$800', go21: 'R$106 — R$601' },
   { item: 'Burocracia', seguro: 'Alta', go21: 'Mínima' },
   { item: 'Tempo de contratação', seguro: '7 a 15 dias', go21: '48 horas' },
   { item: 'Guincho', seguro: '100km (média)', go21: '200km' },
@@ -68,12 +70,12 @@ const vsSeguro = [
 
 const planFAQ = [
   {
-    q: 'Qual a diferença entre os planos Básico, Completo e Premium?',
-    a: 'O Básico cobre roubo/furto e assistência 24h. O Completo adiciona colisão, incêndio e carro reserva por 7 dias. O Premium inclui tudo do Completo mais cobertura de terceiros até R$100K, vidros, rastreamento e carro reserva estendido por 15 dias.',
+    q: 'Quais são os planos disponíveis?',
+    a: 'Para carros: Básico, Do Seu Jeito (personalizável), VIP (mais escolhido) e Premium. Para SUVs/pick-ups temos plano específico. Para motos: VIP até 400cc e VIP 450-1000cc. Para elétricos ou veículos acima de R$150 mil: Veículos Especiais.',
   },
   {
     q: 'Como é calculada a mensalidade?',
-    a: 'A mensalidade é calculada com base no valor FIPE do seu veículo multiplicado pela taxa do plano escolhido (Básico 1.8%, Completo 2.8%, Premium 3.8%), mais uma taxa administrativa fixa de R$35.',
+    a: 'A mensalidade é definida pela faixa de valor FIPE do seu veículo e pelo plano escolhido. Cada plano tem uma tabela de preços por faixa. Faça a cotação no site e veja o valor exato em segundos.',
   },
   {
     q: 'Posso trocar de plano depois?',
@@ -121,7 +123,7 @@ export default function ProtecaoVeicularPage() {
             Planos de Proteção Veicular 21Go
           </h1>
           <p className="text-lg text-white/50 max-w-2xl mx-auto">
-            Proteção completa para seu veículo a partir de R$89/mês. Sem análise de perfil, sem burocracia.
+            Proteção completa para seu veículo a partir de R$77,50/mês. Sem análise de perfil, sem burocracia.
           </p>
         </div>
       </section>
@@ -171,28 +173,30 @@ export default function ProtecaoVeicularPage() {
             <p className="text-[#64748B]">Veja lado a lado o que cada plano oferece.</p>
           </div>
 
-          <div className="rounded-2xl border border-[#E8ECF4] overflow-hidden shadow-sm">
-            <table className="w-full">
+          <div className="rounded-2xl border border-[#E8ECF4] overflow-hidden shadow-sm overflow-x-auto">
+            <table className="w-full min-w-[600px]">
               <thead>
                 <tr className="bg-[#0A1E3D]">
-                  <th className="text-left text-sm font-semibold text-white/70 px-6 py-4 w-[35%]">Cobertura</th>
-                  <th className="text-center text-sm font-semibold text-white/70 px-4 py-4">Básico</th>
-                  <th className="text-center text-sm font-semibold text-[#E07620] px-4 py-4 bg-white/5">
+                  <th className="text-left text-sm font-semibold text-white/70 px-5 py-4 w-[28%]">Cobertura</th>
+                  <th className="text-center text-xs font-semibold text-white/70 px-3 py-4">Básico</th>
+                  <th className="text-center text-xs font-semibold text-white/70 px-3 py-4">Do Seu Jeito</th>
+                  <th className="text-center text-xs font-semibold text-[#E07620] px-3 py-4 bg-white/5">
                     <div className="flex flex-col items-center">
                       <span className="text-[10px] text-[#E07620] bg-[#E07620]/20 px-2 py-0.5 rounded-full mb-1">Popular</span>
-                      Completo
+                      VIP
                     </div>
                   </th>
-                  <th className="text-center text-sm font-semibold text-white/70 px-4 py-4">Premium</th>
+                  <th className="text-center text-xs font-semibold text-white/70 px-3 py-4">Premium</th>
                 </tr>
               </thead>
               <tbody>
                 {comparisonFeatures.map((row, i) => (
                   <tr key={row.feature} className={`border-t border-[#E8ECF4] ${i % 2 === 0 ? 'bg-white' : 'bg-[#F7F8FC]'}`}>
-                    <td className="text-sm text-[#475569] px-6 py-3.5 font-medium">{row.feature}</td>
-                    <td className="text-center px-4 py-3.5"><FeatureCell value={row.basico} /></td>
-                    <td className="text-center px-4 py-3.5 bg-[#E07620]/[0.02]"><FeatureCell value={row.completo} /></td>
-                    <td className="text-center px-4 py-3.5"><FeatureCell value={row.premium} /></td>
+                    <td className="text-sm text-[#475569] px-5 py-3.5 font-medium">{row.feature}</td>
+                    <td className="text-center px-3 py-3.5"><FeatureCell value={row.basico} /></td>
+                    <td className="text-center px-3 py-3.5"><FeatureCell value={row.jeito} /></td>
+                    <td className="text-center px-3 py-3.5 bg-[#E07620]/[0.02]"><FeatureCell value={row.vip} /></td>
+                    <td className="text-center px-3 py-3.5"><FeatureCell value={row.premium} /></td>
                   </tr>
                 ))}
               </tbody>
