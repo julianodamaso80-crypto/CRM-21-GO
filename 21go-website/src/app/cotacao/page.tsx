@@ -154,7 +154,13 @@ export default function CotacaoPage() {
           return
         }
 
-        setPlans(localPlans)
+        // Leilão ou remarcado: cobra 80% do valor da tabela
+        const isLeilao = form.leilao !== 'nao'
+        const finalPlans = isLeilao
+          ? localPlans.map(p => ({ ...p, monthly: Math.round(p.monthly * 0.8 * 100) / 100 }))
+          : localPlans
+
+        setPlans(finalPlans)
         const popularIdx = localPlans.findIndex(p => p.popular)
         setSelectedPlanIdx(popularIdx >= 0 ? popularIdx : 0)
         setStep(2)
