@@ -64,12 +64,6 @@ const howItWorks = [
   { step: '04', title: 'Ganhe', description: 'Comissão na adesão + recorrente mensal + prêmios por meta.' },
 ]
 
-const earnings = [
-  { clients: '5', adesao: 'R$ 500', recorrente: 'R$ 250/mês', total6m: 'R$ 2.000' },
-  { clients: '15', adesao: 'R$ 1.500', recorrente: 'R$ 750/mês', total6m: 'R$ 6.000' },
-  { clients: '30', adesao: 'R$ 3.000', recorrente: 'R$ 1.500/mês', total6m: 'R$ 12.000' },
-  { clients: '50+', adesao: 'R$ 5.000+', recorrente: 'R$ 2.500+/mês', total6m: 'R$ 20.000+' },
-]
 
 const testimonials = [
   { name: 'Rodrigo M.', role: 'Consultor há 8 meses', text: 'Comecei nas horas vagas e hoje é minha principal renda. O recorrente faz toda a diferença.' },
@@ -205,43 +199,7 @@ export default function SejaConsultorPage() {
         </div>
       </section>
 
-      {/* Earnings simulator */}
-      <section className="py-20 bg-[#F7F8FC]">
-        <div className="max-w-3xl mx-auto px-6">
-          <div className="text-center mb-14">
-            <span className="inline-block text-xs font-bold text-[#E07620] bg-[#E07620]/10 px-3 py-1 rounded-full uppercase tracking-wider mb-4">Simulação</span>
-            <h2 className="font-[var(--font-display)] text-3xl font-bold text-[#0A1E3D] mb-3">Quanto você pode ganhar</h2>
-            <p className="text-[#64748B]">Simulação com valores médios. Sem teto de ganho.</p>
-          </div>
-
-          <div className="rounded-2xl border border-[#E8ECF4] overflow-hidden shadow-sm bg-white">
-            <table className="w-full">
-              <thead>
-                <tr className="bg-[#0A1E3D]">
-                  <th className="text-left text-sm font-semibold text-white/70 px-6 py-4">Clientes</th>
-                  <th className="text-center text-sm font-semibold text-white/70 px-4 py-4">Adesão</th>
-                  <th className="text-center text-sm font-semibold text-white/70 px-4 py-4">Recorrente</th>
-                  <th className="text-right text-sm font-semibold text-[#E07620] px-6 py-4">Total 6 meses</th>
-                </tr>
-              </thead>
-              <tbody>
-                {earnings.map((row, i) => (
-                  <tr key={row.clients} className={`border-t border-[#E8ECF4] ${i % 2 ? 'bg-[#F7F8FC]' : ''}`}>
-                    <td className="text-sm text-[#475569] px-6 py-3.5 font-medium">
-                      <span className="inline-flex items-center gap-2"><Users className="w-4 h-4 text-[#94A3B8]" />{row.clients}</span>
-                    </td>
-                    <td className="text-sm text-[#475569] text-center px-4 py-3.5">{row.adesao}</td>
-                    <td className="text-sm text-[#10B981] text-center px-4 py-3.5 font-semibold">{row.recorrente}</td>
-                    <td className="text-sm text-[#0A1E3D] text-right px-6 py-3.5 font-bold">{row.total6m}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-
-          <p className="text-xs text-[#94A3B8] text-center mt-4">* Valores estimados. Comissões reais variam conforme plano e performance.</p>
-        </div>
-      </section>
+      {/* spacer between sections */}
 
       {/* Testimonials */}
       <section className="py-20 bg-white">
