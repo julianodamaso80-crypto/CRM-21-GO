@@ -123,6 +123,7 @@ export async function lookupPlate(placa: string): Promise<PlateResponse | PlateE
       veiculo.categoria,
       veiculo.combustivel,
       veiculo.cilindrada,
+      veiculo.modelo,
     )
 
     const response: PlateResponse = {

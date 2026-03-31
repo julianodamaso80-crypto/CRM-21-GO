@@ -363,6 +363,22 @@ const SUV_KEYWORDS = [
   'utilitario', 'utilitária',
 ]
 
+/** Modelos conhecidos que sao SUV/pick-up (fallback quando categoria nao vem da API) */
+const SUV_MODELS = [
+  'compass', 'renegade', 'commander', 'tracker', 'equinox', 'trailblazer',
+  'creta', 'tucson', 'ix35', 'santa fe', 'sportage', 'sorento', 'seltos',
+  'kicks', 'frontier', 'duster', 'captur', 'oroch', 'kardian',
+  'tiggo', 'tiguan', 'taos', 'tcross', 't-cross', 'nivus',
+  'ecosport', 'territory', 'bronco', 'maverick', 'ranger',
+  'hilux', 'sw4', 'corolla cross', 'rav4',
+  'toro', 'strada', 'saveiro', 'montana', 's10', 'amarok',
+  'pajero', 'outlander', 'eclipse cross', 'l200',
+  'hr-v', 'hrv', 'wr-v', 'wrv', 'cr-v', 'crv', 'zr-v',
+  'xc40', 'xc60', 'xc90', 'q3', 'q5', 'q7', 'q8',
+  'x1', 'x3', 'x5', 'x6', 'x7', 'glc', 'gle', 'gls',
+  'cayenne', 'macan', 'urus',
+]
+
 /** Detecta se o combustivel indica veiculo eletrico */
 const ELETRICO_KEYWORDS = ['eletrico', 'elétrico', 'electric', 'híbrido', 'hibrido']
 
@@ -380,17 +396,22 @@ export interface QuotePlan {
  * @param categoria - categoria retornada pela API (ex: "AUTOMOVEL", "CAMINHONETE", "MOTOCICLETA")
  * @param combustivel - tipo de combustivel (ex: "GASOLINA", "ELETRICO")
  * @param cilindrada - cilindrada em cc (para motos)
+ * @param modelo - nome do modelo (fallback para detectar SUV quando categoria nao vem)
  */
 export function getApplicablePlans(
   fipeValue: number,
   categoria?: string,
   combustivel?: string,
   cilindrada?: number,
+  modelo?: string,
 ): QuotePlan[] {
   const cat = (categoria || '').toLowerCase()
   const fuel = (combustivel || '').toLowerCase()
+  const mod = (modelo || '').toLowerCase()
   const isMoto = cat.includes('moto') || cat.includes('ciclomotor') || cat.includes('triciclo')
-  const isSuv = SUV_KEYWORDS.some(k => cat.includes(k))
+  const isSuvByCat = SUV_KEYWORDS.some(k => cat.includes(k))
+  const isSuvByModel = !cat && SUV_MODELS.some(k => mod.includes(k))
+  const isSuv = isSuvByCat || isSuvByModel
   const isEletrico = ELETRICO_KEYWORDS.some(k => fuel.includes(k))
 
   // Veiculo especial: eletrico ou FIPE > 150.000

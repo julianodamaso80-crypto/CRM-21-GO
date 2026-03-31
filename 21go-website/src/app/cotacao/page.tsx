@@ -115,31 +115,40 @@ export default function CotacaoPage() {
       const data = await res.json()
 
       if (data.success) {
-        setVehicle(data.vehicle)
+        const v = data.vehicle
+        setVehicle(v)
 
-        // A API agora retorna um array de planos
-        const apiPlans: QuotePlan[] = data.plans
-        setPlans(apiPlans)
+        // SEMPRE calcula precos localmente pela tabela real
+        // Independe do formato/versao do backend
+        const localPlans = getApplicablePlans(
+          v.fipeValue,
+          v.categoria,
+          v.combustivel,
+          v.cilindrada,
+          v.modelo,
+        )
 
-        // Selecionar o plano popular por padrao, senao o primeiro
-        const popularIdx = apiPlans.findIndex(p => p.popular)
+        if (localPlans.length === 0) {
+          setApiError('Não encontramos planos para esse veículo. Fale com um consultor.')
+          return
+        }
+
+        setPlans(localPlans)
+        const popularIdx = localPlans.findIndex(p => p.popular)
         setSelectedPlanIdx(popularIdx >= 0 ? popularIdx : 0)
         setStep(2)
 
-        // Track cotação completa
-        const defaultPlan = apiPlans[popularIdx >= 0 ? popularIdx : 0]
-        if (defaultPlan) {
-          trackCotacaoCompleta({
-            marca: data.vehicle.marca,
-            modelo: data.vehicle.modelo,
-            ano: data.vehicle.ano,
-            plano: defaultPlan.name,
-            valorMensal: defaultPlan.monthly,
-            valorFipe: data.vehicle.fipeValue,
-            email: form.email || undefined,
-            phone: form.whatsapp || undefined,
-          })
-        }
+        const defaultPlan = localPlans[popularIdx >= 0 ? popularIdx : 0]
+        trackCotacaoCompleta({
+          marca: v.marca,
+          modelo: v.modelo,
+          ano: v.ano,
+          plano: defaultPlan.name,
+          valorMensal: defaultPlan.monthly,
+          valorFipe: v.fipeValue,
+          email: form.email || undefined,
+          phone: form.whatsapp || undefined,
+        })
       } else {
         setApiError(data.error || 'Veículo não encontrado.')
       }
