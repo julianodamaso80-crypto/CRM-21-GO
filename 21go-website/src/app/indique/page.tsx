@@ -118,7 +118,7 @@ export default function IndiquePage() {
           <Button
             variant="cta"
             size="lg"
-            href="https://wa.me/5521999999999?text=Oi%2C%20quero%20participar%20do%20programa%20de%20indica%C3%A7%C3%A3o!"
+            href="/cotacao"
           >
             <MessageCircle className="w-5 h-5 mr-2" />
             Quero Meu Link de Indicacao
@@ -242,7 +242,7 @@ export default function IndiquePage() {
           <Button
             variant="cta"
             size="lg"
-            href="https://wa.me/5521999999999?text=Oi%2C%20quero%20meu%20link%20de%20indica%C3%A7%C3%A3o!"
+            href="/cotacao"
           >
             <MessageCircle className="w-5 h-5 mr-2" />
             Quero Meu Link

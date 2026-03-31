@@ -42,15 +42,13 @@ export function FinalCTA() {
           >
             Fazer Cotação Grátis
           </Link>
-          <a
-            href="https://wa.me/5521965700021"
-            target="_blank"
-            rel="noopener noreferrer"
+          <Link
+            href="/cotacao"
             className="inline-flex items-center gap-2 px-7 py-4 rounded-xl bg-[#10B981] text-white text-base font-semibold hover:bg-[#059669] transition-all duration-200 hover:-translate-y-0.5"
           >
             <MessageCircle className="h-5 w-5" />
             Fale no WhatsApp
-          </a>
+          </Link>
         </motion.div>
       </motion.div>
     </section>

@@ -61,7 +61,7 @@ export function HeroSection() {
           variants={fadeInUp}
           className="mt-8 font-[var(--font-outfit)] text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold leading-[1.12] tracking-tight text-white max-w-3xl mx-auto"
         >
-          A Cada 17 Minutos, Um Carro é{' '}
+          A Cada 11 Minutos, Um Carro ou uma Moto é{' '}
           <span className="text-gradient-orange">Roubado no Rio</span>
         </motion.h1>
 
@@ -104,15 +104,13 @@ export function HeroSection() {
           >
             Fazer Cotação Grátis
           </Link>
-          <a
-            href="https://wa.me/5521965700021"
-            target="_blank"
-            rel="noopener noreferrer"
+          <Link
+            href="/cotacao"
             className="inline-flex items-center gap-2.5 px-7 py-4 rounded-xl border border-white/20 bg-white/[0.07] backdrop-blur-sm text-white text-base font-semibold hover:bg-white/[0.12] hover:border-white/30 transition-all duration-300 hover:-translate-y-0.5"
           >
             <MessageCircle className="h-5 w-5 text-[#25D366]" />
             Fale no WhatsApp
-          </a>
+          </Link>
         </motion.div>
 
         {/* Trust stats */}

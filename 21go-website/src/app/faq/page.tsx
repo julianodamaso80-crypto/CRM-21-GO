@@ -164,7 +164,7 @@ export default function FAQPage() {
 
                 <Button
                   variant="primary"
-                  href="https://wa.me/5521999999999?text=Oi%2C%20tenho%20uma%20d%C3%BAvida%20sobre%20prote%C3%A7%C3%A3o%20veicular"
+                  href="/cotacao"
                   className="w-full justify-center mb-4"
                 >
                   <MessageCircle className="w-4 h-4 mr-2" />

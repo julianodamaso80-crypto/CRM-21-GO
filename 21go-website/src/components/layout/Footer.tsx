@@ -76,9 +76,7 @@ export function Footer() {
         {/* WhatsApp link */}
         <div className="mt-12 pt-8 border-t border-white/10 flex flex-col md:flex-row items-center justify-between gap-4">
           <a
-            href="https://wa.me/5521965700021"
-            target="_blank"
-            rel="noopener noreferrer"
+            href="/cotacao"
             className="inline-flex items-center gap-2 text-sm text-[#94A3B8] hover:text-white transition-colors"
           >
             <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" className="text-[#25D366]">
