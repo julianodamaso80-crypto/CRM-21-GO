@@ -190,65 +190,114 @@
     ],
     "trigger": [
       {
-        "name": "CE - page_view",
-        "type": "customEvent",
-        "customEventFilter": [
+        "name": "All Events",
+        "type": "always"
+      },
+      {
+        "name": "Event - page_view",
+        "type": "always",
+        "autoEventFilter": [
           {
             "type": "EQUALS",
             "parameter": [
-              { "type": "TEMPLATE", "key": "arg0", "value": "{{_event}}" },
+              { "type": "TEMPLATE", "key": "arg0", "value": "{{ED - event_name}}" },
+              { "type": "TEMPLATE", "key": "arg1", "value": "page_view" }
+            ]
+          }
+        ],
+        "filter": [
+          {
+            "type": "EQUALS",
+            "parameter": [
+              { "type": "TEMPLATE", "key": "arg0", "value": "{{ED - event_name}}" },
               { "type": "TEMPLATE", "key": "arg1", "value": "page_view" }
             ]
           }
         ]
       },
       {
-        "name": "CE - cotacao_inicio",
-        "type": "customEvent",
-        "customEventFilter": [
+        "name": "Event - cotacao_inicio",
+        "type": "always",
+        "autoEventFilter": [
           {
             "type": "EQUALS",
             "parameter": [
-              { "type": "TEMPLATE", "key": "arg0", "value": "{{_event}}" },
+              { "type": "TEMPLATE", "key": "arg0", "value": "{{ED - event_name}}" },
+              { "type": "TEMPLATE", "key": "arg1", "value": "cotacao_inicio" }
+            ]
+          }
+        ],
+        "filter": [
+          {
+            "type": "EQUALS",
+            "parameter": [
+              { "type": "TEMPLATE", "key": "arg0", "value": "{{ED - event_name}}" },
               { "type": "TEMPLATE", "key": "arg1", "value": "cotacao_inicio" }
             ]
           }
         ]
       },
       {
-        "name": "CE - cotacao_completa",
-        "type": "customEvent",
-        "customEventFilter": [
+        "name": "Event - cotacao_completa",
+        "type": "always",
+        "autoEventFilter": [
           {
             "type": "EQUALS",
             "parameter": [
-              { "type": "TEMPLATE", "key": "arg0", "value": "{{_event}}" },
+              { "type": "TEMPLATE", "key": "arg0", "value": "{{ED - event_name}}" },
+              { "type": "TEMPLATE", "key": "arg1", "value": "cotacao_completa" }
+            ]
+          }
+        ],
+        "filter": [
+          {
+            "type": "EQUALS",
+            "parameter": [
+              { "type": "TEMPLATE", "key": "arg0", "value": "{{ED - event_name}}" },
               { "type": "TEMPLATE", "key": "arg1", "value": "cotacao_completa" }
             ]
           }
         ]
       },
       {
-        "name": "CE - whatsapp_click",
-        "type": "customEvent",
-        "customEventFilter": [
+        "name": "Event - whatsapp_click",
+        "type": "always",
+        "autoEventFilter": [
           {
             "type": "EQUALS",
             "parameter": [
-              { "type": "TEMPLATE", "key": "arg0", "value": "{{_event}}" },
+              { "type": "TEMPLATE", "key": "arg0", "value": "{{ED - event_name}}" },
+              { "type": "TEMPLATE", "key": "arg1", "value": "whatsapp_click" }
+            ]
+          }
+        ],
+        "filter": [
+          {
+            "type": "EQUALS",
+            "parameter": [
+              { "type": "TEMPLATE", "key": "arg0", "value": "{{ED - event_name}}" },
               { "type": "TEMPLATE", "key": "arg1", "value": "whatsapp_click" }
             ]
           }
         ]
       },
       {
-        "name": "CE - All 21Go Events",
-        "type": "customEvent",
-        "customEventFilter": [
+        "name": "Event - All 21Go Events",
+        "type": "always",
+        "autoEventFilter": [
           {
             "type": "MATCH_REGEX",
             "parameter": [
-              { "type": "TEMPLATE", "key": "arg0", "value": "{{_event}}" },
+              { "type": "TEMPLATE", "key": "arg0", "value": "{{ED - event_name}}" },
+              { "type": "TEMPLATE", "key": "arg1", "value": "page_view|cotacao_inicio|cotacao_completa|whatsapp_click" }
+            ]
+          }
+        ],
+        "filter": [
+          {
+            "type": "MATCH_REGEX",
+            "parameter": [
+              { "type": "TEMPLATE", "key": "arg0", "value": "{{ED - event_name}}" },
               { "type": "TEMPLATE", "key": "arg1", "value": "page_view|cotacao_inicio|cotacao_completa|whatsapp_click" }
             ]
           }
@@ -263,7 +312,7 @@
           { "type": "TEMPLATE", "key": "measurementId", "value": "{{CONST - GA4 Measurement ID}}" },
           { "type": "BOOLEAN", "key": "sendPageView", "value": "true" }
         ],
-        "firingTriggerId": ["CE - All 21Go Events"],
+        "firingTriggerId": ["All Events"],
         "tagFiringOption": "ONCE_PER_EVENT"
       },
       {
@@ -273,57 +322,57 @@
           {
             "type": "TEMPLATE",
             "key": "html",
-            "value": "<!-- Meta CAPI: PageView\n     SUBSTITUIR por template 'Facebook CAPI' do Stape.io\n     Config: Pixel={{CONST - Meta Pixel ID}} Token={{CONST - Meta CAPI Access Token}}\n     Event=PageView EventID={{ED - event_id}}\n     ActionSource=website URL={{ED - page_location}}\n     IP={{ED - ip_address}} UA={{ED - user_agent}}\n     FBC={{ED - fbc}} FBP={{ED - fbp}}\n-->"
+            "value": "<!-- Meta CAPI: PageView\n     SUBSTITUIR por template Facebook CAPI do Stape.io\n     Pixel={{CONST - Meta Pixel ID}} Token={{CONST - Meta CAPI Access Token}}\n     Event=PageView EventID={{ED - event_id}}\n     URL={{ED - page_location}} IP={{ED - ip_address}} UA={{ED - user_agent}}\n     FBC={{ED - fbc}} FBP={{ED - fbp}}\n-->"
           },
           { "type": "BOOLEAN", "key": "supportDocumentWrite", "value": "false" }
         ],
-        "firingTriggerId": ["CE - page_view"],
+        "firingTriggerId": ["Event - page_view"],
         "tagFiringOption": "ONCE_PER_EVENT"
       },
       {
-        "name": "Meta CAPI - InitiateCheckout (Cotação Início)",
+        "name": "Meta CAPI - InitiateCheckout",
         "type": "html",
         "parameter": [
           {
             "type": "TEMPLATE",
             "key": "html",
-            "value": "<!-- Meta CAPI: InitiateCheckout\n     SUBSTITUIR por template 'Facebook CAPI' do Stape.io\n     Config: Pixel={{CONST - Meta Pixel ID}} Token={{CONST - Meta CAPI Access Token}}\n     Event=InitiateCheckout EventID={{ED - event_id}}\n     ActionSource=website URL={{ED - page_location}}\n     IP={{ED - ip_address}} UA={{ED - user_agent}}\n     FBC={{ED - fbc}} FBP={{ED - fbp}} FBCLID={{ED - fbclid}}\n-->"
+            "value": "<!-- Meta CAPI: InitiateCheckout\n     SUBSTITUIR por template Facebook CAPI do Stape.io\n     Pixel={{CONST - Meta Pixel ID}} Token={{CONST - Meta CAPI Access Token}}\n     Event=InitiateCheckout EventID={{ED - event_id}}\n     URL={{ED - page_location}} IP={{ED - ip_address}} UA={{ED - user_agent}}\n     FBC={{ED - fbc}} FBP={{ED - fbp}} FBCLID={{ED - fbclid}}\n-->"
           },
           { "type": "BOOLEAN", "key": "supportDocumentWrite", "value": "false" }
         ],
-        "firingTriggerId": ["CE - cotacao_inicio"],
+        "firingTriggerId": ["Event - cotacao_inicio"],
         "tagFiringOption": "ONCE_PER_EVENT"
       },
       {
-        "name": "Meta CAPI - Lead (Cotação Completa)",
+        "name": "Meta CAPI - Lead",
         "type": "html",
         "parameter": [
           {
             "type": "TEMPLATE",
             "key": "html",
-            "value": "<!-- Meta CAPI: Lead\n     SUBSTITUIR por template 'Facebook CAPI' do Stape.io\n     Config: Pixel={{CONST - Meta Pixel ID}} Token={{CONST - Meta CAPI Access Token}}\n     Event=Lead EventID={{ED - event_id}}\n     ActionSource=website URL={{ED - page_location}}\n     IP={{ED - ip_address}} UA={{ED - user_agent}}\n     FBC={{ED - fbc}} FBP={{ED - fbp}} FBCLID={{ED - fbclid}}\n     Email={{ED - email_hash}} Phone={{ED - phone_hash}}\n     CustomData: value={{ED - plan_value}} currency=BRL\n     content_name={{ED - vehicle_marca}} {{ED - vehicle_modelo}}\n     content_category={{ED - plan_name}}\n-->"
+            "value": "<!-- Meta CAPI: Lead\n     SUBSTITUIR por template Facebook CAPI do Stape.io\n     Pixel={{CONST - Meta Pixel ID}} Token={{CONST - Meta CAPI Access Token}}\n     Event=Lead EventID={{ED - event_id}}\n     URL={{ED - page_location}} IP={{ED - ip_address}} UA={{ED - user_agent}}\n     FBC={{ED - fbc}} FBP={{ED - fbp}} FBCLID={{ED - fbclid}}\n     Email={{ED - email_hash}} Phone={{ED - phone_hash}}\n     Value={{ED - plan_value}} Currency=BRL\n     ContentName={{ED - vehicle_marca}} {{ED - vehicle_modelo}}\n     ContentCategory={{ED - plan_name}}\n-->"
           },
           { "type": "BOOLEAN", "key": "supportDocumentWrite", "value": "false" }
         ],
-        "firingTriggerId": ["CE - cotacao_completa"],
+        "firingTriggerId": ["Event - cotacao_completa"],
         "tagFiringOption": "ONCE_PER_EVENT"
       },
       {
-        "name": "Meta CAPI - Contact (WhatsApp Click)",
+        "name": "Meta CAPI - Contact",
         "type": "html",
         "parameter": [
           {
             "type": "TEMPLATE",
             "key": "html",
-            "value": "<!-- Meta CAPI: Contact\n     SUBSTITUIR por template 'Facebook CAPI' do Stape.io\n     Config: Pixel={{CONST - Meta Pixel ID}} Token={{CONST - Meta CAPI Access Token}}\n     Event=Contact EventID={{ED - event_id}}\n     ActionSource=website URL={{ED - page_location}}\n     IP={{ED - ip_address}} UA={{ED - user_agent}}\n     FBC={{ED - fbc}} FBP={{ED - fbp}} FBCLID={{ED - fbclid}}\n     Email={{ED - email_hash}} Phone={{ED - phone_hash}}\n     CustomData: value={{ED - plan_value}} currency=BRL\n     content_category={{ED - plan_name}} click_origin={{ED - click_origin}}\n-->"
+            "value": "<!-- Meta CAPI: Contact\n     SUBSTITUIR por template Facebook CAPI do Stape.io\n     Pixel={{CONST - Meta Pixel ID}} Token={{CONST - Meta CAPI Access Token}}\n     Event=Contact EventID={{ED - event_id}}\n     URL={{ED - page_location}} IP={{ED - ip_address}} UA={{ED - user_agent}}\n     FBC={{ED - fbc}} FBP={{ED - fbp}} FBCLID={{ED - fbclid}}\n     Email={{ED - email_hash}} Phone={{ED - phone_hash}}\n     Value={{ED - plan_value}} Currency=BRL\n     ContentCategory={{ED - plan_name}} ClickOrigin={{ED - click_origin}}\n-->"
           },
           { "type": "BOOLEAN", "key": "supportDocumentWrite", "value": "false" }
         ],
-        "firingTriggerId": ["CE - whatsapp_click"],
+        "firingTriggerId": ["Event - whatsapp_click"],
         "tagFiringOption": "ONCE_PER_EVENT"
       },
       {
-        "name": "Google Ads Enhanced - Lead (Cotação Completa)",
+        "name": "Google Ads Enhanced - Lead",
         "type": "awct",
         "parameter": [
           { "type": "TEMPLATE", "key": "conversionId", "value": "{{CONST - Google Ads Conversion ID}}" },
@@ -332,7 +381,7 @@
           { "type": "TEMPLATE", "key": "currencyCode", "value": "BRL" },
           { "type": "TEMPLATE", "key": "orderId", "value": "{{ED - event_id}}" }
         ],
-        "firingTriggerId": ["CE - cotacao_completa"],
+        "firingTriggerId": ["Event - cotacao_completa"],
         "tagFiringOption": "ONCE_PER_EVENT"
       }
     ]
