@@ -103,6 +103,29 @@ export default function CotacaoPage() {
     return Object.keys(e).length === 0
   }
 
+  /** Tenta buscar veiculo com retry automatico */
+  async function fetchVehicle(placa: string, retries = 2): Promise<any> {
+    for (let attempt = 0; attempt <= retries; attempt++) {
+      try {
+        const controller = new AbortController()
+        const timeout = setTimeout(() => controller.abort(), 30000)
+        const res = await fetch(
+          `${API_BASE}/api/vehicle/plate/${placa}`,
+          { signal: controller.signal },
+        )
+        clearTimeout(timeout)
+        const data = await res.json()
+        if (data.success) return data
+        // Se deu timeout no backend, tenta de novo (pode estar cacheado agora)
+        if (attempt < retries && data.error?.includes('demorou')) continue
+        return data
+      } catch {
+        if (attempt === retries) throw new Error('network')
+      }
+    }
+    throw new Error('network')
+  }
+
   async function next() {
     if (!validate()) return
 
@@ -111,15 +134,13 @@ export default function CotacaoPage() {
     setApiError('')
 
     try {
-      const res = await fetch(`${API_BASE}/api/vehicle/plate/${form.placa}`)
-      const data = await res.json()
+      const data = await fetchVehicle(form.placa)
 
       if (data.success) {
         const v = data.vehicle
         setVehicle(v)
 
         // SEMPRE calcula precos localmente pela tabela real
-        // Independe do formato/versao do backend
         const localPlans = getApplicablePlans(
           v.fipeValue,
           v.categoria,

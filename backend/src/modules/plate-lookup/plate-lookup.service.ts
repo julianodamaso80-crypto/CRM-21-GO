@@ -2,7 +2,7 @@ import axios from 'axios'
 import { prisma } from '../../config/database'
 import { getApplicablePlans, type QuotePlan } from './pricing'
 
-const API_TIMEOUT = 10000
+const API_TIMEOUT = 25000
 
 /* ─── API Brasil Response Types ─── */
 interface ApiBrasilVeiculo {
