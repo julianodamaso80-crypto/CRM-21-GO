@@ -1,0 +1,282 @@
+{
+  "exportFormatVersion": 2,
+  "containerVersion": {
+    "variable": [
+      {
+        "name": "CONST - GA4 Measurement ID",
+        "type": "c",
+        "parameter": [{ "type": "TEMPLATE", "key": "value", "value": "G-5K5V0PM30S" }]
+      },
+      {
+        "name": "CONST - Meta Pixel ID",
+        "type": "c",
+        "parameter": [{ "type": "TEMPLATE", "key": "value", "value": "PENDENTE_META_PIXEL_ID" }]
+      },
+      {
+        "name": "CONST - Meta CAPI Access Token",
+        "type": "c",
+        "parameter": [{ "type": "TEMPLATE", "key": "value", "value": "PENDENTE_META_ACCESS_TOKEN" }]
+      },
+      {
+        "name": "CONST - Google Ads Conversion ID",
+        "type": "c",
+        "parameter": [{ "type": "TEMPLATE", "key": "value", "value": "AW-18054567241" }]
+      },
+      {
+        "name": "CONST - GAds Label Cotacao Completa",
+        "type": "c",
+        "parameter": [{ "type": "TEMPLATE", "key": "value", "value": "gOwrCJrAppMcEMmqi6FD" }]
+      },
+      {
+        "name": "ED - event_id",
+        "type": "v",
+        "parameter": [
+          { "type": "TEMPLATE", "key": "name", "value": "event_id" },
+          { "type": "INTEGER", "key": "dataLayerVersion", "value": "2" }
+        ]
+      },
+      {
+        "name": "ED - event_name",
+        "type": "v",
+        "parameter": [
+          { "type": "TEMPLATE", "key": "name", "value": "event_name" },
+          { "type": "INTEGER", "key": "dataLayerVersion", "value": "2" }
+        ]
+      },
+      {
+        "name": "ED - plan_name",
+        "type": "v",
+        "parameter": [
+          { "type": "TEMPLATE", "key": "name", "value": "plan_name" },
+          { "type": "INTEGER", "key": "dataLayerVersion", "value": "2" }
+        ]
+      },
+      {
+        "name": "ED - plan_value",
+        "type": "v",
+        "parameter": [
+          { "type": "TEMPLATE", "key": "name", "value": "value" },
+          { "type": "INTEGER", "key": "dataLayerVersion", "value": "2" }
+        ]
+      },
+      {
+        "name": "ED - page_location",
+        "type": "v",
+        "parameter": [
+          { "type": "TEMPLATE", "key": "name", "value": "page_location" },
+          { "type": "INTEGER", "key": "dataLayerVersion", "value": "2" }
+        ]
+      },
+      {
+        "name": "ED - ip_address",
+        "type": "v",
+        "parameter": [
+          { "type": "TEMPLATE", "key": "name", "value": "ip_override" },
+          { "type": "INTEGER", "key": "dataLayerVersion", "value": "2" }
+        ]
+      },
+      {
+        "name": "ED - user_agent",
+        "type": "v",
+        "parameter": [
+          { "type": "TEMPLATE", "key": "name", "value": "user_agent" },
+          { "type": "INTEGER", "key": "dataLayerVersion", "value": "2" }
+        ]
+      },
+      {
+        "name": "ED - fbclid",
+        "type": "v",
+        "parameter": [
+          { "type": "TEMPLATE", "key": "name", "value": "fbclid" },
+          { "type": "INTEGER", "key": "dataLayerVersion", "value": "2" }
+        ]
+      },
+      {
+        "name": "ED - fbc",
+        "type": "v",
+        "parameter": [
+          { "type": "TEMPLATE", "key": "name", "value": "_fbc" },
+          { "type": "INTEGER", "key": "dataLayerVersion", "value": "2" }
+        ]
+      },
+      {
+        "name": "ED - fbp",
+        "type": "v",
+        "parameter": [
+          { "type": "TEMPLATE", "key": "name", "value": "_fbp" },
+          { "type": "INTEGER", "key": "dataLayerVersion", "value": "2" }
+        ]
+      },
+      {
+        "name": "ED - gclid",
+        "type": "v",
+        "parameter": [
+          { "type": "TEMPLATE", "key": "name", "value": "gclid" },
+          { "type": "INTEGER", "key": "dataLayerVersion", "value": "2" }
+        ]
+      },
+      {
+        "name": "ED - email_hash",
+        "type": "v",
+        "parameter": [
+          { "type": "TEMPLATE", "key": "name", "value": "x-ga-ud-email" },
+          { "type": "INTEGER", "key": "dataLayerVersion", "value": "2" }
+        ]
+      },
+      {
+        "name": "ED - phone_hash",
+        "type": "v",
+        "parameter": [
+          { "type": "TEMPLATE", "key": "name", "value": "x-ga-ud-phone" },
+          { "type": "INTEGER", "key": "dataLayerVersion", "value": "2" }
+        ]
+      },
+      {
+        "name": "ED - vehicle_marca",
+        "type": "v",
+        "parameter": [
+          { "type": "TEMPLATE", "key": "name", "value": "vehicle_marca" },
+          { "type": "INTEGER", "key": "dataLayerVersion", "value": "2" }
+        ]
+      },
+      {
+        "name": "ED - vehicle_modelo",
+        "type": "v",
+        "parameter": [
+          { "type": "TEMPLATE", "key": "name", "value": "vehicle_modelo" },
+          { "type": "INTEGER", "key": "dataLayerVersion", "value": "2" }
+        ]
+      },
+      {
+        "name": "ED - fipe_value",
+        "type": "v",
+        "parameter": [
+          { "type": "TEMPLATE", "key": "name", "value": "fipe_value" },
+          { "type": "INTEGER", "key": "dataLayerVersion", "value": "2" }
+        ]
+      },
+      {
+        "name": "ED - click_origin",
+        "type": "v",
+        "parameter": [
+          { "type": "TEMPLATE", "key": "name", "value": "click_origin" },
+          { "type": "INTEGER", "key": "dataLayerVersion", "value": "2" }
+        ]
+      },
+      {
+        "name": "ED - utm_source",
+        "type": "v",
+        "parameter": [
+          { "type": "TEMPLATE", "key": "name", "value": "utm_source" },
+          { "type": "INTEGER", "key": "dataLayerVersion", "value": "2" }
+        ]
+      },
+      {
+        "name": "ED - utm_medium",
+        "type": "v",
+        "parameter": [
+          { "type": "TEMPLATE", "key": "name", "value": "utm_medium" },
+          { "type": "INTEGER", "key": "dataLayerVersion", "value": "2" }
+        ]
+      },
+      {
+        "name": "ED - utm_campaign",
+        "type": "v",
+        "parameter": [
+          { "type": "TEMPLATE", "key": "name", "value": "utm_campaign" },
+          { "type": "INTEGER", "key": "dataLayerVersion", "value": "2" }
+        ]
+      }
+    ],
+    "trigger": [
+      {
+        "name": "All Events",
+        "type": "always"
+      },
+      {
+        "name": "Event - cotacao_completa",
+        "type": "always",
+        "autoEventFilter": [
+          {
+            "type": "EQUALS",
+            "parameter": [
+              { "type": "TEMPLATE", "key": "arg0", "value": "{{ED - event_name}}" },
+              { "type": "TEMPLATE", "key": "arg1", "value": "cotacao_completa" }
+            ]
+          }
+        ],
+        "filter": [
+          {
+            "type": "EQUALS",
+            "parameter": [
+              { "type": "TEMPLATE", "key": "arg0", "value": "{{ED - event_name}}" },
+              { "type": "TEMPLATE", "key": "arg1", "value": "cotacao_completa" }
+            ]
+          }
+        ]
+      },
+      {
+        "name": "Event - All 21Go Events",
+        "type": "always",
+        "autoEventFilter": [
+          {
+            "type": "MATCH_REGEX",
+            "parameter": [
+              { "type": "TEMPLATE", "key": "arg0", "value": "{{ED - event_name}}" },
+              { "type": "TEMPLATE", "key": "arg1", "value": "page_view|cotacao_inicio|cotacao_completa|whatsapp_click" }
+            ]
+          }
+        ],
+        "filter": [
+          {
+            "type": "MATCH_REGEX",
+            "parameter": [
+              { "type": "TEMPLATE", "key": "arg0", "value": "{{ED - event_name}}" },
+              { "type": "TEMPLATE", "key": "arg1", "value": "page_view|cotacao_inicio|cotacao_completa|whatsapp_click" }
+            ]
+          }
+        ]
+      }
+    ],
+    "tag": [
+      {
+        "name": "GA4 - Server Forward",
+        "type": "gaawc",
+        "parameter": [
+          { "type": "TEMPLATE", "key": "measurementId", "value": "{{CONST - GA4 Measurement ID}}" },
+          { "type": "BOOLEAN", "key": "sendPageView", "value": "true" }
+        ],
+        "firingTriggerId": ["All Events"],
+        "tagFiringOption": "ONCE_PER_EVENT"
+      },
+      {
+        "name": "Meta CAPI - All Events (PAUSADA - sem Pixel ID)",
+        "type": "html",
+        "parameter": [
+          {
+            "type": "TEMPLATE",
+            "key": "html",
+            "value": "<!-- Meta CAPI: SUBSTITUIR por template Facebook CAPI do Stape.io\n     Pixel ID: {{CONST - Meta Pixel ID}}\n     Access Token: {{CONST - Meta CAPI Access Token}}\n     Event Name: usar Lookup Table (page_view=PageView, cotacao_inicio=InitiateCheckout, cotacao_completa=Lead, whatsapp_click=Contact)\n     Event ID: {{ED - event_id}} (DEDUPLICACAO)\n     Action Source: website\n     URL: {{ED - page_location}}\n     IP: {{ED - ip_address}}\n     User Agent: {{ED - user_agent}}\n     FBC: {{ED - fbc}}\n     FBP: {{ED - fbp}}\n     FBCLID: {{ED - fbclid}}\n     Email Hash: {{ED - email_hash}}\n     Phone Hash: {{ED - phone_hash}}\n     Value: {{ED - plan_value}}\n     Currency: BRL\n     Content: {{ED - vehicle_marca}} {{ED - vehicle_modelo}}\n     Category: {{ED - plan_name}}\n\n     IMPORTANTE: Tag PAUSADA ate ter Meta Pixel ID.\n     Apos obter Pixel ID: atualizar CONST, instalar template Stape, despausar.\n-->"
+          },
+          { "type": "BOOLEAN", "key": "supportDocumentWrite", "value": "false" }
+        ],
+        "firingTriggerId": ["Event - All 21Go Events"],
+        "tagFiringOption": "ONCE_PER_EVENT",
+        "paused": true
+      },
+      {
+        "name": "GAds Enhanced - Cotacao Completa",
+        "type": "awct",
+        "parameter": [
+          { "type": "TEMPLATE", "key": "conversionId", "value": "{{CONST - Google Ads Conversion ID}}" },
+          { "type": "TEMPLATE", "key": "conversionLabel", "value": "{{CONST - GAds Label Cotacao Completa}}" },
+          { "type": "TEMPLATE", "key": "conversionValue", "value": "{{ED - plan_value}}" },
+          { "type": "TEMPLATE", "key": "currencyCode", "value": "BRL" },
+          { "type": "TEMPLATE", "key": "orderId", "value": "{{ED - event_id}}" }
+        ],
+        "firingTriggerId": ["Event - cotacao_completa"],
+        "tagFiringOption": "ONCE_PER_EVENT"
+      }
+    ]
+  }
+}
