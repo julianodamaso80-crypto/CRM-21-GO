@@ -3,31 +3,37 @@
   "containerVersion": {
     "variable": [
       {
+        "variableId": "100",
         "name": "CONST - GA4 Measurement ID",
         "type": "c",
         "parameter": [{ "type": "TEMPLATE", "key": "value", "value": "G-5K5V0PM30S" }]
       },
       {
+        "variableId": "101",
         "name": "CONST - Meta Pixel ID",
         "type": "c",
         "parameter": [{ "type": "TEMPLATE", "key": "value", "value": "PENDENTE_META_PIXEL_ID" }]
       },
       {
+        "variableId": "102",
         "name": "CONST - Meta CAPI Access Token",
         "type": "c",
         "parameter": [{ "type": "TEMPLATE", "key": "value", "value": "PENDENTE_META_ACCESS_TOKEN" }]
       },
       {
+        "variableId": "103",
         "name": "CONST - Google Ads Conversion ID",
         "type": "c",
         "parameter": [{ "type": "TEMPLATE", "key": "value", "value": "AW-18054567241" }]
       },
       {
+        "variableId": "104",
         "name": "CONST - GAds Label Cotacao Completa",
         "type": "c",
         "parameter": [{ "type": "TEMPLATE", "key": "value", "value": "gOwrCJrAppMcEMmqi6FD" }]
       },
       {
+        "variableId": "200",
         "name": "ED - event_id",
         "type": "v",
         "parameter": [
@@ -36,6 +42,7 @@
         ]
       },
       {
+        "variableId": "201",
         "name": "ED - event_name",
         "type": "v",
         "parameter": [
@@ -44,6 +51,7 @@
         ]
       },
       {
+        "variableId": "202",
         "name": "ED - plan_name",
         "type": "v",
         "parameter": [
@@ -52,6 +60,7 @@
         ]
       },
       {
+        "variableId": "203",
         "name": "ED - plan_value",
         "type": "v",
         "parameter": [
@@ -60,6 +69,7 @@
         ]
       },
       {
+        "variableId": "204",
         "name": "ED - page_location",
         "type": "v",
         "parameter": [
@@ -68,6 +78,7 @@
         ]
       },
       {
+        "variableId": "205",
         "name": "ED - ip_address",
         "type": "v",
         "parameter": [
@@ -76,6 +87,7 @@
         ]
       },
       {
+        "variableId": "206",
         "name": "ED - user_agent",
         "type": "v",
         "parameter": [
@@ -84,6 +96,7 @@
         ]
       },
       {
+        "variableId": "207",
         "name": "ED - fbclid",
         "type": "v",
         "parameter": [
@@ -92,6 +105,7 @@
         ]
       },
       {
+        "variableId": "208",
         "name": "ED - fbc",
         "type": "v",
         "parameter": [
@@ -100,6 +114,7 @@
         ]
       },
       {
+        "variableId": "209",
         "name": "ED - fbp",
         "type": "v",
         "parameter": [
@@ -108,6 +123,7 @@
         ]
       },
       {
+        "variableId": "210",
         "name": "ED - gclid",
         "type": "v",
         "parameter": [
@@ -116,6 +132,7 @@
         ]
       },
       {
+        "variableId": "211",
         "name": "ED - email_hash",
         "type": "v",
         "parameter": [
@@ -124,6 +141,7 @@
         ]
       },
       {
+        "variableId": "212",
         "name": "ED - phone_hash",
         "type": "v",
         "parameter": [
@@ -132,6 +150,7 @@
         ]
       },
       {
+        "variableId": "213",
         "name": "ED - vehicle_marca",
         "type": "v",
         "parameter": [
@@ -140,6 +159,7 @@
         ]
       },
       {
+        "variableId": "214",
         "name": "ED - vehicle_modelo",
         "type": "v",
         "parameter": [
@@ -148,6 +168,7 @@
         ]
       },
       {
+        "variableId": "215",
         "name": "ED - fipe_value",
         "type": "v",
         "parameter": [
@@ -156,6 +177,7 @@
         ]
       },
       {
+        "variableId": "216",
         "name": "ED - click_origin",
         "type": "v",
         "parameter": [
@@ -164,6 +186,7 @@
         ]
       },
       {
+        "variableId": "217",
         "name": "ED - utm_source",
         "type": "v",
         "parameter": [
@@ -172,6 +195,7 @@
         ]
       },
       {
+        "variableId": "218",
         "name": "ED - utm_medium",
         "type": "v",
         "parameter": [
@@ -180,6 +204,7 @@
         ]
       },
       {
+        "variableId": "219",
         "name": "ED - utm_campaign",
         "type": "v",
         "parameter": [
@@ -190,10 +215,12 @@
     ],
     "trigger": [
       {
+        "triggerId": "1",
         "name": "All Events",
         "type": "always"
       },
       {
+        "triggerId": "2",
         "name": "Event - cotacao_completa",
         "type": "always",
         "autoEventFilter": [
@@ -216,6 +243,7 @@
         ]
       },
       {
+        "triggerId": "3",
         "name": "Event - All 21Go Events",
         "type": "always",
         "autoEventFilter": [
@@ -240,31 +268,34 @@
     ],
     "tag": [
       {
+        "tagId": "1",
         "name": "GA4 - Server Forward",
         "type": "gaawc",
         "parameter": [
           { "type": "TEMPLATE", "key": "measurementId", "value": "{{CONST - GA4 Measurement ID}}" },
           { "type": "BOOLEAN", "key": "sendPageView", "value": "true" }
         ],
-        "firingTriggerId": ["All Events"],
-        "tagFiringOption": "ONCE_PER_EVENT"
+        "firingTriggerId": ["1"],
+        "tagFiringOption": "oncePerEvent"
       },
       {
-        "name": "Meta CAPI - All Events (PAUSADA - sem Pixel ID)",
+        "tagId": "2",
+        "name": "Meta CAPI - All Events (PAUSADA)",
         "type": "html",
         "parameter": [
           {
             "type": "TEMPLATE",
             "key": "html",
-            "value": "<!-- Meta CAPI: SUBSTITUIR por template Facebook CAPI do Stape.io\n     Pixel ID: {{CONST - Meta Pixel ID}}\n     Access Token: {{CONST - Meta CAPI Access Token}}\n     Event Name: usar Lookup Table (page_view=PageView, cotacao_inicio=InitiateCheckout, cotacao_completa=Lead, whatsapp_click=Contact)\n     Event ID: {{ED - event_id}} (DEDUPLICACAO)\n     Action Source: website\n     URL: {{ED - page_location}}\n     IP: {{ED - ip_address}}\n     User Agent: {{ED - user_agent}}\n     FBC: {{ED - fbc}}\n     FBP: {{ED - fbp}}\n     FBCLID: {{ED - fbclid}}\n     Email Hash: {{ED - email_hash}}\n     Phone Hash: {{ED - phone_hash}}\n     Value: {{ED - plan_value}}\n     Currency: BRL\n     Content: {{ED - vehicle_marca}} {{ED - vehicle_modelo}}\n     Category: {{ED - plan_name}}\n\n     IMPORTANTE: Tag PAUSADA ate ter Meta Pixel ID.\n     Apos obter Pixel ID: atualizar CONST, instalar template Stape, despausar.\n-->"
+            "value": "<!-- Meta CAPI: SUBSTITUIR por template Facebook CAPI do Stape.io\n     Pixel ID: {{CONST - Meta Pixel ID}}\n     Access Token: {{CONST - Meta CAPI Access Token}}\n     Lookup: page_view=PageView, cotacao_inicio=InitiateCheckout, cotacao_completa=Lead, whatsapp_click=Contact\n     Event ID: {{ED - event_id}} (deduplicacao)\n     URL: {{ED - page_location}} IP: {{ED - ip_address}} UA: {{ED - user_agent}}\n     FBC: {{ED - fbc}} FBP: {{ED - fbp}} FBCLID: {{ED - fbclid}}\n     Email: {{ED - email_hash}} Phone: {{ED - phone_hash}}\n     Value: {{ED - plan_value}} Currency: BRL\n     PAUSADA ate ter Meta Pixel ID\n-->"
           },
           { "type": "BOOLEAN", "key": "supportDocumentWrite", "value": "false" }
         ],
-        "firingTriggerId": ["Event - All 21Go Events"],
-        "tagFiringOption": "ONCE_PER_EVENT",
+        "firingTriggerId": ["3"],
+        "tagFiringOption": "oncePerEvent",
         "paused": true
       },
       {
+        "tagId": "3",
         "name": "GAds Enhanced - Cotacao Completa",
         "type": "awct",
         "parameter": [
@@ -274,8 +305,8 @@
           { "type": "TEMPLATE", "key": "currencyCode", "value": "BRL" },
           { "type": "TEMPLATE", "key": "orderId", "value": "{{ED - event_id}}" }
         ],
-        "firingTriggerId": ["Event - cotacao_completa"],
-        "tagFiringOption": "ONCE_PER_EVENT"
+        "firingTriggerId": ["2"],
+        "tagFiringOption": "oncePerEvent"
       }
     ]
   }
