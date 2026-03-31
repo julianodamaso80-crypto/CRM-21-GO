@@ -84,10 +84,10 @@ export default function IndiquePage() {
           </motion.p>
 
           <motion.div variants={fadeInUp}>
-            <Link href="/cotacao" className="inline-flex items-center gap-2.5 px-8 py-4 bg-gradient-to-r from-[#E07620] to-[#F08C28] text-white font-bold rounded-full shadow-lg shadow-[#E07620]/20 hover:shadow-xl hover:shadow-[#E07620]/30 hover:scale-[1.02] active:scale-[0.98] transition-all">
+            <a href="https://wa.me/5521965700021?text=Ol%C3%A1!%20Quero%20meu%20link%20de%20indica%C3%A7%C3%A3o%20do%20programa%20Member%20Get%20Member.%20Meu%20nome%3A%20" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2.5 px-8 py-4 bg-gradient-to-r from-[#E07620] to-[#F08C28] text-white font-bold rounded-full shadow-lg shadow-[#E07620]/20 hover:shadow-xl hover:shadow-[#E07620]/30 hover:scale-[1.02] active:scale-[0.98] transition-all">
               <MessageCircle className="w-5 h-5" />
               Quero Meu Link de Indicação
-            </Link>
+            </a>
           </motion.div>
         </motion.div>
       </section>
@@ -202,10 +202,10 @@ export default function IndiquePage() {
           <p className="text-lg text-white/50 mb-8">
             Entre em contato pelo WhatsApp e solicite seu link exclusivo de indicação.
           </p>
-          <Link href="/cotacao" className="inline-flex items-center gap-2.5 px-8 py-4 bg-gradient-to-r from-[#E07620] to-[#F08C28] text-white font-bold rounded-full shadow-lg shadow-[#E07620]/25 hover:shadow-xl hover:scale-[1.02] active:scale-[0.98] transition-all">
+          <a href="https://wa.me/5521965700021?text=Ol%C3%A1!%20Quero%20meu%20link%20de%20indica%C3%A7%C3%A3o.%20Meu%20nome%3A%20" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2.5 px-8 py-4 bg-gradient-to-r from-[#E07620] to-[#F08C28] text-white font-bold rounded-full shadow-lg shadow-[#E07620]/25 hover:shadow-xl hover:scale-[1.02] active:scale-[0.98] transition-all">
             <MessageCircle className="w-5 h-5" />
             Quero Meu Link
-          </Link>
+          </a>
         </div>
       </section>
     </>
