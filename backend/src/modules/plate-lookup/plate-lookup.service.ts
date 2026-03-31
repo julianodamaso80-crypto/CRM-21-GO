@@ -105,17 +105,19 @@ export async function lookupPlate(placa: string): Promise<PlateResponse | PlateE
 
   // 3. Call API Brasil
   const token = process.env.APIBRASIL_TOKEN
-  if (!token) {
+  const deviceToken = process.env.APIBRASIL_DEVICE_TOKEN
+  if (!token || !deviceToken) {
     return { success: false, error: 'Serviço de consulta indisponível no momento.' }
   }
 
   try {
     const { data } = await axios.post<ApiBrasilResponse>(
-      'https://gateway.apibrasil.io/api/v2/consulta/veiculos/credits',
+      'https://gateway.apibrasil.io/api/v2/vehicles/dados',
       { placa: normalized },
       {
         headers: {
           'Authorization': `Bearer ${token}`,
+          'DeviceToken': deviceToken,
           'Content-Type': 'application/json',
         },
         timeout: API_TIMEOUT,

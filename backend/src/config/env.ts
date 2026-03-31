@@ -81,6 +81,7 @@ const envSchema = z.object({
 
   // API Brasil (consulta de placa + FIPE)
   APIBRASIL_TOKEN: z.string().optional(),
+  APIBRASIL_DEVICE_TOKEN: z.string().optional(),
 })
 
 const _env = envSchema.safeParse(process.env)
