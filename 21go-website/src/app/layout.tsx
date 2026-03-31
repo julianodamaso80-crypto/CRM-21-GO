@@ -4,6 +4,7 @@ import './globals.css'
 import { Header } from '@/components/layout/Header'
 import { Footer } from '@/components/layout/Footer'
 import { WhatsAppButton } from '@/components/ui/WhatsAppButton'
+import { GTMProvider } from '@/components/GTMProvider'
 import { SchemaOrg } from '@/components/seo/SchemaOrg'
 import SmoothScrollProvider from '@/components/SmoothScrollProvider'
 import MobileCTA from '@/components/MobileCTA'
@@ -43,6 +44,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="pt-BR" className={`${outfit.variable} ${dmSans.variable}`}>
       <body>
+        <GTMProvider />
         <SchemaOrg />
         <SmoothScrollProvider>
           <Header />

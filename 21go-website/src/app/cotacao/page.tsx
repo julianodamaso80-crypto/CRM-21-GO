@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useCallback } from 'react'
+import { trackCotacaoInicio, trackCotacaoCompleta, trackWhatsAppClick } from '@/lib/tracking'
 import {
   ArrowRight,
   ArrowLeft,
@@ -139,6 +140,7 @@ export default function CotacaoPage() {
   async function next() {
     if (!validate()) return
 
+    trackCotacaoInicio()
     setLoading(true)
     setApiError('')
 
@@ -150,6 +152,18 @@ export default function CotacaoPage() {
         setVehicle(data.vehicle)
         setPlans(data.plans)
         setStep(2)
+
+        // Track cotação completa with vehicle data
+        trackCotacaoCompleta({
+          marca: data.vehicle.marca,
+          modelo: data.vehicle.modelo,
+          ano: data.vehicle.ano,
+          plano: 'completo',
+          valorMensal: data.plans.completo.monthly,
+          valorFipe: data.vehicle.fipeValue,
+          email: form.email || undefined,
+          phone: form.whatsapp || undefined,
+        })
       } else {
         setApiError(data.error || 'Veículo não encontrado.')
       }
@@ -453,6 +467,7 @@ export default function CotacaoPage() {
 
                   <a href={`https://wa.me/5521965700021?text=${encodeURIComponent(`Olá! Fiz uma cotação no site.\nNome: ${form.nome}\nWhatsApp: ${form.whatsapp}${form.email ? `\nE-mail: ${form.email}` : ''}\nPlaca: ${form.placa}${form.leilao !== 'nao' ? `\nOrigem: ${form.leilao === 'leilao' ? 'Leilão' : 'Remarcado'}` : ''}\nVeículo: ${vehicleLabel}\nFIPE: R$ ${fipeFormatted}\nPlano: ${plans[selectedPlan].name}\nValor: R$${price}/mês\nQuero contratar!`)}`}
                     target="_blank" rel="noopener noreferrer"
+                    onClick={() => trackWhatsAppClick('cotacao_resultado', { plano: plans[selectedPlan].name, valor: price })}
                     className="flex items-center justify-center gap-2.5 w-full py-4 bg-gradient-to-r from-[#E07620] to-[#F08C28] text-white font-bold text-base rounded-full shadow-lg shadow-[#E07620]/20 hover:shadow-xl hover:shadow-[#E07620]/30 hover:scale-[1.01] active:scale-[0.99] transition-all duration-200 mb-4">
                     <MessageCircle className="w-5 h-5" />
                     Contratar pelo WhatsApp
