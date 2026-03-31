@@ -103,7 +103,7 @@ export async function lookupPlate(placa: string): Promise<PlateResponse | PlateE
     return { success: false, error: 'Limite diário de consultas atingido. Tente novamente amanhã.' }
   }
 
-  // 3. Call API Brasil (endpoint de crédito — sem DeviceToken)
+  // 3. Call API Brasil
   const token = process.env.APIBRASIL_TOKEN
   if (!token) {
     return { success: false, error: 'Serviço de consulta indisponível no momento.' }
@@ -111,7 +111,7 @@ export async function lookupPlate(placa: string): Promise<PlateResponse | PlateE
 
   try {
     const { data } = await axios.post<ApiBrasilResponse>(
-      'https://gateway.apibrasil.io/api/v2/consulta/veiculos/credits',
+      'https://gateway.apibrasil.io/api/v2/vehicles/dados',
       { placa: normalized },
       {
         headers: {
