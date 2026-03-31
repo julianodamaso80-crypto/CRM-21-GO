@@ -371,6 +371,33 @@ model Cotacao {
 }
 
 // ============================================================================
+// PLATE LOOKUP CACHE (API Brasil — consulta de placa + FIPE)
+// ============================================================================
+
+model PlateLookup {
+  id        String  @id @default(uuid())
+  placa     String
+  success   Boolean
+  fromCache Boolean @default(false) @map("from_cache")
+
+  // Dados do veiculo (quando sucesso)
+  marca     String?
+  modelo    String?
+  ano       String?
+  fipeValue Float?  @map("fipe_value")
+
+  // Resultado completo (JSON) ou erro
+  result       Json    @default("{}")
+  errorMessage String? @map("error_message")
+
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("plate_lookups")
+  @@index([placa, createdAt])
+  @@index([createdAt])
+}
+
+// ============================================================================
 // SINISTROS & OFICINAS (Agente Sinistros + Agente Operacao)
 // ============================================================================
 

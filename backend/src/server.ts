@@ -39,6 +39,7 @@ import { sinistrosRoutes } from './modules/sinistros/sinistros.routes'
 import { cotacoesRoutes } from './modules/cotacoes/cotacoes.routes'
 import { indicacoesRoutes } from './modules/indicacoes/indicacoes.routes'
 import { projectsRoutes } from './modules/projects/projects.routes'
+import { plateLookupRoutes } from './modules/plate-lookup/plate-lookup.routes'
 
 const port = Number(process.env.PORT) || env.PORT || 3333
 
@@ -60,7 +61,9 @@ async function bootstrap() {
         const allowed = [
           'https://21go.site',
           'https://www.21go.site',
+          'https://app.21go.site',
           'http://localhost:5173',
+          'http://localhost:3000',
           'http://localhost:3333',
         ]
         if (!origin || allowed.includes(origin) || origin.endsWith('.railway.app')) {
@@ -162,6 +165,9 @@ async function bootstrap() {
     await fastify.register(analyticsRoutes, { prefix: '/api/analytics' })
     await fastify.register(billingRoutes, { prefix: '/api/billing' })
     await fastify.register(uploadRoutes, { prefix: '/api/upload' })
+
+    // Public endpoints (no auth — chamados pelo site estático)
+    await fastify.register(plateLookupRoutes, { prefix: '/api/vehicle' })
 
     // Alias: /api/contacts -> /api/associados (backward compat)
     await fastify.register(associadosRoutes, { prefix: '/api/contacts' })

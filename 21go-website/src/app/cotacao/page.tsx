@@ -13,6 +13,8 @@ import {
   MessageCircle,
   Mail,
   Sparkles,
+  Loader2,
+  AlertCircle,
 } from 'lucide-react'
 
 /* ─── Types ─── */
@@ -22,6 +24,24 @@ interface FormData {
   email: string
   placa: string
 }
+
+interface VehicleData {
+  marca: string
+  modelo: string
+  ano: string
+  cor: string
+  fipeValue: number
+  fipeCode: string
+}
+
+interface PlansData {
+  basico: { monthly: number; name: string }
+  completo: { monthly: number; name: string }
+  premium: { monthly: number; name: string }
+}
+
+/* ─── API Config ─── */
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'https://app.21go.site'
 
 /* ─── Masks ─── */
 function maskPhone(v: string) {
@@ -35,15 +55,7 @@ function maskPlaca(v: string) {
   return v.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 7)
 }
 
-/* ─── Mock data ─── */
-const MOCK_FIPE = 78000
-const TAXA_ADMIN = 35
-const TAXAS = { basico: 0.018, completo: 0.028, premium: 0.038 }
-
-function calcPrice(plan: 'basico' | 'completo' | 'premium') {
-  return Math.round((MOCK_FIPE * TAXAS[plan]) / 12 + TAXA_ADMIN)
-}
-
+/* ─── Coberturas ─── */
 const COBERTURA_BASICO = [
   { text: 'Furto e Roubo — Reembolso FIPE', included: true },
   { text: 'Assistência 24h + Guincho 200km', included: true },
@@ -93,7 +105,12 @@ export default function CotacaoPage() {
   const [errors, setErrors] = useState<Record<string, string>>({})
   const [selectedPlan, setSelectedPlan] = useState<'basico' | 'completo' | 'premium'>('completo')
   const [showCoberturas, setShowCoberturas] = useState(true)
-  const [veiculoIdentificado, setVeiculoIdentificado] = useState('')
+
+  // API state
+  const [loading, setLoading] = useState(false)
+  const [apiError, setApiError] = useState('')
+  const [vehicle, setVehicle] = useState<VehicleData | null>(null)
+  const [plans, setPlans] = useState<PlansData | null>(null)
 
   const [form, setForm] = useState<FormData>({
     nome: '',
@@ -105,12 +122,7 @@ export default function CotacaoPage() {
   const set = useCallback((field: keyof FormData, value: string) => {
     setForm(prev => ({ ...prev, [field]: value }))
     setErrors(prev => ({ ...prev, [field]: '' }))
-  }, [])
-
-  const identificarVeiculo = useCallback((placa: string) => {
-    if (placa.length >= 7) {
-      setVeiculoIdentificado('HYUNDAI HB20 1.0 SENSE 2022')
-    }
+    if (field === 'placa') setApiError('')
   }, [])
 
   function validate(): boolean {
@@ -122,14 +134,39 @@ export default function CotacaoPage() {
     return Object.keys(e).length === 0
   }
 
-  function next() {
-    if (validate()) {
-      identificarVeiculo(form.placa)
-      setStep(2)
+  async function next() {
+    if (!validate()) return
+
+    setLoading(true)
+    setApiError('')
+
+    try {
+      const res = await fetch(`${API_BASE}/api/vehicle/plate/${form.placa}`)
+      const data = await res.json()
+
+      if (data.success) {
+        setVehicle(data.vehicle)
+        setPlans(data.plans)
+        setStep(2)
+      } else {
+        setApiError(data.error || 'Veículo não encontrado.')
+      }
+    } catch {
+      setApiError('Não foi possível consultar o veículo. Tente novamente.')
+    } finally {
+      setLoading(false)
     }
   }
 
-  const price = calcPrice(selectedPlan)
+  // Get price from API plans or fallback
+  function getPrice(plan: 'basico' | 'completo' | 'premium'): number {
+    if (plans) return plans[plan].monthly
+    return 0
+  }
+
+  const price = getPrice(selectedPlan)
+  const vehicleLabel = vehicle ? `${vehicle.marca} ${vehicle.modelo} ${vehicle.ano}` : ''
+  const fipeFormatted = vehicle ? vehicle.fipeValue.toLocaleString('pt-BR') : '0'
 
   return (
     <div className="min-h-screen bg-[#F7F8FC] relative">
@@ -201,6 +238,7 @@ export default function CotacaoPage() {
                     error={errors.nome}
                     onChange={v => set('nome', v)}
                     placeholder="Seu nome completo"
+                    disabled={loading}
                   />
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                     <PillInput
@@ -211,6 +249,7 @@ export default function CotacaoPage() {
                       onChange={v => set('whatsapp', maskPhone(v))}
                       placeholder="(21) 99999-9999"
                       icon={<MessageCircle className="w-4 h-4 text-[#25D366]" />}
+                      disabled={loading}
                     />
                     <PillInput
                       label="E-mail (opcional)"
@@ -220,6 +259,7 @@ export default function CotacaoPage() {
                       onChange={v => set('email', v)}
                       placeholder="seu@email.com"
                       icon={<Mail className="w-4 h-4 text-[#94A3B8]" />}
+                      disabled={loading}
                     />
                   </div>
                   <PillInput
@@ -230,14 +270,40 @@ export default function CotacaoPage() {
                     onChange={v => set('placa', maskPlaca(v))}
                     placeholder="ABC1D23"
                     mono
+                    disabled={loading}
                   />
                 </div>
 
+                {/* API Error */}
+                {apiError && (
+                  <div className="mt-5 flex items-start gap-3 p-4 rounded-2xl bg-[#FEF2F2] border border-[#FECACA] text-[#DC2626] text-sm">
+                    <AlertCircle className="w-5 h-5 flex-shrink-0 mt-0.5" />
+                    <div>
+                      <p className="font-medium">{apiError}</p>
+                      <p className="text-[#DC2626]/70 mt-1">
+                        Verifique a placa ou{' '}
+                        <a href="https://wa.me/5521965700021?text=Olá! Preciso de ajuda com uma cotação." target="_blank" rel="noopener noreferrer" className="underline font-medium">
+                          fale no WhatsApp
+                        </a>.
+                      </p>
+                    </div>
+                  </div>
+                )}
+
                 <div className="flex justify-center mt-10">
-                  <button onClick={next}
-                    className="group inline-flex items-center gap-3 px-10 py-4 bg-gradient-to-r from-[#E07620] to-[#F08C28] text-white font-bold text-base rounded-full shadow-lg shadow-[#E07620]/20 hover:shadow-xl hover:shadow-[#E07620]/30 hover:scale-[1.02] active:scale-[0.98] transition-all duration-200">
-                    Ver Cotação
-                    <ArrowRight className="w-5 h-5 group-hover:translate-x-0.5 transition-transform" />
+                  <button onClick={next} disabled={loading}
+                    className="group inline-flex items-center gap-3 px-10 py-4 bg-gradient-to-r from-[#E07620] to-[#F08C28] text-white font-bold text-base rounded-full shadow-lg shadow-[#E07620]/20 hover:shadow-xl hover:shadow-[#E07620]/30 hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 disabled:opacity-70 disabled:cursor-not-allowed disabled:hover:scale-100">
+                    {loading ? (
+                      <>
+                        <Loader2 className="w-5 h-5 animate-spin" />
+                        Consultando veículo...
+                      </>
+                    ) : (
+                      <>
+                        Ver Cotação
+                        <ArrowRight className="w-5 h-5 group-hover:translate-x-0.5 transition-transform" />
+                      </>
+                    )}
                   </button>
                 </div>
 
@@ -266,8 +332,8 @@ export default function CotacaoPage() {
           )}
 
           {/* ── STEP 2: Resultado ── */}
-          {step === 2 && (
-            <div className="max-w-5xl mx-auto">
+          {step === 2 && vehicle && plans && (
+            <div className="max-w-5xl mx-auto pt-28">
               {/* Header */}
               <div className="text-center mb-10">
                 <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-[#10B981]/10 mb-4">
@@ -277,7 +343,9 @@ export default function CotacaoPage() {
                   {form.nome.split(' ')[0]}, sua cotação está pronta!
                 </h2>
                 <p className="text-[#64748B]">
-                  {veiculoIdentificado || 'HYUNDAI HB20 1.0 SENSE 2022'} — FIPE: R$ {MOCK_FIPE.toLocaleString('pt-BR')}
+                  {vehicleLabel}
+                  {vehicle.cor ? ` — ${vehicle.cor}` : ''}
+                  {' — '}FIPE: R$ {fipeFormatted}
                 </p>
               </div>
 
@@ -293,7 +361,7 @@ export default function CotacaoPage() {
                             ? 'bg-white text-[#0A1E3D] shadow-md'
                             : 'text-[#64748B] hover:text-[#0A1E3D]'
                         }`}>
-                        {plan === 'basico' ? 'Básico' : plan === 'completo' ? 'Completo' : 'Premium'}
+                        {plans[plan].name}
                         {plan === 'completo' && (
                           <span className="absolute -top-2 left-1/2 -translate-x-1/2 text-[9px] font-bold text-[#E07620] bg-[#E07620]/10 px-2 py-0.5 rounded-full uppercase tracking-wider">
                             Popular
@@ -327,7 +395,7 @@ export default function CotacaoPage() {
                 {/* Preço / CTA */}
                 <div className="bg-white rounded-3xl shadow-xl shadow-black/[0.04] border border-[#E8ECF4] p-6 md:p-8 h-fit lg:sticky lg:top-28">
                   <div className="text-center mb-6">
-                    <p className="text-sm text-[#64748B] mb-1">Plano {selectedPlan === 'basico' ? 'Básico' : selectedPlan === 'completo' ? 'Completo' : 'Premium'}</p>
+                    <p className="text-sm text-[#64748B] mb-1">Plano {plans[selectedPlan].name}</p>
                     <div className="flex items-baseline justify-center gap-1">
                       <span className="text-lg text-[#64748B] font-medium">R$</span>
                       <span className="font-[var(--font-display)] text-6xl font-bold text-[#0A1E3D] leading-none">{price}</span>
@@ -350,7 +418,7 @@ export default function CotacaoPage() {
                     </div>
                   </div>
 
-                  <a href={`https://wa.me/5521965700021?text=${encodeURIComponent(`Olá! Fiz uma cotação no site.\nNome: ${form.nome}\nWhatsApp: ${form.whatsapp}${form.email ? `\nE-mail: ${form.email}` : ''}\nPlaca: ${form.placa}\nVeículo: ${veiculoIdentificado || 'A identificar'}\nPlano: ${selectedPlan}\nValor: R$${price}/mês\nQuero contratar!`)}`}
+                  <a href={`https://wa.me/5521965700021?text=${encodeURIComponent(`Olá! Fiz uma cotação no site.\nNome: ${form.nome}\nWhatsApp: ${form.whatsapp}${form.email ? `\nE-mail: ${form.email}` : ''}\nPlaca: ${form.placa}\nVeículo: ${vehicleLabel}\nFIPE: R$ ${fipeFormatted}\nPlano: ${plans[selectedPlan].name}\nValor: R$${price}/mês\nQuero contratar!`)}`}
                     target="_blank" rel="noopener noreferrer"
                     className="flex items-center justify-center gap-2.5 w-full py-4 bg-gradient-to-r from-[#E07620] to-[#F08C28] text-white font-bold text-base rounded-full shadow-lg shadow-[#E07620]/20 hover:shadow-xl hover:shadow-[#E07620]/30 hover:scale-[1.01] active:scale-[0.99] transition-all duration-200 mb-4">
                     <MessageCircle className="w-5 h-5" />
@@ -370,7 +438,7 @@ export default function CotacaoPage() {
                   className="inline-flex items-center gap-2 text-sm text-[#64748B] hover:text-[#0A1E3D] transition-colors">
                   <ArrowLeft className="w-4 h-4" /> Editar dados
                 </button>
-                <button onClick={() => { setStep(1); setForm({ nome: '', whatsapp: '', email: '', placa: '' }); setVeiculoIdentificado('') }}
+                <button onClick={() => { setStep(1); setForm({ nome: '', whatsapp: '', email: '', placa: '' }); setVehicle(null); setPlans(null) }}
                   className="text-sm text-[#1B4DA1] hover:text-[#3D72DE] transition-colors">
                   Nova cotação
                 </button>
@@ -384,10 +452,10 @@ export default function CotacaoPage() {
 }
 
 /* ─── Pill Input (estilo Loovi) ─── */
-function PillInput({ label, name, value, error, onChange, placeholder, type = 'text', mono, icon }: {
+function PillInput({ label, name, value, error, onChange, placeholder, type = 'text', mono, icon, disabled }: {
   label: string; name: string; value: string; error?: string;
   onChange: (v: string) => void; placeholder?: string; type?: string; mono?: boolean;
-  icon?: React.ReactNode;
+  icon?: React.ReactNode; disabled?: boolean;
 }) {
   return (
     <div>
@@ -404,7 +472,8 @@ function PillInput({ label, name, value, error, onChange, placeholder, type = 't
           value={value}
           onChange={e => onChange(e.target.value)}
           placeholder={placeholder}
-          className={`w-full ${icon ? 'pl-11' : 'px-5'} pr-5 py-4 rounded-full border-2 text-[#0A1E3D] text-[15px] placeholder:text-[#C1C9D6] bg-white focus:outline-none focus:border-[#1B4DA1] focus:shadow-[0_0_0_3px_rgba(27,77,161,0.08)] transition-all duration-200 ${
+          disabled={disabled}
+          className={`w-full ${icon ? 'pl-11' : 'px-5'} pr-5 py-4 rounded-full border-2 text-[#0A1E3D] text-[15px] placeholder:text-[#C1C9D6] bg-white focus:outline-none focus:border-[#1B4DA1] focus:shadow-[0_0_0_3px_rgba(27,77,161,0.08)] transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed ${
             error ? 'border-[#EF4444] shadow-[0_0_0_3px_rgba(239,68,68,0.08)]' : 'border-[#E2E8F0] hover:border-[#C1C9D6]'
           } ${mono ? 'font-mono tracking-[0.15em] text-lg' : ''}`}
         />
