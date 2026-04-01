@@ -38,6 +38,10 @@ export const metadata: Metadata = {
   },
   robots: { index: true, follow: true },
   alternates: { canonical: 'https://21go.site' },
+  icons: {
+    icon: '/favicon.ico',
+    apple: '/logo21go.png',
+  },
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
