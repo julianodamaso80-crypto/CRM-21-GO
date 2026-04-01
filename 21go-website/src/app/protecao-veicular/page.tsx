@@ -45,16 +45,22 @@ interface FeatureRow {
 }
 
 const comparisonFeatures: FeatureRow[] = [
-  { feature: 'Roubo/Furto (FIPE)', basico: true, jeito: true, vip: true, premium: true },
-  { feature: 'Assistência 24h', basico: true, jeito: true, vip: true, premium: true },
-  { feature: 'Guincho/Reboque', basico: '200km', jeito: '200km', vip: '200km', premium: '600km' },
-  { feature: 'Colisão', basico: false, jeito: true, vip: true, premium: true },
-  { feature: 'Incêndio', basico: false, jeito: true, vip: true, premium: true },
-  { feature: 'Terceiros', basico: false, jeito: 'R$10K', vip: 'R$20K', premium: 'R$30K' },
-  { feature: 'Assist. Residencial', basico: false, jeito: true, vip: true, premium: 'Completa' },
+  { feature: 'Roubo e Furto', basico: true, jeito: true, vip: true, premium: true },
+  { feature: 'Incêndio', basico: true, jeito: 'Proveniente de colisão', vip: 'Proveniente de colisão', premium: 'Proveniente de colisão' },
+  { feature: 'Colisão', basico: true, jeito: true, vip: true, premium: true },
+  { feature: 'Fenômenos da Natureza', basico: false, jeito: true, vip: true, premium: true },
+  { feature: 'Danos a Terceiros', basico: 'R$5.000', jeito: 'R$10.000', vip: 'R$50.000', premium: 'R$100.000' },
   { feature: 'Carro Reserva', basico: false, jeito: false, vip: '7 dias', premium: '15 dias' },
-  { feature: 'Vidros e Faróis', basico: false, jeito: false, vip: true, premium: true },
-  { feature: 'Cobertura Total', basico: false, jeito: false, vip: false, premium: true },
+  { feature: 'Parabrisa', basico: false, jeito: true, vip: true, premium: true },
+  { feature: 'Carro Amigo', basico: false, jeito: '25km', vip: '25km', premium: true },
+  { feature: 'Reboque', basico: '200km', jeito: '400km', vip: '1.000km', premium: '1.200km' },
+  { feature: 'Reboque Adicional', basico: false, jeito: false, vip: false, premium: '200km' },
+  { feature: 'Todos os Vidros', basico: false, jeito: false, vip: false, premium: true },
+  { feature: 'Monitoramento 24h', basico: true, jeito: true, vip: 'Acima R$50K', premium: true },
+  { feature: 'Táxi', basico: '25km', jeito: '50km', vip: '100km', premium: '150km' },
+  { feature: 'AP morte/invalidez', basico: false, jeito: false, vip: false, premium: 'R$10.000' },
+  { feature: 'Funeral familiar', basico: false, jeito: false, vip: 'Até R$5.000', premium: 'R$5.000' },
+  { feature: 'Clube de Benefícios', basico: true, jeito: true, vip: true, premium: true },
 ]
 
 const vsSeguro = [
