@@ -240,7 +240,7 @@ export function getApplicablePlans(
   const mod = (modelo || '').toLowerCase()
   const isMoto = cat.includes('moto') || cat.includes('ciclomotor') || cat.includes('triciclo')
   const isSuvByCat = SUV_KEYWORDS.some(k => cat.includes(k))
-  const isSuvByModel = !cat && SUV_MODELS.some(k => mod.includes(k))
+  const isSuvByModel = SUV_MODELS.some(k => mod.includes(k))
   const isSuv = isSuvByCat || isSuvByModel
   const isEletrico = ELETRICO_KEYWORDS.some(k => fuel.includes(k))
 
