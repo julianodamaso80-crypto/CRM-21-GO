@@ -2,7 +2,7 @@
 
 import { motion, useInView } from 'framer-motion'
 import { useRef, useState } from 'react'
-import { Check, X, Car, Bike, Truck } from 'lucide-react'
+import { Check, X, Car, Bike, Truck, Star, ArrowRight } from 'lucide-react'
 import { fadeInUp, staggerContainer } from '@/lib/motion'
 import Link from 'next/link'
 
@@ -17,17 +17,12 @@ const categories: { id: Category; label: string; icon: React.ReactNode }[] = [
 interface PlanFeature {
   text: string
   included: boolean
-  /** New in this plan vs previous tier */
-  highlight?: boolean
-  /** Upgraded from previous tier */
-  upgrade?: boolean
 }
 
 const plansByCategory: Record<Category, {
   name: string
   desc: string
   popular?: boolean
-  startingPrice: string
   delay: number
   features: PlanFeature[]
 }[]> = {
@@ -35,7 +30,6 @@ const plansByCategory: Record<Category, {
     {
       name: 'Básico',
       desc: 'Proteção essencial contra roubo e furto',
-      startingPrice: '106,50',
       delay: 0,
       features: [
         { text: 'Roubo e Furto (reembolso FIPE)', included: true },
@@ -50,15 +44,14 @@ const plansByCategory: Record<Category, {
     },
     {
       name: 'Do Seu Jeito',
-      desc: 'Tudo do Básico + colisão, incêndio e mais',
-      startingPrice: '107,40',
+      desc: 'Básico + colisão, incêndio e mais',
       delay: 0.05,
       features: [
         { text: 'Tudo do Básico', included: true },
-        { text: 'Colisão Total e Parcial', included: true, highlight: true },
-        { text: 'Incêndio e Eventos da Natureza', included: true, highlight: true },
-        { text: 'Terceiros R$10.000', included: true, highlight: true },
-        { text: 'Assistência Residencial', included: true, highlight: true },
+        { text: 'Colisão Total e Parcial', included: true },
+        { text: 'Incêndio e Eventos da Natureza', included: true },
+        { text: 'Terceiros R$10.000', included: true },
+        { text: 'Assistência Residencial', included: true },
         { text: 'Carro Reserva', included: false },
         { text: 'Vidros e Faróis', included: false },
       ],
@@ -67,34 +60,29 @@ const plansByCategory: Record<Category, {
       name: 'VIP',
       desc: 'O mais escolhido — cobertura completa',
       popular: true,
-      startingPrice: '126,50',
       delay: 0.1,
       features: [
         { text: 'Tudo do "Do Seu Jeito"', included: true },
-        { text: 'Terceiros R$20.000', included: true, upgrade: true },
-        { text: 'Carro Reserva 7 dias', included: true, highlight: true },
-        { text: 'Vidros e Faróis', included: true, highlight: true },
+        { text: 'Terceiros R$20.000', included: true },
+        { text: 'Carro Reserva 7 dias', included: true },
+        { text: 'Vidros e Faróis', included: true },
       ],
     },
     {
       name: 'Premium',
       desc: 'Máxima proteção — tudo incluído',
-      startingPrice: '165,35',
       delay: 0.15,
       features: [
         { text: 'Roubo e Furto', included: true },
         { text: 'Colisão + Incêndio + Natureza', included: true },
         { text: 'Terceiros R$100.000', included: true },
         { text: 'Carro Reserva 15 dias', included: true },
-        { text: 'Cobertura Todos os Vidros', included: true },
-        { text: 'Parabrisa + Carro Amigo', included: true },
-        { text: 'Reboque 1.200km + Adicional 200km', included: true },
+        { text: 'Todos os Vidros + Parabrisa', included: true },
+        { text: 'Reboque 1.200km', included: true },
         { text: 'Monitoramento 24h', included: true },
-        { text: 'Assistência completa (chaveiro, pneu, combustível)', included: true },
-        { text: 'Hospedagem + Táxi 150km + Retorno', included: true },
+        { text: 'Assistência completa', included: true },
+        { text: 'Hospedagem + Táxi + Retorno', included: true },
         { text: 'AP morte/invalidez R$10.000', included: true },
-        { text: 'Funeral familiar R$5.000', included: true },
-        { text: 'Clube de Benefícios', included: true },
       ],
     },
   ],
@@ -103,7 +91,6 @@ const plansByCategory: Record<Category, {
       name: 'VIP Moto até 400cc',
       desc: 'Proteção completa para motos até 400cc',
       popular: true,
-      startingPrice: '77,50',
       delay: 0,
       features: [
         { text: 'Roubo e Furto', included: true },
@@ -113,16 +100,13 @@ const plansByCategory: Record<Category, {
         { text: 'Reboque 1.000km', included: true },
         { text: 'Chaveiro / Pneu / Combustível', included: true },
         { text: 'Socorro mecânico / elétrico', included: true },
-        { text: 'Hospedagem + Retorno a domicílio', included: true },
-        { text: 'AP morte acidental (R$10.000)', included: true },
-        { text: 'Clube de Benefícios', included: true },
-        { text: 'Funeral familiar', included: true },
+        { text: 'Hospedagem + Retorno', included: true },
+        { text: 'AP morte acidental R$10.000', included: true },
       ],
     },
     {
       name: 'VIP Moto 450-1000cc',
-      desc: 'Proteção para motos de alta cilindrada',
-      startingPrice: '102,50',
+      desc: 'Para motos de alta cilindrada',
       delay: 0.1,
       features: [
         { text: 'Roubo e Furto', included: true },
@@ -132,19 +116,16 @@ const plansByCategory: Record<Category, {
         { text: 'Reboque 1.000km', included: true },
         { text: 'Chaveiro / Pneu / Combustível', included: true },
         { text: 'Socorro mecânico / elétrico', included: true },
-        { text: 'Hospedagem + Retorno a domicílio', included: true },
-        { text: 'AP morte acidental (R$10.000)', included: true },
-        { text: 'Clube de Benefícios', included: true },
-        { text: 'Funeral familiar', included: true },
+        { text: 'Hospedagem + Retorno', included: true },
+        { text: 'AP morte acidental R$10.000', included: true },
       ],
     },
   ],
   especiais: [
     {
       name: 'SUV',
-      desc: 'Para pick-ups, caminhonetes e SUVs',
+      desc: 'Pick-ups, caminhonetes e SUVs',
       popular: true,
-      startingPrice: '145,00',
       delay: 0,
       features: [
         { text: 'Roubo e Furto (reembolso FIPE)', included: true },
@@ -160,7 +141,6 @@ const plansByCategory: Record<Category, {
     {
       name: 'Veículos Especiais',
       desc: 'Elétricos e acima de R$150 mil',
-      startingPrice: '238,50',
       delay: 0.1,
       features: [
         { text: 'Cobertura customizada por veículo', included: true },
@@ -189,11 +169,14 @@ export function PlansSection() {
         className="mx-auto max-w-7xl px-6"
       >
         <motion.div variants={fadeInUp} className="text-center mb-10">
-          <h2 className="font-[var(--font-outfit)] text-3xl md:text-4xl font-bold text-[#1B4DA1]">
+          <span className="inline-block text-xs font-bold text-[#E07620] bg-[#E07620]/10 px-3 py-1 rounded-full uppercase tracking-wider mb-4">
+            Planos
+          </span>
+          <h2 className="font-[var(--font-outfit)] text-3xl md:text-4xl font-bold text-[#0A1E3D]">
             Proteção sob medida para seu veículo
           </h2>
           <p className="mt-4 text-lg text-[#64748B] max-w-2xl mx-auto">
-            8 planos para carros, motos, SUVs e veículos especiais. Todos com assistência 24h.
+            Compare as coberturas e descubra o plano ideal. O valor depende do seu veículo.
           </p>
         </motion.div>
 
@@ -225,10 +208,10 @@ export function PlansSection() {
               key={plan.name}
               variants={fadeInUp}
               transition={{ delay: plan.delay }}
-              className={`relative rounded-2xl p-8 border transition-all duration-300 ${
+              className={`relative rounded-2xl p-7 border transition-all duration-300 ${
                 plan.popular
-                  ? 'border-[#E07620]/50 shadow-xl scale-[1.04] bg-white md:-mt-4'
-                  : 'border-[#E2E8F0] bg-white hover:shadow-lg hover:-translate-y-1'
+                  ? 'border-[#E07620]/50 shadow-xl scale-[1.03] bg-white md:-mt-4'
+                  : 'border-[#E8ECF4] bg-white hover:shadow-lg hover:-translate-y-1'
               }`}
             >
               {plan.popular && (
@@ -243,41 +226,31 @@ export function PlansSection() {
                 </span>
               )}
 
-              <div className="flex items-start justify-between mb-2">
+              <div className="flex items-start justify-between mb-5">
                 <div>
                   <h3 className="font-[var(--font-outfit)] text-xl font-bold text-[#0A1E3D]">{plan.name}</h3>
                   <p className="mt-1 text-sm text-[#64748B]">{plan.desc}</p>
                 </div>
                 {plan.popular && (
                   <div className="flex-shrink-0 w-8 h-8 rounded-lg bg-[#E07620]/10 flex items-center justify-center">
-                    <span className="text-[#E07620] text-sm">★</span>
+                    <Star className="w-4 h-4 text-[#E07620] fill-[#E07620]" />
                   </div>
                 )}
               </div>
 
-              {/* Starting price */}
-              <div className="mt-4 mb-6">
-                <p className="text-xs text-[#94A3B8] uppercase tracking-wider">a partir de</p>
-                <div className="flex items-baseline gap-1 mt-1">
-                  <span className="text-sm text-[#64748B]">R$</span>
-                  <span className="font-[var(--font-outfit)] text-3xl font-bold text-[#0A1E3D]">{plan.startingPrice}</span>
-                  <span className="text-sm text-[#64748B]">/mês</span>
-                </div>
-              </div>
-
-              <ul className="space-y-3">
+              <ul className="space-y-3 mb-7">
                 {plan.features.map((f) => (
-                  <li key={f.text} className="flex items-center gap-3">
+                  <li key={f.text} className="flex items-start gap-3">
                     {f.included ? (
-                      <span className="flex-shrink-0 w-5 h-5 rounded-full bg-[#10B981]/10 flex items-center justify-center">
+                      <span className="flex-shrink-0 w-5 h-5 rounded-full bg-[#10B981]/10 flex items-center justify-center mt-0.5">
                         <Check className="h-3 w-3 text-[#10B981]" />
                       </span>
                     ) : (
-                      <span className="flex-shrink-0 w-5 h-5 rounded-full bg-[#F1F5F9] flex items-center justify-center">
+                      <span className="flex-shrink-0 w-5 h-5 rounded-full bg-[#F1F5F9] flex items-center justify-center mt-0.5">
                         <X className="h-3 w-3 text-[#CBD5E1]" />
                       </span>
                     )}
-                    <span className={`text-sm ${f.included ? 'text-[#0A1E3D]' : 'text-[#CBD5E1]'}`}>
+                    <span className={`text-sm leading-snug ${f.included ? 'text-[#0A1E3D]' : 'text-[#CBD5E1]'}`}>
                       {f.text}
                     </span>
                   </li>
@@ -286,17 +259,29 @@ export function PlansSection() {
 
               <Link
                 href="/cotacao"
-                className={`mt-8 block w-full text-center py-3.5 rounded-xl font-semibold text-sm transition-all duration-200 ${
+                className={`block w-full text-center py-3.5 rounded-xl font-semibold text-sm transition-all duration-200 ${
                   plan.popular
-                    ? 'bg-[#E07620] text-white hover:bg-[#C46218] shadow-md hover:shadow-[0_4px_16px_rgba(224,118,32,0.4)]'
+                    ? 'bg-gradient-to-r from-[#E07620] to-[#F08C28] text-white shadow-md hover:shadow-[0_4px_16px_rgba(224,118,32,0.4)]'
                     : 'bg-[#F0F4FA] text-[#1B4DA1] hover:bg-[#E2E8F0]'
                 }`}
               >
-                Solicitar Cotação
+                <span className="inline-flex items-center gap-2">
+                  Fazer Cotação <ArrowRight className="w-4 h-4" />
+                </span>
               </Link>
             </motion.div>
           ))}
         </div>
+
+        {/* Bottom CTA */}
+        <motion.div variants={fadeInUp} className="text-center mt-12">
+          <p className="text-[#64748B] text-sm">
+            O valor da mensalidade depende do modelo e ano do seu veículo.{' '}
+            <Link href="/cotacao" className="text-[#1B4DA1] font-semibold hover:underline">
+              Faça sua cotação grátis em 30 segundos
+            </Link>.
+          </p>
+        </motion.div>
       </motion.div>
     </section>
   )
