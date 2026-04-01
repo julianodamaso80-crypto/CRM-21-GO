@@ -309,6 +309,26 @@ model Lead {
   utmContent  String? @map("utm_content")
   utmTerm     String? @map("utm_term")
 
+  // Click IDs e tracking avançado (para offline conversions)
+  gclid     String?
+  fbclid    String?
+  fbp       String? // cookie _fbp
+  fbc       String? // cookie _fbc
+  ipAddress String? @map("ip_address")
+  userAgent String? @map("user_agent")
+
+  // Conversão (quando lead vira cliente)
+  status          String @default("lead") // lead, cliente_ativo, cancelado
+  valorCompra     Float?    @map("valor_compra")
+  produtoComprado String?   @map("produto_comprado")
+  dataConversao   DateTime? @map("data_conversao")
+
+  // Flags de envio de conversão offline
+  metaCapiSent     Boolean   @default(false) @map("meta_capi_sent")
+  metaCapiSentAt   DateTime? @map("meta_capi_sent_at")
+  googleAdsSent    Boolean   @default(false) @map("google_ads_sent")
+  googleAdsSentAt  DateTime? @map("google_ads_sent_at")
+
   // Associado resultante (quando lead vira associado)
   associadoId String?    @map("associado_id")
   associado   Associado? @relation(fields: [associadoId], references: [id], onDelete: SetNull)

@@ -197,8 +197,10 @@ export default function CotacaoPage() {
             ...tracking.utms,
             gclid: tracking.clickIds.gclid,
             fbclid: tracking.clickIds.fbclid,
+            fbp: tracking.clickIds._fbp,
+            fbc: tracking.clickIds._fbc,
           }),
-        }).catch(() => {}) // Silencioso — não bloqueia a experiência do usuário
+        }).catch(() => {})
       } else {
         setApiError(data.error || 'Veículo não encontrado.')
       }

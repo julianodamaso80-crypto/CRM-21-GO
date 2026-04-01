@@ -84,6 +84,16 @@ const envSchema = z.object({
 
   // Company ID padrão (para endpoints públicos do site)
   DEFAULT_COMPANY_ID: z.string().optional(),
+
+  // Meta CAPI (conversões offline)
+  META_PIXEL_ID: z.string().optional(),
+  META_ACCESS_TOKEN: z.string().optional(),
+
+  // Google Ads Offline Conversions
+  GOOGLE_ADS_CUSTOMER_ID: z.string().optional(),
+  GOOGLE_ADS_CONVERSION_ACTION: z.string().optional(),
+  GOOGLE_ADS_DEVELOPER_TOKEN: z.string().optional(),
+  GOOGLE_ADS_ACCESS_TOKEN: z.string().optional(),
 })
 
 const _env = envSchema.safeParse(process.env)

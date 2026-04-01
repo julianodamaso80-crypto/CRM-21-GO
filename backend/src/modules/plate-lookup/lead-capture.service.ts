@@ -8,7 +8,7 @@ interface PublicLeadInput {
   placa: string
   leilao?: 'nao' | 'leilao' | 'remarcado'
 
-  // Dados do veículo (da consulta API Brasil)
+  // Dados do veículo
   marca?: string
   modelo?: string
   ano?: string
@@ -18,7 +18,7 @@ interface PublicLeadInput {
   plano?: string
   valorMensal?: number
 
-  // Tracking (click IDs + UTMs do cookie do site)
+  // Tracking
   utmSource?: string
   utmMedium?: string
   utmCampaign?: string
@@ -26,9 +26,11 @@ interface PublicLeadInput {
   utmTerm?: string
   gclid?: string
   fbclid?: string
+  fbp?: string
+  fbc?: string
 }
 
-export async function createPublicLead(input: PublicLeadInput) {
+export async function createPublicLead(input: PublicLeadInput, ip?: string, userAgent?: string) {
   const companyId = process.env.DEFAULT_COMPANY_ID
 
   if (!companyId) {
@@ -40,7 +42,6 @@ export async function createPublicLead(input: PublicLeadInput) {
   }
 
   try {
-    // Verificar se já existe um lead com esse WhatsApp + placa (evitar duplicatas)
     const existing = await prisma.lead.findFirst({
       where: {
         companyId,
@@ -50,7 +51,6 @@ export async function createPublicLead(input: PublicLeadInput) {
     })
 
     if (existing) {
-      // Atualizar o lead existente com dados mais recentes
       const updated = await prisma.lead.update({
         where: { id: existing.id },
         data: {
@@ -61,14 +61,16 @@ export async function createPublicLead(input: PublicLeadInput) {
           cotacaoPlano: input.plano || existing.cotacaoPlano,
           cotacaoEnviada: true,
           cotacaoData: new Date(),
-          updatedAt: new Date(),
+          // Atualizar tracking se disponível
+          gclid: input.gclid || existing.gclid,
+          fbclid: input.fbclid || existing.fbclid,
+          fbp: input.fbp || existing.fbp,
+          fbc: input.fbc || existing.fbc,
         },
       })
-
       return { success: true, leadId: updated.id, action: 'updated' }
     }
 
-    // Criar novo lead
     const lead = await prisma.lead.create({
       data: {
         companyId,
@@ -77,37 +79,41 @@ export async function createPublicLead(input: PublicLeadInput) {
         email: input.email || null,
         telefone: input.whatsapp,
 
-        // Veículo
         placaInteresse: input.placa.toUpperCase(),
         marcaInteresse: input.marca || null,
         modeloInteresse: input.modelo || null,
         anoInteresse: input.ano ? parseInt(input.ano) || null : null,
 
-        // Cotação
         valorFipeConsultado: input.valorFipe || null,
         cotacaoValor: input.valorMensal || null,
         cotacaoPlano: input.plano || null,
         cotacaoEnviada: true,
         cotacaoData: new Date(),
 
-        // Qualificação
         qualificadoPor: 'site',
-        scoreQualificacao: 50, // Lead quente — fez cotação no site
+        scoreQualificacao: 50,
         etapaFunil: 'cotacao_enviada',
+        status: 'lead',
 
-        // Origem / Tracking
         origem: input.utmSource ? `${input.utmSource}_${input.utmMedium || 'direct'}` : 'site_organico',
         utmSource: input.utmSource || null,
         utmMedium: input.utmMedium || null,
         utmCampaign: input.utmCampaign || null,
         utmContent: input.utmContent || null,
         utmTerm: input.utmTerm || null,
+
+        // Tracking avançado
+        gclid: input.gclid || null,
+        fbclid: input.fbclid || null,
+        fbp: input.fbp || null,
+        fbc: input.fbc || null,
+        ipAddress: ip || null,
+        userAgent: userAgent || null,
       },
     })
 
     return { success: true, leadId: lead.id, action: 'created' }
   } catch (err: any) {
-    // Se a tabela não existe ainda, não crashar
     console.error('[LeadCapture] Error:', err.message)
     return { success: false, error: 'Erro ao salvar lead.' }
   }
