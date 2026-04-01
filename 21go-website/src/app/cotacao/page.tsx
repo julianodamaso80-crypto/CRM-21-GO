@@ -326,7 +326,7 @@ export default function CotacaoPage() {
 
                   {/* Leilão / Remarcado */}
                   <div>
-                    <label className="block text-sm font-medium text-[#64748B] mb-2">Veículo de leilão ou remarcado?</label>
+                    <label className="block text-sm font-semibold text-[#0A1E3D] mb-2">Veículo de leilão ou remarcado?</label>
                     <div className="grid grid-cols-3 gap-3">
                       {([
                         { value: 'nao', label: 'Não' },
@@ -338,10 +338,10 @@ export default function CotacaoPage() {
                           type="button"
                           disabled={loading}
                           onClick={() => set('leilao', opt.value)}
-                          className={`py-3 rounded-full border-2 text-sm font-semibold transition-all duration-200 disabled:opacity-50 ${
+                          className={`py-3.5 rounded-2xl border-2 text-sm font-semibold transition-all duration-200 disabled:opacity-50 ${
                             form.leilao === opt.value
-                              ? 'border-[#1B4DA1] bg-[#1B4DA1]/5 text-[#1B4DA1]'
-                              : 'border-[#E2E8F0] text-[#94A3B8] hover:border-[#C1C9D6]'
+                              ? 'border-[#1B4DA1] bg-[#1B4DA1]/10 text-[#1B4DA1] shadow-sm'
+                              : 'border-[#D1DFFA] bg-[#F7F8FC] text-[#64748B] hover:border-[#1B4DA1]/40'
                           }`}
                         >
                           {opt.label}
@@ -542,10 +542,10 @@ function PillInput({ label, name, value, error, onChange, placeholder, type = 't
 }) {
   return (
     <div>
-      <label htmlFor={name} className="block text-sm font-medium text-[#64748B] mb-2">{label}</label>
+      <label htmlFor={name} className="block text-sm font-semibold text-[#0A1E3D] mb-2">{label}</label>
       <div className="relative">
         {icon && (
-          <div className="absolute left-4 top-1/2 -translate-y-1/2">
+          <div className="absolute left-5 top-1/2 -translate-y-1/2">
             {icon}
           </div>
         )}
@@ -556,12 +556,12 @@ function PillInput({ label, name, value, error, onChange, placeholder, type = 't
           onChange={e => onChange(e.target.value)}
           placeholder={placeholder}
           disabled={disabled}
-          className={`w-full ${icon ? 'pl-11' : 'px-5'} pr-5 py-4 rounded-full border-2 text-[#0A1E3D] text-[15px] placeholder:text-[#C1C9D6] bg-white focus:outline-none focus:border-[#1B4DA1] focus:shadow-[0_0_0_3px_rgba(27,77,161,0.08)] transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed ${
-            error ? 'border-[#EF4444] shadow-[0_0_0_3px_rgba(239,68,68,0.08)]' : 'border-[#E2E8F0] hover:border-[#C1C9D6]'
+          className={`w-full ${icon ? 'pl-12' : 'px-5'} pr-5 py-4 rounded-2xl border-2 text-[#0A1E3D] text-[15px] font-medium placeholder:text-[#94A3B8] bg-[#F7F8FC] focus:outline-none focus:border-[#1B4DA1] focus:bg-white focus:shadow-[0_0_0_3px_rgba(27,77,161,0.1)] transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed ${
+            error ? 'border-[#EF4444] bg-[#FEF2F2] shadow-[0_0_0_3px_rgba(239,68,68,0.08)]' : 'border-[#D1DFFA] hover:border-[#1B4DA1]/40'
           } ${mono ? 'font-mono tracking-[0.15em] text-lg' : ''}`}
         />
       </div>
-      {error && <p className="mt-1.5 ml-5 text-xs text-[#EF4444] font-medium">{error}</p>}
+      {error && <p className="mt-1.5 ml-4 text-xs text-[#EF4444] font-medium">{error}</p>}
     </div>
   )
 }
