@@ -81,6 +81,9 @@ const envSchema = z.object({
 
   // API Brasil (consulta de placa + FIPE — endpoint de crédito)
   APIBRASIL_TOKEN: z.string().optional(),
+
+  // Company ID padrão (para endpoints públicos do site)
+  DEFAULT_COMPANY_ID: z.string().optional(),
 })
 
 const _env = envSchema.safeParse(process.env)

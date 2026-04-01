@@ -1,10 +1,11 @@
 import { FastifyInstance, FastifyRequest, FastifyReply } from 'fastify'
 import { lookupPlate } from './plate-lookup.service'
+import { createPublicLead } from './lead-capture.service'
 
 export async function plateLookupRoutes(fastify: FastifyInstance) {
-  // Public endpoint — NO auth required (called from static site)
-  // Rate limited by global config + internal daily limit in service
+  // Public endpoints — NO auth required (called from static site)
 
+  // GET /plate/:placa — Consulta veículo
   fastify.get<{ Params: { placa: string } }>(
     '/plate/:placa',
     {
@@ -18,40 +19,28 @@ export async function plateLookupRoutes(fastify: FastifyInstance) {
           },
           required: ['placa'],
         },
-        response: {
-          200: {
-            type: 'object',
-            properties: {
-              success: { type: 'boolean' },
-              vehicle: {
-                type: 'object',
-                properties: {
-                  marca: { type: 'string' },
-                  modelo: { type: 'string' },
-                  ano: { type: 'string' },
-                  cor: { type: 'string' },
-                  fipeValue: { type: 'number' },
-                  fipeCode: { type: 'string' },
-                },
-              },
-              plans: {
-                type: 'object',
-                properties: {
-                  basico: { type: 'object', properties: { monthly: { type: 'number' }, name: { type: 'string' } } },
-                  completo: { type: 'object', properties: { monthly: { type: 'number' }, name: { type: 'string' } } },
-                  premium: { type: 'object', properties: { monthly: { type: 'number' }, name: { type: 'string' } } },
-                },
-              },
-              error: { type: 'string' },
-            },
-          },
-        },
       },
     },
     async (request: FastifyRequest<{ Params: { placa: string } }>, reply: FastifyReply) => {
       const { placa } = request.params
       const result = await lookupPlate(placa)
       return reply.send(result)
+    },
+  )
+
+  // POST /lead — Salva lead do formulário do site
+  fastify.post(
+    '/lead',
+    {
+      schema: {
+        description: 'Salva lead do formulário de cotação do site no banco',
+        tags: ['Lead Capture'],
+      },
+    },
+    async (request: FastifyRequest, reply: FastifyReply) => {
+      const body = request.body as any
+      const result = await createPublicLead(body)
+      return reply.status(201).send(result)
     },
   )
 }

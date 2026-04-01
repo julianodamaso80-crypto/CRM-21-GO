@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useCallback } from 'react'
-import { trackCotacaoInicio, trackCotacaoCompleta, trackWhatsAppClick } from '@/lib/tracking'
+import { trackCotacaoInicio, trackCotacaoCompleta, trackWhatsAppClick, getTrackingData } from '@/lib/tracking'
 import {
   ArrowRight,
   ArrowLeft,
@@ -176,6 +176,29 @@ export default function CotacaoPage() {
           email: form.email || undefined,
           phone: form.whatsapp || undefined,
         })
+
+        // Salvar lead no banco (não bloqueia a UI)
+        const tracking = getTrackingData()
+        fetch(`${API_BASE}/api/vehicle/lead`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            nome: form.nome,
+            whatsapp: form.whatsapp,
+            email: form.email || undefined,
+            placa: form.placa,
+            leilao: form.leilao,
+            marca: v.marca,
+            modelo: v.modelo,
+            ano: v.ano,
+            valorFipe: v.fipeValue,
+            plano: defaultPlan.name,
+            valorMensal: defaultPlan.monthly,
+            ...tracking.utms,
+            gclid: tracking.clickIds.gclid,
+            fbclid: tracking.clickIds.fbclid,
+          }),
+        }).catch(() => {}) // Silencioso — não bloqueia a experiência do usuário
       } else {
         setApiError(data.error || 'Veículo não encontrado.')
       }
