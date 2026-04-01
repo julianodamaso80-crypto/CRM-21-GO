@@ -46,6 +46,28 @@ interface VehicleData {
   combustivel?: string
 }
 
+/* ─── Faixas FIPE para fallback manual ─── */
+const FIPE_RANGES = [
+  { label: 'Até R$ 20.000', value: 17500 },
+  { label: 'R$ 20 a 30 mil', value: 25000 },
+  { label: 'R$ 30 a 40 mil', value: 35000 },
+  { label: 'R$ 40 a 50 mil', value: 45000 },
+  { label: 'R$ 50 a 60 mil', value: 55000 },
+  { label: 'R$ 60 a 70 mil', value: 65000 },
+  { label: 'R$ 70 a 80 mil', value: 75000 },
+  { label: 'R$ 80 a 100 mil', value: 90000 },
+  { label: 'R$ 100 a 130 mil', value: 115000 },
+  { label: 'R$ 130 a 150 mil', value: 140000 },
+  { label: 'Acima de R$ 150 mil', value: 175000 },
+]
+
+const VEHICLE_TYPES = [
+  { label: 'Carro', value: 'carro' },
+  { label: 'SUV / Pick-up', value: 'suv' },
+  { label: 'Moto até 400cc', value: 'moto-400' },
+  { label: 'Moto 450-1000cc', value: 'moto-1000' },
+]
+
 /* ─── API Config ─── */
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'https://crm-21-go-production.up.railway.app'
 
@@ -80,6 +102,11 @@ export default function CotacaoPage() {
   const [vehicle, setVehicle] = useState<VehicleData | null>(null)
   const [plans, setPlans] = useState<QuotePlan[]>([])
 
+  // Fallback manual state
+  const [showFallback, setShowFallback] = useState(false)
+  const [fallbackType, setFallbackType] = useState('carro')
+  const [fallbackFipe, setFallbackFipe] = useState(0)
+
   const [form, setForm] = useState<FormData>({
     nome: '',
     whatsapp: '',
@@ -103,27 +130,102 @@ export default function CotacaoPage() {
     return Object.keys(e).length === 0
   }
 
-  /** Tenta buscar veiculo com retry automatico */
-  async function fetchVehicle(placa: string, retries = 2): Promise<any> {
-    for (let attempt = 0; attempt <= retries; attempt++) {
-      try {
-        const controller = new AbortController()
-        const timeout = setTimeout(() => controller.abort(), 30000)
-        const res = await fetch(
-          `${API_BASE}/api/vehicle/plate/${placa}`,
-          { signal: controller.signal },
-        )
-        clearTimeout(timeout)
-        const data = await res.json()
-        if (data.success) return data
-        // Se deu timeout no backend, tenta de novo (pode estar cacheado agora)
-        if (attempt < retries && data.error?.includes('demorou')) continue
-        return data
-      } catch {
-        if (attempt === retries) throw new Error('network')
-      }
+  async function fetchVehicle(placa: string): Promise<any> {
+    const controller = new AbortController()
+    const timeout = setTimeout(() => controller.abort(), 12000)
+    try {
+      const res = await fetch(
+        `${API_BASE}/api/vehicle/plate/${placa}`,
+        { signal: controller.signal },
+      )
+      clearTimeout(timeout)
+      return await res.json()
+    } catch {
+      clearTimeout(timeout)
+      throw new Error('network')
     }
-    throw new Error('network')
+  }
+
+  /** Cotação via fallback manual (sem API) */
+  function handleFallbackQuote() {
+    if (!fallbackFipe) return
+
+    const isMoto400 = fallbackType === 'moto-400'
+    const isMoto1000 = fallbackType === 'moto-1000'
+    const isSuv = fallbackType === 'suv'
+
+    const localPlans = getApplicablePlans(
+      fallbackFipe,
+      isMoto400 || isMoto1000 ? 'MOTOCICLETA' : isSuv ? 'CAMINHONETE' : 'AUTOMOVEL',
+      undefined,
+      isMoto400 ? 300 : isMoto1000 ? 600 : undefined,
+      isSuv ? 'compass' : undefined,  // trigger SUV detection
+    )
+
+    if (localPlans.length === 0) {
+      setApiError('Não encontramos planos para essa faixa de valor. Fale com um consultor.')
+      return
+    }
+
+    const isLeilao = form.leilao !== 'nao'
+    const finalPlans = isLeilao
+      ? localPlans.map(p => ({ ...p, monthly: Math.round(p.monthly * 0.8 * 100) / 100 }))
+      : localPlans
+
+    const fipeLabel = FIPE_RANGES.find(r => r.value === fallbackFipe)?.label || ''
+    const typeLabel = VEHICLE_TYPES.find(t => t.value === fallbackType)?.label || ''
+
+    setVehicle({
+      marca: typeLabel,
+      modelo: '(informado manualmente)',
+      ano: '',
+      cor: '',
+      fipeValue: fallbackFipe,
+      fipeCode: '',
+      categoria: fallbackType,
+    })
+    setPlans(finalPlans)
+    const popularIdx = finalPlans.findIndex(p => p.popular)
+    setSelectedPlanIdx(popularIdx >= 0 ? popularIdx : 0)
+    setShowFallback(false)
+    setStep(2)
+
+    const defaultPlan = finalPlans[popularIdx >= 0 ? popularIdx : 0]
+    trackCotacaoCompleta({
+      marca: typeLabel,
+      modelo: '(manual)',
+      ano: '',
+      plano: defaultPlan.name,
+      valorMensal: defaultPlan.monthly,
+      valorFipe: fallbackFipe,
+      email: form.email || undefined,
+      phone: form.whatsapp || undefined,
+    })
+
+    // Salvar lead (não bloqueia)
+    const tracking = getTrackingData()
+    fetch(`${API_BASE}/api/vehicle/lead`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        nome: form.nome,
+        whatsapp: form.whatsapp,
+        email: form.email || undefined,
+        placa: form.placa,
+        leilao: form.leilao,
+        marca: typeLabel,
+        modelo: '(manual)',
+        ano: '',
+        valorFipe: fallbackFipe,
+        plano: defaultPlan.name,
+        valorMensal: defaultPlan.monthly,
+        ...tracking.utms,
+        gclid: tracking.clickIds.gclid,
+        fbclid: tracking.clickIds.fbclid,
+        fbp: tracking.clickIds._fbp,
+        fbc: tracking.clickIds._fbc,
+      }),
+    }).catch(() => {})
   }
 
   async function next() {
@@ -202,10 +304,14 @@ export default function CotacaoPage() {
           }),
         }).catch(() => {})
       } else {
-        setApiError(data.error || 'Veículo não encontrado.')
+        // API retornou erro — mostra fallback manual
+        setShowFallback(true)
+        setApiError('')
       }
     } catch {
-      setApiError('Não foi possível consultar o veículo. Tente novamente.')
+      // Timeout ou erro de rede — mostra fallback manual
+      setShowFallback(true)
+      setApiError('')
     } finally {
       setLoading(false)
     }
@@ -215,7 +321,12 @@ export default function CotacaoPage() {
   const planInfo = selectedPlan ? PLAN_INFO[selectedPlan.id as PlanId] : null
   const price = selectedPlan?.monthly || 0
   const priceFormatted = formatPrice(price)
-  const vehicleLabel = vehicle ? `${vehicle.marca} ${vehicle.modelo} ${vehicle.ano}` : ''
+  const isManualQuote = vehicle?.modelo === '(informado manualmente)'
+  const vehicleLabel = vehicle
+    ? isManualQuote
+      ? `${vehicle.marca} — Valor estimado`
+      : `${vehicle.marca} ${vehicle.modelo} ${vehicle.ano}`
+    : ''
   const fipeFormatted = vehicle ? vehicle.fipeValue.toLocaleString('pt-BR') : '0'
   const firstPayment = formatPrice(price + 299.90)
 
@@ -372,6 +483,71 @@ export default function CotacaoPage() {
                   </div>
                 )}
 
+                {/* Fallback Manual — aparece quando API falha */}
+                {showFallback && (
+                  <div className="mt-6 p-6 rounded-2xl bg-[#FFFBF5] border-2 border-[#E07620]/20">
+                    <div className="flex items-start gap-3 mb-5">
+                      <div className="w-10 h-10 rounded-xl bg-[#E07620]/10 flex items-center justify-center flex-shrink-0">
+                        <AlertCircle className="w-5 h-5 text-[#E07620]" />
+                      </div>
+                      <div>
+                        <p className="font-semibold text-[#0A1E3D] text-sm">Consulta automática indisponível</p>
+                        <p className="text-[#64748B] text-xs mt-0.5">Selecione seu tipo de veículo e faixa de valor para receber a cotação agora mesmo.</p>
+                      </div>
+                    </div>
+
+                    <div className="space-y-4">
+                      {/* Tipo de veículo */}
+                      <div>
+                        <label className="block text-sm font-semibold text-[#0A1E3D] mb-2">Tipo do veículo</label>
+                        <div className="grid grid-cols-2 gap-2">
+                          {VEHICLE_TYPES.map(t => (
+                            <button key={t.value} type="button" onClick={() => { setFallbackType(t.value); setFallbackFipe(0) }}
+                              className={`py-3 rounded-xl border-2 text-sm font-semibold transition-all duration-200 ${
+                                fallbackType === t.value
+                                  ? 'border-[#E07620] bg-[#E07620]/10 text-[#E07620] shadow-sm'
+                                  : 'border-[#D1DFFA] bg-white text-[#64748B] hover:border-[#E07620]/40'
+                              }`}>
+                              {t.label}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Faixa FIPE */}
+                      <div>
+                        <label className="block text-sm font-semibold text-[#0A1E3D] mb-2">Valor aproximado do veículo (FIPE)</label>
+                        <div className="grid grid-cols-2 gap-2 max-h-[220px] overflow-y-auto pr-1">
+                          {FIPE_RANGES.map(r => (
+                            <button key={r.value} type="button" onClick={() => setFallbackFipe(r.value)}
+                              className={`py-2.5 px-3 rounded-xl border-2 text-xs font-semibold transition-all duration-200 ${
+                                fallbackFipe === r.value
+                                  ? 'border-[#E07620] bg-[#E07620]/10 text-[#E07620] shadow-sm'
+                                  : 'border-[#D1DFFA] bg-white text-[#64748B] hover:border-[#E07620]/40'
+                              }`}>
+                              {r.label}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="flex justify-center mt-6">
+                      <button onClick={handleFallbackQuote} disabled={!fallbackFipe}
+                        className="group inline-flex items-center gap-3 px-8 py-3.5 bg-gradient-to-r from-[#E07620] to-[#F08C28] text-white font-bold text-sm rounded-full shadow-lg shadow-[#E07620]/20 hover:shadow-xl hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:scale-100">
+                        <Sparkles className="w-4 h-4" />
+                        Ver Cotação Estimada
+                        <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
+                      </button>
+                    </div>
+
+                    <p className="text-center text-[10px] text-[#94A3B8] mt-3">
+                      Valores estimados. O consultor confirmará o valor exato pelo WhatsApp.
+                    </p>
+                  </div>
+                )}
+
+                {!showFallback && (
                 <div className="flex justify-center mt-10">
                   <button onClick={next} disabled={loading}
                     className="group inline-flex items-center gap-3 px-10 py-4 bg-gradient-to-r from-[#E07620] to-[#F08C28] text-white font-bold text-base rounded-full shadow-lg shadow-[#E07620]/20 hover:shadow-xl hover:shadow-[#E07620]/30 hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 disabled:opacity-70 disabled:cursor-not-allowed disabled:hover:scale-100">
@@ -388,6 +564,7 @@ export default function CotacaoPage() {
                     )}
                   </button>
                 </div>
+                )}
 
                 <div className="flex items-center justify-center gap-2 mt-6 text-xs text-[#94A3B8]">
                   <Lock className="w-3.5 h-3.5" />
@@ -521,7 +698,7 @@ export default function CotacaoPage() {
                   className="inline-flex items-center gap-2 text-sm text-[#64748B] hover:text-[#0A1E3D] transition-colors">
                   <ArrowLeft className="w-4 h-4" /> Editar dados
                 </button>
-                <button onClick={() => { setStep(1); setForm({ nome: '', whatsapp: '', email: '', placa: '', leilao: 'nao' }); setVehicle(null); setPlans([]) }}
+                <button onClick={() => { setStep(1); setForm({ nome: '', whatsapp: '', email: '', placa: '', leilao: 'nao' }); setVehicle(null); setPlans([]); setShowFallback(false); setFallbackFipe(0) }}
                   className="text-sm text-[#1B4DA1] hover:text-[#3D72DE] transition-colors">
                   Nova cotação
                 </button>
