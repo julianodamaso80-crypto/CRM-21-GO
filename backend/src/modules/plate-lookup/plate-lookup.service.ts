@@ -2,7 +2,7 @@ import axios from 'axios'
 import { prisma } from '../../config/database'
 import { getApplicablePlans, type QuotePlan } from './pricing'
 
-const API_TIMEOUT = 25000
+const API_TIMEOUT = 10000
 
 /* ─── API Brasil Response Types ─── */
 interface ApiBrasilVeiculo {
@@ -88,6 +88,9 @@ export async function lookupPlate(placa: string): Promise<PlateResponse | PlateE
   }
 
   try {
+    const controller = new AbortController()
+    const timeoutId = setTimeout(() => controller.abort(), API_TIMEOUT)
+
     const { data } = await axios.post<ApiBrasilResponse>(
       'https://gateway.apibrasil.io/api/v2/consulta/veiculos/credits',
       {
@@ -101,8 +104,10 @@ export async function lookupPlate(placa: string): Promise<PlateResponse | PlateE
           'Content-Type': 'application/json',
         },
         timeout: API_TIMEOUT,
+        signal: controller.signal,
       },
     )
+    clearTimeout(timeoutId)
 
     if (data.error || !data.data?.resultados?.length) {
       await tryLog({ placa: normalized, success: false, fromCache: false, errorMessage: data.message || 'Veículo não encontrado', result: {} })
