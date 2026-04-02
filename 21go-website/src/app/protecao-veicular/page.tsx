@@ -13,9 +13,9 @@ import {
 } from 'lucide-react'
 
 export const metadata: Metadata = {
-  title: 'Planos de Protecao Veicular | 8 Planos para Carros, Motos e SUVs | 21Go',
+  title: '8 Planos pra Proteger Seu Carro, Moto ou SUV | 21Go',
   description:
-    'Conheca os 8 planos de protecao veicular da 21Go. Carros a partir de R$106,50/mes, motos a partir de R$77,50/mes. Sem analise de perfil. Simulacao em 30 segundos.',
+    'Carros a partir de R$106,50/mês, motos a partir de R$77,50/mês. Sem análise de perfil, sem burocracia. Veja qual plano cabe no seu bolso em 30 segundos.',
 }
 
 const mutualSteps = [

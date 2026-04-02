@@ -25,15 +25,15 @@ const dmSans = DM_Sans({
 
 export const metadata: Metadata = {
   title: {
-    default: 'Proteção Veicular RJ | 21Go — 20+ Anos Protegendo Seu Carro',
-    template: '%s | 21Go Proteção Veicular',
+    default: 'Proteja Seu Carro ou Moto | 21Go — A partir de R$77,50/mês',
+    template: '%s | 21Go',
   },
-  description: 'Proteção veicular no Rio de Janeiro a partir de R$77,50/mês. 8 planos para carros, motos, SUVs e especiais. 20+ anos de mercado, sem análise de perfil. Simulação grátis.',
+  description: 'Proteja seu carro ou moto no Rio de Janeiro a partir de R$77,50/mês. Sem análise de perfil, sem burocracia. 20+ anos cuidando do seu veículo. Simule grátis em 30 segundos.',
   metadataBase: new URL('https://21go.site'),
   openGraph: {
     type: 'website',
     locale: 'pt_BR',
-    siteName: '21Go Proteção Veicular',
+    siteName: '21Go',
     images: [{ url: '/og-image.jpg', width: 1200, height: 630 }],
   },
   robots: { index: true, follow: true },

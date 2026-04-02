@@ -3,9 +3,9 @@ import Link from 'next/link'
 import { MessageCircle, ShieldCheck, ArrowRight, ChevronDown } from 'lucide-react'
 
 export const metadata: Metadata = {
-  title: 'Perguntas Frequentes | 21Go Protecao Veicular',
+  title: 'Dúvidas? A Gente Explica Tudo | 21Go',
   description:
-    'Tire todas as suas duvidas sobre protecao veicular, planos, eventos, pagamento e cancelamento na 21Go.',
+    'Tire suas dúvidas sobre planos, preços, como funciona, pagamento e cancelamento na 21Go.',
 }
 
 const categories = [
