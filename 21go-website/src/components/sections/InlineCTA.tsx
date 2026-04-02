@@ -11,7 +11,7 @@ interface InlineCTAProps {
   bg?: 'white' | 'gray'
 }
 
-export function InlineCTA({ text, buttonText = 'Fazer Cotação Grátis', bg = 'white' }: InlineCTAProps) {
+export function InlineCTA({ text, buttonText = 'Fazer Simulação Grátis', bg = 'white' }: InlineCTAProps) {
   const ref = useRef(null)
   const isInView = useInView(ref, { once: true, margin: '-50px' })
 

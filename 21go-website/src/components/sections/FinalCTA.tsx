@@ -32,7 +32,7 @@ export function FinalCTA() {
         </motion.h2>
 
         <motion.p variants={fadeInUp} className="mt-4 text-lg text-[#64748B]">
-          Cotação em 30 segundos, sem compromisso. Comece a proteger seu patrimônio hoje.
+          Simulação em 30 segundos, sem compromisso. Comece a proteger seu patrimônio hoje.
         </motion.p>
 
         <motion.div variants={fadeInUp} className="mt-8 flex flex-wrap items-center justify-center gap-4">
@@ -40,7 +40,7 @@ export function FinalCTA() {
             href="/cotacao"
             className="shimmer-btn inline-flex items-center px-9 py-4 rounded-xl bg-[#E07620] text-white text-base font-semibold hover:bg-[#C46218] transition-all duration-300 animate-glow-pulse hover:-translate-y-0.5"
           >
-            Fazer Cotação Grátis
+            Fazer Simulação Grátis
           </Link>
           <Link
             href="/cotacao"

@@ -9,7 +9,7 @@ import Link from 'next/link'
 const benefits = [
   'Seus recursos estão protegidos por lei',
   'Nossa operação é fiscalizada pelo governo federal',
-  'Você tem respaldo legal completo em caso de sinistro',
+  'Você tem respaldo legal completo em caso de evento',
   'Nossas reservas financeiras são auditadas',
 ]
 
@@ -88,7 +88,7 @@ export function SusepSection() {
                 href="/cotacao"
                 className="inline-flex items-center px-7 py-3.5 rounded-xl bg-[#E07620] text-white font-semibold text-sm hover:bg-[#C46218] transition-all duration-200 shadow-sm hover:shadow-lg hover:-translate-y-0.5"
               >
-                Confie em quem é regulamentado. Faça sua cotação
+                Confie em quem é regulamentado. Faça sua simulação
               </Link>
             </motion.div>
           </div>

@@ -19,15 +19,15 @@ const stagger = { hidden: {}, visible: { transition: { staggerChildren: 0.12 } }
 const milestones = [
   { year: '2003', title: 'Fundação', description: 'A 21Go nasce no Rio de Janeiro como associação de proteção veicular.' },
   { year: '2008', title: '1.000 Associados', description: 'Alcançamos a marca de mil veículos protegidos na região metropolitana.' },
-  { year: '2015', title: 'Expansão RJ', description: 'Cobertura em todo o estado do Rio de Janeiro com rede de oficinas credenciadas.' },
+  { year: '2015', title: 'Expansão RJ', description: 'Atuação em todo o estado do Rio de Janeiro com rede de oficinas credenciadas.' },
   { year: '2020', title: 'Transformação Digital', description: 'Início da digitalização com atendimento por WhatsApp e sistemas integrados.' },
-  { year: '2025', title: 'IA e Tecnologia', description: 'Lançamento da plataforma com inteligência artificial e cotação automática.' },
+  { year: '2025', title: 'IA e Tecnologia', description: 'Lançamento da plataforma com inteligência artificial e simulação automática.' },
 ]
 
 const stats = [
   { value: '20+', label: 'Anos de Mercado' },
   { value: '5.000+', label: 'Veículos Protegidos' },
-  { value: '3.500+', label: 'Sinistros Resolvidos' },
+  { value: '3.500+', label: 'Eventos Resolvidos' },
   { value: '98%', label: 'Satisfação' },
 ]
 
@@ -128,7 +128,7 @@ export default function SobrePage() {
               </div>
               <h3 className="font-[var(--font-display)] text-xl font-bold text-[#0A1E3D] mb-2">Missão</h3>
               <p className="text-sm text-[#64748B] leading-relaxed">
-                Democratizar a proteção veicular no Rio de Janeiro, oferecendo cobertura acessível e atendimento humanizado a todos os motoristas, independente de perfil ou histórico.
+                Democratizar a proteção veicular no Rio de Janeiro, oferecendo proteção acessível e atendimento humanizado a todos os motoristas, independente de perfil ou histórico.
               </p>
             </div>
             <div className="bg-[#E07620]/5 border border-[#E07620]/15 rounded-2xl p-8">
@@ -167,7 +167,7 @@ export default function SobrePage() {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-5">
             {[
               { name: 'Equipe Comercial', role: 'Vendas e Atendimento' },
-              { name: 'Equipe Operação', role: 'Sinistros e Vistorias' },
+              { name: 'Equipe Operação', role: 'Eventos e Vistorias' },
               { name: 'Equipe Financeiro', role: 'Cobrança e Rateio' },
               { name: 'Equipe Tech', role: 'Tecnologia e IA' },
             ].map((member) => (
@@ -196,7 +196,7 @@ export default function SobrePage() {
             Junte-se a milhares de cariocas que confiam na 21Go para proteger seus veículos.
           </p>
           <Link href="/cotacao" className="inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-[#E07620] to-[#F08C28] text-white font-bold rounded-full shadow-lg shadow-[#E07620]/25 hover:shadow-xl hover:scale-[1.02] active:scale-[0.98] transition-all">
-            Fazer Cotação Grátis <ArrowRight className="w-4 h-4" />
+            Fazer Simulação Grátis <ArrowRight className="w-4 h-4" />
           </Link>
         </div>
       </section>

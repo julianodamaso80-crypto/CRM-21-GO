@@ -6,7 +6,7 @@ import { ShieldCheck, Lock, Flame, Truck, Clock, Car } from 'lucide-react'
 import { fadeInUp, staggerContainer } from '@/lib/motion'
 
 const coverages = [
-  { icon: ShieldCheck, title: 'Colisão', desc: 'Cobertura parcial e total para batidas e acidentes' },
+  { icon: ShieldCheck, title: 'Colisão', desc: 'Proteção parcial e total para batidas e acidentes' },
   { icon: Lock, title: 'Roubo e Furto', desc: 'Reembolso pela tabela FIPE em caso de perda total' },
   { icon: Flame, title: 'Incêndio', desc: 'Proteção contra incêndio e eventos da natureza' },
   { icon: Truck, title: 'Guincho 200km', desc: 'Reboque gratuito em todo o território nacional' },
@@ -31,7 +31,7 @@ export function ProblemSolution() {
             Proteção completa para seu veículo
           </h2>
           <p className="mt-4 text-lg text-[#64748B] max-w-2xl mx-auto">
-            Coberturas pensadas pra realidade do Rio de Janeiro. Tudo que você precisa em um único plano.
+            Benefícios pensados pra realidade do Rio de Janeiro. Tudo que você precisa em um único plano.
           </p>
         </motion.div>
 

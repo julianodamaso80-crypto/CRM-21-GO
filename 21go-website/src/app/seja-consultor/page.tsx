@@ -240,7 +240,7 @@ export default function SejaConsultorPage() {
             {[
               'Treinamento completo em proteção veicular e vendas',
               'Material de divulgação pronto (artes, textos, vídeos)',
-              'Acesso ao sistema de cotação e acompanhamento de clientes',
+              'Acesso ao sistema de simulação e acompanhamento de associados',
               'Suporte dedicado via WhatsApp com nosso time comercial',
               'Comissão por adesão + recorrente mensal por cliente ativo',
               'Bônus e prêmios exclusivos por metas batidas',

@@ -69,14 +69,14 @@ function CriativoLeilao() {
             <span className="text-[3em] font-black text-[#E07620] leading-none" style={{ fontFamily: 'var(--font-outfit)' }}>80%</span>
             <div>
               <p className="text-white font-bold text-[0.95em]">da tabela FIPE</p>
-              <p className="text-white/50 text-[0.75em]">é o que você recebe em sinistro total</p>
+              <p className="text-white/50 text-[0.75em]">é o que você recebe em evento de perda total</p>
             </div>
           </div>
         </div>
 
         {/* CTA */}
         <div className="bg-[#E07620] text-white text-center py-4 rounded-2xl font-bold text-[1.1em] shadow-lg shadow-[#E07620]/30">
-          Faça sua cotação grátis →
+          Faça sua simulação grátis →
         </div>
       </div>
     </div>
@@ -128,7 +128,7 @@ function CriativoApp() {
         </p>
 
         <div className="bg-[#E07620] text-white text-center py-4 rounded-2xl font-bold text-[1.1em] shadow-lg shadow-[#E07620]/30">
-          Faça sua cotação grátis →
+          Faça sua simulação grátis →
         </div>
       </div>
     </div>
@@ -183,7 +183,7 @@ function CriativoSusep() {
         </p>
 
         <div className="bg-[#E07620] text-white text-center py-4 rounded-2xl font-bold text-[1.1em] shadow-lg shadow-[#E07620]/30">
-          Faça sua cotação grátis →
+          Faça sua simulação grátis →
         </div>
       </div>
     </div>

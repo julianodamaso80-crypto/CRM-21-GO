@@ -209,7 +209,7 @@ export const PRICING_TABLES: Record<PlanId, PricingBand[]> = {
   'especial': ESPECIAL,
 }
 
-/* ─── Info dos planos (coberturas REAIS — hierarquia acumulativa) ─── */
+/* ─── Info dos planos (benefícios REAIS — hierarquia acumulativa) ─── */
 
 export interface PlanFeatureItem {
   text: string
@@ -279,7 +279,7 @@ export const PLAN_INFO: Record<PlanId, PlanInfo> = {
       { text: 'Socorro mecânico / elétrico', included: true },
       { text: 'Clube de Benefícios', included: true },
       { text: 'Carro Reserva', included: false },
-      { text: 'Cobertura Todos os Vidros', included: false },
+      { text: 'Todos os Vidros', included: false },
       { text: 'AP morte/invalidez', included: false },
       { text: 'Funeral familiar', included: false },
     ],
@@ -287,7 +287,7 @@ export const PLAN_INFO: Record<PlanId, PlanInfo> = {
   'vip': {
     id: 'vip',
     name: 'VIP',
-    description: 'O mais escolhido — cobertura completa',
+    description: 'O mais escolhido — proteção completa',
     popular: true,
     features: [
       { text: 'Roubo e Furto', included: true },
@@ -310,7 +310,7 @@ export const PLAN_INFO: Record<PlanId, PlanInfo> = {
       { text: 'Clube de Benefícios', included: true },
       { text: 'Funeral familiar até R$5.000', included: true },
       { text: 'Reboque Adicional', included: false },
-      { text: 'Cobertura Todos os Vidros', included: false },
+      { text: 'Todos os Vidros', included: false },
       { text: 'AP morte/invalidez', included: false },
     ],
   },
@@ -328,7 +328,7 @@ export const PLAN_INFO: Record<PlanId, PlanInfo> = {
       { text: 'Parabrisa', included: true },
       { text: 'Carro Amigo', included: true },
       { text: 'Reboque Adicional 200km', included: true },
-      { text: 'Cobertura Todos os Vidros', included: true },
+      { text: 'Todos os Vidros', included: true },
       { text: 'Monitoramento 24h', included: true },
       { text: 'Reboque 1.200km', included: true },
       { text: 'Chaveiro', included: true },

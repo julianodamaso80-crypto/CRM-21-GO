@@ -6,10 +6,10 @@ import { Calculator, Camera, Zap, ShieldCheck } from 'lucide-react'
 import { fadeInUp, staggerContainer } from '@/lib/motion'
 
 const steps = [
-  { icon: Calculator, num: '1', title: 'Faça sua cotação', desc: 'Online, em 30 segundos. Sem compromisso.' },
+  { icon: Calculator, num: '1', title: 'Faça sua simulação', desc: 'Online, em 30 segundos. Sem compromisso.' },
   { icon: Camera, num: '2', title: 'Vistoria pelo app', desc: 'Tire fotos do veículo. 100% digital.' },
   { icon: Zap, num: '3', title: 'Aprovação em 48h', desc: 'Análise rápida sem burocracia.' },
-  { icon: ShieldCheck, num: '4', title: 'Protegido!', desc: 'Seu carro coberto com assistência 24h.' },
+  { icon: ShieldCheck, num: '4', title: 'Protegido!', desc: 'Seu carro protegido com assistência 24h.' },
 ]
 
 export function HowItWorks() {

@@ -8,7 +8,7 @@ export default function MobileCTA() {
         href="/cotacao"
         className="animate-glow-pulse block w-full text-center py-3.5 rounded-xl bg-[#E07620] text-white font-semibold text-base hover:bg-[#C46218] transition-colors"
       >
-        Fazer Cotação Grátis
+        Fazer Simulação Grátis
       </Link>
     </div>
   );

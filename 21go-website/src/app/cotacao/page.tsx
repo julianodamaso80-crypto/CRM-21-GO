@@ -386,7 +386,7 @@ export default function CotacaoPage() {
             <div className="max-w-xl mx-auto">
               <div className="text-center mb-8">
                 <h1 className="font-[var(--font-display)] text-2xl md:text-3xl font-bold text-[#0A1E3D] mb-2">
-                  Cotação Grátis
+                  Simulação Grátis
                 </h1>
                 <p className="text-[#64748B]">Preencha seus dados e descubra o valor em segundos.</p>
               </div>
@@ -475,7 +475,7 @@ export default function CotacaoPage() {
                       <p className="font-medium">{apiError}</p>
                       <p className="text-[#DC2626]/70 mt-1">
                         Verifique a placa ou{' '}
-                        <a href="https://wa.me/5521965700021?text=Olá! Preciso de ajuda com uma cotação." target="_blank" rel="noopener noreferrer" className="underline font-medium">
+                        <a href="https://wa.me/5521965700021?text=Olá! Preciso de ajuda com uma simulação." target="_blank" rel="noopener noreferrer" className="underline font-medium">
                           fale no WhatsApp
                         </a>.
                       </p>
@@ -492,7 +492,7 @@ export default function CotacaoPage() {
                       </div>
                       <div>
                         <p className="font-semibold text-[#0A1E3D] text-sm">Consulta automática indisponível</p>
-                        <p className="text-[#64748B] text-xs mt-0.5">Selecione seu tipo de veículo e faixa de valor para receber a cotação agora mesmo.</p>
+                        <p className="text-[#64748B] text-xs mt-0.5">Selecione seu tipo de veículo e faixa de valor para receber a simulação agora mesmo.</p>
                       </div>
                     </div>
 
@@ -536,7 +536,7 @@ export default function CotacaoPage() {
                       <button onClick={handleFallbackQuote} disabled={!fallbackFipe}
                         className="group inline-flex items-center gap-3 px-8 py-3.5 bg-gradient-to-r from-[#E07620] to-[#F08C28] text-white font-bold text-sm rounded-full shadow-lg shadow-[#E07620]/20 hover:shadow-xl hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:scale-100">
                         <Sparkles className="w-4 h-4" />
-                        Ver Cotação Estimada
+                        Ver Simulação Estimada
                         <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
                       </button>
                     </div>
@@ -558,7 +558,7 @@ export default function CotacaoPage() {
                       </>
                     ) : (
                       <>
-                        Ver Cotação
+                        Ver Simulação
                         <ArrowRight className="w-5 h-5 group-hover:translate-x-0.5 transition-transform" />
                       </>
                     )}
@@ -599,7 +599,7 @@ export default function CotacaoPage() {
                   <ShieldCheck className="w-7 h-7 text-[#10B981]" />
                 </div>
                 <h2 className="font-[var(--font-display)] text-2xl md:text-3xl font-bold text-[#0A1E3D] mb-2">
-                  {form.nome.split(' ')[0]}, sua cotação está pronta!
+                  {form.nome.split(' ')[0]}, sua simulação está pronta!
                 </h2>
                 <p className="text-[#64748B]">
                   {vehicleLabel}
@@ -633,7 +633,7 @@ export default function CotacaoPage() {
                   {/* Coberturas toggle */}
                   <button onClick={() => setShowCoberturas(!showCoberturas)}
                     className="flex items-center justify-between w-full mb-5 text-[#0A1E3D] font-semibold text-sm">
-                    Coberturas incluídas
+                    Benefícios incluídos
                     {showCoberturas ? <ChevronUp className="w-4 h-4 text-[#94A3B8]" /> : <ChevronDown className="w-4 h-4 text-[#94A3B8]" />}
                   </button>
 
@@ -677,7 +677,7 @@ export default function CotacaoPage() {
                     </div>
                   </div>
 
-                  <a href={`https://wa.me/5521965700021?text=${encodeURIComponent(`Olá! Fiz uma cotação no site.\nNome: ${form.nome}\nWhatsApp: ${form.whatsapp}${form.email ? `\nE-mail: ${form.email}` : ''}\nPlaca: ${form.placa}${form.leilao !== 'nao' ? `\nOrigem: ${form.leilao === 'leilao' ? 'Leilão' : 'Remarcado'}` : ''}\nVeículo: ${vehicleLabel}\nFIPE: R$ ${fipeFormatted}\nPlano: ${selectedPlan.name}\nValor: R$ ${priceFormatted}/mês\nQuero contratar!`)}`}
+                  <a href={`https://wa.me/5521965700021?text=${encodeURIComponent(`Olá! Fiz uma simulação no site.\nNome: ${form.nome}\nWhatsApp: ${form.whatsapp}${form.email ? `\nE-mail: ${form.email}` : ''}\nPlaca: ${form.placa}${form.leilao !== 'nao' ? `\nOrigem: ${form.leilao === 'leilao' ? 'Leilão' : 'Remarcado'}` : ''}\nVeículo: ${vehicleLabel}\nFIPE: R$ ${fipeFormatted}\nPlano: ${selectedPlan.name}\nValor: R$ ${priceFormatted}/mês\nQuero contratar!`)}`}
                     target="_blank" rel="noopener noreferrer"
                     onClick={() => trackWhatsAppClick('cotacao_resultado', { plano: selectedPlan.name, valor: price })}
                     className="flex items-center justify-center gap-2.5 w-full py-4 bg-gradient-to-r from-[#E07620] to-[#F08C28] text-white font-bold text-base rounded-full shadow-lg shadow-[#E07620]/20 hover:shadow-xl hover:shadow-[#E07620]/30 hover:scale-[1.01] active:scale-[0.99] transition-all duration-200 mb-4">
@@ -700,7 +700,7 @@ export default function CotacaoPage() {
                 </button>
                 <button onClick={() => { setStep(1); setForm({ nome: '', whatsapp: '', email: '', placa: '', leilao: 'nao' }); setVehicle(null); setPlans([]); setShowFallback(false); setFallbackFipe(0) }}
                   className="text-sm text-[#1B4DA1] hover:text-[#3D72DE] transition-colors">
-                  Nova cotação
+                  Nova simulação
                 </button>
               </div>
             </div>

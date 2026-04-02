@@ -5,8 +5,8 @@ import { Instagram, Facebook, Linkedin } from 'lucide-react'
 const links = {
   Proteção: [
     { label: 'Planos', href: '/protecao-veicular' },
-    { label: 'Cotação', href: '/cotacao' },
-    { label: 'Coberturas', href: '/protecao-veicular#coberturas' },
+    { label: 'Simulação', href: '/cotacao' },
+    { label: 'Benefícios', href: '/protecao-veicular#coberturas' },
   ],
   Empresa: [
     { label: 'Sobre', href: '/sobre' },

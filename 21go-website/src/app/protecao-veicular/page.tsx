@@ -15,7 +15,7 @@ import {
 export const metadata: Metadata = {
   title: 'Planos de Protecao Veicular | 8 Planos para Carros, Motos e SUVs | 21Go',
   description:
-    'Conheca os 8 planos de protecao veicular da 21Go. Carros a partir de R$106,50/mes, motos a partir de R$77,50/mes. Sem analise de perfil. Cotacao em 30 segundos.',
+    'Conheca os 8 planos de protecao veicular da 21Go. Carros a partir de R$106,50/mes, motos a partir de R$77,50/mes. Sem analise de perfil. Simulacao em 30 segundos.',
 }
 
 const mutualSteps = [
@@ -27,12 +27,12 @@ const mutualSteps = [
   {
     icon: HandCoins,
     title: 'Fundo Coletivo',
-    description: 'O fundo é administrado com transparência para cobrir sinistros dos associados.',
+    description: 'O fundo é administrado com transparência para cobrir eventos dos associados.',
   },
   {
     icon: ShieldCheck,
     title: 'Todos Protegidos',
-    description: 'Quando alguém sofre um sinistro, o fundo cobre. Quanto mais associados, menor o rateio.',
+    description: 'Quando alguém sofre um evento, o fundo cobre. Quanto mais associados, menor o rateio.',
   },
 ]
 
@@ -81,7 +81,7 @@ const planFAQ = [
   },
   {
     q: 'Como é calculada a mensalidade?',
-    a: 'A mensalidade é definida pela faixa de valor FIPE do seu veículo e pelo plano escolhido. Cada plano tem uma tabela de preços por faixa. Faça a cotação no site e veja o valor exato em segundos.',
+    a: 'A mensalidade é definida pela faixa de valor FIPE do seu veículo e pelo plano escolhido. Cada plano tem uma tabela de preços por faixa. Faça a simulação no site e veja o valor exato em segundos.',
   },
   {
     q: 'Posso trocar de plano depois?',
@@ -89,11 +89,11 @@ const planFAQ = [
   },
   {
     q: 'O que é a tabela FIPE e por que ela importa?',
-    a: 'A tabela FIPE (Fundação Instituto de Pesquisas Econômicas) é a referência de preços de veículos no Brasil. Usamos ela para calcular sua mensalidade e para definir o valor de indenização em caso de sinistro de perda total.',
+    a: 'A tabela FIPE (Fundação Instituto de Pesquisas Econômicas) é a referência de preços de veículos no Brasil. Usamos ela para calcular sua mensalidade e para definir o valor de indenização em caso de evento de perda total.',
   },
   {
     q: 'Existe carência?',
-    a: 'Sim, há uma carência de 90 dias para sinistros de roubo/furto e colisão após a ativação. A assistência 24h (guincho) está disponível imediatamente.',
+    a: 'Sim, há uma carência de 90 dias para eventos de roubo/furto e colisão após a ativação. A assistência 24h (guincho) está disponível imediatamente.',
   },
 ]
 
@@ -183,7 +183,7 @@ export default function ProtecaoVeicularPage() {
             <table className="w-full min-w-[600px]">
               <thead>
                 <tr className="bg-[#0A1E3D]">
-                  <th className="text-left text-sm font-semibold text-white/70 px-5 py-4 w-[28%]">Cobertura</th>
+                  <th className="text-left text-sm font-semibold text-white/70 px-5 py-4 w-[28%]">Benefício</th>
                   <th className="text-center text-xs font-semibold text-white/70 px-3 py-4">Básico</th>
                   <th className="text-center text-xs font-semibold text-white/70 px-3 py-4">Do Seu Jeito</th>
                   <th className="text-center text-xs font-semibold text-[#E07620] px-3 py-4 bg-white/5">
@@ -211,7 +211,7 @@ export default function ProtecaoVeicularPage() {
 
           <div className="text-center mt-10">
             <Link href="/cotacao" className="inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-[#E07620] to-[#F08C28] text-white font-bold rounded-full shadow-lg shadow-[#E07620]/20 hover:shadow-xl hover:shadow-[#E07620]/30 hover:scale-[1.02] active:scale-[0.98] transition-all">
-              Fazer Cotação Agora <ArrowRight className="w-4 h-4" />
+              Fazer Simulação Agora <ArrowRight className="w-4 h-4" />
             </Link>
           </div>
         </div>

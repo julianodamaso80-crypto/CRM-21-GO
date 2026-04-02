@@ -28,7 +28,7 @@ export const metadata: Metadata = {
     default: 'Proteção Veicular RJ | 21Go — 20+ Anos Protegendo Seu Carro',
     template: '%s | 21Go Proteção Veicular',
   },
-  description: 'Proteção veicular no Rio de Janeiro a partir de R$77,50/mês. 8 planos para carros, motos, SUVs e especiais. 20+ anos de mercado, sem análise de perfil. Cotação grátis.',
+  description: 'Proteção veicular no Rio de Janeiro a partir de R$77,50/mês. 8 planos para carros, motos, SUVs e especiais. 20+ anos de mercado, sem análise de perfil. Simulação grátis.',
   metadataBase: new URL('https://21go.site'),
   openGraph: {
     type: 'website',

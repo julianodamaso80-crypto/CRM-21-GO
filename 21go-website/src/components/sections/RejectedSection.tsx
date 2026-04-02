@@ -23,9 +23,9 @@ const bigCards = [
     borderColor: 'border-[#E07620]/40',
     glowColor: 'hover:border-[#E07620]/60 hover:shadow-[0_0_30px_rgba(224,118,32,0.1)]',
     text: 'Se você roda de app, seu carro faz 150 a 250 km por dia. O risco de batida, roubo ou pane é 3x maior que uso particular. E o seguro? Custa até 40% mais caro — se a seguradora aceitar uso comercial.',
-    detail: 'Na 21Go, motorista de app tem cota de participação de apenas 6%. Pra um HB20 2022 (FIPE ~R$78.000), isso significa R$4.680 em caso de sinistro parcial — valor justo e transparente.',
-    highlight: 'Sem recusa por uso comercial. Sem surpresa na hora do sinistro.',
-    cta: 'Cotação especial pra app',
+    detail: 'Na 21Go, motorista de app tem cota de participação de apenas 6%. Pra um HB20 2022 (FIPE ~R$78.000), isso significa R$4.680 em caso de evento parcial — valor justo e transparente.',
+    highlight: 'Sem recusa por uso comercial. Sem surpresa na hora do evento.',
+    cta: 'Simulação especial pra app',
   },
 ]
 

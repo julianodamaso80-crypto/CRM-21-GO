@@ -6,7 +6,7 @@ import { Menu, X } from 'lucide-react'
 
 const navLinks = [
   { label: 'Planos', href: '/protecao-veicular' },
-  { label: 'Cotação', href: '/cotacao' },
+  { label: 'Simulação', href: '/cotacao' },
   { label: 'Indique', href: '/indique' },
   { label: 'Seja Consultor', href: '/seja-consultor' },
   { label: 'Blog', href: '/blog' },
@@ -90,7 +90,7 @@ export function Header() {
               onClick={() => setIsOpen(false)}
               className="mt-2 w-full text-center inline-flex items-center justify-center px-6 py-3 rounded-lg bg-[#E07620] text-white font-semibold hover:bg-[#C46218] transition-colors"
             >
-              Cotar Agora
+              Simular Agora
             </Link>
           </div>
         </div>

@@ -5,7 +5,7 @@ import { MessageCircle, ShieldCheck, ArrowRight, ChevronDown } from 'lucide-reac
 export const metadata: Metadata = {
   title: 'Perguntas Frequentes | 21Go Protecao Veicular',
   description:
-    'Tire todas as suas duvidas sobre protecao veicular, planos, sinistros, pagamento e cancelamento na 21Go.',
+    'Tire todas as suas duvidas sobre protecao veicular, planos, eventos, pagamento e cancelamento na 21Go.',
 }
 
 const categories = [
@@ -14,7 +14,7 @@ const categories = [
     items: [
       {
         q: 'O que é proteção veicular?',
-        a: 'Proteção veicular é um sistema cooperativo (mutualismo) em que todos os associados contribuem mensalmente para um fundo comum. Quando alguém sofre um sinistro — roubo, furto, colisão ou incêndio — o fundo cobre a indenização. Diferente do seguro tradicional, não há análise de perfil e os custos são muito menores.',
+        a: 'Proteção veicular é um sistema cooperativo (mutualismo) em que todos os associados contribuem mensalmente para um fundo comum. Quando alguém sofre um evento — roubo, furto, colisão ou incêndio — o fundo cobre a indenização. Diferente do seguro tradicional, não há análise de perfil e os custos são muito menores.',
       },
       {
         q: 'Proteção veicular é legal?',
@@ -31,11 +31,11 @@ const categories = [
     items: [
       {
         q: 'Quanto custa a proteção veicular?',
-        a: 'O valor depende do plano e da faixa de valor FIPE do veículo. Para carros temos 4 planos: Básico (a partir de R$106,50/mês), Do Seu Jeito, VIP e Premium. Também temos planos para motos (a partir de R$77,50/mês), SUVs e veículos especiais. Faça uma cotação gratuita em 30 segundos.',
+        a: 'O valor depende do plano e da faixa de valor FIPE do veículo. Para carros temos 4 planos: Básico (a partir de R$106,50/mês), Do Seu Jeito, VIP e Premium. Também temos planos para motos (a partir de R$77,50/mês), SUVs e veículos especiais. Faça uma simulação gratuita em 30 segundos.',
       },
       {
         q: 'Quais são os planos disponíveis?',
-        a: 'Para carros: Básico (roubo/furto + assistência 24h), Do Seu Jeito (personalizável), VIP (cobertura completa, mais escolhido) e Premium (máxima proteção com rastreamento). Para SUVs/pick-ups temos plano específico. Para motos: VIP até 400cc e VIP 450-1000cc. Para elétricos ou veículos acima de R$150 mil: plano Veículos Especiais.',
+        a: 'Para carros: Básico (roubo/furto + assistência 24h), Do Seu Jeito (personalizável), VIP (proteção completa, mais escolhido) e Premium (máxima proteção com rastreamento). Para SUVs/pick-ups temos plano específico. Para motos: VIP até 400cc e VIP 450-1000cc. Para elétricos ou veículos acima de R$150 mil: plano Veículos Especiais.',
       },
       {
         q: 'Posso trocar de plano depois?',
@@ -43,24 +43,24 @@ const categories = [
       },
       {
         q: 'Como é calculada a mensalidade?',
-        a: 'A mensalidade é definida pela faixa de valor FIPE do seu veículo e pelo plano escolhido. Cada plano tem uma tabela de preços por faixa. Faça a cotação no site e veja o valor exato para o seu veículo em segundos.',
+        a: 'A mensalidade é definida pela faixa de valor FIPE do seu veículo e pelo plano escolhido. Cada plano tem uma tabela de preços por faixa. Faça a simulação no site e veja o valor exato para o seu veículo em segundos.',
       },
     ],
   },
   {
-    title: 'Sinistros',
+    title: 'Eventos',
     items: [
       {
-        q: 'Como funciona o sinistro?',
-        a: 'Em caso de sinistro, entre em contato pelo WhatsApp ou app. Abrimos o processo imediatamente, direcionamos para uma oficina credenciada e acompanhamos tudo até a resolução. Para roubo/furto com perda total, a indenização é baseada na tabela FIPE.',
+        q: 'Como funciona o comunicado de evento?',
+        a: 'Em caso de evento, entre em contato pelo WhatsApp ou app. Abrimos o processo imediatamente, direcionamos para uma oficina credenciada e acompanhamos tudo até a resolução. Para roubo/furto com perda total, a indenização é baseada na tabela FIPE.',
       },
       {
-        q: 'Qual o prazo de resolução do sinistro?',
+        q: 'Qual o prazo de resolução do evento?',
         a: 'Para reparos (colisão, vidros), o prazo médio é de 7 a 15 dias úteis dependendo da oficina. Para indenização por perda total (roubo/furto), o prazo é de 15 a 30 dias após a entrega de toda documentação.',
       },
       {
-        q: 'Existe carência para sinistros?',
-        a: 'Sim. Há uma carência de 90 dias para sinistros de roubo/furto e colisão após a ativação da proteção. A assistência 24h (guincho, pane mecânica) está disponível imediatamente após a ativação.',
+        q: 'Existe carência para eventos?',
+        a: 'Sim. Há uma carência de 90 dias para eventos de roubo/furto e colisão após a ativação da proteção. A assistência 24h (guincho, pane mecânica) está disponível imediatamente após a ativação.',
       },
     ],
   },
@@ -73,7 +73,7 @@ const categories = [
       },
       {
         q: 'O que acontece se eu atrasar o pagamento?',
-        a: 'Você tem 15 dias de tolerância após o vencimento. Após esse prazo, a proteção é suspensa e você não terá cobertura até a regularização. Após 60 dias, a associação é cancelada automaticamente.',
+        a: 'Você tem 15 dias de tolerância após o vencimento. Após esse prazo, a proteção é suspensa e você não terá proteção até a regularização. Após 60 dias, a associação é cancelada automaticamente.',
       },
     ],
   },
@@ -115,7 +115,7 @@ export default function FAQPage() {
             Perguntas Frequentes
           </h1>
           <p className="text-lg text-white/50 max-w-2xl mx-auto">
-            Tudo o que você precisa saber sobre proteção veicular, planos, sinistros e mais.
+            Tudo o que você precisa saber sobre proteção veicular, planos, eventos e mais.
           </p>
         </div>
       </section>
@@ -171,13 +171,13 @@ export default function FAQPage() {
                   Falar no WhatsApp
                 </a>
                 <div className="w-full h-px bg-white/10 my-5" />
-                <h3 className="font-[var(--font-display)] text-base font-semibold mb-2">Pronto para cotar?</h3>
+                <h3 className="font-[var(--font-display)] text-base font-semibold mb-2">Pronto para simular?</h3>
                 <p className="text-sm text-white/50 mb-4">Descubra quanto custa proteger seu veículo.</p>
                 <Link
                   href="/cotacao"
                   className="flex items-center justify-center gap-2 w-full py-3.5 rounded-xl bg-gradient-to-r from-[#E07620] to-[#F08C28] text-white font-semibold text-sm hover:shadow-lg hover:shadow-[#E07620]/20 transition-all"
                 >
-                  Fazer Cotação <ArrowRight className="w-4 h-4" />
+                  Fazer Simulação <ArrowRight className="w-4 h-4" />
                 </Link>
               </div>
             </div>

@@ -58,12 +58,12 @@ const plansByCategory: Record<Category, {
         { text: 'Reboque 400km', included: true },
         { text: 'Táxi 50km', included: true },
         { text: 'Carro Reserva', included: false },
-        { text: 'Cobertura Todos os Vidros', included: false },
+        { text: 'Todos os Vidros', included: false },
       ],
     },
     {
       name: 'VIP',
-      desc: 'O mais escolhido — cobertura completa',
+      desc: 'O mais escolhido — proteção completa',
       popular: true,
       delay: 0.1,
       features: [
@@ -74,7 +74,7 @@ const plansByCategory: Record<Category, {
         { text: 'Reboque 1.000km', included: true },
         { text: 'Táxi 100km', included: true },
         { text: 'Funeral familiar até R$5.000', included: true },
-        { text: 'Cobertura Todos os Vidros', included: false },
+        { text: 'Todos os Vidros', included: false },
         { text: 'AP morte/invalidez', included: false },
       ],
     },
@@ -86,7 +86,7 @@ const plansByCategory: Record<Category, {
         { text: 'Tudo do VIP', included: true },
         { text: 'Danos a Terceiros R$100.000', included: true },
         { text: 'Carro Reserva 15 dias', included: true },
-        { text: 'Cobertura Todos os Vidros', included: true },
+        { text: 'Todos os Vidros', included: true },
         { text: 'Reboque Adicional 200km', included: true },
         { text: 'Reboque 1.200km total', included: true },
         { text: 'Táxi 150km', included: true },
@@ -194,7 +194,7 @@ export function PlansSection() {
             Proteção sob medida para seu veículo
           </h2>
           <p className="mt-4 text-lg text-[#64748B] max-w-2xl mx-auto">
-            Compare as coberturas e descubra o plano ideal. O valor depende do seu veículo.
+            Compare os benefícios e descubra o plano ideal. O valor depende do seu veículo.
           </p>
         </motion.div>
 
@@ -284,7 +284,7 @@ export function PlansSection() {
                 }`}
               >
                 <span className="inline-flex items-center gap-2">
-                  Fazer Cotação <ArrowRight className="w-4 h-4" />
+                  Fazer Simulação <ArrowRight className="w-4 h-4" />
                 </span>
               </Link>
             </motion.div>
@@ -296,7 +296,7 @@ export function PlansSection() {
           <p className="text-[#64748B] text-sm">
             O valor da mensalidade depende do modelo e ano do seu veículo.{' '}
             <Link href="/cotacao" className="text-[#1B4DA1] font-semibold hover:underline">
-              Faça sua cotação grátis em 30 segundos
+              Faça sua simulação grátis em 30 segundos
             </Link>.
           </p>
         </motion.div>

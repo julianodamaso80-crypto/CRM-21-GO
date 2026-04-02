@@ -13,7 +13,7 @@ const rows = [
   { feature: 'Cancelamento', veicular: 'Sem multa', seguro: 'Fidelidade 12 meses' },
   { feature: 'Assistência 24h', veicular: true, seguro: true },
   { feature: 'Guincho', veicular: '200km incluso', seguro: 'Varia por plano' },
-  { feature: 'Cotação online', veicular: '30 segundos', seguro: 'Dias para análise' },
+  { feature: 'Simulação online', veicular: '30 segundos', seguro: 'Dias para análise' },
 ]
 
 function CellValue({ value, positive }: { value: string | boolean; positive: boolean }) {

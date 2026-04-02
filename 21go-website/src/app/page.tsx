@@ -23,8 +23,8 @@ export default function Home() {
       <SusepSection />
 
       <InlineCTA
-        text="Descubra quanto custa proteger seu veículo. Cotação em 30 segundos."
-        buttonText="Fazer Cotação Grátis"
+        text="Descubra quanto custa proteger seu veículo. Simulação em 30 segundos."
+        buttonText="Fazer Simulação Grátis"
         bg="white"
       />
 
@@ -41,7 +41,7 @@ export default function Home() {
       <RejectedSection />
 
       <InlineCTA
-        text="Carro, moto, app ou leilão. Faça sua cotação personalizada."
+        text="Carro, moto, app ou leilão. Faça sua simulação personalizada."
         buttonText="Cotar Agora"
         bg="gray"
       />
@@ -59,7 +59,7 @@ export default function Home() {
       <BlogPreview />
 
       <InlineCTA
-        text="Ainda tem dúvida? Faça a cotação e veja o valor para o seu veículo."
+        text="Ainda tem dúvida? Faça a simulação e veja o valor para o seu veículo."
         buttonText="Ver Meu Valor"
         bg="gray"
       />

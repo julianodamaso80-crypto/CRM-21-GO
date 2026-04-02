@@ -6,9 +6,9 @@ import { Bot, Clock, Zap, MessageCircle } from 'lucide-react'
 import { fadeInUp, staggerContainer } from '@/lib/motion'
 
 const features = [
-  { icon: Zap, title: 'Cotação em 30 segundos', desc: 'Resposta instantânea com cálculo pela tabela FIPE' },
+  { icon: Zap, title: 'Simulação em 30 segundos', desc: 'Resposta instantânea com cálculo pela tabela FIPE' },
   { icon: Clock, title: 'Disponível 24/7', desc: 'Atendimento a qualquer hora, inclusive feriados' },
-  { icon: MessageCircle, title: 'Suporte inteligente', desc: 'Tire dúvidas sobre coberturas, sinistros e planos' },
+  { icon: MessageCircle, title: 'Suporte inteligente', desc: 'Tire dúvidas sobre benefícios, eventos e planos' },
 ]
 
 export function AIShowcase() {
@@ -90,7 +90,7 @@ export function AIShowcase() {
                 </div>
                 <div className="flex justify-start">
                   <div className="bg-white text-[#0A1E3D] text-sm rounded-2xl rounded-tl-sm px-4 py-3 max-w-[80%] border border-[#E2E8F0]">
-                    Sim! O Completo cobre colisão total e parcial, roubo, incêndio, guincho 200km e carro reserva por 7 dias. Quer fazer a cotação agora?
+                    Sim! O Completo cobre colisão total e parcial, roubo, incêndio, guincho 200km e carro reserva por 7 dias. Quer fazer a simulação agora?
                   </div>
                 </div>
               </div>

@@ -111,13 +111,13 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
                   Proteja seu veículo
                 </h3>
                 <p className="text-sm text-white/60 mb-6">
-                  Cotação gratuita em 30 segundos. Sem compromisso.
+                  Simulação gratuita em 30 segundos. Sem compromisso.
                 </p>
                 <Link
                   href="/cotacao"
                   className="flex items-center justify-center gap-2 w-full py-3.5 rounded-xl bg-gradient-to-r from-[#E07620] to-[#F08C28] text-white font-semibold text-sm hover:shadow-lg hover:shadow-[#E07620]/20 transition-all"
                 >
-                  Fazer Cotação <ArrowRight className="w-4 h-4" />
+                  Fazer Simulação <ArrowRight className="w-4 h-4" />
                 </Link>
               </div>
 

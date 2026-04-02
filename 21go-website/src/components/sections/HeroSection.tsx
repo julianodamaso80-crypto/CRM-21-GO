@@ -102,7 +102,7 @@ export function HeroSection() {
             href="/cotacao"
             className="shimmer-btn relative inline-flex items-center px-9 py-4 rounded-xl bg-[#E07620] text-white text-base font-semibold transition-all duration-300 animate-glow-pulse hover:bg-[#C46218] hover:-translate-y-0.5 hover:shadow-[0_8px_30px_rgba(224,118,32,0.5)]"
           >
-            Fazer Cotação Grátis
+            Fazer Simulação Grátis
           </Link>
           <Link
             href="/cotacao"
