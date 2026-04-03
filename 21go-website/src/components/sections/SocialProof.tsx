@@ -43,7 +43,7 @@ export function SocialProof() {
               key={t.name}
               variants={fadeInUp}
               transition={{ delay: i * 0.12 }}
-              className="bg-white rounded-2xl p-6 border border-[#E2E8F0] shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-300"
+              className="bg-white rounded-2xl p-4 sm:p-6 border border-[#E2E8F0] shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-300"
             >
               <div className="flex mb-3">
                 {Array.from({ length: t.stars }).map((_, j) => (

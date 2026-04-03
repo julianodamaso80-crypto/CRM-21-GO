@@ -123,7 +123,7 @@ export default function FAQPage() {
       {/* FAQ Content */}
       <section className="py-16 bg-[#F7F8FC]">
         <div className="max-w-6xl mx-auto px-6">
-          <div className="grid lg:grid-cols-[1fr_340px] gap-10">
+          <div className="grid grid-cols-1 lg:grid-cols-[1fr_340px] gap-6 lg:gap-10">
             {/* Main content */}
             <div className="space-y-10">
               {categories.map((category) => (
@@ -135,11 +135,11 @@ export default function FAQPage() {
                   <div className="space-y-3">
                     {category.items.map((item) => (
                       <details key={item.q} className="group bg-white rounded-xl border border-[#E8ECF4] overflow-hidden shadow-sm">
-                        <summary className="flex items-center justify-between px-6 py-4 cursor-pointer list-none text-[#0A1E3D] font-medium text-[15px] hover:bg-[#F7F8FC] transition-colors">
+                        <summary className="flex items-center justify-between px-4 sm:px-6 py-4 cursor-pointer list-none text-[#0A1E3D] font-medium text-sm sm:text-[15px] hover:bg-[#F7F8FC] transition-colors">
                           {item.q}
                           <ChevronDown className="w-5 h-5 text-[#94A3B8] group-open:rotate-180 transition-transform flex-shrink-0 ml-4" />
                         </summary>
-                        <div className="px-6 pb-5 text-sm text-[#64748B] leading-relaxed border-t border-[#E8ECF4] pt-4">
+                        <div className="px-4 sm:px-6 pb-5 text-sm text-[#64748B] leading-relaxed border-t border-[#E8ECF4] pt-4">
                           {item.a}
                         </div>
                       </details>

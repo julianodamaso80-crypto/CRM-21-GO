@@ -180,12 +180,12 @@ export default function ProtecaoVeicularPage() {
           </div>
 
           <div className="rounded-2xl border border-[#E8ECF4] overflow-hidden shadow-sm overflow-x-auto">
-            <table className="w-full min-w-[600px]">
+            <table className="w-full min-w-[520px]">
               <thead>
                 <tr className="bg-[#0A1E3D]">
-                  <th className="text-left text-sm font-semibold text-white/70 px-5 py-4 w-[28%]">Benefício</th>
-                  <th className="text-center text-xs font-semibold text-white/70 px-3 py-4">Básico</th>
-                  <th className="text-center text-xs font-semibold text-white/70 px-3 py-4">Do Seu Jeito</th>
+                  <th className="text-left text-xs sm:text-sm font-semibold text-white/70 px-3 sm:px-5 py-3 sm:py-4 w-[28%]">Benefício</th>
+                  <th className="text-center text-[10px] sm:text-xs font-semibold text-white/70 px-2 sm:px-3 py-3 sm:py-4">Básico</th>
+                  <th className="text-center text-[10px] sm:text-xs font-semibold text-white/70 px-2 sm:px-3 py-3 sm:py-4">Do Seu Jeito</th>
                   <th className="text-center text-xs font-semibold text-[#E07620] px-3 py-4 bg-white/5">
                     <div className="flex flex-col items-center">
                       <span className="text-[10px] text-[#E07620] bg-[#E07620]/20 px-2 py-0.5 rounded-full mb-1">Popular</span>

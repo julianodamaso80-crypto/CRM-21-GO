@@ -28,7 +28,7 @@ function CellValue({ value, positive }: { value: string | boolean; positive: boo
       </span>
     )
   }
-  return <span className={`text-sm font-medium ${positive ? 'text-[#0A1E3D]' : 'text-[#64748B]'}`}>{value}</span>
+  return <span className={`text-[11px] sm:text-sm font-medium ${positive ? 'text-[#0A1E3D]' : 'text-[#64748B]'}`}>{value}</span>
 }
 
 export function ComparisonSection() {
@@ -55,9 +55,9 @@ export function ComparisonSection() {
         <motion.div variants={fadeInUp} className="overflow-hidden rounded-2xl border border-[#E2E8F0] shadow-sm">
           {/* Header */}
           <div className="grid grid-cols-3 bg-[#F0F4FA]">
-            <div className="p-4 text-sm font-semibold text-[#64748B]">Característica</div>
-            <div className="p-4 text-center text-sm font-semibold text-[#1B4DA1]">21Go Proteção</div>
-            <div className="p-4 text-center text-sm font-semibold text-[#64748B]">Seguradora</div>
+            <div className="p-2.5 sm:p-4 text-xs sm:text-sm font-semibold text-[#64748B]">Característica</div>
+            <div className="p-2.5 sm:p-4 text-center text-xs sm:text-sm font-semibold text-[#1B4DA1]">21Go</div>
+            <div className="p-2.5 sm:p-4 text-center text-xs sm:text-sm font-semibold text-[#64748B]">Seguradora</div>
           </div>
 
           {/* Rows with stagger */}
@@ -69,11 +69,11 @@ export function ComparisonSection() {
               transition={{ delay: 0.3 + i * 0.06, duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
               className={`grid grid-cols-3 ${i % 2 === 0 ? 'bg-white' : 'bg-[#FAFBFC]'} border-t border-[#F0F4FA]`}
             >
-              <div className="p-4 text-sm text-[#0A1E3D] font-medium">{row.feature}</div>
-              <div className="p-4 flex items-center justify-center">
+              <div className="p-2.5 sm:p-4 text-xs sm:text-sm text-[#0A1E3D] font-medium">{row.feature}</div>
+              <div className="p-2.5 sm:p-4 flex items-center justify-center">
                 <CellValue value={row.veicular} positive={true} />
               </div>
-              <div className="p-4 flex items-center justify-center">
+              <div className="p-2.5 sm:p-4 flex items-center justify-center">
                 <CellValue value={row.seguro} positive={false} />
               </div>
             </motion.div>

@@ -228,7 +228,7 @@ export function PlansSection() {
               transition={{ delay: plan.delay }}
               className={`relative rounded-2xl p-7 border transition-all duration-300 ${
                 plan.popular
-                  ? 'border-[#E07620]/50 shadow-xl scale-[1.03] bg-white md:-mt-4'
+                  ? 'border-[#E07620]/50 shadow-xl md:scale-[1.03] bg-white md:-mt-4'
                   : 'border-[#E8ECF4] bg-white hover:shadow-lg hover:-translate-y-1'
               }`}
             >

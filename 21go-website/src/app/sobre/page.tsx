@@ -77,7 +77,7 @@ export default function SobrePage() {
       {/* Stats */}
       <section className="py-10 bg-white border-b border-[#E8ECF4]">
         <div className="max-w-5xl mx-auto px-6">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-8 text-center">
             {stats.map((stat) => (
               <div key={stat.label}>
                 <p className="font-[var(--font-display)] text-3xl md:text-4xl font-bold text-[#0A1E3D]">{stat.value}</p>
@@ -99,7 +99,7 @@ export default function SobrePage() {
 
           <div className="space-y-6">
             {milestones.map((item) => (
-              <div key={item.year} className="flex items-start gap-5 bg-white rounded-2xl border border-[#E8ECF4] p-6 hover:shadow-md transition-all">
+              <div key={item.year} className="flex items-start gap-3 sm:gap-5 bg-white rounded-2xl border border-[#E8ECF4] p-4 sm:p-6 hover:shadow-md transition-all">
                 <div className="w-16 h-12 rounded-xl bg-[#1B4DA1] text-white font-[var(--font-display)] text-sm font-bold flex items-center justify-center flex-shrink-0">
                   {item.year}
                 </div>

@@ -30,7 +30,7 @@ export function Footer() {
   return (
     <footer className="bg-[#0A1E3D]">
       <div className="mx-auto max-w-7xl px-6 py-16 lg:py-20">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-10 lg:gap-16">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-10 lg:gap-16">
           <div className="col-span-2 md:col-span-1">
             <Link href="/" className="flex items-center gap-2.5 mb-5">
               <Image src="/logo21go.png" alt="21Go" width={32} height={32} className="rounded-lg" />

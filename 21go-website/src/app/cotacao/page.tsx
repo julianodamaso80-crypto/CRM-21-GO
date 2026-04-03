@@ -391,7 +391,7 @@ export default function CotacaoPage() {
                 <p className="text-[#64748B]">Preencha seus dados e descubra o valor em segundos.</p>
               </div>
 
-              <div className="bg-white rounded-3xl shadow-xl shadow-black/[0.04] border border-[#E8ECF4] p-8 md:p-10">
+              <div className="bg-white rounded-2xl sm:rounded-3xl shadow-xl shadow-black/[0.04] border border-[#E8ECF4] p-5 sm:p-8 md:p-10">
                 <div className="space-y-5">
                   <PillInput
                     label="Nome completo"
@@ -608,14 +608,14 @@ export default function CotacaoPage() {
                 </p>
               </div>
 
-              <div className="grid lg:grid-cols-[1fr_380px] gap-8">
+              <div className="grid grid-cols-1 lg:grid-cols-[1fr_380px] gap-6 lg:gap-8">
                 {/* Coberturas */}
-                <div className="bg-white rounded-3xl shadow-xl shadow-black/[0.04] border border-[#E8ECF4] p-6 md:p-8">
+                <div className="bg-white rounded-2xl sm:rounded-3xl shadow-xl shadow-black/[0.04] border border-[#E8ECF4] p-4 sm:p-6 md:p-8">
                   {/* Plan tabs */}
-                  <div className={`flex gap-1 bg-[#F0F4FA] rounded-2xl p-1.5 mb-8 ${plans.length > 4 ? 'flex-wrap' : ''}`}>
+                  <div className={`flex gap-1 bg-[#F0F4FA] rounded-2xl p-1.5 mb-6 sm:mb-8 ${plans.length > 4 ? 'flex-wrap' : ''}`}>
                     {plans.map((plan, idx) => (
                       <button key={plan.id} onClick={() => setSelectedPlanIdx(idx)}
-                        className={`relative flex-1 min-w-[100px] py-3 rounded-xl text-sm font-semibold transition-all duration-200 ${
+                        className={`relative flex-1 min-w-[70px] sm:min-w-[100px] py-2.5 sm:py-3 rounded-xl text-xs sm:text-sm font-semibold transition-all duration-200 ${
                           selectedPlanIdx === idx
                             ? 'bg-white text-[#0A1E3D] shadow-md'
                             : 'text-[#64748B] hover:text-[#0A1E3D]'
@@ -652,7 +652,7 @@ export default function CotacaoPage() {
                 </div>
 
                 {/* Preço / CTA */}
-                <div className="bg-white rounded-3xl shadow-xl shadow-black/[0.04] border border-[#E8ECF4] p-6 md:p-8 h-fit lg:sticky lg:top-28">
+                <div className="bg-white rounded-2xl sm:rounded-3xl shadow-xl shadow-black/[0.04] border border-[#E8ECF4] p-4 sm:p-6 md:p-8 h-fit lg:sticky lg:top-28">
                   <div className="text-center mb-6">
                     <p className="text-sm text-[#64748B] mb-1">Plano {selectedPlan.name}</p>
                     <div className="flex items-baseline justify-center gap-1">
