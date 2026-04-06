@@ -79,6 +79,26 @@ function maskPhone(v: string) {
   return `(${d.slice(0, 2)}) ${d.slice(2, 7)}-${d.slice(7)}`
 }
 
+/** Extrai apenas dígitos do telefone — formato 55XXXXXXXXXXX para WhatsApp */
+function cleanPhone(v: string): string {
+  const digits = v.replace(/\D/g, '')
+  // Se já começa com 55, retorna direto
+  if (digits.startsWith('55') && digits.length === 13) return digits
+  // Senão, adiciona 55
+  return `55${digits}`
+}
+
+/** Valida WhatsApp: DDD (11-99) + 9 dígitos começando com 9 */
+function isValidWhatsApp(v: string): string | null {
+  const digits = v.replace(/\D/g, '')
+  if (digits.length < 11) return 'WhatsApp incompleto — precisa de DDD + 9 dígitos'
+  const ddd = parseInt(digits.slice(0, 2))
+  if (ddd < 11 || ddd > 99) return 'DDD inválido'
+  if (digits[2] !== '9') return 'Celular deve começar com 9 depois do DDD'
+  if (digits.length !== 11) return 'WhatsApp incompleto — precisa de DDD + 9 dígitos'
+  return null // válido
+}
+
 function maskPlaca(v: string) {
   return v.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 7)
 }
@@ -146,7 +166,8 @@ export default function CotacaoPage() {
   function validate(): boolean {
     const e: Record<string, string> = {}
     if (!form.nome.trim()) e.nome = 'Informe seu nome'
-    if (form.whatsapp.replace(/\D/g, '').length < 11) e.whatsapp = 'WhatsApp incompleto'
+    const whatsErr = isValidWhatsApp(form.whatsapp)
+    if (whatsErr) e.whatsapp = whatsErr
     if (form.placa.length < 7) e.placa = 'Placa incompleta'
     setErrors(e)
     return Object.keys(e).length === 0
@@ -354,7 +375,25 @@ export default function CotacaoPage() {
       : `${vehicle.marca} ${vehicle.modelo} ${vehicle.ano}`
     : ''
   const fipeFormatted = vehicle ? vehicle.fipeValue.toLocaleString('pt-BR') : '0'
-  const firstPayment = formatPrice(price + 299.90)
+
+  // Lógica de pagamento: 1º = taxa ativação, 2º = mensalidade com desconto 5%
+  const taxaAtivacao = 399
+  const today = new Date()
+  const dayOfMonth = today.getDate()
+  const currentMonth = today.getMonth()
+  const currentYear = today.getFullYear()
+
+  let dueDate: Date
+  if (dayOfMonth <= 15) {
+    // Fechou até dia 15 → vence dia 10 do próximo mês
+    dueDate = new Date(currentYear, currentMonth + 1, 10)
+  } else {
+    // Fechou do dia 16 pra frente → vence dia 20 do mês seguinte
+    dueDate = new Date(currentYear, currentMonth + 1, 20)
+  }
+  const dueDateFormatted = `${String(dueDate.getDate()).padStart(2, '0')}/${String(dueDate.getMonth() + 1).padStart(2, '0')}/${dueDate.getFullYear()}`
+  const discountPrice = Math.round(price * 0.95 * 100) / 100
+  const discountFormatted = formatPrice(discountPrice)
 
   return (
     <div className="min-h-screen bg-[#F7F8FC] relative">
@@ -688,22 +727,37 @@ export default function CotacaoPage() {
                     </div>
                   </div>
 
-                  <div className="border-t border-[#E8ECF4] pt-4 mb-6 space-y-2.5 text-sm">
-                    <div className="flex justify-between text-[#64748B]">
-                      <span>Mensalidade</span>
-                      <span className="font-medium">R$ {priceFormatted}</span>
+                  <div className="border-t border-[#E8ECF4] pt-4 mb-6 space-y-4 text-sm">
+                    {/* 1º PAGAMENTO — Taxa de ativação */}
+                    <div className="bg-[#FFF7ED] border border-[#E07620]/20 rounded-xl p-4">
+                      <div className="flex justify-between items-center">
+                        <span className="font-bold text-[#0A1E3D]">1º pagamento</span>
+                        <span className="font-extrabold text-[#E07620] text-xl">R$ {formatPrice(taxaAtivacao)}</span>
+                      </div>
+                      <p className="text-xs text-[#E07620] font-semibold mt-1">Taxa de ativação — pagamento único</p>
                     </div>
-                    <div className="flex justify-between text-[#64748B]">
-                      <span>Taxa de ativação (única)</span>
-                      <span className="font-medium">R$ 299,90</span>
+
+                    {/* 2º PAGAMENTO — Mensalidade com desconto */}
+                    <div className="bg-[#F0FDF4] border border-[#10B981]/20 rounded-xl p-4">
+                      <div className="flex justify-between items-center mb-1">
+                        <span className="font-bold text-[#0A1E3D]">2º pagamento</span>
+                        <span className="text-xs text-[#64748B]">vencimento até {dueDateFormatted}</span>
+                      </div>
+                      <div className="flex items-baseline justify-end gap-2 mt-1">
+                        <span className="text-sm text-[#94A3B8] line-through">R$ {priceFormatted}</span>
+                        <span className="font-extrabold text-[#10B981] text-2xl">R$ {discountFormatted}</span>
+                      </div>
+                      <p className="text-xs text-[#10B981] font-semibold mt-1.5 text-right">5% de desconto pagando antes do vencimento</p>
                     </div>
-                    <div className="flex justify-between font-bold text-[#0A1E3D] pt-3 border-t border-[#E8ECF4]">
-                      <span>1º pagamento</span>
-                      <span>R$ {firstPayment}</span>
+
+                    {/* Mensalidade regular */}
+                    <div className="flex justify-between text-[#64748B] pt-2">
+                      <span>Mensalidade regular</span>
+                      <span className="font-medium">R$ {priceFormatted}/mês</span>
                     </div>
                   </div>
 
-                  <a href={`https://wa.me/5521965700021?text=${encodeURIComponent(`Olá! Fiz uma simulação no site.\nNome: ${form.nome}\nWhatsApp: ${form.whatsapp}${form.email ? `\nE-mail: ${form.email}` : ''}\nPlaca: ${form.placa}${form.leilao !== 'nao' ? `\nOrigem: ${form.leilao === 'leilao' ? 'Leilão' : 'Remarcado'}` : ''}\nVeículo: ${vehicleLabel}\nFIPE: R$ ${fipeFormatted}\nPlano: ${selectedPlan.name}\nValor: R$ ${priceFormatted}/mês\nQuero contratar!`)}`}
+                  <a href={`https://wa.me/5521965700021?text=${encodeURIComponent(`Olá! Fiz uma simulação no site.\nNome: ${form.nome}\nWhatsApp: ${form.whatsapp}${form.email ? `\nE-mail: ${form.email}` : ''}\nPlaca: ${form.placa}${form.leilao !== 'nao' ? `\nOrigem: ${form.leilao === 'leilao' ? 'Leilão' : 'Remarcado'}` : ''}\nVeículo: ${vehicleLabel}\nFIPE: R$ ${fipeFormatted}\nPlano: ${selectedPlan.name}\nMensalidade: R$ ${priceFormatted}/mês\nAdesão: R$ ${formatPrice(taxaAtivacao)}\nQuero contratar!`)}`}
                     target="_blank" rel="noopener noreferrer"
                     onClick={() => {
                       trackWhatsAppClick('cotacao_resultado', { plano: selectedPlan.name, valor: price })
