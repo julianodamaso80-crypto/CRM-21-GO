@@ -21,24 +21,8 @@ export default function Home() {
       <TrustBar />
       <ProblemSolution />
       <SusepSection />
-
-      <InlineCTA
-        text="Descubra quanto custa proteger seu veículo. Simulação em 30 segundos."
-        buttonText="Fazer Simulação Grátis"
-        bg="white"
-      />
-
       <PlansSection />
       <HowItWorks />
-
-      <InlineCTA
-        text="Receba seu orçamento agora. Sem compromisso, sem análise de perfil."
-        buttonText="Receber Orçamento"
-        bg="gray"
-      />
-
-      <ComparisonSection />
-      <RejectedSection />
 
       <InlineCTA
         text="Carro, moto, app ou leilão. Faça sua simulação personalizada."
@@ -46,6 +30,8 @@ export default function Home() {
         bg="gray"
       />
 
+      <ComparisonSection />
+      <RejectedSection />
       <SocialProof />
       <AIShowcase />
 
@@ -57,13 +43,6 @@ export default function Home() {
 
       <MGMBanner />
       <BlogPreview />
-
-      <InlineCTA
-        text="Ainda tem dúvida? Faça a simulação e veja o valor para o seu veículo."
-        buttonText="Ver Meu Valor"
-        bg="gray"
-      />
-
       <HomeFAQ />
       <FinalCTA />
     </>

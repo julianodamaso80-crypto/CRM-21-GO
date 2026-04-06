@@ -24,16 +24,11 @@ export function BlogPreview() {
         animate={isInView ? 'visible' : 'hidden'}
         className="mx-auto max-w-7xl px-6"
       >
-        <motion.div variants={fadeInUp} className="flex items-end justify-between mb-14">
-          <div>
-            <h2 className="font-[var(--font-outfit)] text-3xl md:text-4xl font-bold text-[#0A1E3D]">
-              Blog 21Go
-            </h2>
-            <p className="mt-4 text-lg text-[#64748B]">Conteúdo para você fazer escolhas mais inteligentes</p>
-          </div>
-          <Link href="/blog" className="hidden md:inline-flex items-center gap-1 text-sm font-semibold text-[#1B4DA1] hover:text-[#164087] transition-colors">
-            Ver todos <ArrowRight className="h-4 w-4" />
-          </Link>
+        <motion.div variants={fadeInUp} className="text-center mb-14">
+          <h2 className="font-[var(--font-outfit)] text-3xl md:text-4xl font-bold text-[#0A1E3D]">
+            Blog 21Go
+          </h2>
+          <p className="mt-4 text-lg text-[#64748B]">Conteúdo para você fazer escolhas mais inteligentes</p>
         </motion.div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -55,8 +50,8 @@ export function BlogPreview() {
           ))}
         </div>
 
-        <div className="mt-8 text-center md:hidden">
-          <Link href="/blog" className="inline-flex items-center gap-1 text-sm font-semibold text-[#1B4DA1]">
+        <div className="mt-8 text-center">
+          <Link href="/blog" className="inline-flex items-center gap-1 text-sm font-semibold text-[#1B4DA1] hover:text-[#164087] transition-colors">
             Ver todos os posts <ArrowRight className="h-4 w-4" />
           </Link>
         </div>
