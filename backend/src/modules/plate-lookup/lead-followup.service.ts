@@ -29,33 +29,27 @@ function buildFollowUpMessage(lead: {
     ? `R$ ${lead.cotacaoValor.toFixed(2).replace('.', ',')}`
     : null
 
-  // Mensagem matadora — urgência + exclusividade + perda
+  const artigo = isMoto ? 'a' : 'o'
+  const pronome = isMoto ? 'ela' : 'ele'
+
   const lines = [
-    `Oi ${firstName}! Aqui é da *21Go Proteção Veicular* 🛡️`,
+    `Oi *${firstName}*! Tudo bem? 😊`,
     ``,
-    `Vi que você acabou de simular a proteção do *${veiculo}*${placa ? ` (placa ${placa})` : ''}.`,
+    `Recebi aqui sua simulação d${artigo} *${veiculo}*${placa ? ` — placa *${placa}*` : ''}.`,
     ``,
   ]
 
   if (valor) {
-    lines.push(`Seu orçamento ficou em *${valor}/mês* no plano *${lead.cotacaoPlano}*.`)
+    lines.push(`Ficou em *${valor}/mês* pra proteger ${pronome} com o plano *${lead.cotacaoPlano}*.`)
     lines.push(``)
   }
 
   lines.push(
-    `⚡ *O que você precisa saber antes de fechar o dia sem proteção:*`,
+    `${firstName}, imagina você sair de casa amanhã e ${artigo} ${tipo} não tá mais lá. Sem nenhum respaldo. Sem ninguém pra ligar. É ${artigo} ${tipo} que você trabalha, que leva sua família, que você conquistou. E pode sumir em 30 segundos.`,
     ``,
-    `🔴 *129 veículos* são roubados por dia só no RJ`,
-    `🔴 Se acontecer HOJE, você paga *100% do prejuízo do próprio bolso*`,
-    `🔴 Seguradora recusa? A gente aceita. Nome sujo? A gente aceita. Leilão? A gente aceita.`,
+    `Com a *21Go* ${artigo} ${tipo} fica segur${artigo} *a partir de agora*. E o valor que apareceu ali? *Não muda, não sobe, sem surpresa*.`,
     ``,
-    `✅ Na 21Go você tem *cobertura ativa em até 48h*`,
-    `✅ *20+ anos* no mercado, cadastrada na *SUSEP*`,
-    `✅ *Guincho 200km + Assistência 24h* desde o dia 1`,
-    ``,
-    `Cada minuto sem proteção é um risco real. E o valor que você viu ali? *É o mais baixo que conseguimos*. Não trava, não sobe depois.`,
-    ``,
-    `Quer garantir essa condição? Me responde aqui que *eu fecho pra você agora* em menos de 5 minutos. 🚀`,
+    `Vamos proteger seu patrimônio hoje? Me responde aqui que *eu resolvo pra você agora*, rapidinho 🚀`,
   )
 
   return lines.join('\n')
