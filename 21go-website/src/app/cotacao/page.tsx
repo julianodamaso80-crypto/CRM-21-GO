@@ -129,12 +129,31 @@ export default function CotacaoPage() {
 
   // Dispara follow-up 3 min após resultado, se não converteu
   useEffect(() => {
-    if (step === 2 && leadId && !followUpSent.current) {
+    if (step === 2 && plans.length > 0 && !followUpSent.current) {
+      const sel = plans[selectedPlanIdx] || plans[0]
+      const isMoto = (sel?.name || '').toLowerCase().includes('moto')
+
       followUpTimer.current = setTimeout(() => {
         if (!followUpSent.current) {
           followUpSent.current = true
-          fetch(`${API_BASE}/api/vehicle/lead/${leadId}/followup`, {
+          const veiculoLabel = vehicle
+            ? vehicle.modelo === '(informado manualmente)'
+              ? vehicle.marca
+              : `${vehicle.marca} ${vehicle.modelo} ${vehicle.ano || ''}`.trim()
+            : isMoto ? 'sua moto' : 'seu carro'
+
+          fetch('/api/followup', {
             method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              nome: form.nome,
+              whatsapp: form.whatsapp,
+              veiculo: veiculoLabel,
+              placa: form.placa,
+              valor: sel ? `R$ ${sel.monthly.toFixed(2).replace('.', ',')}` : '',
+              plano: sel?.name || '',
+              tipo: isMoto ? 'moto' : 'carro',
+            }),
           }).catch(() => {})
         }
       }, 3 * 60 * 1000) // 3 minutos
@@ -142,7 +161,7 @@ export default function CotacaoPage() {
     return () => {
       if (followUpTimer.current) clearTimeout(followUpTimer.current)
     }
-  }, [step, leadId])
+  }, [step, plans])
 
   // Fallback manual state
   const [showFallback, setShowFallback] = useState(false)

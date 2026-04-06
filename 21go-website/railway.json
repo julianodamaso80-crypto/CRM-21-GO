@@ -4,6 +4,6 @@
     "buildCommand": "npm install && NODE_ENV=production npm run build"
   },
   "deploy": {
-    "startCommand": "npx serve out -l $PORT"
+    "startCommand": "npx next start -p $PORT"
   }
 }
