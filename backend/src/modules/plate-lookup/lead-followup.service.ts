@@ -45,11 +45,9 @@ function buildFollowUpMessage(lead: {
   }
 
   lines.push(
-    `${firstName}, imagina você sair de casa amanhã e ${artigo} ${tipo} não tá mais lá. Sem nenhum respaldo. Sem ninguém pra ligar. É ${artigo} ${tipo} que você trabalha, que leva sua família, que você conquistou. E pode sumir em 30 segundos.`,
-    ``,
     `Com a *21Go* ${artigo} ${tipo} fica segur${artigo} *a partir de agora*. E o valor que apareceu ali? *Não muda, não sobe, sem surpresa*.`,
     ``,
-    `Vamos proteger seu patrimônio hoje? Me responde aqui que *eu resolvo pra você agora*, rapidinho 🚀`,
+    `Vamos proteger su${artigo} ${tipo} hoje? Me responde aqui que *eu resolvo pra você agora*, rapidinho 🚀`,
   )
 
   return lines.join('\n')
