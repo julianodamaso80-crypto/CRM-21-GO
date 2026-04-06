@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useEffect, useRef } from 'react'
 import { trackCotacaoInicio, trackCotacaoCompleta, trackWhatsAppClick, getTrackingData } from '@/lib/tracking'
 import {
   ArrowRight,
@@ -101,6 +101,28 @@ export default function CotacaoPage() {
   const [apiError, setApiError] = useState('')
   const [vehicle, setVehicle] = useState<VehicleData | null>(null)
   const [plans, setPlans] = useState<QuotePlan[]>([])
+
+  // Follow-up timer
+  const [leadId, setLeadId] = useState<string | null>(null)
+  const followUpSent = useRef(false)
+  const followUpTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  // Dispara follow-up 3 min após resultado, se não converteu
+  useEffect(() => {
+    if (step === 2 && leadId && !followUpSent.current) {
+      followUpTimer.current = setTimeout(() => {
+        if (!followUpSent.current) {
+          followUpSent.current = true
+          fetch(`${API_BASE}/api/vehicle/lead/${leadId}/followup`, {
+            method: 'POST',
+          }).catch(() => {})
+        }
+      }, 3 * 60 * 1000) // 3 minutos
+    }
+    return () => {
+      if (followUpTimer.current) clearTimeout(followUpTimer.current)
+    }
+  }, [step, leadId])
 
   // Fallback manual state
   const [showFallback, setShowFallback] = useState(false)
@@ -225,6 +247,8 @@ export default function CotacaoPage() {
         fbp: tracking.clickIds._fbp,
         fbc: tracking.clickIds._fbc,
       }),
+    }).then(r => r.json()).then(data => {
+      if (data.leadId) setLeadId(data.leadId)
     }).catch(() => {})
   }
 
@@ -302,6 +326,8 @@ export default function CotacaoPage() {
             fbp: tracking.clickIds._fbp,
             fbc: tracking.clickIds._fbc,
           }),
+        }).then(r => r.json()).then(data => {
+          if (data.leadId) setLeadId(data.leadId)
         }).catch(() => {})
       } else {
         // API retornou erro — mostra fallback manual
@@ -679,7 +705,11 @@ export default function CotacaoPage() {
 
                   <a href={`https://wa.me/5521965700021?text=${encodeURIComponent(`Olá! Fiz uma simulação no site.\nNome: ${form.nome}\nWhatsApp: ${form.whatsapp}${form.email ? `\nE-mail: ${form.email}` : ''}\nPlaca: ${form.placa}${form.leilao !== 'nao' ? `\nOrigem: ${form.leilao === 'leilao' ? 'Leilão' : 'Remarcado'}` : ''}\nVeículo: ${vehicleLabel}\nFIPE: R$ ${fipeFormatted}\nPlano: ${selectedPlan.name}\nValor: R$ ${priceFormatted}/mês\nQuero contratar!`)}`}
                     target="_blank" rel="noopener noreferrer"
-                    onClick={() => trackWhatsAppClick('cotacao_resultado', { plano: selectedPlan.name, valor: price })}
+                    onClick={() => {
+                      trackWhatsAppClick('cotacao_resultado', { plano: selectedPlan.name, valor: price })
+                      followUpSent.current = true // cancela follow-up
+                      if (followUpTimer.current) clearTimeout(followUpTimer.current)
+                    }}
                     className="flex items-center justify-center gap-2.5 w-full py-4 bg-gradient-to-r from-[#E07620] to-[#F08C28] text-white font-bold text-base rounded-full shadow-lg shadow-[#E07620]/20 hover:shadow-xl hover:shadow-[#E07620]/30 hover:scale-[1.01] active:scale-[0.99] transition-all duration-200 mb-4">
                     <MessageCircle className="w-5 h-5" />
                     Contratar pelo WhatsApp

@@ -2,6 +2,7 @@ import { FastifyInstance, FastifyRequest, FastifyReply } from 'fastify'
 import { lookupPlate } from './plate-lookup.service'
 import { createPublicLead } from './lead-capture.service'
 import { convertLead } from './lead-convert.service'
+import { sendFollowUp } from './lead-followup.service'
 
 export async function plateLookupRoutes(fastify: FastifyInstance) {
   // Public endpoints — NO auth required (called from static site)
@@ -44,6 +45,22 @@ export async function plateLookupRoutes(fastify: FastifyInstance) {
       const userAgent = request.headers['user-agent'] || ''
       const result = await createPublicLead(body, ip, userAgent)
       return reply.status(201).send(result)
+    },
+  )
+
+  // POST /lead/:id/followup — Envia mensagem de follow-up via WhatsApp
+  fastify.post<{ Params: { id: string } }>(
+    '/lead/:id/followup',
+    {
+      schema: {
+        description: 'Envia mensagem de follow-up via WhatsApp (Evolution API) para lead que não converteu',
+        tags: ['Lead Follow-Up'],
+      },
+    },
+    async (request: FastifyRequest<{ Params: { id: string } }>, reply: FastifyReply) => {
+      const { id } = request.params
+      const result = await sendFollowUp({ leadId: id })
+      return reply.send(result)
     },
   )
 

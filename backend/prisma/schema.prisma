@@ -342,6 +342,10 @@ model Lead {
   // Conversations
   conversations Conversation[]
 
+  // Follow-up automático (WhatsApp via Evolution API)
+  followUpEnviado Boolean   @default(false) @map("follow_up_enviado")
+  followUpData    DateTime? @map("follow_up_data")
+
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
