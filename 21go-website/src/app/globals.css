@@ -98,6 +98,15 @@
   100% { transform: scale(2); opacity: 0; }
 }
 
+@keyframes marquee {
+  0%   { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+.animate-marquee {
+  animation: marquee 30s linear infinite;
+}
+
 /* ── Utility classes for animations ───────────────────── */
 
 .animate-gradient-x {
@@ -151,15 +160,6 @@
   padding-top: env(safe-area-inset-top, 0px);
 }
 
-/* ── Reduced motion ───────────────────────────────────── */
-
-@media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-  }
-}
 
 /* ── Base ──────────────────────────────────────────────── */
 

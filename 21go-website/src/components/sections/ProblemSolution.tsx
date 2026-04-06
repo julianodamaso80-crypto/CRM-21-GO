@@ -1,18 +1,60 @@
 'use client'
 
 import { motion, useInView } from 'framer-motion'
-import { useRef } from 'react'
+import { useRef, useState } from 'react'
 import { ShieldCheck, Lock, Flame, Truck, Clock, Car } from 'lucide-react'
 import { fadeInUp, staggerContainer } from '@/lib/motion'
+import ElectricBorder from '@/components/ui/ElectricBorder'
 
 const coverages = [
-  { icon: ShieldCheck, title: 'Colisão', desc: 'Proteção parcial e total para batidas e acidentes' },
-  { icon: Lock, title: 'Roubo e Furto', desc: 'Reembolso pela tabela FIPE em caso de perda total' },
-  { icon: Flame, title: 'Incêndio', desc: 'Proteção contra incêndio e eventos da natureza' },
-  { icon: Truck, title: 'Guincho 200km', desc: 'Reboque gratuito em todo o território nacional' },
-  { icon: Car, title: 'Carro Reserva', desc: 'Veículo substituto por até 15 dias nos planos superiores' },
-  { icon: Clock, title: 'Assistência 24h', desc: 'Chaveiro, pneu, pane seca e elétrica a qualquer hora' },
+  { icon: ShieldCheck, title: 'Colisão', desc: 'Proteção parcial e total para batidas e acidentes', color: '#1B4DA1' },
+  { icon: Lock, title: 'Roubo e Furto', desc: 'Reembolso pela tabela FIPE em caso de perda total', color: '#1B4DA1' },
+  { icon: Flame, title: 'Incêndio', desc: 'Proteção contra incêndio e eventos da natureza', color: '#E07620' },
+  { icon: Truck, title: 'Guincho 200km', desc: 'Reboque gratuito em todo o território nacional', color: '#1B4DA1' },
+  { icon: Car, title: 'Carro Reserva', desc: 'Veículo substituto por até 15 dias nos planos superiores', color: '#1B4DA1' },
+  { icon: Clock, title: 'Assistência 24h', desc: 'Chaveiro, pneu, pane seca e elétrica a qualquer hora', color: '#E07620' },
 ]
+
+function CoverageCard({ item, index }: { item: typeof coverages[0]; index: number }) {
+  const [hovered, setHovered] = useState(false)
+
+  return (
+    <motion.div
+      variants={fadeInUp}
+      transition={{ delay: index * 0.07 }}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      className="cursor-default"
+    >
+      {hovered ? (
+        <ElectricBorder
+          color={item.color}
+          speed={1.2}
+          chaos={0.18}
+          borderRadius={16}
+        >
+          <div className="bg-white rounded-2xl p-6 h-full">
+            <div className="w-12 h-12 rounded-xl flex items-center justify-center mb-4 scale-110 transition-all duration-300"
+              style={{ backgroundColor: `${item.color}15` }}
+            >
+              <item.icon className="h-6 w-6" style={{ color: item.color }} />
+            </div>
+            <h3 className="font-[var(--font-outfit)] text-lg font-semibold text-[#0A1E3D]">{item.title}</h3>
+            <p className="mt-2 text-sm text-[#64748B] leading-relaxed">{item.desc}</p>
+          </div>
+        </ElectricBorder>
+      ) : (
+        <div className="bg-white rounded-2xl p-6 border border-[#E2E8F0] shadow-sm hover:shadow-xl transition-all duration-300 h-full">
+          <div className="w-12 h-12 rounded-xl bg-[#1B4DA1]/5 flex items-center justify-center mb-4 transition-all duration-300">
+            <item.icon className="h-6 w-6 text-[#1B4DA1]" />
+          </div>
+          <h3 className="font-[var(--font-outfit)] text-lg font-semibold text-[#0A1E3D]">{item.title}</h3>
+          <p className="mt-2 text-sm text-[#64748B] leading-relaxed">{item.desc}</p>
+        </div>
+      )}
+    </motion.div>
+  )
+}
 
 export function ProblemSolution() {
   const ref = useRef(null)
@@ -37,18 +79,7 @@ export function ProblemSolution() {
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {coverages.map((item, i) => (
-            <motion.div
-              key={item.title}
-              variants={fadeInUp}
-              transition={{ delay: i * 0.07 }}
-              className="group bg-white rounded-2xl p-6 border border-[#E2E8F0] shadow-sm hover:shadow-xl hover:-translate-y-1.5 hover:border-[#1B4DA1]/20 transition-all duration-300 cursor-default"
-            >
-              <div className="w-12 h-12 rounded-xl bg-[#1B4DA1]/5 flex items-center justify-center mb-4 group-hover:bg-[#1B4DA1]/10 group-hover:scale-110 transition-all duration-300">
-                <item.icon className="h-6 w-6 text-[#1B4DA1]" />
-              </div>
-              <h3 className="font-[var(--font-outfit)] text-lg font-semibold text-[#0A1E3D]">{item.title}</h3>
-              <p className="mt-2 text-sm text-[#64748B] leading-relaxed">{item.desc}</p>
-            </motion.div>
+            <CoverageCard key={item.title} item={item} index={i} />
           ))}
         </div>
       </motion.div>

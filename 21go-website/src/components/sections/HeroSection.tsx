@@ -14,28 +14,30 @@ export function HeroSection() {
   return (
     <section
       ref={ref}
-      className="relative min-h-[95vh] overflow-hidden pt-24 pb-24 bg-gradient-to-b from-[#0A1E3D] via-[#0D2653] to-[#1B4DA1]"
+      className="relative min-h-[95vh] overflow-hidden pt-24 pb-24 bg-[#0A1E3D]"
     >
-      {/* Grid pattern */}
-      <div
-        className="pointer-events-none absolute inset-0"
-        style={{
-          backgroundImage: 'url(/grid-pattern.svg)',
-          backgroundRepeat: 'repeat',
-          opacity: 0.04,
-        }}
-      />
+      {/* Video background */}
+      <video
+        autoPlay
+        muted
+        loop
+        playsInline
+        preload="auto"
+        className="pointer-events-none absolute inset-0 h-full w-full object-cover"
+      >
+        <source src="/videos/hero-bg.mp4" type="video/mp4" />
+      </video>
 
-      {/* Animated gradient orbs */}
+      {/* Dark overlay — gradient for depth + legibility */}
+      <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-[#0A1E3D]/85 via-[#0A1E3D]/75 to-[#0A1E3D]/90" />
+
+      {/* Subtle vignette edges */}
+      <div className="pointer-events-none absolute inset-0 shadow-[inset_0_0_120px_40px_rgba(10,30,61,0.7)]" />
+
+      {/* Animated gradient orbs — kept for premium glow on top of video */}
       <div className="pointer-events-none absolute inset-0 overflow-hidden">
-        <div className="animate-float-slow absolute -top-32 -right-32 w-[600px] h-[600px] rounded-full bg-[#E07620]/20 blur-[120px]" />
-        <div className="animate-float-slower absolute bottom-0 -left-32 w-[700px] h-[700px] rounded-full bg-[#1B4DA1]/30 blur-[150px]" />
-        <div className="animate-pulse-slow absolute top-1/3 left-1/2 -translate-x-1/2 w-[400px] h-[400px] rounded-full bg-[#C9A84C]/10 blur-[100px]" />
-
-        {/* Geometric accents */}
-        <div className="absolute top-1/4 left-[15%] w-32 h-32 border border-white/[0.05] rounded-2xl rotate-12" />
-        <div className="absolute bottom-1/3 right-[12%] w-20 h-20 border border-white/[0.04] rounded-full" />
-        <div className="absolute top-1/2 right-[20%] w-16 h-16 border border-[#C9A84C]/10 rounded-xl rotate-45" />
+        <div className="animate-float-slow absolute -top-32 -right-32 w-[600px] h-[600px] rounded-full bg-[#E07620]/10 blur-[120px]" />
+        <div className="animate-float-slower absolute bottom-0 -left-32 w-[700px] h-[700px] rounded-full bg-[#1B4DA1]/15 blur-[150px]" />
       </div>
 
       <motion.div
@@ -61,8 +63,8 @@ export function HeroSection() {
           variants={fadeInUp}
           className="mt-8 font-[var(--font-outfit)] text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold leading-[1.12] tracking-tight text-white max-w-3xl mx-auto"
         >
-          A Cada 11 Minutos, Um Carro ou uma Moto é{' '}
-          <span className="text-gradient-orange">Roubado no Rio</span>
+          A Cada 11 Minutos,
+          <span className="block">Um Carro ou uma Moto é <span className="text-gradient-orange">Roubado no Rio</span></span>
         </motion.h1>
 
         {/* H2 */}
