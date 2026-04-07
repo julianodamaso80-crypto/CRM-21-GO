@@ -25,6 +25,7 @@ import {
   formatPrice,
   getApplicablePlans,
 } from '@/data/pricing'
+import { shouldBlockQuote } from '@/data/vehicle-exclusions'
 
 /* ─── Types ─── */
 interface FormData {
@@ -121,6 +122,9 @@ export default function CotacaoPage() {
   const [apiError, setApiError] = useState('')
   const [vehicle, setVehicle] = useState<VehicleData | null>(null)
   const [plans, setPlans] = useState<QuotePlan[]>([])
+
+  // Excluded vehicle state
+  const [excluded, setExcluded] = useState(false)
 
   // Fallback manual state
   const [showFallback, setShowFallback] = useState(false)
@@ -341,6 +345,37 @@ export default function CotacaoPage() {
       if (data.success) {
         const v = data.vehicle
         setVehicle(v)
+
+        // Verifica se o veiculo esta na lista de exclusao
+        if (shouldBlockQuote(v.marca, v.modelo, v.ano)) {
+          setExcluded(true)
+          setStep(2)
+          // Salvar lead como excluido
+          const tracking = getTrackingData()
+          fetch(`${API_BASE}/api/vehicle/lead`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              nome: form.nome,
+              whatsapp: form.whatsapp,
+              email: form.email || undefined,
+              placa: form.placa,
+              leilao: form.leilao,
+              marca: v.marca,
+              modelo: v.modelo,
+              ano: v.ano,
+              valorFipe: v.fipeValue,
+              plano: 'EXCLUIDO',
+              valorMensal: 0,
+              ...tracking.utms,
+              gclid: tracking.clickIds.gclid,
+              fbclid: tracking.clickIds.fbclid,
+              fbp: tracking.clickIds._fbp,
+              fbc: tracking.clickIds._fbc,
+            }),
+          }).catch(() => {})
+          return
+        }
 
         // SEMPRE calcula precos localmente pela tabela real
         const localPlans = getApplicablePlans(
@@ -710,8 +745,74 @@ export default function CotacaoPage() {
             </div>
           )}
 
+          {/* ── STEP 2: Veículo Excluído ── */}
+          {step === 2 && excluded && vehicle && (
+            <div className="max-w-lg mx-auto pt-28">
+              <div className="bg-white rounded-2xl sm:rounded-3xl shadow-xl shadow-black/[0.04] border border-[#E8ECF4] p-6 sm:p-10 text-center">
+                <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-[#FFF7ED] mb-6">
+                  <AlertCircle className="w-8 h-8 text-[#E07620]" />
+                </div>
+
+                <h2 className="font-[var(--font-display)] text-xl md:text-2xl font-bold text-[#0A1E3D] mb-3">
+                  Cotação sob consulta
+                </h2>
+
+                <p className="text-[#64748B] text-sm mb-2">
+                  Identificamos seu veículo:
+                </p>
+                <p className="font-semibold text-[#0A1E3D] text-base mb-4">
+                  {vehicle.marca} {vehicle.modelo} {vehicle.ano}
+                </p>
+
+                <p className="text-[#64748B] text-sm mb-8 leading-relaxed">
+                  Para esse modelo, não conseguimos calcular o valor automaticamente.
+                  <br />
+                  Fale com nosso consultor para receber uma cotação personalizada!
+                </p>
+
+                <a
+                  href={`https://wa.me/5521965700021?text=${encodeURIComponent(`Olá! Fiz uma simulação no site mas meu veículo precisa de cotação especial.\nNome: ${form.nome}\nWhatsApp: ${form.whatsapp}\nPlaca: ${form.placa}\nVeículo: ${vehicle.marca} ${vehicle.modelo} ${vehicle.ano}\nPode me ajudar?`)}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={() => {
+                    trackWhatsAppClick('cotacao_excluido')
+                    if (typeof window !== 'undefined' && (window as any).dataLayer) {
+                      (window as any).dataLayer.push({
+                        event: 'whatsapp_click',
+                        tipo: 'veiculo_excluido',
+                        veiculo: `${vehicle.marca} ${vehicle.modelo} ${vehicle.ano}`,
+                      })
+                    }
+                  }}
+                  className="inline-flex items-center justify-center gap-2.5 w-full py-4 bg-gradient-to-r from-[#25D366] to-[#20BD5A] text-white font-bold text-base rounded-full shadow-lg shadow-[#25D366]/20 hover:shadow-xl hover:shadow-[#25D366]/30 hover:scale-[1.01] active:scale-[0.99] transition-all duration-200 mb-4"
+                >
+                  <MessageCircle className="w-5 h-5" />
+                  Falar com Consultor no WhatsApp
+                </a>
+
+                <div className="flex items-center justify-center gap-2 text-xs text-[#94A3B8] mb-6">
+                  <Lock className="w-3.5 h-3.5" />
+                  Atendimento rápido e sem compromisso
+                </div>
+
+                <button
+                  onClick={() => {
+                    setStep(1)
+                    setExcluded(false)
+                    setVehicle(null)
+                    setPlans([])
+                    setForm({ nome: '', whatsapp: '', email: '', placa: '', leilao: 'nao' })
+                  }}
+                  className="inline-flex items-center gap-2 text-sm text-[#64748B] hover:text-[#0A1E3D] transition-colors"
+                >
+                  <ArrowLeft className="w-4 h-4" /> Nova simulação
+                </button>
+              </div>
+            </div>
+          )}
+
           {/* ── STEP 2: Resultado ── */}
-          {step === 2 && vehicle && plans.length > 0 && selectedPlan && (
+          {step === 2 && !excluded && vehicle && plans.length > 0 && selectedPlan && (
             <div className="max-w-5xl mx-auto pt-28">
               {/* Header */}
               <div className="text-center mb-10">
@@ -845,7 +946,7 @@ export default function CotacaoPage() {
                   className="inline-flex items-center gap-2 text-sm text-[#64748B] hover:text-[#0A1E3D] transition-colors">
                   <ArrowLeft className="w-4 h-4" /> Editar dados
                 </button>
-                <button onClick={() => { setStep(1); setForm({ nome: '', whatsapp: '', email: '', placa: '', leilao: 'nao' }); setVehicle(null); setPlans([]); setShowFallback(false); setFallbackFipe(0); followUpSent.current = false; whatsappClicked.current = false; if (abandonmentTimer.current) { clearTimeout(abandonmentTimer.current); abandonmentTimer.current = null } }}
+                <button onClick={() => { setStep(1); setForm({ nome: '', whatsapp: '', email: '', placa: '', leilao: 'nao' }); setVehicle(null); setPlans([]); setShowFallback(false); setFallbackFipe(0); setExcluded(false); followUpSent.current = false; whatsappClicked.current = false; if (abandonmentTimer.current) { clearTimeout(abandonmentTimer.current); abandonmentTimer.current = null } }}
                   className="text-sm text-[#1B4DA1] hover:text-[#3D72DE] transition-colors">
                   Nova simulação
                 </button>
