@@ -2,25 +2,10 @@ import { NextRequest, NextResponse } from 'next/server'
 import nodemailer from 'nodemailer'
 
 const CRM_API = process.env.BACKEND_URL || 'https://crm-21-go-production.up.railway.app'
-const EVOLUTION_API_URL = process.env.EVOLUTION_API_URL || ''
-const EVOLUTION_INSTANCE = process.env.EVOLUTION_INSTANCE || '21go'
-const EVOLUTION_API_KEY = process.env.EVOLUTION_API_KEY || 'D09EE8166A35-40C2-8BAD-B3BC81C7613E'
-const NOTIFY_NUMBER = '5521980214882'
 
 const OUVIDORIA_EMAIL = '21go.ouvidoria@gmail.com'
 const SMTP_USER = process.env.SMTP_USER || '21go.ouvidoria@gmail.com'
 const SMTP_PASS = process.env.SMTP_PASS || ''
-
-async function notifyJuliano(text: string) {
-  if (!EVOLUTION_API_URL) return
-  try {
-    await fetch(`${EVOLUTION_API_URL}/message/sendText/${EVOLUTION_INSTANCE}`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', apikey: EVOLUTION_API_KEY },
-      body: JSON.stringify({ number: NOTIFY_NUMBER, text }),
-    })
-  } catch {}
-}
 
 async function sendEmail(subject: string, html: string) {
   if (!SMTP_PASS) {
@@ -62,14 +47,6 @@ export async function POST(request: NextRequest) {
           body: JSON.stringify({ tipo: 'denuncia', assunto, comentario }),
         })
       } catch {}
-
-      // Notificar Juliano via WhatsApp
-      await notifyJuliano(
-        `🚨 *DENÚNCIA ANÔNIMA — 21Go*\n\n` +
-        `*Assunto:* ${assunto}\n\n` +
-        `*Descrição:*\n${comentario}\n\n` +
-        `⚠️ Canal anônimo — sem dados do denunciante.`
-      )
 
       // Enviar email
       const now = new Date().toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo' })
@@ -125,21 +102,11 @@ export async function POST(request: NextRequest) {
       })
     } catch {}
 
-    // Notificar Juliano via WhatsApp
-    const emoji = tipo === 'reclamacao' ? '🔴' : '💡'
-    const tipoLabel = tipo === 'reclamacao' ? 'RECLAMAÇÃO' : 'SUGESTÃO'
-
-    await notifyJuliano(
-      `${emoji} *${tipoLabel} — 21Go Ouvidoria*\n\n` +
-      `*Nome:* ${nome}\n` +
-      `*Telefone:* ${telefone}\n` +
-      `${fileNames.length > 0 ? `*Arquivos:* ${fileNames.length} arquivo(s)\n` : ''}` +
-      `\n*Mensagem:*\n${mensagem}`
-    )
-
     // Enviar email
-    const now = new Date().toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo' })
+    const emoji = tipo === 'reclamacao' ? '🔴' : '💡'
     const tipoEmailLabel = tipo === 'reclamacao' ? 'Reclamação' : 'Sugestão'
+    const now = new Date().toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo' })
+
     await sendEmail(
       `${emoji} ${tipoEmailLabel} — ${nome}`,
       `
