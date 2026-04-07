@@ -1,10 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server'
+import nodemailer from 'nodemailer'
 
 const CRM_API = process.env.BACKEND_URL || 'https://crm-21-go-production.up.railway.app'
 const EVOLUTION_API_URL = process.env.EVOLUTION_API_URL || ''
 const EVOLUTION_INSTANCE = process.env.EVOLUTION_INSTANCE || '21go'
 const EVOLUTION_API_KEY = process.env.EVOLUTION_API_KEY || 'D09EE8166A35-40C2-8BAD-B3BC81C7613E'
 const NOTIFY_NUMBER = '5521980214882'
+
+const OUVIDORIA_EMAIL = '21go.ouvidoria@gmail.com'
+const SMTP_USER = process.env.SMTP_USER || '21go.ouvidoria@gmail.com'
+const SMTP_PASS = process.env.SMTP_PASS || ''
 
 async function notifyJuliano(text: string) {
   if (!EVOLUTION_API_URL) return
@@ -15,6 +20,25 @@ async function notifyJuliano(text: string) {
       body: JSON.stringify({ number: NOTIFY_NUMBER, text }),
     })
   } catch {}
+}
+
+async function sendEmail(subject: string, html: string) {
+  if (!SMTP_PASS) {
+    console.warn('[Ouvidoria] SMTP_PASS não configurado, email não enviado')
+    return
+  }
+
+  const transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: { user: SMTP_USER, pass: SMTP_PASS },
+  })
+
+  await transporter.sendMail({
+    from: `"21Go Ouvidoria" <${SMTP_USER}>`,
+    to: OUVIDORIA_EMAIL,
+    subject,
+    html,
+  })
 }
 
 export async function POST(request: NextRequest) {
@@ -39,13 +63,36 @@ export async function POST(request: NextRequest) {
         })
       } catch {}
 
-      // Notificar Juliano
+      // Notificar Juliano via WhatsApp
       await notifyJuliano(
         `🚨 *DENÚNCIA ANÔNIMA — 21Go*\n\n` +
         `*Assunto:* ${assunto}\n\n` +
         `*Descrição:*\n${comentario}\n\n` +
         `⚠️ Canal anônimo — sem dados do denunciante.`
       )
+
+      // Enviar email
+      const now = new Date().toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo' })
+      await sendEmail(
+        `🚨 Denúncia Anônima — ${assunto}`,
+        `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+          <div style="background: #0A1E3D; padding: 20px; border-radius: 12px 12px 0 0;">
+            <h2 style="color: white; margin: 0;">🚨 Denúncia Anônima</h2>
+            <p style="color: rgba(255,255,255,0.6); margin: 5px 0 0;">Canal de Ouvidoria 21Go</p>
+          </div>
+          <div style="background: #f8f9fa; padding: 24px; border: 1px solid #e2e8f0; border-top: none; border-radius: 0 0 12px 12px;">
+            <p style="margin: 0 0 8px;"><strong>Assunto:</strong> ${assunto}</p>
+            <p style="margin: 0 0 8px;"><strong>Data:</strong> ${now}</p>
+            <hr style="border: none; border-top: 1px solid #e2e8f0; margin: 16px 0;" />
+            <p style="margin: 0 0 4px;"><strong>Descrição:</strong></p>
+            <p style="margin: 0; white-space: pre-wrap; background: white; padding: 16px; border-radius: 8px; border: 1px solid #e2e8f0;">${comentario}</p>
+            <hr style="border: none; border-top: 1px solid #e2e8f0; margin: 16px 0;" />
+            <p style="color: #94a3b8; font-size: 12px; margin: 0;">⚠️ Canal 100% anônimo — nenhum dado pessoal coletado.</p>
+          </div>
+        </div>
+        `,
+      ).catch((err) => console.error('[Ouvidoria Email]', err.message))
 
       return NextResponse.json({ success: true })
     }
@@ -62,7 +109,6 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ success: false, error: 'Campos obrigatórios' }, { status: 400 })
     }
 
-    // Converter arquivos pra base64 pra salvar no banco
     const fileNames: string[] = []
     for (const file of arquivos) {
       if (file && file.size > 0) {
@@ -75,17 +121,11 @@ export async function POST(request: NextRequest) {
       await fetch(`${CRM_API}/api/ouvidoria`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          tipo,
-          nome,
-          telefone,
-          mensagem,
-          arquivos: fileNames,
-        }),
+        body: JSON.stringify({ tipo, nome, telefone, mensagem, arquivos: fileNames }),
       })
     } catch {}
 
-    // Notificar Juliano
+    // Notificar Juliano via WhatsApp
     const emoji = tipo === 'reclamacao' ? '🔴' : '💡'
     const tipoLabel = tipo === 'reclamacao' ? 'RECLAMAÇÃO' : 'SUGESTÃO'
 
@@ -96,6 +136,30 @@ export async function POST(request: NextRequest) {
       `${fileNames.length > 0 ? `*Arquivos:* ${fileNames.length} arquivo(s)\n` : ''}` +
       `\n*Mensagem:*\n${mensagem}`
     )
+
+    // Enviar email
+    const now = new Date().toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo' })
+    const tipoEmailLabel = tipo === 'reclamacao' ? 'Reclamação' : 'Sugestão'
+    await sendEmail(
+      `${emoji} ${tipoEmailLabel} — ${nome}`,
+      `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+        <div style="background: ${tipo === 'reclamacao' ? '#DC2626' : '#1B4DA1'}; padding: 20px; border-radius: 12px 12px 0 0;">
+          <h2 style="color: white; margin: 0;">${emoji} ${tipoEmailLabel}</h2>
+          <p style="color: rgba(255,255,255,0.6); margin: 5px 0 0;">Canal de Ouvidoria 21Go</p>
+        </div>
+        <div style="background: #f8f9fa; padding: 24px; border: 1px solid #e2e8f0; border-top: none; border-radius: 0 0 12px 12px;">
+          <p style="margin: 0 0 8px;"><strong>Nome:</strong> ${nome}</p>
+          <p style="margin: 0 0 8px;"><strong>Telefone:</strong> ${telefone}</p>
+          <p style="margin: 0 0 8px;"><strong>Data:</strong> ${now}</p>
+          ${fileNames.length > 0 ? `<p style="margin: 0 0 8px;"><strong>Arquivos anexados:</strong> ${fileNames.join(', ')}</p>` : ''}
+          <hr style="border: none; border-top: 1px solid #e2e8f0; margin: 16px 0;" />
+          <p style="margin: 0 0 4px;"><strong>Mensagem:</strong></p>
+          <p style="margin: 0; white-space: pre-wrap; background: white; padding: 16px; border-radius: 8px; border: 1px solid #e2e8f0;">${mensagem}</p>
+        </div>
+      </div>
+      `,
+    ).catch((err) => console.error('[Ouvidoria Email]', err.message))
 
     return NextResponse.json({ success: true })
   } catch (err: any) {
