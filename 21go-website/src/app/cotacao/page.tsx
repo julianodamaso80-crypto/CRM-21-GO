@@ -122,47 +122,6 @@ export default function CotacaoPage() {
   const [vehicle, setVehicle] = useState<VehicleData | null>(null)
   const [plans, setPlans] = useState<QuotePlan[]>([])
 
-  // Follow-up timer
-  const [leadId, setLeadId] = useState<string | null>(null)
-  const followUpSent = useRef(false)
-  const followUpTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
-
-  // Dispara follow-up 3 min após resultado, se não converteu
-  useEffect(() => {
-    if (step === 2 && plans.length > 0 && !followUpSent.current) {
-      const sel = plans[selectedPlanIdx] || plans[0]
-      const isMoto = (sel?.name || '').toLowerCase().includes('moto')
-
-      followUpTimer.current = setTimeout(() => {
-        if (!followUpSent.current) {
-          followUpSent.current = true
-          const veiculoLabel = vehicle
-            ? vehicle.modelo === '(informado manualmente)'
-              ? vehicle.marca
-              : `${vehicle.marca} ${vehicle.modelo} ${vehicle.ano || ''}`.trim()
-            : isMoto ? 'sua moto' : 'seu carro'
-
-          fetch('/api/followup', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              nome: form.nome,
-              whatsapp: form.whatsapp,
-              veiculo: veiculoLabel,
-              placa: form.placa,
-              valor: sel ? `R$ ${sel.monthly.toFixed(2).replace('.', ',')}` : '',
-              plano: sel?.name || '',
-              tipo: isMoto ? 'moto' : 'carro',
-            }),
-          }).catch(() => {})
-        }
-      }, 3 * 60 * 1000) // 3 minutos
-    }
-    return () => {
-      if (followUpTimer.current) clearTimeout(followUpTimer.current)
-    }
-  }, [step, plans])
-
   // Fallback manual state
   const [showFallback, setShowFallback] = useState(false)
   const [fallbackType, setFallbackType] = useState('carro')
@@ -181,6 +140,83 @@ export default function CotacaoPage() {
     setErrors(prev => ({ ...prev, [field]: '' }))
     if (field === 'placa') setApiError('')
   }, [])
+
+  // Follow-up & abandonment timer
+  const [leadId, setLeadId] = useState<string | null>(null)
+  const followUpSent = useRef(false)
+  const whatsappClicked = useRef(false)
+  const abandonmentTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  // Helper: build vehicle label for messages
+  const getVeiculoLabel = useCallback(() => {
+    if (!vehicle) return 'seu veículo'
+    return vehicle.modelo === '(informado manualmente)'
+      ? vehicle.marca
+      : `${vehicle.marca} ${vehicle.modelo} ${vehicle.ano || ''}`.trim()
+  }, [vehicle])
+
+  // Helper: notify WhatsApp click to API
+  const notifyWhatsAppClick = useCallback(() => {
+    whatsappClicked.current = true
+    followUpSent.current = true // also cancel follow-up
+    if (abandonmentTimer.current) {
+      clearTimeout(abandonmentTimer.current)
+      abandonmentTimer.current = null
+    }
+    fetch('/api/whatsapp-clicked', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ leadId, whatsapp: form.whatsapp }),
+    }).catch(() => {})
+  }, [leadId, form.whatsapp])
+
+  // 5-minute abandonment timer: fires when step 2 shown, cancelled if WhatsApp clicked
+  useEffect(() => {
+    if (step === 2 && plans.length > 0 && !followUpSent.current && !whatsappClicked.current) {
+      const sel = plans[selectedPlanIdx] || plans[0]
+      const isMoto = (sel?.name || '').toLowerCase().includes('moto')
+
+      abandonmentTimer.current = setTimeout(() => {
+        if (whatsappClicked.current || followUpSent.current) return
+        followUpSent.current = true
+
+        const veiculoLabel = getVeiculoLabel()
+        const valorFormatted = sel ? `R$ ${sel.monthly.toFixed(2).replace('.', ',')}` : ''
+
+        // 1. Send follow-up message to the CLIENT
+        fetch('/api/followup', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            nome: form.nome,
+            whatsapp: form.whatsapp,
+            veiculo: veiculoLabel,
+            placa: form.placa,
+            valor: valorFormatted,
+            plano: sel?.name || '',
+            tipo: isMoto ? 'moto' : 'carro',
+          }),
+        }).catch(() => {})
+
+        // 2. Notify JULIANO that lead abandoned
+        fetch('/api/lead-abandoned', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            nome: form.nome,
+            whatsapp: form.whatsapp,
+            placa: form.placa,
+            veiculo: veiculoLabel,
+            plano: sel?.name || '',
+            valor: valorFormatted,
+          }),
+        }).catch(() => {})
+      }, 5 * 60 * 1000) // 5 minutos
+    }
+    return () => {
+      if (abandonmentTimer.current) clearTimeout(abandonmentTimer.current)
+    }
+  }, [step, plans])
 
   function validate(): boolean {
     const e: Record<string, string> = {}
@@ -780,8 +816,16 @@ export default function CotacaoPage() {
                     target="_blank" rel="noopener noreferrer"
                     onClick={() => {
                       trackWhatsAppClick('cotacao_resultado', { plano: selectedPlan.name, valor: price })
-                      followUpSent.current = true // cancela follow-up
-                      if (followUpTimer.current) clearTimeout(followUpTimer.current)
+                      notifyWhatsAppClick()
+                      // GTM event
+                      if (typeof window !== 'undefined' && (window as any).dataLayer) {
+                        (window as any).dataLayer.push({
+                          event: 'whatsapp_click',
+                          plano: selectedPlan.name,
+                          valor: price,
+                          veiculo: vehicleLabel,
+                        })
+                      }
                     }}
                     className="flex items-center justify-center gap-2.5 w-full py-4 bg-gradient-to-r from-[#E07620] to-[#F08C28] text-white font-bold text-base rounded-full shadow-lg shadow-[#E07620]/20 hover:shadow-xl hover:shadow-[#E07620]/30 hover:scale-[1.01] active:scale-[0.99] transition-all duration-200 mb-4">
                     <MessageCircle className="w-5 h-5" />
@@ -801,7 +845,7 @@ export default function CotacaoPage() {
                   className="inline-flex items-center gap-2 text-sm text-[#64748B] hover:text-[#0A1E3D] transition-colors">
                   <ArrowLeft className="w-4 h-4" /> Editar dados
                 </button>
-                <button onClick={() => { setStep(1); setForm({ nome: '', whatsapp: '', email: '', placa: '', leilao: 'nao' }); setVehicle(null); setPlans([]); setShowFallback(false); setFallbackFipe(0) }}
+                <button onClick={() => { setStep(1); setForm({ nome: '', whatsapp: '', email: '', placa: '', leilao: 'nao' }); setVehicle(null); setPlans([]); setShowFallback(false); setFallbackFipe(0); followUpSent.current = false; whatsappClicked.current = false; if (abandonmentTimer.current) { clearTimeout(abandonmentTimer.current); abandonmentTimer.current = null } }}
                   className="text-sm text-[#1B4DA1] hover:text-[#3D72DE] transition-colors">
                   Nova simulação
                 </button>
