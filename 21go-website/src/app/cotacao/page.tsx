@@ -16,6 +16,8 @@ import {
   Sparkles,
   Loader2,
   AlertCircle,
+  Tag,
+  Car,
 } from 'lucide-react'
 import {
   type PlanId,
@@ -485,6 +487,17 @@ export default function CotacaoPage() {
   const discountPrice = Math.round(price * 0.95 * 100) / 100
   const discountFormatted = formatPrice(discountPrice)
 
+  // Desconto adesivo no vidro traseiro
+  const fipeValue = vehicle?.fipeValue || 0
+  const planId = selectedPlan?.id || ''
+  const isVipOrPremium = planId === 'vip' || planId === 'premium' || planId === 'suv' || planId === 'especial'
+  const stickerPct = fipeValue > 35000 && isVipOrPremium ? 15 : 10
+  const stickerPrice = Math.round(price * (1 - stickerPct / 100) * 100) / 100
+  const stickerPriceFormatted = formatPrice(stickerPrice)
+  // Adesivo + pontualidade combinados (não se substituem)
+  const stickerPlusEarlyPrice = Math.round(stickerPrice * 0.95 * 100) / 100
+  const stickerPlusEarlyFormatted = formatPrice(stickerPlusEarlyPrice)
+
   return (
     <div className="min-h-screen bg-[#F7F8FC] relative">
       {/* Subtle background pattern */}
@@ -911,6 +924,44 @@ export default function CotacaoPage() {
                       <span>Mensalidade regular</span>
                       <span className="font-medium">R$ {priceFormatted}/mês</span>
                     </div>
+                  </div>
+
+                  {/* Desconto Adesivo */}
+                  <div className="mb-6 rounded-2xl border-2 border-dashed border-[#1B4DA1]/30 bg-gradient-to-br from-[#EEF2FF] to-[#F0F7FF] p-4 sm:p-5">
+                    <div className="flex items-center gap-2.5 mb-3">
+                      <div className="w-8 h-8 rounded-lg bg-[#1B4DA1]/10 flex items-center justify-center flex-shrink-0">
+                        <Car className="w-4 h-4 text-[#1B4DA1]" />
+                      </div>
+                      <div>
+                        <p className="font-bold text-[#0A1E3D] text-sm leading-tight">Desconto Adesivo 21Go</p>
+                        <p className="text-[10px] text-[#64748B]">Adesivo no vidro traseiro do veículo</p>
+                      </div>
+                      <span className="ml-auto bg-[#1B4DA1] text-white text-xs font-extrabold px-2.5 py-1 rounded-full">
+                        -{stickerPct}%
+                      </span>
+                    </div>
+
+                    <div className="bg-white/70 rounded-xl p-3 space-y-2.5">
+                      <div className="flex justify-between items-center">
+                        <span className="text-xs text-[#64748B]">Mensalidade com adesivo</span>
+                        <div className="flex items-baseline gap-1.5">
+                          <span className="text-xs text-[#94A3B8] line-through">R$ {priceFormatted}</span>
+                          <span className="font-extrabold text-[#1B4DA1] text-lg">R$ {stickerPriceFormatted}</span>
+                        </div>
+                      </div>
+                      <div className="h-px bg-[#E2E8F0]" />
+                      <div className="flex justify-between items-center">
+                        <div className="flex items-center gap-1">
+                          <Tag className="w-3 h-3 text-[#10B981]" />
+                          <span className="text-xs text-[#64748B]">Adesivo + pagamento em dia</span>
+                        </div>
+                        <span className="font-extrabold text-[#10B981] text-lg">R$ {stickerPlusEarlyFormatted}</span>
+                      </div>
+                    </div>
+
+                    <p className="text-[10px] text-[#94A3B8] mt-2.5 text-center">
+                      Descontos acumuláveis: adesivo ({stickerPct}%) + pontualidade (5%)
+                    </p>
                   </div>
 
                   <a href={`https://wa.me/5521965700021?text=${encodeURIComponent(`Olá! Fiz uma simulação no site.\nNome: ${form.nome}\nWhatsApp: ${form.whatsapp}${form.email ? `\nE-mail: ${form.email}` : ''}\nPlaca: ${form.placa}${form.leilao !== 'nao' ? `\nOrigem: ${form.leilao === 'leilao' ? 'Leilão' : 'Remarcado'}` : ''}\nVeículo: ${vehicleLabel}\nFIPE: R$ ${fipeFormatted}\nPlano: ${selectedPlan.name}\nMensalidade: R$ ${priceFormatted}/mês\nAdesão: R$ ${formatPrice(taxaAtivacao)}\nQuero contratar!`)}`}
