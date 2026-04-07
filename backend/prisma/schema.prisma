@@ -996,3 +996,30 @@ model CardFieldValue {
   @@map("card_field_values")
   @@unique([cardId, fieldDefinitionId])
 }
+
+// ============================================================================
+// OUVIDORIA
+// ============================================================================
+
+model Ouvidoria {
+  id        String @id @default(uuid())
+
+  tipo      String // reclamacao, sugestao, denuncia
+  nome      String? // null para denuncia anonima
+  telefone  String? // null para denuncia anonima
+  assunto   String? // usado na denuncia
+  mensagem  String? // reclamacao/sugestao
+  comentario String? // denuncia
+  arquivos  Json    @default("[]") // nomes dos arquivos
+
+  status    String  @default("pendente") // pendente, em_analise, resolvido
+  resposta  String? // resposta interna da diretoria
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("ouvidoria")
+  @@index([tipo])
+  @@index([status])
+  @@index([createdAt])
+}

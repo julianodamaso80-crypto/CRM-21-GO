@@ -170,6 +170,10 @@ async function bootstrap() {
     // Public endpoints (no auth — chamados pelo site estático)
     await fastify.register(plateLookupRoutes, { prefix: '/api/vehicle' })
 
+    // Ouvidoria (público — recebe do site)
+    const { ouvidoriaRoutes } = await import('./modules/ouvidoria/ouvidoria.routes')
+    await fastify.register(ouvidoriaRoutes)
+
     // Alias: /api/contacts -> /api/associados (backward compat)
     await fastify.register(associadosRoutes, { prefix: '/api/contacts' })
 

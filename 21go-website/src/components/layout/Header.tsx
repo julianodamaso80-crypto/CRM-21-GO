@@ -11,6 +11,7 @@ const navLinks = [
   { label: 'Seja Consultor', href: '/seja-consultor' },
   { label: 'Blog', href: '/blog' },
   { label: 'FAQ', href: '/faq' },
+  { label: 'Ouvidoria', href: '/ouvidoria' },
 ]
 
 export function Header() {
