@@ -491,9 +491,10 @@ export default function CotacaoPage() {
   const discountPrice = Math.round(price * 0.95 * 100) / 100
   const discountFormatted = formatPrice(discountPrice)
 
-  // Desconto adesivo no vidro traseiro
+  // Desconto adesivo no vidro traseiro (não se aplica a motos)
   const fipeValue = vehicle?.fipeValue || 0
   const planId = selectedPlan?.id || ''
+  const isMoto = planId === 'moto-400' || planId === 'moto-1000'
   const isVipOrPremium = planId === 'vip' || planId === 'premium' || planId === 'suv' || planId === 'especial'
   const stickerPct = fipeValue > 35000 && isVipOrPremium ? 15 : 10
   const stickerPrice = Math.round(price * (1 - stickerPct / 100) * 100) / 100
@@ -932,7 +933,8 @@ export default function CotacaoPage() {
                     </div>
                   </div>
 
-                  {/* Desconto Adesivo — com ElectricBorder */}
+                  {/* Desconto Adesivo — com ElectricBorder (não aparece para motos) */}
+                  {!isMoto && (
                   <div className="mb-6">
                     <ElectricBorder color="#F7963D" speed={0.6} chaos={0.08} borderRadius={20}>
                       <div className="bg-white rounded-[20px] p-4 sm:p-5">
@@ -1008,6 +1010,7 @@ export default function CotacaoPage() {
                       </div>
                     </ElectricBorder>
                   </div>
+                  )}
 
                   <a href={`https://wa.me/5521965700021?text=${encodeURIComponent(`Olá! Fiz uma simulação no site.\nNome: ${form.nome}\nWhatsApp: ${form.whatsapp}${form.email ? `\nE-mail: ${form.email}` : ''}\nPlaca: ${form.placa}${form.leilao !== 'nao' ? `\nOrigem: ${form.leilao === 'leilao' ? 'Leilão' : 'Remarcado'}` : ''}\nVeículo: ${vehicleLabel}\nFIPE: R$ ${fipeFormatted}\nPlano: ${selectedPlan.name}\nMensalidade: R$ ${priceFormatted}/mês\nAdesão: R$ ${formatPrice(taxaAtivacao)}\nQuero contratar!`)}`}
                     target="_blank" rel="noopener noreferrer"
