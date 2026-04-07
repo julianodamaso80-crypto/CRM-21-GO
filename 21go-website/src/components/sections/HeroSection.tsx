@@ -14,7 +14,7 @@ export function HeroSection() {
   return (
     <section
       ref={ref}
-      className="relative min-h-[95vh] overflow-hidden pt-24 pb-24 bg-[#0A1E3D]"
+      className="relative min-h-[95vh] overflow-hidden pt-24 pb-24 bg-[#121A33]"
     >
       {/* Video background */}
       <video
@@ -29,15 +29,15 @@ export function HeroSection() {
       </video>
 
       {/* Dark overlay — gradient for depth + legibility */}
-      <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-[#0A1E3D]/85 via-[#0A1E3D]/75 to-[#0A1E3D]/90" />
+      <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-[#121A33]/85 via-[#121A33]/75 to-[#121A33]/90" />
 
       {/* Subtle vignette edges */}
       <div className="pointer-events-none absolute inset-0 shadow-[inset_0_0_120px_40px_rgba(10,30,61,0.7)]" />
 
       {/* Animated gradient orbs — kept for premium glow on top of video */}
       <div className="pointer-events-none absolute inset-0 overflow-hidden">
-        <div className="animate-float-slow absolute -top-32 -right-32 w-[600px] h-[600px] rounded-full bg-[#E07620]/10 blur-[120px]" />
-        <div className="animate-float-slower absolute bottom-0 -left-32 w-[700px] h-[700px] rounded-full bg-[#1B4DA1]/15 blur-[150px]" />
+        <div className="animate-float-slow absolute -top-32 -right-32 w-[600px] h-[600px] rounded-full bg-[#F7963D]/10 blur-[120px]" />
+        <div className="animate-float-slower absolute bottom-0 -left-32 w-[700px] h-[700px] rounded-full bg-[#375191]/15 blur-[150px]" />
       </div>
 
       <motion.div
@@ -102,7 +102,7 @@ export function HeroSection() {
         <motion.div variants={fadeInUp} className="mt-10 flex flex-wrap items-center justify-center gap-4">
           <Link
             href="/cotacao"
-            className="shimmer-btn relative inline-flex items-center px-9 py-4 rounded-xl bg-[#E07620] text-white text-base font-semibold transition-all duration-300 animate-glow-pulse hover:bg-[#C46218] hover:-translate-y-0.5 hover:shadow-[0_8px_30px_rgba(224,118,32,0.5)]"
+            className="shimmer-btn relative inline-flex items-center px-9 py-4 rounded-xl bg-[#F7963D] text-white text-base font-semibold transition-all duration-300 animate-glow-pulse hover:bg-[#D87E2F] hover:-translate-y-0.5 hover:shadow-[0_8px_30px_rgba(247,150,61,0.5)]"
           >
             Fazer Simulação Grátis
           </Link>

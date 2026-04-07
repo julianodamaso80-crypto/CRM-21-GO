@@ -82,10 +82,10 @@ export default function OuvidoriaPage() {
       >
         {/* Header */}
         <motion.div variants={fadeInUp} className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-[#1B4DA1]/5 mb-6">
-            <MessageSquare className="h-8 w-8 text-[#1B4DA1]" />
+          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-[#375191]/5 mb-6">
+            <MessageSquare className="h-8 w-8 text-[#375191]" />
           </div>
-          <h1 className="font-[var(--font-outfit)] text-3xl md:text-4xl font-bold text-[#0A1E3D]">
+          <h1 className="font-[var(--font-outfit)] text-3xl md:text-4xl font-bold text-[#121A33]">
             Reclamações e Sugestões
           </h1>
           <p className="mt-3 text-[#64748B] text-lg max-w-xl mx-auto">
@@ -101,24 +101,24 @@ export default function OuvidoriaPage() {
             { icon: Users, title: 'Clientes e equipe', desc: 'Aberto para todos que fazem parte da 21Go' },
           ].map((item) => (
             <div key={item.title} className="flex flex-col items-center text-center p-4 rounded-xl bg-white border border-[#E2E8F0] shadow-sm">
-              <div className="w-10 h-10 rounded-lg bg-[#1B4DA1]/5 flex items-center justify-center mb-2">
-                <item.icon className="h-5 w-5 text-[#1B4DA1]" />
+              <div className="w-10 h-10 rounded-lg bg-[#375191]/5 flex items-center justify-center mb-2">
+                <item.icon className="h-5 w-5 text-[#375191]" />
               </div>
-              <p className="text-xs font-semibold text-[#0A1E3D] leading-tight">{item.title}</p>
+              <p className="text-xs font-semibold text-[#121A33] leading-tight">{item.title}</p>
               <p className="text-[10px] text-[#94A3B8] mt-1">{item.desc}</p>
             </div>
           ))}
         </motion.div>
 
         {/* Explicação */}
-        <motion.div variants={fadeInUp} className="bg-gradient-to-r from-[#1B4DA1]/5 to-[#E07620]/5 border border-[#1B4DA1]/10 rounded-xl p-6 mb-8">
-          <h2 className="font-[var(--font-outfit)] text-base font-semibold text-[#0A1E3D] mb-3">
+        <motion.div variants={fadeInUp} className="bg-gradient-to-r from-[#375191]/5 to-[#F7963D]/5 border border-[#375191]/10 rounded-xl p-6 mb-8">
+          <h2 className="font-[var(--font-outfit)] text-base font-semibold text-[#121A33] mb-3">
             Por que sua voz importa?
           </h2>
           <p className="text-sm text-[#64748B] leading-relaxed">
-            A 21Go tem <strong className="text-[#0A1E3D]">20+ anos de mercado</strong> porque escuta quem está ao nosso lado.
+            A 21Go tem <strong className="text-[#121A33]">20+ anos de mercado</strong> porque escuta quem está ao nosso lado.
             Seja uma crítica sobre um atendimento, uma sugestão para melhorar nossos processos, ou um elogio —
-            <strong className="text-[#0A1E3D]"> tudo é lido diretamente pela diretoria</strong> e se transforma em ação.
+            <strong className="text-[#121A33]"> tudo é lido diretamente pela diretoria</strong> e se transforma em ação.
             Queremos que cada cliente e colaborador sinta que faz parte da evolução da empresa.
           </p>
         </motion.div>
@@ -126,7 +126,7 @@ export default function OuvidoriaPage() {
         {success ? (
           <motion.div variants={fadeInUp} className="bg-white rounded-2xl border border-[#E2E8F0] shadow-lg p-10 text-center">
             <CheckCircle className="h-16 w-16 text-green-500 mx-auto mb-4" />
-            <h2 className="font-[var(--font-outfit)] text-2xl font-bold text-[#0A1E3D] mb-2">
+            <h2 className="font-[var(--font-outfit)] text-2xl font-bold text-[#121A33] mb-2">
               Recebemos sua mensagem!
             </h2>
             <p className="text-[#64748B] mb-2">
@@ -137,7 +137,7 @@ export default function OuvidoriaPage() {
             </p>
             <button
               onClick={() => setSuccess(false)}
-              className="px-6 py-3 rounded-lg bg-[#1B4DA1] text-white font-semibold hover:bg-[#163F85] transition-colors"
+              className="px-6 py-3 rounded-lg bg-[#375191] text-white font-semibold hover:bg-[#163F85] transition-colors"
             >
               Enviar outra mensagem
             </button>
@@ -157,8 +157,8 @@ export default function OuvidoriaPage() {
                     onClick={() => setTipo(opt.value)}
                     className={`flex-1 py-3 rounded-xl text-sm font-semibold border-2 transition-all duration-200 ${
                       tipo === opt.value
-                        ? 'bg-[#1B4DA1] text-white border-[#1B4DA1] shadow-md'
-                        : 'bg-white text-[#64748B] border-[#E2E8F0] hover:border-[#1B4DA1]/30'
+                        ? 'bg-[#375191] text-white border-[#375191] shadow-md'
+                        : 'bg-white text-[#64748B] border-[#E2E8F0] hover:border-[#375191]/30'
                     }`}
                   >
                     <span className="mr-1.5">{opt.emoji}</span>
@@ -169,31 +169,31 @@ export default function OuvidoriaPage() {
 
               {/* Nome */}
               <div>
-                <label className="block text-sm font-medium text-[#0A1E3D] mb-1.5">Nome completo *</label>
+                <label className="block text-sm font-medium text-[#121A33] mb-1.5">Nome completo *</label>
                 <input
                   type="text"
                   value={nome}
                   onChange={(e) => setNome(e.target.value)}
                   placeholder="Seu nome"
-                  className="w-full px-4 py-3 rounded-xl border border-[#E2E8F0] text-[#0A1E3D] placeholder:text-[#94A3B8] focus:outline-none focus:ring-2 focus:ring-[#1B4DA1]/20 focus:border-[#1B4DA1] transition-all"
+                  className="w-full px-4 py-3 rounded-xl border border-[#E2E8F0] text-[#121A33] placeholder:text-[#94A3B8] focus:outline-none focus:ring-2 focus:ring-[#375191]/20 focus:border-[#375191] transition-all"
                 />
               </div>
 
               {/* Telefone */}
               <div>
-                <label className="block text-sm font-medium text-[#0A1E3D] mb-1.5">Telefone / WhatsApp *</label>
+                <label className="block text-sm font-medium text-[#121A33] mb-1.5">Telefone / WhatsApp *</label>
                 <input
                   type="tel"
                   value={telefone}
                   onChange={(e) => setTelefone(maskPhone(e.target.value))}
                   placeholder="(21) 99999-9999"
-                  className="w-full px-4 py-3 rounded-xl border border-[#E2E8F0] text-[#0A1E3D] placeholder:text-[#94A3B8] focus:outline-none focus:ring-2 focus:ring-[#1B4DA1]/20 focus:border-[#1B4DA1] transition-all"
+                  className="w-full px-4 py-3 rounded-xl border border-[#E2E8F0] text-[#121A33] placeholder:text-[#94A3B8] focus:outline-none focus:ring-2 focus:ring-[#375191]/20 focus:border-[#375191] transition-all"
                 />
               </div>
 
               {/* Mensagem */}
               <div>
-                <label className="block text-sm font-medium text-[#0A1E3D] mb-1.5">
+                <label className="block text-sm font-medium text-[#121A33] mb-1.5">
                   {tipo === 'reclamacao' ? 'Descreva sua reclamação *' : 'Descreva sua sugestão *'}
                 </label>
                 <textarea
@@ -203,16 +203,16 @@ export default function OuvidoriaPage() {
                   placeholder={tipo === 'reclamacao'
                     ? 'Conte o que aconteceu, quando, onde e com quem. Quanto mais detalhes, melhor conseguiremos resolver...'
                     : 'Compartilhe sua ideia. O que podemos fazer melhor? O que você gostaria de ver na 21Go?'}
-                  className="w-full px-4 py-3 rounded-xl border border-[#E2E8F0] text-[#0A1E3D] placeholder:text-[#94A3B8] focus:outline-none focus:ring-2 focus:ring-[#1B4DA1]/20 focus:border-[#1B4DA1] transition-all resize-none"
+                  className="w-full px-4 py-3 rounded-xl border border-[#E2E8F0] text-[#121A33] placeholder:text-[#94A3B8] focus:outline-none focus:ring-2 focus:ring-[#375191]/20 focus:border-[#375191] transition-all resize-none"
                 />
               </div>
 
               {/* Upload */}
               <div>
-                <label className="block text-sm font-medium text-[#0A1E3D] mb-1.5">Fotos ou arquivos (opcional)</label>
+                <label className="block text-sm font-medium text-[#121A33] mb-1.5">Fotos ou arquivos (opcional)</label>
                 <div
                   onClick={() => inputRef.current?.click()}
-                  className="flex flex-col items-center justify-center gap-2 py-6 border-2 border-dashed border-[#E2E8F0] rounded-xl cursor-pointer hover:border-[#1B4DA1]/30 hover:bg-[#F8FAFC] transition-all"
+                  className="flex flex-col items-center justify-center gap-2 py-6 border-2 border-dashed border-[#E2E8F0] rounded-xl cursor-pointer hover:border-[#375191]/30 hover:bg-[#F8FAFC] transition-all"
                 >
                   <Upload className="h-6 w-6 text-[#94A3B8]" />
                   <span className="text-sm text-[#94A3B8]">Clique para enviar (máx. 5 arquivos)</span>
@@ -239,7 +239,7 @@ export default function OuvidoriaPage() {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full py-3.5 rounded-xl bg-[#E07620] text-white font-semibold hover:bg-[#C46218] disabled:opacity-50 transition-all flex items-center justify-center gap-2 shadow-lg hover:shadow-[0_8px_30px_rgba(224,118,32,0.3)]"
+                className="w-full py-3.5 rounded-xl bg-[#F7963D] text-white font-semibold hover:bg-[#D87E2F] disabled:opacity-50 transition-all flex items-center justify-center gap-2 shadow-lg hover:shadow-[0_8px_30px_rgba(247,150,61,0.3)]"
               >
                 {loading ? <><Loader2 className="h-4 w-4 animate-spin" /> Enviando...</> : 'Enviar'}
               </button>

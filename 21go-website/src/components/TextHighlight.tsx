@@ -5,7 +5,7 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
 gsap.registerPlugin(ScrollTrigger);
 
-export default function TextHighlight({ children, color = '#E07620' }: { children: React.ReactNode; color?: string }) {
+export default function TextHighlight({ children, color = '#F7963D' }: { children: React.ReactNode; color?: string }) {
   const ref = useRef<HTMLSpanElement>(null);
 
   useEffect(() => {

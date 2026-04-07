@@ -1,5 +1,5 @@
 import type { Metadata } from 'next'
-import { Outfit, DM_Sans } from 'next/font/google'
+import { Barlow } from 'next/font/google'
 import './globals.css'
 import { Header } from '@/components/layout/Header'
 import { Footer } from '@/components/layout/Footer'
@@ -8,18 +8,13 @@ import { GTMProvider } from '@/components/GTMProvider'
 import { SchemaOrg } from '@/components/seo/SchemaOrg'
 import SmoothScrollProvider from '@/components/SmoothScrollProvider'
 import MobileCTA from '@/components/MobileCTA'
+import SloganPopup from '@/components/SloganPopup'
 
-const outfit = Outfit({
+/* Barlow = equivalente web da fonte DIN (família oficial da 21Go) */
+const barlow = Barlow({
   subsets: ['latin'],
-  weight: ['400', '500', '600', '700'],
-  variable: '--font-outfit',
-  display: 'swap',
-})
-
-const dmSans = DM_Sans({
-  subsets: ['latin'],
-  weight: ['400', '500', '600'],
-  variable: '--font-dm-sans',
+  weight: ['300', '400', '500', '600', '700', '800'],
+  variable: '--font-barlow',
   display: 'swap',
 })
 
@@ -46,7 +41,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="pt-BR" className={`${outfit.variable} ${dmSans.variable}`}>
+    <html lang="pt-BR" className={barlow.variable}>
       <body>
         <GTMProvider />
         <SchemaOrg />
@@ -56,6 +51,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <Footer />
           <WhatsAppButton />
           <MobileCTA />
+          <SloganPopup />
         </SmoothScrollProvider>
       </body>
     </html>

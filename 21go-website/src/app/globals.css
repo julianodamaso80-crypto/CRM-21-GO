@@ -1,28 +1,29 @@
 @import "tailwindcss";
 
 @theme {
-  /* Primary — Blue Royal 21Go */
-  --color-blue-500: #1B4DA1;
-  --color-blue-600: #164087;
-  --color-blue-700: #11336D;
-  --color-blue-800: #0D2653;
-  --color-blue-900: #0A1E3D;
+  /* Primary — Azul 21Go (oficial: RGB 55,81,145) */
+  --color-blue-500: #375191;
+  --color-blue-600: #2D4379;
+  --color-blue-700: #243562;
+  --color-blue-800: #1B284A;
+  --color-blue-900: #121A33;
 
-  /* Secondary — Orange 21Go (CTAs) */
-  --color-orange-500: #E07620;
-  --color-orange-600: #C46218;
-  --color-orange-400: #F08C28;
+  /* Secondary — Laranja 21Go (oficial: RGB 247,150,61) */
+  --color-orange-500: #F7963D;
+  --color-orange-600: #D87E2F;
+  --color-orange-400: #F9A95E;
 
-  /* Accent — Dourado (trust elements) */
+  /* Accent — Verde 21Go (oficial: RGB 191,215,65) */
+  --color-green-21go: #BFD741;
   --color-gold: #C9A84C;
 
   /* Backgrounds */
   --color-bg-white: #FAFBFC;
   --color-bg-gray: #F0F4FA;
-  --color-bg-hero: #0A1E3D;
+  --color-bg-hero: #121A33;
 
   /* Text */
-  --color-txt-primary: #0A1E3D;
+  --color-txt-primary: #121A33;
   --color-txt-secondary: #64748B;
   --color-txt-light: #FAFBFC;
 
@@ -31,9 +32,9 @@
   --color-error: #EF4444;
   --color-warning: #FBBF24;
 
-  /* Fonts */
-  --font-display: 'Outfit', system-ui, sans-serif;
-  --font-body: 'DM Sans', system-ui, sans-serif;
+  /* Fonts — DIN (família) via Barlow (web equivalent) */
+  --font-display: var(--font-barlow), 'Barlow', system-ui, sans-serif;
+  --font-body: var(--font-barlow), 'Barlow', system-ui, sans-serif;
 }
 
 /* ── Keyframes ──────────────────────────────────────────── */
@@ -72,8 +73,8 @@
 }
 
 @keyframes glow-pulse {
-  0%, 100% { box-shadow: 0 0 20px 4px rgba(224, 118, 32, 0.35); }
-  50%       { box-shadow: 0 0 32px 10px rgba(224, 118, 32, 0.55); }
+  0%, 100% { box-shadow: 0 0 20px 4px rgba(247, 150, 61, 0.35); }
+  50%       { box-shadow: 0 0 32px 10px rgba(247, 150, 61, 0.55); }
 }
 
 @keyframes check-pop {
@@ -178,7 +179,7 @@
   }
 
   ::selection {
-    background: rgba(27, 77, 161, 0.2);
+    background: rgba(55, 81, 145, 0.2);
     color: var(--color-txt-primary);
   }
 }
@@ -208,7 +209,7 @@
 /* ── Gradient text ─────────────────────────────────────── */
 
 .text-gradient-orange {
-  background: linear-gradient(135deg, #E07620 0%, #C9A84C 50%, #E07620 100%);
+  background: linear-gradient(135deg, #F7963D 0%, #C9A84C 50%, #F7963D 100%);
   background-size: 200% 200%;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;

@@ -20,8 +20,8 @@ const bigCards = [
   {
     icon: Smartphone,
     title: 'Motorista de App? Cota de Apenas 6%',
-    borderColor: 'border-[#E07620]/40',
-    glowColor: 'hover:border-[#E07620]/60 hover:shadow-[0_0_30px_rgba(224,118,32,0.1)]',
+    borderColor: 'border-[#F7963D]/40',
+    glowColor: 'hover:border-[#F7963D]/60 hover:shadow-[0_0_30px_rgba(247,150,61,0.1)]',
     text: 'Se você roda de app, seu carro faz 150 a 250 km por dia. O risco de batida, roubo ou pane é 3x maior que uso particular. E o seguro? Custa até 40% mais caro — se a seguradora aceitar uso comercial.',
     detail: 'Na 21Go, motorista de app tem cota de participação de apenas 6%. Pra um HB20 2022 (FIPE ~R$78.000), isso significa R$4.680 em caso de evento parcial — valor justo e transparente.',
     highlight: 'Sem recusa por uso comercial. Sem surpresa na hora do evento.',
@@ -66,9 +66,9 @@ export function RejectedSection() {
       >
         {/* Header */}
         <motion.div variants={fadeInUp} className="text-center mb-14">
-          <h2 className="font-[var(--font-outfit)] text-3xl md:text-4xl font-bold text-[#0A1E3D]">
+          <h2 className="font-[var(--font-outfit)] text-3xl md:text-4xl font-bold text-[#121A33]">
             A Seguradora Disse Não?{' '}
-            <span className="text-[#E07620]">A 21Go Diz Sim.</span>
+            <span className="text-[#F7963D]">A 21Go Diz Sim.</span>
           </h2>
           <p className="mt-4 text-lg text-[#64748B]">
             Proteção pra quem o mercado ignora.
@@ -85,20 +85,20 @@ export function RejectedSection() {
               className={`rounded-2xl border-2 ${card.borderColor} ${card.glowColor} bg-white p-7 md:p-8 transition-all duration-300 hover:-translate-y-1`}
             >
               <div className="w-12 h-12 rounded-xl bg-[#F0F4FA] flex items-center justify-center mb-5">
-                <card.icon className="w-6 h-6 text-[#1B4DA1]" />
+                <card.icon className="w-6 h-6 text-[#375191]" />
               </div>
 
-              <h3 className="font-[var(--font-outfit)] text-xl font-bold text-[#0A1E3D] mb-4">
+              <h3 className="font-[var(--font-outfit)] text-xl font-bold text-[#121A33] mb-4">
                 {card.title}
               </h3>
 
               <p className="text-sm text-[#334155] leading-relaxed mb-3">{card.text}</p>
               <p className="text-sm text-[#334155] leading-relaxed mb-3">{card.detail}</p>
-              <p className="text-sm font-semibold text-[#0A1E3D] mb-5">{card.highlight}</p>
+              <p className="text-sm font-semibold text-[#121A33] mb-5">{card.highlight}</p>
 
               <Link
                 href="/cotacao"
-                className="inline-flex items-center gap-1.5 text-sm font-semibold text-[#E07620] hover:text-[#C46218] transition-colors"
+                className="inline-flex items-center gap-1.5 text-sm font-semibold text-[#F7963D] hover:text-[#D87E2F] transition-colors"
               >
                 {card.cta} <ArrowRight className="w-4 h-4" />
               </Link>
@@ -113,12 +113,12 @@ export function RejectedSection() {
               key={card.title}
               variants={fadeInUp}
               transition={{ delay: 0.24 + i * 0.08 }}
-              className="rounded-2xl border border-[#E2E8F0] bg-[#FAFBFC] p-5 hover:shadow-md hover:-translate-y-1 hover:border-[#1B4DA1]/20 transition-all duration-300"
+              className="rounded-2xl border border-[#E2E8F0] bg-[#FAFBFC] p-5 hover:shadow-md hover:-translate-y-1 hover:border-[#375191]/20 transition-all duration-300"
             >
-              <div className="w-10 h-10 rounded-lg bg-[#1B4DA1]/5 flex items-center justify-center mb-4">
-                <card.icon className="w-5 h-5 text-[#1B4DA1]" />
+              <div className="w-10 h-10 rounded-lg bg-[#375191]/5 flex items-center justify-center mb-4">
+                <card.icon className="w-5 h-5 text-[#375191]" />
               </div>
-              <h3 className="font-[var(--font-outfit)] text-sm font-bold text-[#0A1E3D] mb-2">
+              <h3 className="font-[var(--font-outfit)] text-sm font-bold text-[#121A33] mb-2">
                 {card.title}
               </h3>
               <p className="text-xs text-[#64748B] leading-relaxed">{card.text}</p>

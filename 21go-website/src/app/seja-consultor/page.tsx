@@ -78,10 +78,10 @@ export default function SejaConsultorPage() {
   return (
     <>
       {/* Hero */}
-      <section className="pt-32 pb-20 bg-gradient-to-b from-[#0A1E3D] via-[#0D2653] to-[#1B4DA1] relative overflow-hidden">
+      <section className="pt-32 pb-20 bg-gradient-to-b from-[#121A33] via-[#1B284A] to-[#375191] relative overflow-hidden">
         <div className="pointer-events-none absolute inset-0">
-          <div className="absolute -top-32 -right-32 w-[600px] h-[600px] rounded-full bg-[#E07620]/15 blur-[120px]" />
-          <div className="absolute bottom-0 -left-40 w-[500px] h-[500px] rounded-full bg-[#1B4DA1]/30 blur-[150px]" />
+          <div className="absolute -top-32 -right-32 w-[600px] h-[600px] rounded-full bg-[#F7963D]/15 blur-[120px]" />
+          <div className="absolute bottom-0 -left-40 w-[500px] h-[500px] rounded-full bg-[#375191]/30 blur-[150px]" />
           <div className="absolute top-1/3 left-1/2 -translate-x-1/2 w-[400px] h-[400px] rounded-full bg-[#C9A84C]/10 blur-[100px]" />
           <div className="absolute inset-0 bg-[url('/grid-pattern.svg')] bg-repeat opacity-[0.04]" />
         </div>
@@ -102,7 +102,7 @@ export default function SejaConsultorPage() {
 
           <motion.h1 variants={fadeInUp} className="font-[var(--font-display)] text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6 leading-tight">
             Seja Consultor{' '}
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#E07620] to-[#F08C28]">
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#F7963D] to-[#F9A95E]">
               21Go
             </span>
           </motion.h1>
@@ -120,7 +120,7 @@ export default function SejaConsultorPage() {
               href="https://wa.me/5521965700021?text=Ol%C3%A1!%20Quero%20ser%20consultor%2021Go."
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-2.5 px-8 py-4 bg-gradient-to-r from-[#E07620] to-[#F08C28] text-white font-bold rounded-full shadow-lg shadow-[#E07620]/20 hover:shadow-xl hover:shadow-[#E07620]/30 hover:scale-[1.02] active:scale-[0.98] transition-all"
+              className="inline-flex items-center gap-2.5 px-8 py-4 bg-gradient-to-r from-[#F7963D] to-[#F9A95E] text-white font-bold rounded-full shadow-lg shadow-[#F7963D]/20 hover:shadow-xl hover:shadow-[#F7963D]/30 hover:scale-[1.02] active:scale-[0.98] transition-all"
             >
               <MessageCircle className="w-5 h-5" />
               Quero Ser Consultor
@@ -143,7 +143,7 @@ export default function SejaConsultorPage() {
               { value: '100%', label: 'Suporte ao consultor' },
             ].map((stat) => (
               <div key={stat.label}>
-                <p className="font-[var(--font-display)] text-2xl md:text-3xl font-bold text-[#0A1E3D]">{stat.value}</p>
+                <p className="font-[var(--font-display)] text-2xl md:text-3xl font-bold text-[#121A33]">{stat.value}</p>
                 <p className="text-xs text-[#94A3B8] mt-1">{stat.label}</p>
               </div>
             ))}
@@ -155,18 +155,18 @@ export default function SejaConsultorPage() {
       <section className="py-20 bg-[#F7F8FC]">
         <div className="max-w-6xl mx-auto px-6">
           <div className="text-center mb-14">
-            <span className="inline-block text-xs font-bold text-[#E07620] bg-[#E07620]/10 px-3 py-1 rounded-full uppercase tracking-wider mb-4">Vantagens</span>
-            <h2 className="font-[var(--font-display)] text-3xl font-bold text-[#0A1E3D] mb-3">Por que ser consultor 21Go?</h2>
+            <span className="inline-block text-xs font-bold text-[#F7963D] bg-[#F7963D]/10 px-3 py-1 rounded-full uppercase tracking-wider mb-4">Vantagens</span>
+            <h2 className="font-[var(--font-display)] text-3xl font-bold text-[#121A33] mb-3">Por que ser consultor 21Go?</h2>
             <p className="text-[#64748B] max-w-xl mx-auto">Um modelo de negócio que remunera bem, cresce com você e tem produto que o cliente precisa.</p>
           </div>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             {benefits.map((b) => (
               <div key={b.title} className="bg-white rounded-2xl border border-[#E8ECF4] p-7 hover:shadow-lg hover:shadow-black/[0.03] hover:-translate-y-1 transition-all duration-300">
-                <div className="w-12 h-12 rounded-xl bg-[#1B4DA1]/5 flex items-center justify-center mb-5">
-                  <b.icon className="w-6 h-6 text-[#1B4DA1]" />
+                <div className="w-12 h-12 rounded-xl bg-[#375191]/5 flex items-center justify-center mb-5">
+                  <b.icon className="w-6 h-6 text-[#375191]" />
                 </div>
-                <h3 className="font-[var(--font-display)] text-lg font-semibold text-[#0A1E3D] mb-2">{b.title}</h3>
+                <h3 className="font-[var(--font-display)] text-lg font-semibold text-[#121A33] mb-2">{b.title}</h3>
                 <p className="text-sm text-[#64748B] leading-relaxed">{b.description}</p>
               </div>
             ))}
@@ -178,19 +178,19 @@ export default function SejaConsultorPage() {
       <section id="como-funciona" className="py-20 bg-white">
         <div className="max-w-4xl mx-auto px-6">
           <div className="text-center mb-14">
-            <span className="inline-block text-xs font-bold text-[#E07620] bg-[#E07620]/10 px-3 py-1 rounded-full uppercase tracking-wider mb-4">Processo</span>
-            <h2 className="font-[var(--font-display)] text-3xl font-bold text-[#0A1E3D] mb-3">Como funciona</h2>
+            <span className="inline-block text-xs font-bold text-[#F7963D] bg-[#F7963D]/10 px-3 py-1 rounded-full uppercase tracking-wider mb-4">Processo</span>
+            <h2 className="font-[var(--font-display)] text-3xl font-bold text-[#121A33] mb-3">Como funciona</h2>
             <p className="text-[#64748B]">Do cadastro à primeira comissão em 4 passos.</p>
           </div>
 
           <div className="space-y-6">
             {howItWorks.map((item, i) => (
               <div key={item.step} className="flex items-start gap-5 bg-[#F7F8FC] rounded-2xl border border-[#E8ECF4] p-6 hover:bg-white hover:shadow-md transition-all">
-                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[#1B4DA1] to-[#3D72DE] text-white font-[var(--font-display)] text-sm font-bold flex items-center justify-center flex-shrink-0">
+                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[#375191] to-[#3D72DE] text-white font-[var(--font-display)] text-sm font-bold flex items-center justify-center flex-shrink-0">
                   {item.step}
                 </div>
                 <div>
-                  <h3 className="font-[var(--font-display)] text-lg font-semibold text-[#0A1E3D] mb-1">{item.title}</h3>
+                  <h3 className="font-[var(--font-display)] text-lg font-semibold text-[#121A33] mb-1">{item.title}</h3>
                   <p className="text-sm text-[#64748B]">{item.description}</p>
                 </div>
               </div>
@@ -205,8 +205,8 @@ export default function SejaConsultorPage() {
       <section className="py-20 bg-white">
         <div className="max-w-5xl mx-auto px-6">
           <div className="text-center mb-14">
-            <span className="inline-block text-xs font-bold text-[#E07620] bg-[#E07620]/10 px-3 py-1 rounded-full uppercase tracking-wider mb-4">Depoimentos</span>
-            <h2 className="font-[var(--font-display)] text-3xl font-bold text-[#0A1E3D]">Quem já é consultor</h2>
+            <span className="inline-block text-xs font-bold text-[#F7963D] bg-[#F7963D]/10 px-3 py-1 rounded-full uppercase tracking-wider mb-4">Depoimentos</span>
+            <h2 className="font-[var(--font-display)] text-3xl font-bold text-[#121A33]">Quem já é consultor</h2>
           </div>
 
           <div className="grid md:grid-cols-3 gap-6">
@@ -219,7 +219,7 @@ export default function SejaConsultorPage() {
                 </div>
                 <p className="text-sm text-[#475569] leading-relaxed mb-5 italic">&ldquo;{t.text}&rdquo;</p>
                 <div>
-                  <p className="font-semibold text-[#0A1E3D] text-sm">{t.name}</p>
+                  <p className="font-semibold text-[#121A33] text-sm">{t.name}</p>
                   <p className="text-xs text-[#94A3B8]">{t.role}</p>
                 </div>
               </div>
@@ -232,8 +232,8 @@ export default function SejaConsultorPage() {
       <section className="py-20 bg-[#F7F8FC]">
         <div className="max-w-3xl mx-auto px-6">
           <div className="text-center mb-14">
-            <span className="inline-block text-xs font-bold text-[#E07620] bg-[#E07620]/10 px-3 py-1 rounded-full uppercase tracking-wider mb-4">Suporte</span>
-            <h2 className="font-[var(--font-display)] text-3xl font-bold text-[#0A1E3D]">O que você recebe</h2>
+            <span className="inline-block text-xs font-bold text-[#F7963D] bg-[#F7963D]/10 px-3 py-1 rounded-full uppercase tracking-wider mb-4">Suporte</span>
+            <h2 className="font-[var(--font-display)] text-3xl font-bold text-[#121A33]">O que você recebe</h2>
           </div>
 
           <div className="bg-white rounded-2xl border border-[#E8ECF4] p-8 space-y-4">
@@ -258,9 +258,9 @@ export default function SejaConsultorPage() {
       </section>
 
       {/* Final CTA */}
-      <section className="py-20 bg-gradient-to-b from-[#0A1E3D] to-[#1B4DA1] relative overflow-hidden">
+      <section className="py-20 bg-gradient-to-b from-[#121A33] to-[#375191] relative overflow-hidden">
         <div className="pointer-events-none absolute inset-0">
-          <div className="absolute top-0 right-1/4 w-[400px] h-[400px] rounded-full bg-[#E07620]/10 blur-[100px]" />
+          <div className="absolute top-0 right-1/4 w-[400px] h-[400px] rounded-full bg-[#F7963D]/10 blur-[100px]" />
         </div>
         <div className="relative z-10 max-w-3xl mx-auto px-6 text-center">
           <h2 className="font-[var(--font-display)] text-3xl md:text-4xl font-bold text-white mb-4">
@@ -273,7 +273,7 @@ export default function SejaConsultorPage() {
             href="https://wa.me/5521965700021?text=Ol%C3%A1!%20Quero%20ser%20consultor%2021Go.%20Como%20funciona%3F"
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-2.5 px-10 py-4 bg-gradient-to-r from-[#E07620] to-[#F08C28] text-white font-bold text-lg rounded-full shadow-lg shadow-[#E07620]/25 hover:shadow-xl hover:scale-[1.02] active:scale-[0.98] transition-all"
+            className="inline-flex items-center gap-2.5 px-10 py-4 bg-gradient-to-r from-[#F7963D] to-[#F9A95E] text-white font-bold text-lg rounded-full shadow-lg shadow-[#F7963D]/25 hover:shadow-xl hover:scale-[1.02] active:scale-[0.98] transition-all"
           >
             <MessageCircle className="w-5 h-5" />
             Quero Ser Consultor

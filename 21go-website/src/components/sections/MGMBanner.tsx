@@ -17,11 +17,11 @@ export function MGMBanner() {
   const isInView = useInView(ref, { once: true, margin: '-80px' })
 
   return (
-    <section ref={ref} className="relative overflow-hidden bg-gradient-to-b from-[#0A1E3D] via-[#0D2653] to-[#1B4DA1] py-20 lg:py-28">
+    <section ref={ref} className="relative overflow-hidden bg-gradient-to-b from-[#121A33] via-[#1B284A] to-[#375191] py-20 lg:py-28">
       {/* Orbs — same as hero */}
       <div className="pointer-events-none absolute inset-0 overflow-hidden">
-        <div className="animate-float-slow absolute -top-20 -right-20 w-[500px] h-[500px] rounded-full bg-[#E07620]/20 blur-[120px]" />
-        <div className="animate-float-slower absolute bottom-0 -left-20 w-[500px] h-[500px] rounded-full bg-[#1B4DA1]/30 blur-[150px]" />
+        <div className="animate-float-slow absolute -top-20 -right-20 w-[500px] h-[500px] rounded-full bg-[#F7963D]/20 blur-[120px]" />
+        <div className="animate-float-slower absolute bottom-0 -left-20 w-[500px] h-[500px] rounded-full bg-[#375191]/30 blur-[150px]" />
         <div className="animate-pulse-slow absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[300px] h-[300px] rounded-full bg-[#C9A84C]/10 blur-[100px]" />
         <div
           className="absolute inset-0"
@@ -51,7 +51,7 @@ export function MGMBanner() {
           className="font-[var(--font-outfit)] text-3xl md:text-4xl lg:text-5xl font-bold text-white"
         >
           Indique amigos e ganhe até{' '}
-          <span className="text-[#E07620]">100% de desconto</span>
+          <span className="text-[#F7963D]">100% de desconto</span>
         </motion.h2>
 
         <motion.p variants={fadeInUp} className="mt-4 text-lg text-white/70 max-w-2xl mx-auto">
@@ -71,7 +71,7 @@ export function MGMBanner() {
               </div>
               <span className="text-sm text-white/60">{tier.count} {tier.label}</span>
               <span className={`font-[var(--font-outfit)] text-xl font-bold mt-1 ${
-                tier.count === '10' ? 'text-[#E07620]' : 'text-white'
+                tier.count === '10' ? 'text-[#F7963D]' : 'text-white'
               }`}>{tier.discount}</span>
             </motion.div>
           ))}
@@ -80,7 +80,7 @@ export function MGMBanner() {
         <motion.div variants={fadeInUp} className="mt-10">
           <Link
             href="/indique"
-            className="shimmer-btn inline-flex items-center px-8 py-4 rounded-xl bg-[#E07620] text-white text-base font-semibold hover:bg-[#C46218] transition-all duration-200 shadow-lg shadow-[#E07620]/30 hover:-translate-y-0.5"
+            className="shimmer-btn inline-flex items-center px-8 py-4 rounded-xl bg-[#F7963D] text-white text-base font-semibold hover:bg-[#D87E2F] transition-all duration-200 shadow-lg shadow-[#F7963D]/30 hover:-translate-y-0.5"
           >
             Comece a indicar
           </Link>

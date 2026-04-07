@@ -506,7 +506,7 @@ export default function CotacaoPage() {
     <div className="min-h-screen bg-[#F7F8FC] relative">
       {/* Subtle background pattern */}
       <div className="absolute inset-0 opacity-[0.02]" style={{
-        backgroundImage: `radial-gradient(circle at 1px 1px, #1B4DA1 1px, transparent 0)`,
+        backgroundImage: `radial-gradient(circle at 1px 1px, #375191 1px, transparent 0)`,
         backgroundSize: '32px 32px',
       }} />
 
@@ -524,14 +524,14 @@ export default function CotacaoPage() {
                       <div className="flex items-center gap-2.5">
                         <div className={`w-9 h-9 rounded-full flex items-center justify-center text-xs font-bold transition-all duration-300 ${
                           current
-                            ? 'bg-[#E07620] text-white shadow-md shadow-[#E07620]/20'
+                            ? 'bg-[#F7963D] text-white shadow-md shadow-[#F7963D]/20'
                             : active
                               ? 'bg-[#10B981] text-white'
                               : 'bg-[#E2E8F0] text-[#94A3B8]'
                         }`}>
                           {active && !current ? <Check className="w-4 h-4" /> : s.num}
                         </div>
-                        <span className={`text-sm font-medium ${current ? 'text-[#0A1E3D]' : 'text-[#94A3B8]'}`}>
+                        <span className={`text-sm font-medium ${current ? 'text-[#121A33]' : 'text-[#94A3B8]'}`}>
                           {s.label}
                         </span>
                       </div>
@@ -557,7 +557,7 @@ export default function CotacaoPage() {
           {step === 1 && (
             <div className="max-w-xl mx-auto">
               <div className="text-center mb-8">
-                <h1 className="font-[var(--font-display)] text-2xl md:text-3xl font-bold text-[#0A1E3D] mb-2">
+                <h1 className="font-[var(--font-display)] text-2xl md:text-3xl font-bold text-[#121A33] mb-2">
                   Simulação Grátis
                 </h1>
                 <p className="text-[#64748B]">Preencha seus dados e descubra o valor em segundos.</p>
@@ -609,7 +609,7 @@ export default function CotacaoPage() {
 
                   {/* Leilão / Remarcado */}
                   <div>
-                    <label className="block text-sm font-semibold text-[#0A1E3D] mb-2">Veículo de leilão ou remarcado?</label>
+                    <label className="block text-sm font-semibold text-[#121A33] mb-2">Veículo de leilão ou remarcado?</label>
                     <div className="grid grid-cols-3 gap-3">
                       {([
                         { value: 'nao', label: 'Não' },
@@ -623,8 +623,8 @@ export default function CotacaoPage() {
                           onClick={() => set('leilao', opt.value)}
                           className={`py-3.5 rounded-2xl border-2 text-sm font-semibold transition-all duration-200 disabled:opacity-50 ${
                             form.leilao === opt.value
-                              ? 'border-[#1B4DA1] bg-[#1B4DA1]/10 text-[#1B4DA1] shadow-sm'
-                              : 'border-[#D1DFFA] bg-[#F7F8FC] text-[#64748B] hover:border-[#1B4DA1]/40'
+                              ? 'border-[#375191] bg-[#375191]/10 text-[#375191] shadow-sm'
+                              : 'border-[#D1DFFA] bg-[#F7F8FC] text-[#64748B] hover:border-[#375191]/40'
                           }`}
                         >
                           {opt.label}
@@ -632,7 +632,7 @@ export default function CotacaoPage() {
                       ))}
                     </div>
                     {form.leilao !== 'nao' && (
-                      <p className="mt-2 text-xs text-[#E07620] font-medium">
+                      <p className="mt-2 text-xs text-[#F7963D] font-medium">
                         Indenização: 80% da tabela FIPE
                       </p>
                     )}
@@ -657,13 +657,13 @@ export default function CotacaoPage() {
 
                 {/* Fallback Manual — aparece quando API falha */}
                 {showFallback && (
-                  <div className="mt-6 p-6 rounded-2xl bg-[#FFFBF5] border-2 border-[#E07620]/20">
+                  <div className="mt-6 p-6 rounded-2xl bg-[#FFFBF5] border-2 border-[#F7963D]/20">
                     <div className="flex items-start gap-3 mb-5">
-                      <div className="w-10 h-10 rounded-xl bg-[#E07620]/10 flex items-center justify-center flex-shrink-0">
-                        <AlertCircle className="w-5 h-5 text-[#E07620]" />
+                      <div className="w-10 h-10 rounded-xl bg-[#F7963D]/10 flex items-center justify-center flex-shrink-0">
+                        <AlertCircle className="w-5 h-5 text-[#F7963D]" />
                       </div>
                       <div>
-                        <p className="font-semibold text-[#0A1E3D] text-sm">Consulta automática indisponível</p>
+                        <p className="font-semibold text-[#121A33] text-sm">Consulta automática indisponível</p>
                         <p className="text-[#64748B] text-xs mt-0.5">Selecione seu tipo de veículo e faixa de valor para receber a simulação agora mesmo.</p>
                       </div>
                     </div>
@@ -671,14 +671,14 @@ export default function CotacaoPage() {
                     <div className="space-y-4">
                       {/* Tipo de veículo */}
                       <div>
-                        <label className="block text-sm font-semibold text-[#0A1E3D] mb-2">Tipo do veículo</label>
+                        <label className="block text-sm font-semibold text-[#121A33] mb-2">Tipo do veículo</label>
                         <div className="grid grid-cols-2 gap-2">
                           {VEHICLE_TYPES.map(t => (
                             <button key={t.value} type="button" onClick={() => { setFallbackType(t.value); setFallbackFipe(0) }}
                               className={`py-3 rounded-xl border-2 text-sm font-semibold transition-all duration-200 ${
                                 fallbackType === t.value
-                                  ? 'border-[#E07620] bg-[#E07620]/10 text-[#E07620] shadow-sm'
-                                  : 'border-[#D1DFFA] bg-white text-[#64748B] hover:border-[#E07620]/40'
+                                  ? 'border-[#F7963D] bg-[#F7963D]/10 text-[#F7963D] shadow-sm'
+                                  : 'border-[#D1DFFA] bg-white text-[#64748B] hover:border-[#F7963D]/40'
                               }`}>
                               {t.label}
                             </button>
@@ -688,14 +688,14 @@ export default function CotacaoPage() {
 
                       {/* Faixa FIPE */}
                       <div>
-                        <label className="block text-sm font-semibold text-[#0A1E3D] mb-2">Valor aproximado do veículo (FIPE)</label>
+                        <label className="block text-sm font-semibold text-[#121A33] mb-2">Valor aproximado do veículo (FIPE)</label>
                         <div className="grid grid-cols-2 gap-2 max-h-[220px] overflow-y-auto pr-1">
                           {FIPE_RANGES.map(r => (
                             <button key={r.value} type="button" onClick={() => setFallbackFipe(r.value)}
                               className={`py-2.5 px-3 rounded-xl border-2 text-xs font-semibold transition-all duration-200 ${
                                 fallbackFipe === r.value
-                                  ? 'border-[#E07620] bg-[#E07620]/10 text-[#E07620] shadow-sm'
-                                  : 'border-[#D1DFFA] bg-white text-[#64748B] hover:border-[#E07620]/40'
+                                  ? 'border-[#F7963D] bg-[#F7963D]/10 text-[#F7963D] shadow-sm'
+                                  : 'border-[#D1DFFA] bg-white text-[#64748B] hover:border-[#F7963D]/40'
                               }`}>
                               {r.label}
                             </button>
@@ -706,7 +706,7 @@ export default function CotacaoPage() {
 
                     <div className="flex justify-center mt-6">
                       <button onClick={handleFallbackQuote} disabled={!fallbackFipe}
-                        className="group inline-flex items-center gap-3 px-8 py-3.5 bg-gradient-to-r from-[#E07620] to-[#F08C28] text-white font-bold text-sm rounded-full shadow-lg shadow-[#E07620]/20 hover:shadow-xl hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:scale-100">
+                        className="group inline-flex items-center gap-3 px-8 py-3.5 bg-gradient-to-r from-[#F7963D] to-[#F9A95E] text-white font-bold text-sm rounded-full shadow-lg shadow-[#F7963D]/20 hover:shadow-xl hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:scale-100">
                         <Sparkles className="w-4 h-4" />
                         Ver Simulação Estimada
                         <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
@@ -722,7 +722,7 @@ export default function CotacaoPage() {
                 {!showFallback && (
                 <div className="flex justify-center mt-10">
                   <button onClick={next} disabled={loading}
-                    className="group inline-flex items-center gap-3 px-10 py-4 bg-gradient-to-r from-[#E07620] to-[#F08C28] text-white font-bold text-base rounded-full shadow-lg shadow-[#E07620]/20 hover:shadow-xl hover:shadow-[#E07620]/30 hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 disabled:opacity-70 disabled:cursor-not-allowed disabled:hover:scale-100">
+                    className="group inline-flex items-center gap-3 px-10 py-4 bg-gradient-to-r from-[#F7963D] to-[#F9A95E] text-white font-bold text-base rounded-full shadow-lg shadow-[#F7963D]/20 hover:shadow-xl hover:shadow-[#F7963D]/30 hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 disabled:opacity-70 disabled:cursor-not-allowed disabled:hover:scale-100">
                     {loading ? (
                       <>
                         <Loader2 className="w-5 h-5 animate-spin" />
@@ -747,11 +747,11 @@ export default function CotacaoPage() {
               {/* Trust badges */}
               <div className="flex flex-wrap items-center justify-center gap-6 mt-8 text-xs text-[#94A3B8]">
                 <div className="flex items-center gap-1.5">
-                  <ShieldCheck className="w-4 h-4 text-[#1B4DA1]" />
+                  <ShieldCheck className="w-4 h-4 text-[#375191]" />
                   <span>Cadastrada na SUSEP</span>
                 </div>
                 <div className="flex items-center gap-1.5">
-                  <Sparkles className="w-4 h-4 text-[#E07620]" />
+                  <Sparkles className="w-4 h-4 text-[#F7963D]" />
                   <span>20+ anos de mercado</span>
                 </div>
                 <div className="flex items-center gap-1.5">
@@ -767,17 +767,17 @@ export default function CotacaoPage() {
             <div className="max-w-lg mx-auto pt-28">
               <div className="bg-white rounded-2xl sm:rounded-3xl shadow-xl shadow-black/[0.04] border border-[#E8ECF4] p-6 sm:p-10 text-center">
                 <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-[#FFF7ED] mb-6">
-                  <AlertCircle className="w-8 h-8 text-[#E07620]" />
+                  <AlertCircle className="w-8 h-8 text-[#F7963D]" />
                 </div>
 
-                <h2 className="font-[var(--font-display)] text-xl md:text-2xl font-bold text-[#0A1E3D] mb-3">
+                <h2 className="font-[var(--font-display)] text-xl md:text-2xl font-bold text-[#121A33] mb-3">
                   Cotação sob consulta
                 </h2>
 
                 <p className="text-[#64748B] text-sm mb-2">
                   Identificamos seu veículo:
                 </p>
-                <p className="font-semibold text-[#0A1E3D] text-base mb-4">
+                <p className="font-semibold text-[#121A33] text-base mb-4">
                   {vehicle.marca} {vehicle.modelo} {vehicle.ano}
                 </p>
 
@@ -820,7 +820,7 @@ export default function CotacaoPage() {
                     setPlans([])
                     setForm({ nome: '', whatsapp: '', email: '', placa: '', leilao: 'nao' })
                   }}
-                  className="inline-flex items-center gap-2 text-sm text-[#64748B] hover:text-[#0A1E3D] transition-colors"
+                  className="inline-flex items-center gap-2 text-sm text-[#64748B] hover:text-[#121A33] transition-colors"
                 >
                   <ArrowLeft className="w-4 h-4" /> Nova simulação
                 </button>
@@ -836,7 +836,7 @@ export default function CotacaoPage() {
                 <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-[#10B981]/10 mb-4">
                   <ShieldCheck className="w-7 h-7 text-[#10B981]" />
                 </div>
-                <h2 className="font-[var(--font-display)] text-2xl md:text-3xl font-bold text-[#0A1E3D] mb-2">
+                <h2 className="font-[var(--font-display)] text-2xl md:text-3xl font-bold text-[#121A33] mb-2">
                   {form.nome.split(' ')[0]}, sua simulação está pronta!
                 </h2>
                 <p className="text-[#64748B]">
@@ -855,12 +855,12 @@ export default function CotacaoPage() {
                       <button key={plan.id} onClick={() => setSelectedPlanIdx(idx)}
                         className={`relative flex-1 min-w-[70px] sm:min-w-[100px] py-2.5 sm:py-3 rounded-xl text-xs sm:text-sm font-semibold transition-all duration-200 ${
                           selectedPlanIdx === idx
-                            ? 'bg-white text-[#0A1E3D] shadow-md'
-                            : 'text-[#64748B] hover:text-[#0A1E3D]'
+                            ? 'bg-white text-[#121A33] shadow-md'
+                            : 'text-[#64748B] hover:text-[#121A33]'
                         }`}>
                         {plan.name}
                         {plan.popular && (
-                          <span className="absolute -top-2 left-1/2 -translate-x-1/2 text-[9px] font-bold text-[#E07620] bg-[#E07620]/10 px-2 py-0.5 rounded-full uppercase tracking-wider whitespace-nowrap">
+                          <span className="absolute -top-2 left-1/2 -translate-x-1/2 text-[9px] font-bold text-[#F7963D] bg-[#F7963D]/10 px-2 py-0.5 rounded-full uppercase tracking-wider whitespace-nowrap">
                             Mais escolhido
                           </span>
                         )}
@@ -870,7 +870,7 @@ export default function CotacaoPage() {
 
                   {/* Coberturas toggle */}
                   <button onClick={() => setShowCoberturas(!showCoberturas)}
-                    className="flex items-center justify-between w-full mb-5 text-[#0A1E3D] font-semibold text-sm">
+                    className="flex items-center justify-between w-full mb-5 text-[#121A33] font-semibold text-sm">
                     Benefícios incluídos
                     {showCoberturas ? <ChevronUp className="w-4 h-4 text-[#94A3B8]" /> : <ChevronDown className="w-4 h-4 text-[#94A3B8]" />}
                   </button>
@@ -882,7 +882,7 @@ export default function CotacaoPage() {
                           {c.included
                             ? <div className="w-6 h-6 rounded-full bg-[#10B981]/10 flex items-center justify-center flex-shrink-0"><Check className="w-3.5 h-3.5 text-[#10B981]" /></div>
                             : <div className="w-6 h-6 rounded-full bg-[#F0F4FA] flex items-center justify-center flex-shrink-0"><X className="w-3.5 h-3.5 text-[#CBD5E1]" /></div>}
-                          <span className={`text-sm ${c.included ? 'text-[#0A1E3D] font-medium' : 'text-[#CBD5E1] line-through'}`}>{c.text}</span>
+                          <span className={`text-sm ${c.included ? 'text-[#121A33] font-medium' : 'text-[#CBD5E1] line-through'}`}>{c.text}</span>
                         </li>
                       ))}
                     </ul>
@@ -895,25 +895,25 @@ export default function CotacaoPage() {
                     <p className="text-sm text-[#64748B] mb-1">Plano {selectedPlan.name}</p>
                     <div className="flex items-baseline justify-center gap-1">
                       <span className="text-lg text-[#64748B] font-medium">R$</span>
-                      <span className="font-[var(--font-display)] text-5xl font-bold text-[#0A1E3D] leading-none">{priceFormatted}</span>
+                      <span className="font-[var(--font-display)] text-5xl font-bold text-[#121A33] leading-none">{priceFormatted}</span>
                       <span className="text-lg text-[#64748B] font-medium">/mês</span>
                     </div>
                   </div>
 
                   <div className="border-t border-[#E8ECF4] pt-4 mb-6 space-y-4 text-sm">
                     {/* 1º PAGAMENTO — Taxa de ativação */}
-                    <div className="bg-[#FFF7ED] border border-[#E07620]/20 rounded-xl p-4">
+                    <div className="bg-[#FFF7ED] border border-[#F7963D]/20 rounded-xl p-4">
                       <div className="flex justify-between items-center">
-                        <span className="font-bold text-[#0A1E3D]">1º pagamento</span>
-                        <span className="font-extrabold text-[#E07620] text-xl">R$ {formatPrice(taxaAtivacao)}</span>
+                        <span className="font-bold text-[#121A33]">1º pagamento</span>
+                        <span className="font-extrabold text-[#F7963D] text-xl">R$ {formatPrice(taxaAtivacao)}</span>
                       </div>
-                      <p className="text-xs text-[#E07620] font-semibold mt-1">Taxa de ativação — pagamento único</p>
+                      <p className="text-xs text-[#F7963D] font-semibold mt-1">Taxa de ativação — pagamento único</p>
                     </div>
 
                     {/* 2º PAGAMENTO — Mensalidade com desconto */}
                     <div className="bg-[#F0FDF4] border border-[#10B981]/20 rounded-xl p-4">
                       <div className="flex justify-between items-center mb-1">
-                        <span className="font-bold text-[#0A1E3D]">2º pagamento</span>
+                        <span className="font-bold text-[#121A33]">2º pagamento</span>
                         <span className="text-xs text-[#64748B]">vencimento até {dueDateFormatted}</span>
                       </div>
                       <div className="flex items-baseline justify-end gap-2 mt-1">
@@ -926,26 +926,26 @@ export default function CotacaoPage() {
                     {/* Mensalidade regular — destaque */}
                     <div className="bg-[#F8FAFC] border border-[#E2E8F0] rounded-xl p-4 mt-2">
                       <div className="flex justify-between items-center">
-                        <span className="font-bold text-[#0A1E3D]">Mensalidade regular</span>
-                        <span className="font-extrabold text-[#0A1E3D] text-2xl">R$ {priceFormatted}<span className="text-sm font-medium text-[#64748B]">/mês</span></span>
+                        <span className="font-bold text-[#121A33]">Mensalidade regular</span>
+                        <span className="font-extrabold text-[#121A33] text-2xl">R$ {priceFormatted}<span className="text-sm font-medium text-[#64748B]">/mês</span></span>
                       </div>
                     </div>
                   </div>
 
                   {/* Desconto Adesivo — com ElectricBorder */}
                   <div className="mb-6">
-                    <ElectricBorder color="#E07620" speed={0.6} chaos={0.08} borderRadius={20}>
+                    <ElectricBorder color="#F7963D" speed={0.6} chaos={0.08} borderRadius={20}>
                       <div className="bg-white rounded-[20px] p-4 sm:p-5">
                         {/* Header com toggle */}
                         <div className="flex items-center gap-3 mb-4">
-                          <div className="w-9 h-9 rounded-xl bg-[#E07620]/10 flex items-center justify-center flex-shrink-0">
-                            <Car className="w-5 h-5 text-[#E07620]" />
+                          <div className="w-9 h-9 rounded-xl bg-[#F7963D]/10 flex items-center justify-center flex-shrink-0">
+                            <Car className="w-5 h-5 text-[#F7963D]" />
                           </div>
                           <div className="flex-1">
-                            <p className="font-bold text-[#0A1E3D] text-sm leading-tight">Desconto Adesivo 21Go</p>
+                            <p className="font-bold text-[#121A33] text-sm leading-tight">Desconto Adesivo 21Go</p>
                             <p className="text-[10px] text-[#64748B]">Adesivo no vidro traseiro</p>
                           </div>
-                          <span className="bg-[#E07620] text-white text-xs font-extrabold px-2.5 py-1 rounded-full shadow-sm shadow-[#E07620]/20">
+                          <span className="bg-[#F7963D] text-white text-xs font-extrabold px-2.5 py-1 rounded-full shadow-sm shadow-[#F7963D]/20">
                             -{stickerPct}%
                           </span>
                         </div>
@@ -956,8 +956,8 @@ export default function CotacaoPage() {
                             onClick={() => setStickerAccepted(true)}
                             className={`flex-1 py-2.5 rounded-xl text-xs font-bold transition-all duration-200 ${
                               stickerAccepted
-                                ? 'bg-[#E07620] text-white shadow-md shadow-[#E07620]/20'
-                                : 'bg-[#F7F8FC] text-[#94A3B8] border border-[#E2E8F0] hover:border-[#E07620]/40'
+                                ? 'bg-[#F7963D] text-white shadow-md shadow-[#F7963D]/20'
+                                : 'bg-[#F7F8FC] text-[#94A3B8] border border-[#E2E8F0] hover:border-[#F7963D]/40'
                             }`}
                           >
                             <Check className="w-3.5 h-3.5 inline mr-1" />
@@ -983,10 +983,10 @@ export default function CotacaoPage() {
                               <span className="text-xs text-[#64748B] font-medium">Com adesivo</span>
                               <div className="flex items-baseline gap-1.5">
                                 <span className="text-xs text-[#94A3B8] line-through">R$ {priceFormatted}</span>
-                                <span className="font-extrabold text-[#E07620] text-xl">R$ {stickerPriceFormatted}</span>
+                                <span className="font-extrabold text-[#F7963D] text-xl">R$ {stickerPriceFormatted}</span>
                               </div>
                             </div>
-                            <div className="h-px bg-[#E07620]/10" />
+                            <div className="h-px bg-[#F7963D]/10" />
                             <div className="flex justify-between items-center">
                               <div className="flex items-center gap-1.5">
                                 <Tag className="w-3.5 h-3.5 text-[#10B981]" />
@@ -1024,7 +1024,7 @@ export default function CotacaoPage() {
                         })
                       }
                     }}
-                    className="flex items-center justify-center gap-2.5 w-full py-4 bg-gradient-to-r from-[#E07620] to-[#F08C28] text-white font-bold text-base rounded-full shadow-lg shadow-[#E07620]/20 hover:shadow-xl hover:shadow-[#E07620]/30 hover:scale-[1.01] active:scale-[0.99] transition-all duration-200 mb-4">
+                    className="flex items-center justify-center gap-2.5 w-full py-4 bg-gradient-to-r from-[#F7963D] to-[#F9A95E] text-white font-bold text-base rounded-full shadow-lg shadow-[#F7963D]/20 hover:shadow-xl hover:shadow-[#F7963D]/30 hover:scale-[1.01] active:scale-[0.99] transition-all duration-200 mb-4">
                     <MessageCircle className="w-5 h-5" />
                     Contratar pelo WhatsApp
                   </a>
@@ -1039,11 +1039,11 @@ export default function CotacaoPage() {
               {/* Voltar */}
               <div className="mt-10 flex justify-center gap-6">
                 <button onClick={() => setStep(1)}
-                  className="inline-flex items-center gap-2 text-sm text-[#64748B] hover:text-[#0A1E3D] transition-colors">
+                  className="inline-flex items-center gap-2 text-sm text-[#64748B] hover:text-[#121A33] transition-colors">
                   <ArrowLeft className="w-4 h-4" /> Editar dados
                 </button>
                 <button onClick={() => { setStep(1); setForm({ nome: '', whatsapp: '', email: '', placa: '', leilao: 'nao' }); setVehicle(null); setPlans([]); setShowFallback(false); setFallbackFipe(0); setExcluded(false); followUpSent.current = false; whatsappClicked.current = false; if (abandonmentTimer.current) { clearTimeout(abandonmentTimer.current); abandonmentTimer.current = null } }}
-                  className="text-sm text-[#1B4DA1] hover:text-[#3D72DE] transition-colors">
+                  className="text-sm text-[#375191] hover:text-[#3D72DE] transition-colors">
                   Nova simulação
                 </button>
               </div>
@@ -1063,7 +1063,7 @@ function PillInput({ label, name, value, error, onChange, placeholder, type = 't
 }) {
   return (
     <div>
-      <label htmlFor={name} className="block text-sm font-semibold text-[#0A1E3D] mb-2">{label}</label>
+      <label htmlFor={name} className="block text-sm font-semibold text-[#121A33] mb-2">{label}</label>
       <div className="relative">
         {icon && (
           <div className="absolute left-5 top-1/2 -translate-y-1/2">
@@ -1077,8 +1077,8 @@ function PillInput({ label, name, value, error, onChange, placeholder, type = 't
           onChange={e => onChange(e.target.value)}
           placeholder={placeholder}
           disabled={disabled}
-          className={`w-full ${icon ? 'pl-12' : 'px-5'} pr-5 py-4 rounded-2xl border-2 text-[#0A1E3D] text-[15px] font-medium placeholder:text-[#94A3B8] bg-[#F7F8FC] focus:outline-none focus:border-[#1B4DA1] focus:bg-white focus:shadow-[0_0_0_3px_rgba(27,77,161,0.1)] transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed ${
-            error ? 'border-[#EF4444] bg-[#FEF2F2] shadow-[0_0_0_3px_rgba(239,68,68,0.08)]' : 'border-[#D1DFFA] hover:border-[#1B4DA1]/40'
+          className={`w-full ${icon ? 'pl-12' : 'px-5'} pr-5 py-4 rounded-2xl border-2 text-[#121A33] text-[15px] font-medium placeholder:text-[#94A3B8] bg-[#F7F8FC] focus:outline-none focus:border-[#375191] focus:bg-white focus:shadow-[0_0_0_3px_rgba(55,81,145,0.1)] transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed ${
+            error ? 'border-[#EF4444] bg-[#FEF2F2] shadow-[0_0_0_3px_rgba(239,68,68,0.08)]' : 'border-[#D1DFFA] hover:border-[#375191]/40'
           } ${mono ? 'font-mono tracking-[0.15em] text-lg' : ''}`}
         />
       </div>
