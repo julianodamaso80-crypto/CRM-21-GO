@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { motion } from 'framer-motion'
 import { fadeInUp, staggerContainer } from '@/lib/motion'
 import { ShieldAlert, Lock, Eye, EyeOff, CheckCircle, Loader2, Shield } from 'lucide-react'
@@ -11,6 +11,7 @@ export default function DenunciaPage() {
   const [loading, setLoading] = useState(false)
   const [success, setSuccess] = useState(false)
   const [error, setError] = useState('')
+  const submitting = useRef(false)
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -21,6 +22,8 @@ export default function DenunciaPage() {
       return
     }
 
+    if (submitting.current) return
+    submitting.current = true
     setLoading(true)
 
     try {

@@ -15,6 +15,7 @@ export default function OuvidoriaPage() {
   const [success, setSuccess] = useState(false)
   const [error, setError] = useState('')
   const inputRef = useRef<HTMLInputElement>(null)
+  const submitting = useRef(false)
 
   function handleFiles(e: React.ChangeEvent<HTMLInputElement>) {
     if (e.target.files) {
@@ -43,6 +44,8 @@ export default function OuvidoriaPage() {
       return
     }
 
+    if (submitting.current) return
+    submitting.current = true
     setLoading(true)
 
     try {

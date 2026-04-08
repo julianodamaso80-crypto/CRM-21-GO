@@ -1,11 +1,26 @@
 import { NextRequest, NextResponse } from 'next/server'
 import nodemailer from 'nodemailer'
+import crypto from 'crypto'
 
 const CRM_API = process.env.BACKEND_URL || 'https://crm-21-go-production.up.railway.app'
 
 const OUVIDORIA_EMAIL = 'ouvidoria21go@gmail.com'
 const SMTP_USER = process.env.SMTP_USER || 'ouvidoria21go@gmail.com'
 const SMTP_PASS = process.env.SMTP_PASS || ''
+
+// Anti-duplicata: guarda hash dos últimos envios por 5 minutos
+const recentSends = new Map<string, number>()
+function isDuplicate(content: string): boolean {
+  const hash = crypto.createHash('md5').update(content).digest('hex')
+  const now = Date.now()
+  // Limpar entradas antigas (> 5 min)
+  for (const [k, v] of recentSends) {
+    if (now - v > 5 * 60 * 1000) recentSends.delete(k)
+  }
+  if (recentSends.has(hash)) return true
+  recentSends.set(hash, now)
+  return false
+}
 
 async function sendEmail(subject: string, html: string) {
   if (!SMTP_PASS) {
@@ -37,6 +52,10 @@ export async function POST(request: NextRequest) {
 
       if (tipo !== 'denuncia' || !assunto || !comentario) {
         return NextResponse.json({ success: false, error: 'Campos obrigatórios' }, { status: 400 })
+      }
+
+      if (isDuplicate(`denuncia:${assunto}:${comentario}`)) {
+        return NextResponse.json({ success: true, note: 'já enviado' })
       }
 
       // Salvar no CRM backend
@@ -84,6 +103,10 @@ export async function POST(request: NextRequest) {
 
     if (!nome || !telefone || !mensagem) {
       return NextResponse.json({ success: false, error: 'Campos obrigatórios' }, { status: 400 })
+    }
+
+    if (isDuplicate(`${tipo}:${nome}:${telefone}:${mensagem}`)) {
+      return NextResponse.json({ success: true, note: 'já enviado' })
     }
 
     const fileNames: string[] = []
