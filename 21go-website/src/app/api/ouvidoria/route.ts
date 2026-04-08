@@ -3,8 +3,8 @@ import nodemailer from 'nodemailer'
 
 const CRM_API = process.env.BACKEND_URL || 'https://crm-21-go-production.up.railway.app'
 
-const OUVIDORIA_EMAIL = '21go.ouvidoria@gmail.com'
-const SMTP_USER = process.env.SMTP_USER || '21go.ouvidoria@gmail.com'
+const OUVIDORIA_EMAIL = 'ouvidoria21go@gmail.com'
+const SMTP_USER = process.env.SMTP_USER || 'ouvidoria21go@gmail.com'
 const SMTP_PASS = process.env.SMTP_PASS || ''
 
 async function sendEmail(subject: string, html: string) {
