@@ -1,4 +1,4 @@
-import { prisma } from '../../lib/prisma'
+import { prisma } from '../../config/database'
 
 interface CreateOuvidoriaInput {
   tipo: string
@@ -8,11 +8,13 @@ interface CreateOuvidoriaInput {
   mensagem?: string
   comentario?: string
   arquivos?: string[]
+  companyId?: string
 }
 
 export async function createOuvidoria(input: CreateOuvidoriaInput) {
   return prisma.ouvidoria.create({
     data: {
+      companyId: input.companyId || 'company-21go',
       tipo: input.tipo,
       nome: input.nome || null,
       telefone: input.telefone || null,
@@ -24,9 +26,10 @@ export async function createOuvidoria(input: CreateOuvidoriaInput) {
   })
 }
 
-export async function listOuvidoria(filters?: { tipo?: string; status?: string }) {
+export async function listOuvidoria(companyId: string, filters?: { tipo?: string; status?: string }) {
   return prisma.ouvidoria.findMany({
     where: {
+      companyId,
       ...(filters?.tipo && { tipo: filters.tipo }),
       ...(filters?.status && { status: filters.status }),
     },

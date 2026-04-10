@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 
 const EVOLUTION_API_URL = process.env.EVOLUTION_API_URL || ''
 const EVOLUTION_INSTANCE = process.env.EVOLUTION_INSTANCE || '21go'
-const EVOLUTION_API_KEY = process.env.EVOLUTION_API_KEY || 'D09EE8166A35-40C2-8BAD-B3BC81C7613E'
+const EVOLUTION_API_KEY = process.env.EVOLUTION_API_KEY || ''
 const NOTIFY_NUMBER = process.env.NOTIFY_NUMBER || '5521980214882'
 
 export async function POST(request: NextRequest) {

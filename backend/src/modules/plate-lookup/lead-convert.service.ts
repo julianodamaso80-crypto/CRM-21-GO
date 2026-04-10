@@ -13,8 +13,8 @@ export async function convertLead(leadId: string, input: ConvertInput) {
   }
 
   try {
-    // Buscar o lead
-    const lead = await prisma.lead.findUnique({ where: { id: leadId } })
+    // Buscar o lead (com filtro multi-tenant)
+    const lead = await prisma.lead.findFirst({ where: { id: leadId, companyId: 'company-21go' } })
     if (!lead) {
       return { success: false, error: 'Lead não encontrado.' }
     }

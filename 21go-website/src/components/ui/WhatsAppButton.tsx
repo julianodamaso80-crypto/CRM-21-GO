@@ -1,9 +1,11 @@
 'use client';
 
+import { WHATSAPP_NUMBER } from '@/lib/constants'
+
 export function WhatsAppButton() {
   return (
     <a
-      href="https://wa.me/5521965700021"
+      href={`https://wa.me/${WHATSAPP_NUMBER}`}
       target="_blank"
       rel="noopener noreferrer"
       aria-label="Fale conosco pelo WhatsApp"
