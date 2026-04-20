@@ -117,7 +117,7 @@ export default function SejaConsultorPage() {
 
           <motion.div variants={fadeInUp} className="flex flex-wrap items-center justify-center gap-4">
             <a
-              href="https://wa.me/5521965700021?text=Ol%C3%A1!%20Quero%20ser%20consultor%2021Go."
+              href="https://wa.me/5521979034169?text=Ol%C3%A1!%20Quero%20ser%20consultor%2021Go."
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-2.5 px-8 py-4 bg-gradient-to-r from-[#F7963D] to-[#F9A95E] text-white font-bold rounded-full shadow-lg shadow-[#F7963D]/20 hover:shadow-xl hover:shadow-[#F7963D]/30 hover:scale-[1.02] active:scale-[0.98] transition-all"
@@ -270,7 +270,7 @@ export default function SejaConsultorPage() {
             Entre em contato agora e comece a construir sua renda como consultor de proteção veicular.
           </p>
           <a
-            href="https://wa.me/5521965700021?text=Ol%C3%A1!%20Quero%20ser%20consultor%2021Go.%20Como%20funciona%3F"
+            href="https://wa.me/5521979034169?text=Ol%C3%A1!%20Quero%20ser%20consultor%2021Go.%20Como%20funciona%3F"
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center gap-2.5 px-10 py-4 bg-gradient-to-r from-[#F7963D] to-[#F9A95E] text-white font-bold text-lg rounded-full shadow-lg shadow-[#F7963D]/25 hover:shadow-xl hover:scale-[1.02] active:scale-[0.98] transition-all"
