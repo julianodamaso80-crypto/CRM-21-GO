@@ -18,6 +18,7 @@ import {
   AlertCircle,
   Tag,
   Car,
+  Search,
 } from 'lucide-react'
 import {
   type PlanId,
@@ -48,6 +49,11 @@ interface VehicleData {
   fipeCode: string
   categoria?: string
   combustivel?: string
+}
+
+interface FipeItem {
+  code: string
+  name: string
 }
 
 /* ─── Faixas FIPE para fallback manual ─── */
@@ -136,6 +142,19 @@ export default function CotacaoPage() {
   const [showFallback, setShowFallback] = useState(false)
   const [fallbackType, setFallbackType] = useState('carro')
   const [fallbackFipe, setFallbackFipe] = useState(0)
+
+  // Fluxo "não tenho a placa" — busca FIPE por marca/modelo/ano
+  const [searchMode, setSearchMode] = useState<'placa' | 'modelo'>('placa')
+  const [fipeKind, setFipeKind] = useState<'carros' | 'motos'>('carros')
+  const [fipeMarcas, setFipeMarcas] = useState<FipeItem[]>([])
+  const [fipeModelos, setFipeModelos] = useState<FipeItem[]>([])
+  const [fipeAnos, setFipeAnos] = useState<FipeItem[]>([])
+  const [fipeMarcaCode, setFipeMarcaCode] = useState('')
+  const [fipeModeloCode, setFipeModeloCode] = useState('')
+  const [fipeAnoCode, setFipeAnoCode] = useState('')
+  const [fipeLoadingMarcas, setFipeLoadingMarcas] = useState(false)
+  const [fipeLoadingModelos, setFipeLoadingModelos] = useState(false)
+  const [fipeLoadingAnos, setFipeLoadingAnos] = useState(false)
 
   const [form, setForm] = useState<FormData>({
     nome: '',
@@ -233,7 +252,13 @@ export default function CotacaoPage() {
     if (!form.nome.trim()) e.nome = 'Informe seu nome'
     const whatsErr = isValidWhatsApp(form.whatsapp)
     if (whatsErr) e.whatsapp = whatsErr
-    if (form.placa.length < 7) e.placa = 'Placa incompleta'
+    if (searchMode === 'placa') {
+      if (form.placa.length < 7) e.placa = 'Placa incompleta'
+    } else {
+      if (!fipeMarcaCode) e.fipeMarca = 'Escolha a marca'
+      if (!fipeModeloCode) e.fipeModelo = 'Escolha o modelo'
+      if (!fipeAnoCode) e.fipeAno = 'Escolha o ano'
+    }
     setErrors(e)
     return Object.keys(e).length === 0
   }
@@ -252,6 +277,96 @@ export default function CotacaoPage() {
       clearTimeout(timeout)
       throw new Error('network')
     }
+  }
+
+  /* ─── FIPE Lookup (sem placa) ─── */
+  async function fetchFipe<T>(path: string): Promise<T> {
+    const controller = new AbortController()
+    const timeout = setTimeout(() => controller.abort(), 12000)
+    try {
+      const res = await fetch(`${API_BASE}${path}`, { signal: controller.signal })
+      clearTimeout(timeout)
+      return await res.json()
+    } catch {
+      clearTimeout(timeout)
+      throw new Error('network')
+    }
+  }
+
+  // Carrega marcas quando entra no modo "modelo" ou troca tipo (carro/moto)
+  useEffect(() => {
+    if (searchMode !== 'modelo') return
+    let cancelled = false
+    setFipeLoadingMarcas(true)
+    setApiError('')
+    fetchFipe<{ success: boolean; data?: FipeItem[]; error?: string }>(
+      `/api/vehicle/fipe/marcas?tipo=${fipeKind}`,
+    )
+      .then(res => {
+        if (cancelled) return
+        if (res.success && res.data) setFipeMarcas(res.data)
+        else setApiError(res.error || 'Não foi possível carregar as marcas')
+      })
+      .catch(() => {
+        if (!cancelled) setApiError('Falha de rede ao buscar marcas')
+      })
+      .finally(() => {
+        if (!cancelled) setFipeLoadingMarcas(false)
+      })
+    return () => { cancelled = true }
+  }, [searchMode, fipeKind])
+
+  // Carrega modelos quando marca é selecionada
+  useEffect(() => {
+    if (!fipeMarcaCode) { setFipeModelos([]); return }
+    let cancelled = false
+    setFipeLoadingModelos(true)
+    fetchFipe<{ success: boolean; data?: FipeItem[]; error?: string }>(
+      `/api/vehicle/fipe/modelos?tipo=${fipeKind}&marca=${encodeURIComponent(fipeMarcaCode)}`,
+    )
+      .then(res => {
+        if (cancelled) return
+        if (res.success && res.data) setFipeModelos(res.data)
+      })
+      .catch(() => {})
+      .finally(() => { if (!cancelled) setFipeLoadingModelos(false) })
+    return () => { cancelled = true }
+  }, [fipeMarcaCode, fipeKind])
+
+  // Carrega anos quando modelo é selecionado
+  useEffect(() => {
+    if (!fipeModeloCode || !fipeMarcaCode) { setFipeAnos([]); return }
+    let cancelled = false
+    setFipeLoadingAnos(true)
+    fetchFipe<{ success: boolean; data?: FipeItem[]; error?: string }>(
+      `/api/vehicle/fipe/anos?tipo=${fipeKind}&marca=${encodeURIComponent(fipeMarcaCode)}&modelo=${encodeURIComponent(fipeModeloCode)}`,
+    )
+      .then(res => {
+        if (cancelled) return
+        if (res.success && res.data) setFipeAnos(res.data)
+      })
+      .catch(() => {})
+      .finally(() => { if (!cancelled) setFipeLoadingAnos(false) })
+    return () => { cancelled = true }
+  }, [fipeModeloCode, fipeMarcaCode, fipeKind])
+
+  function switchToPlaca() {
+    setSearchMode('placa')
+    setApiError('')
+    setShowFallback(false)
+  }
+
+  function switchToModelo() {
+    setSearchMode('modelo')
+    setApiError('')
+    setShowFallback(false)
+    setErrors(prev => ({ ...prev, placa: '' }))
+    // Reset encadeamento
+    setFipeMarcaCode('')
+    setFipeModeloCode('')
+    setFipeAnoCode('')
+    setFipeModelos([])
+    setFipeAnos([])
   }
 
   /** Cotação via fallback manual (sem API) */
@@ -338,8 +453,106 @@ export default function CotacaoPage() {
     }).catch(() => {})
   }
 
+  /** Cotação via FIPE (sem placa) — marca/modelo/ano */
+  async function handleFipeQuote() {
+    trackCotacaoInicio()
+    setLoading(true)
+    setApiError('')
+    try {
+      const data = await fetchFipe<any>(
+        `/api/vehicle/fipe/preco?tipo=${fipeKind}&marca=${encodeURIComponent(fipeMarcaCode)}&modelo=${encodeURIComponent(fipeModeloCode)}&ano=${encodeURIComponent(fipeAnoCode)}`,
+      )
+      if (!data.success || !data.vehicle) {
+        setApiError(data.error || 'Não foi possível consultar a FIPE. Tente novamente.')
+        return
+      }
+
+      const v = data.vehicle
+      setVehicle(v)
+
+      if (shouldBlockQuote(v.marca, v.modelo, v.ano)) {
+        setExcluded(true)
+        setStep(2)
+        return
+      }
+
+      // Calcula planos localmente pela tabela real
+      const localPlans = getApplicablePlans(
+        v.fipeValue,
+        v.categoria,
+        v.combustivel,
+        undefined,
+        v.modelo,
+      )
+
+      if (localPlans.length === 0) {
+        setApiError('Não encontramos planos para esse veículo. Fale com um consultor.')
+        return
+      }
+
+      const isLeilao = form.leilao !== 'nao'
+      const finalPlans = isLeilao
+        ? localPlans.map(p => ({ ...p, monthly: Math.round(p.monthly * 0.8 * 100) / 100 }))
+        : localPlans
+
+      setPlans(finalPlans)
+      const popularIdx = finalPlans.findIndex(p => p.popular)
+      setSelectedPlanIdx(popularIdx >= 0 ? popularIdx : 0)
+      setStep(2)
+
+      const defaultPlan = finalPlans[popularIdx >= 0 ? popularIdx : 0]
+      trackCotacaoCompleta({
+        marca: v.marca,
+        modelo: v.modelo,
+        ano: v.ano,
+        plano: defaultPlan.name,
+        valorMensal: defaultPlan.monthly,
+        valorFipe: v.fipeValue,
+        email: form.email || undefined,
+        phone: form.whatsapp || undefined,
+      })
+
+      // Salva lead (não bloqueia)
+      const tracking = getTrackingData()
+      fetch(`${API_BASE}/api/vehicle/lead`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          nome: form.nome,
+          whatsapp: form.whatsapp,
+          email: form.email || undefined,
+          placa: '',
+          leilao: form.leilao,
+          marca: v.marca,
+          modelo: v.modelo,
+          ano: v.ano,
+          valorFipe: v.fipeValue,
+          plano: defaultPlan.name,
+          valorMensal: defaultPlan.monthly,
+          ...tracking.utms,
+          gclid: tracking.clickIds.gclid,
+          fbclid: tracking.clickIds.fbclid,
+          fbp: tracking.clickIds._fbp,
+          fbc: tracking.clickIds._fbc,
+        }),
+      }).then(r => r.json()).then(d => {
+        if (d.leadId) setLeadId(d.leadId)
+      }).catch(() => {})
+    } catch {
+      setApiError('Falha ao consultar a tabela FIPE. Tente novamente ou use a busca por placa.')
+    } finally {
+      setLoading(false)
+    }
+  }
+
   async function next() {
     if (!validate()) return
+
+    // Modo "sem placa" — vai direto pro FIPE
+    if (searchMode === 'modelo') {
+      await handleFipeQuote()
+      return
+    }
 
     trackCotacaoInicio()
     setLoading(true)
@@ -597,16 +810,135 @@ export default function CotacaoPage() {
                       disabled={loading}
                     />
                   </div>
-                  <PillInput
-                    label="Placa do Veículo"
-                    name="placa"
-                    value={form.placa}
-                    error={errors.placa}
-                    onChange={v => set('placa', maskPlaca(v))}
-                    placeholder="ABC1D23"
-                    mono
-                    disabled={loading}
-                  />
+                  {searchMode === 'placa' ? (
+                    <div>
+                      <PillInput
+                        label="Placa do Veículo"
+                        name="placa"
+                        value={form.placa}
+                        error={errors.placa}
+                        onChange={v => set('placa', maskPlaca(v))}
+                        placeholder="ABC1D23"
+                        mono
+                        disabled={loading}
+                      />
+                      <button
+                        type="button"
+                        onClick={switchToModelo}
+                        disabled={loading}
+                        className="mt-2 ml-1 inline-flex items-center gap-1.5 text-xs font-semibold text-[#375191] hover:text-[#3D72DE] transition-colors disabled:opacity-50"
+                      >
+                        <Search className="w-3.5 h-3.5" />
+                        Não tenho a placa — buscar por modelo
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="space-y-4 rounded-2xl border-2 border-[#D1DFFA] bg-[#F7F8FC]/60 p-4 sm:p-5">
+                      <div className="flex items-center justify-between">
+                        <label className="block text-sm font-semibold text-[#121A33]">Buscar pelo modelo</label>
+                        <button
+                          type="button"
+                          onClick={switchToPlaca}
+                          disabled={loading}
+                          className="inline-flex items-center gap-1 text-xs font-semibold text-[#375191] hover:text-[#3D72DE] transition-colors disabled:opacity-50"
+                        >
+                          <ArrowLeft className="w-3.5 h-3.5" />
+                          Tenho a placa
+                        </button>
+                      </div>
+
+                      {/* Carro / Moto */}
+                      <div>
+                        <label className="block text-xs font-semibold text-[#64748B] mb-2">Tipo</label>
+                        <div className="grid grid-cols-2 gap-2">
+                          {([
+                            { value: 'carros', label: 'Carro / SUV' },
+                            { value: 'motos', label: 'Moto' },
+                          ] as const).map(opt => (
+                            <button
+                              key={opt.value}
+                              type="button"
+                              disabled={loading}
+                              onClick={() => {
+                                setFipeKind(opt.value)
+                                setFipeMarcaCode('')
+                                setFipeModeloCode('')
+                                setFipeAnoCode('')
+                              }}
+                              className={`py-2.5 rounded-xl border-2 text-sm font-semibold transition-all duration-200 disabled:opacity-50 ${
+                                fipeKind === opt.value
+                                  ? 'border-[#375191] bg-[#375191]/10 text-[#375191]'
+                                  : 'border-[#D1DFFA] bg-white text-[#64748B] hover:border-[#375191]/40'
+                              }`}
+                            >
+                              {opt.label}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+
+                      <FipeSelect
+                        label="Marca"
+                        value={fipeMarcaCode}
+                        options={fipeMarcas}
+                        loading={fipeLoadingMarcas}
+                        disabled={loading || fipeLoadingMarcas}
+                        error={errors.fipeMarca}
+                        placeholder={fipeLoadingMarcas ? 'Carregando marcas...' : 'Selecione a marca'}
+                        onChange={code => {
+                          setFipeMarcaCode(code)
+                          setFipeModeloCode('')
+                          setFipeAnoCode('')
+                          setErrors(prev => ({ ...prev, fipeMarca: '' }))
+                        }}
+                      />
+
+                      <FipeSelect
+                        label="Modelo"
+                        value={fipeModeloCode}
+                        options={fipeModelos}
+                        loading={fipeLoadingModelos}
+                        disabled={loading || !fipeMarcaCode || fipeLoadingModelos}
+                        error={errors.fipeModelo}
+                        placeholder={
+                          !fipeMarcaCode
+                            ? 'Escolha a marca primeiro'
+                            : fipeLoadingModelos
+                              ? 'Carregando modelos...'
+                              : 'Selecione o modelo'
+                        }
+                        onChange={code => {
+                          setFipeModeloCode(code)
+                          setFipeAnoCode('')
+                          setErrors(prev => ({ ...prev, fipeModelo: '' }))
+                        }}
+                      />
+
+                      <FipeSelect
+                        label="Ano"
+                        value={fipeAnoCode}
+                        options={fipeAnos}
+                        loading={fipeLoadingAnos}
+                        disabled={loading || !fipeModeloCode || fipeLoadingAnos}
+                        error={errors.fipeAno}
+                        placeholder={
+                          !fipeModeloCode
+                            ? 'Escolha o modelo primeiro'
+                            : fipeLoadingAnos
+                              ? 'Carregando anos...'
+                              : 'Selecione o ano'
+                        }
+                        onChange={code => {
+                          setFipeAnoCode(code)
+                          setErrors(prev => ({ ...prev, fipeAno: '' }))
+                        }}
+                      />
+
+                      <p className="text-[11px] text-[#94A3B8] leading-snug pt-1">
+                        Valor estimado pela tabela FIPE. O consultor confirma o valor final com a placa real.
+                      </p>
+                    </div>
+                  )}
 
                   {/* Leilão / Remarcado */}
                   <div>
@@ -1045,7 +1377,7 @@ export default function CotacaoPage() {
                   className="inline-flex items-center gap-2 text-sm text-[#64748B] hover:text-[#121A33] transition-colors">
                   <ArrowLeft className="w-4 h-4" /> Editar dados
                 </button>
-                <button onClick={() => { setStep(1); setForm({ nome: '', whatsapp: '', email: '', placa: '', leilao: 'nao' }); setVehicle(null); setPlans([]); setShowFallback(false); setFallbackFipe(0); setExcluded(false); followUpSent.current = false; whatsappClicked.current = false; if (abandonmentTimer.current) { clearTimeout(abandonmentTimer.current); abandonmentTimer.current = null } }}
+                <button onClick={() => { setStep(1); setForm({ nome: '', whatsapp: '', email: '', placa: '', leilao: 'nao' }); setVehicle(null); setPlans([]); setShowFallback(false); setFallbackFipe(0); setExcluded(false); setSearchMode('placa'); setFipeMarcaCode(''); setFipeModeloCode(''); setFipeAnoCode(''); followUpSent.current = false; whatsappClicked.current = false; if (abandonmentTimer.current) { clearTimeout(abandonmentTimer.current); abandonmentTimer.current = null } }}
                   className="text-sm text-[#375191] hover:text-[#3D72DE] transition-colors">
                   Nova simulação
                 </button>
@@ -1086,6 +1418,47 @@ function PillInput({ label, name, value, error, onChange, placeholder, type = 't
         />
       </div>
       {error && <p className="mt-1.5 ml-4 text-xs text-[#EF4444] font-medium">{error}</p>}
+    </div>
+  )
+}
+
+/* ─── Select FIPE (com busca nativa do browser) ─── */
+function FipeSelect({
+  label, value, options, onChange, placeholder, disabled, loading, error,
+}: {
+  label: string
+  value: string
+  options: FipeItem[]
+  onChange: (code: string) => void
+  placeholder: string
+  disabled?: boolean
+  loading?: boolean
+  error?: string
+}) {
+  return (
+    <div>
+      <label className="block text-xs font-semibold text-[#64748B] mb-2">{label}</label>
+      <div className="relative">
+        <select
+          value={value}
+          onChange={e => onChange(e.target.value)}
+          disabled={disabled}
+          className={`w-full appearance-none pl-4 pr-10 py-3.5 rounded-xl border-2 bg-white text-[#121A33] text-[14px] font-medium focus:outline-none focus:border-[#375191] focus:shadow-[0_0_0_3px_rgba(55,81,145,0.1)] transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed ${
+            error ? 'border-[#EF4444]' : 'border-[#D1DFFA] hover:border-[#375191]/40'
+          }`}
+        >
+          <option value="">{placeholder}</option>
+          {options.map(opt => (
+            <option key={opt.code} value={opt.code}>{opt.name}</option>
+          ))}
+        </select>
+        <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
+          {loading
+            ? <Loader2 className="w-4 h-4 text-[#94A3B8] animate-spin" />
+            : <ChevronDown className="w-4 h-4 text-[#94A3B8]" />}
+        </div>
+      </div>
+      {error && <p className="mt-1.5 ml-1 text-xs text-[#EF4444] font-medium">{error}</p>}
     </div>
   )
 }
