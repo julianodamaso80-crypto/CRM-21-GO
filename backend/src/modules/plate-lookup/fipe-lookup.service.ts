@@ -103,7 +103,15 @@ export async function listAnos(
   if (cached) return cached
 
   const url = `${FIPE_BASE}/${kindToPath(kind)}/brands/${marcaCode}/models/${modeloCode}/years`
-  const data = await fetchJson<FipeItem[]>(url)
+  const raw = await fetchJson<FipeItem[]>(url)
+  // FIPE codifica "zero-km" como 32000 — substitui rótulo para humano
+  const data = raw.map((item) => {
+    if (item.name.startsWith('32000 ')) {
+      const fuel = item.name.replace('32000 ', '')
+      return { ...item, name: `Zero km (${fuel})` }
+    }
+    return item
+  })
   setCached(key, data, TTL_LIST)
   return data
 }
