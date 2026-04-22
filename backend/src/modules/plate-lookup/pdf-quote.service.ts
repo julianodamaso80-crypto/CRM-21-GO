@@ -1,6 +1,12 @@
 import puppeteer from 'puppeteer-core'
 import { PLAN_INFO, planIdFromName } from './plan-features'
-import { getAllRelevantPlans, type QuotePlanFull, type PlanId } from './pricing'
+import {
+  getAllRelevantPlans,
+  findPrice,
+  PRICING_TABLES,
+  type QuotePlanFull,
+  type PlanId,
+} from './pricing'
 import { LOGO_21GO_BASE64 } from './assets/logo-base64'
 
 export interface QuotePdfInput {
@@ -45,16 +51,56 @@ function addDaysBR(date: Date, days: number): string {
 }
 
 /**
- * Resolve quais planos mostrar no PDF baseado no veículo.
- * Usa categoria/combustível/cilindrada se vierem; caso contrário infere
- * pelo nome do plano selecionado e modelo.
+ * Identifica o PlanId do veículo cruzando (mensalidade × FIPE) com PRICING_TABLES.
+ * Esta é a defesa mais forte: o valor que o cliente viu no site SÓ pode ter
+ * vindo de uma faixa de uma tabela. Se bater, esse é o plano correto —
+ * independente do que está em planoNome / categoria / combustivel.
+ *
+ * Retorna null se nenhum match exato for encontrado.
  */
-function resolvePlans(input: QuotePdfInput): QuotePlanFull[] {
-  // Inferência de categoria/combustível a partir do plano escolhido (fallback)
-  const planId = planIdFromName(input.planoNome)
+export function detectPlanByValue(fipe: number, mensalidade: number): PlanId | null {
+  const ids: PlanId[] = ['especial', 'premium', 'vip', 'suv', 'do-seu-jeito', 'basico', 'moto-1000', 'moto-400']
+  // Tolerância de 1 centavo p/ evitar problema de float
+  const matches: PlanId[] = []
+  for (const id of ids) {
+    const price = findPrice(PRICING_TABLES[id], fipe)
+    if (price !== null && Math.abs(price - mensalidade) < 0.01) {
+      matches.push(id)
+    }
+  }
+  if (matches.length === 0) return null
+  // Se houver ambiguidade (raro), prioriza o mais específico
+  const priority: PlanId[] = ['especial', 'suv', 'moto-1000', 'moto-400', 'premium', 'vip', 'do-seu-jeito', 'basico']
+  for (const p of priority) {
+    if (matches.includes(p)) return p
+  }
+  return matches[0]
+}
+
+/**
+ * Resolve quais planos mostrar no PDF baseado no veículo.
+ *
+ * Estratégia em camadas (do mais confiável para o menos):
+ *  1. **Match por valor (mensalidade × FIPE × PRICING_TABLES)** — fonte de verdade
+ *     mais robusta: o valor que o cliente viu no site só pôde vir de uma faixa
+ *     de uma tabela. Se bater, sabemos exatamente o plano e categoria.
+ *  2. Categoria/combustível/cilindrada vindas do input (Brasil API).
+ *  3. Inferência pelo nome do plano selecionado (planoNome).
+ *
+ * Exportada pra ser testável sem rodar Puppeteer.
+ */
+export function resolvePlans(input: QuotePdfInput): QuotePlanFull[] {
+  // 1) Defesa primária: identificar plano pelo valor exato
+  const detected = detectPlanByValue(input.fipe, input.mensalidade)
+
+  // 2) Inferência por nome (fallback)
+  const fromName = planIdFromName(input.planoNome) as PlanId
+  const planId: PlanId = detected || fromName
+
   let categoria = input.categoria || ''
   let cilindrada = input.cilindrada || 0
   let combustivel = input.combustivel || ''
+
   if (!categoria) {
     if (planId === 'moto-400' || planId === 'moto-1000') categoria = 'MOTOCICLETA'
     else if (planId === 'suv') categoria = 'CAMINHONETE'
@@ -62,10 +108,12 @@ function resolvePlans(input: QuotePdfInput): QuotePlanFull[] {
   }
   if (!cilindrada && planId === 'moto-400') cilindrada = 300
   if (!cilindrada && planId === 'moto-1000') cilindrada = 800
-  // Se o plano escolhido é Especial e a FIPE não passa de 150k, o motivo
-  // é ser elétrico — forçamos a flag pra getAllRelevantPlans devolver
-  // exatamente o plano Especial (mesmos valores do site).
-  if (!combustivel && planId === 'especial' && input.fipe <= 150000) {
+
+  // Se o plano detectado é "especial" e a FIPE não passa de 150k,
+  // o motivo só pode ser veículo elétrico — força a flag pra que
+  // getAllRelevantPlans devolva exatamente a tabela ESPECIAL (mesmos
+  // valores do site). Esta é a defesa contra o bug do BYD Dolphin Mini.
+  if (planId === 'especial' && input.fipe <= 150000) {
     combustivel = 'ELETRICO'
   }
 
@@ -77,10 +125,10 @@ function resolvePlans(input: QuotePdfInput): QuotePlanFull[] {
     input.modelo,
   )
 
-  // Se ainda não retornou nada (pricing band não cobre), pelo menos o plano escolhido
+  // Se nada bateu (pricing band não cobre), devolve pelo menos o plano selecionado
   if (plans.length === 0) {
     return [{
-      id: planId as PlanId,
+      id: planId,
       name: input.planoNome,
       monthly: input.mensalidade,
       applicable: true,
@@ -272,7 +320,10 @@ function renderHTML(input: QuotePdfInput): string {
   const logoUrl = getLogoDataUrl()
 
   const planosAplicaveis = resolvePlans(input)
-  const planoEscolhidoId = planIdFromName(input.planoNome)
+  // Identifica o plano selecionado pelo valor primeiro (defesa robusta),
+  // caindo no nome só se não houver match por valor.
+  const planoEscolhidoId =
+    detectPlanByValue(input.fipe, input.mensalidade) || planIdFromName(input.planoNome)
 
   // Ordena: plano escolhido primeiro, depois os outros
   const ordered = [...planosAplicaveis].sort((a, b) => {
