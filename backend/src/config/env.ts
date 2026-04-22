@@ -45,6 +45,12 @@ const envSchema = z.object({
   WHATSAPP_PHONE_NUMBER_ID: z.string().optional(),
   WHATSAPP_VERIFY_TOKEN: z.string().optional(),
 
+  // Evolution API (WhatsApp via Baileys)
+  EVOLUTION_API_URL: z.string().optional(),
+  EVOLUTION_INSTANCE: z.string().optional(),
+  EVOLUTION_API_KEY: z.string().optional(),
+  EVOLUTION_WEBHOOK_SECRET: z.string().optional(),
+
   // Instagram
   INSTAGRAM_APP_ID: z.string().optional(),
   INSTAGRAM_APP_SECRET: z.string().optional(),

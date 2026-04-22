@@ -736,11 +736,22 @@ model Message {
   senderId String? @map("sender_id")
   senderUser User?  @relation("SentMessages", fields: [senderId], references: [id], onDelete: SetNull)
 
+  // Tipo e mídia (integração Evolution API / WhatsApp)
+  messageType   String  @default("text") @map("message_type") // text, audio, image, video, document, sticker, location
+  mediaBase64   String? @db.Text @map("media_base64")
+  mediaMimeType String? @map("media_mime_type")
+  mediaUrl      String? @map("media_url")
+  direction     String  @default("inbound") // inbound (cliente→nós), outbound (nós→cliente)
+
+  // ID único do WhatsApp — usado pra idempotência (evita processar mesma mensagem 2x)
+  whatsappMessageId String? @unique @map("whatsapp_message_id")
+
   createdAt DateTime @default(now()) @map("created_at")
 
   @@map("messages")
   @@index([conversationId])
   @@index([createdAt])
+  @@index([whatsappMessageId])
 }
 
 // ============================================================================

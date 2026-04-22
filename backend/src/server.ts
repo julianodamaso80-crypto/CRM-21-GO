@@ -40,6 +40,7 @@ import { cotacoesRoutes } from './modules/cotacoes/cotacoes.routes'
 import { indicacoesRoutes } from './modules/indicacoes/indicacoes.routes'
 import { projectsRoutes } from './modules/projects/projects.routes'
 import { plateLookupRoutes } from './modules/plate-lookup/plate-lookup.routes'
+import { webhookEvolutionRoutes } from './modules/webhook-evolution/webhook-evolution.routes'
 
 const port = Number(process.env.PORT) || env.PORT || 3333
 
@@ -169,6 +170,9 @@ async function bootstrap() {
 
     // Public endpoints (no auth — chamados pelo site estático)
     await fastify.register(plateLookupRoutes, { prefix: '/api/vehicle' })
+
+    // Evolution API webhook (público — recebe da Evolution, validação via EVOLUTION_WEBHOOK_SECRET)
+    await fastify.register(webhookEvolutionRoutes, { prefix: '/api/webhook/evolution' })
 
     // Ouvidoria (público — recebe do site)
     const { ouvidoriaRoutes } = await import('./modules/ouvidoria/ouvidoria.routes')
