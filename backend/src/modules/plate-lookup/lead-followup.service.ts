@@ -42,30 +42,15 @@ function buildFollowUpMessage(lead: LeadForFollowUp): string {
       ? 'sua moto'
       : 'seu carro'
   const placa = lead.placaInteresse || ''
-  const valor = lead.cotacaoValor
-    ? `R$ ${lead.cotacaoValor.toFixed(2).replace('.', ',')}`
-    : null
-
   const artigo = isMoto ? 'a' : 'o'
-  const pronome = isMoto ? 'ela' : 'ele'
 
   const lines = [
     `Oi *${firstName}*! Tudo bem? 😊`,
     ``,
     `Preparei sua *simulação completa* em PDF d${artigo} *${veiculo}*${placa ? ` — placa *${placa}*` : ''}.`,
     ``,
-  ]
-
-  if (valor) {
-    lines.push(`Ficou em *${valor}/mês* pra proteger ${pronome} com o plano *${lead.cotacaoPlano}*.`)
-    lines.push(``)
-  }
-
-  lines.push(
-    `Com a *21Go* ${artigo} ${tipo} fica segur${artigo} *a partir de agora*. O valor que apareceu ali? *Não muda, não sobe, sem surpresa*.`,
-    ``,
     `Qualquer dúvida me responde por aqui — *estou te acompanhando para fechar hoje* 🚀`,
-  )
+  ]
 
   return lines.join('\n')
 }
