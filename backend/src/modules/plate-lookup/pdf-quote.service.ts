@@ -50,23 +50,29 @@ function addDaysBR(date: Date, days: number): string {
  * pelo nome do plano selecionado e modelo.
  */
 function resolvePlans(input: QuotePdfInput): QuotePlanFull[] {
-  // Inferência de categoria a partir do plano escolhido (fallback)
+  // Inferência de categoria/combustível a partir do plano escolhido (fallback)
   const planId = planIdFromName(input.planoNome)
   let categoria = input.categoria || ''
   let cilindrada = input.cilindrada || 0
+  let combustivel = input.combustivel || ''
   if (!categoria) {
     if (planId === 'moto-400' || planId === 'moto-1000') categoria = 'MOTOCICLETA'
     else if (planId === 'suv') categoria = 'CAMINHONETE'
-    else if (planId === 'especial') categoria = 'AUTOMOVEL'
     else categoria = 'AUTOMOVEL'
   }
   if (!cilindrada && planId === 'moto-400') cilindrada = 300
   if (!cilindrada && planId === 'moto-1000') cilindrada = 800
+  // Se o plano escolhido é Especial e a FIPE não passa de 150k, o motivo
+  // é ser elétrico — forçamos a flag pra getAllRelevantPlans devolver
+  // exatamente o plano Especial (mesmos valores do site).
+  if (!combustivel && planId === 'especial' && input.fipe <= 150000) {
+    combustivel = 'ELETRICO'
+  }
 
   const plans = getAllRelevantPlans(
     input.fipe,
     categoria,
-    input.combustivel || undefined,
+    combustivel || undefined,
     cilindrada,
     input.modelo,
   )
