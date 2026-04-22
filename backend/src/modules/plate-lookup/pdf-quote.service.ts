@@ -1,5 +1,7 @@
 import puppeteer from 'puppeteer-core'
 import { PLAN_INFO, planIdFromName } from './plan-features'
+import { getApplicablePlans, type QuotePlan, type PlanId } from './pricing'
+import { LOGO_21GO_BASE64 } from './assets/logo-base64'
 
 export interface QuotePdfInput {
   nome: string
@@ -15,6 +17,21 @@ export interface QuotePdfInput {
   mensalidade: number
   taxaAtivacao?: number
   isMoto?: boolean
+  /** Categoria da API Brasil (ex: "AUTOMOVEL", "MOTOCICLETA"). Opcional. */
+  categoria?: string | null
+  /** Combustível (ex: "GASOLINA", "ELETRICO"). Opcional. */
+  combustivel?: string | null
+  /** Cilindrada da moto em cc. Opcional. */
+  cilindrada?: number | null
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
+ * Logo — embutida em base64 no bundle (sem I/O em runtime)
+ * ───────────────────────────────────────────────────────────────────────── */
+
+const LOGO_DATA_URL = `data:image/png;base64,${LOGO_21GO_BASE64}`
+function getLogoDataUrl(): string {
+  return LOGO_DATA_URL
 }
 
 function formatBRL(value: number): string {
@@ -27,11 +44,75 @@ function addDaysBR(date: Date, days: number): string {
   return d.toLocaleDateString('pt-BR')
 }
 
-function renderHTML(input: QuotePdfInput): string {
+/**
+ * Resolve quais planos mostrar no PDF baseado no veículo.
+ * Usa categoria/combustível/cilindrada se vierem; caso contrário infere
+ * pelo nome do plano selecionado e modelo.
+ */
+function resolvePlans(input: QuotePdfInput): QuotePlan[] {
+  // Inferência de categoria a partir do plano escolhido (fallback)
   const planId = planIdFromName(input.planoNome)
-  const info = PLAN_INFO[planId]
-  const features = info?.features || []
+  let categoria = input.categoria || ''
+  let cilindrada = input.cilindrada || 0
+  if (!categoria) {
+    if (planId === 'moto-400' || planId === 'moto-1000') categoria = 'MOTOCICLETA'
+    else if (planId === 'suv') categoria = 'CAMINHONETE'
+    else if (planId === 'especial') categoria = 'AUTOMOVEL'
+    else categoria = 'AUTOMOVEL'
+  }
+  if (!cilindrada && planId === 'moto-400') cilindrada = 300
+  if (!cilindrada && planId === 'moto-1000') cilindrada = 800
 
+  const plans = getApplicablePlans(
+    input.fipe,
+    categoria,
+    input.combustivel || undefined,
+    cilindrada,
+    input.modelo,
+  )
+
+  // Se ainda não retornou nada (pricing band não cobre), pelo menos o plano escolhido
+  if (plans.length === 0) {
+    return [{ id: planId as PlanId, name: input.planoNome, monthly: input.mensalidade }]
+  }
+  return plans
+}
+
+function renderPlanCard(plan: QuotePlan, isSelected: boolean): string {
+  const info = PLAN_INFO[plan.id as keyof typeof PLAN_INFO]
+  const features = info?.features || []
+  const incluidos = features.filter((f) => f.included).slice(0, 12)
+  const naoIncluidos = features.filter((f) => !f.included).slice(0, 4)
+
+  const featHTML =
+    incluidos
+      .map((f) => `<li class="feat yes"><span class="dot ok">&#10003;</span>${f.text}</li>`)
+      .join('') +
+    naoIncluidos
+      .map((f) => `<li class="feat no"><span class="dot no">&#215;</span>${f.text}</li>`)
+      .join('')
+
+  const badge = isSelected
+    ? `<span class="badge selected">Você selecionou</span>`
+    : plan.popular
+    ? `<span class="badge popular">Mais escolhido</span>`
+    : ''
+
+  return `
+    <div class="plan-card ${isSelected ? 'highlight' : ''}">
+      <div class="plan-card-head">
+        <div class="plan-name">${plan.name}</div>
+        ${badge}
+      </div>
+      <div class="plan-price">
+        <small>R$</small><b>${formatBRL(plan.monthly)}</b><em>/mês</em>
+      </div>
+      <ul class="features">${featHTML}</ul>
+    </div>
+  `
+}
+
+function renderHTML(input: QuotePdfInput): string {
   const taxa = input.taxaAtivacao ?? 399
   const mensalidade = input.mensalidade
   const descontoEarly = mensalidade * 0.95
@@ -43,18 +124,12 @@ function renderHTML(input: QuotePdfInput): string {
   const validade = addDaysBR(new Date(), 7)
   const hoje = new Date().toLocaleDateString('pt-BR')
 
-  const placaLine = input.placa ? `Placa: <b>${input.placa}</b> — ` : ''
-  const corLine = input.cor ? `${input.cor.toUpperCase()} — ` : ''
   const veiculoTitulo = `${input.marca} ${input.modelo} ${input.ano}`.trim()
+  const placaLine = input.placa ? `Placa: <b>${input.placa}</b> &middot; ` : ''
 
-  const featuresHTML = features
-    .map((f) => {
-      if (f.included) {
-        return `<li class="feat yes"><span class="dot ok">&#10003;</span>${f.text}</li>`
-      }
-      return `<li class="feat no"><span class="dot no">&#215;</span>${f.text}</li>`
-    })
-    .join('')
+  const logoUrl = getLogoDataUrl()
+  const planosAplicaveis = resolvePlans(input)
+  const planoEscolhidoId = planIdFromName(input.planoNome)
 
   const adesivoBlock = input.isMoto
     ? ''
@@ -86,6 +161,13 @@ function renderHTML(input: QuotePdfInput): string {
     </div>
   `
 
+  const comparativoCards = planosAplicaveis
+    .map((p) => renderPlanCard(p, p.id === planoEscolhidoId))
+    .join('')
+
+  // Grid: 1, 2 ou 3 colunas conforme número de planos
+  const gridCols = planosAplicaveis.length >= 3 ? 'repeat(3, 1fr)' : planosAplicaveis.length === 2 ? 'repeat(2, 1fr)' : '1fr'
+
   return `<!doctype html>
 <html lang="pt-BR">
 <head>
@@ -102,163 +184,175 @@ function renderHTML(input: QuotePdfInput): string {
     -webkit-print-color-adjust: exact;
     print-color-adjust: exact;
   }
-  .page { width: 210mm; padding: 14mm 14mm 10mm; }
+  .page { width: 210mm; padding: 12mm 14mm 8mm; }
+  .page-break { page-break-before: always; padding-top: 12mm; }
 
   /* HEADER */
   .header {
     display: flex; align-items: center; justify-content: space-between;
-    padding-bottom: 14px;
+    padding-bottom: 12px;
     border-bottom: 2px solid #E8ECF4;
-    margin-bottom: 18px;
+    margin-bottom: 14px;
   }
-  .brand { display: flex; align-items: center; gap: 12px; }
-  .brand .logo {
-    width: 44px; height: 44px; border-radius: 12px;
-    background: linear-gradient(135deg,#1B4DA1 0%,#2563EB 100%);
-    color: #fff; font-weight: 900; font-size: 18px;
-    display: flex; align-items: center; justify-content: center;
-    box-shadow: 0 4px 10px rgba(27,77,161,0.25);
-  }
-  .brand .name { font-size: 20px; font-weight: 800; color: #121A33; }
-  .brand .name span { color: #F7963D; }
+  .brand-logo { height: 52px; width: auto; display: block; }
   .header .meta { text-align: right; font-size: 11px; color: #64748B; line-height: 1.4; }
-  .header .meta b { color: #121A33; font-weight: 700; }
+  .header .meta b { color: #1B4DA1; font-weight: 800; font-size: 12px; }
 
   /* TITLE */
-  .title {
-    text-align: center;
-    margin: 6px 0 18px;
-  }
+  .title { text-align: center; margin: 4px 0 14px; }
   .title h1 {
-    font-size: 24px; font-weight: 800; color: #121A33; margin: 0 0 4px;
+    font-size: 22px; font-weight: 800; color: #121A33; margin: 0 0 4px;
     letter-spacing: -0.3px;
   }
-  .title p {
-    font-size: 13px; color: #64748B; margin: 0;
-  }
+  .title p { font-size: 12px; color: #64748B; margin: 0; }
   .title p b { color: #121A33; }
 
   /* Vehicle strip */
   .veic {
     background: #fff; border: 1px solid #E8ECF4;
-    border-radius: 14px; padding: 14px 18px; margin-bottom: 14px;
+    border-radius: 14px; padding: 12px 16px; margin-bottom: 14px;
     display: flex; align-items: center; justify-content: space-between;
     box-shadow: 0 6px 18px rgba(15,23,42,0.04);
   }
   .veic .left b { font-size: 14px; color: #121A33; display: block; margin-bottom: 2px; }
-  .veic .left span { font-size: 12px; color: #64748B; }
+  .veic .left span { font-size: 11.5px; color: #64748B; }
   .veic .fipe { text-align: right; }
   .veic .fipe span { font-size: 11px; color: #64748B; display: block; }
   .veic .fipe b { font-size: 16px; color: #1B4DA1; font-weight: 800; }
 
-  /* GRID */
-  .grid { display: grid; grid-template-columns: 1fr 260px; gap: 14px; }
-
-  /* LEFT — Plano + Benefícios */
+  /* GRID PRIMARY */
+  .grid { display: grid; grid-template-columns: 1fr 250px; gap: 14px; }
   .card {
     background: #fff; border: 1px solid #E8ECF4;
-    border-radius: 16px; padding: 18px;
+    border-radius: 16px; padding: 16px;
     box-shadow: 0 6px 18px rgba(15,23,42,0.04);
   }
   .plan-tab {
-    background: #F0F4FA; border-radius: 12px; padding: 6px;
-    text-align: center; margin-bottom: 14px;
+    background: #1B4DA1; border-radius: 12px; padding: 10px 14px;
+    margin-bottom: 12px; color: #fff;
+    display: flex; align-items: center; justify-content: space-between;
   }
-  .plan-tab b {
-    display: inline-block; padding: 8px 14px;
-    background: #fff; border-radius: 9px;
-    font-weight: 700; font-size: 13px;
-    box-shadow: 0 2px 6px rgba(15,23,42,0.06);
-  }
-  .beneficios-title {
-    font-weight: 700; font-size: 13px; color: #121A33; margin-bottom: 10px;
-  }
+  .plan-tab .pname { font-weight: 800; font-size: 14px; }
+  .plan-tab .pdesc { font-size: 10.5px; color: rgba(255,255,255,0.85); }
+  .plan-tab .pflag { background: #F7963D; color: #fff; font-size: 10px; font-weight: 800; padding: 3px 8px; border-radius: 999px; }
+  .beneficios-title { font-weight: 700; font-size: 12px; color: #121A33; margin-bottom: 8px; }
   ul.features { list-style: none; padding: 0; margin: 0; }
   ul.features li {
-    display: flex; align-items: center; gap: 10px;
-    font-size: 11.5px; padding: 4px 0;
+    display: flex; align-items: center; gap: 8px;
+    font-size: 11px; padding: 3px 0;
   }
   ul.features li .dot {
     display: inline-flex; align-items: center; justify-content: center;
-    width: 18px; height: 18px; border-radius: 50%;
-    font-size: 10px; font-weight: 900;
+    width: 16px; height: 16px; border-radius: 50%;
+    font-size: 9px; font-weight: 900; flex-shrink: 0;
   }
   ul.features li .dot.ok { background: rgba(16,185,129,0.12); color: #10B981; }
   ul.features li .dot.no { background: #F0F4FA; color: #CBD5E1; }
-  ul.features li.no { color: #CBD5E1; text-decoration: line-through; }
+  ul.features li.no { color: #94A3B8; text-decoration: line-through; }
   ul.features li.yes { color: #121A33; font-weight: 500; }
 
   /* RIGHT — Preço */
-  .price-card { padding: 16px; }
-  .price-head { text-align: center; margin-bottom: 14px; padding-bottom: 12px; border-bottom: 1px solid #E8ECF4; }
+  .price-card { padding: 14px; }
+  .price-head { text-align: center; margin-bottom: 12px; padding-bottom: 10px; border-bottom: 1px solid #E8ECF4; }
   .price-head .label { font-size: 11px; color: #64748B; margin-bottom: 4px; }
-  .price-head .price { font-size: 34px; font-weight: 900; color: #121A33; letter-spacing: -1px; line-height: 1; }
-  .price-head .price small { font-size: 13px; color: #64748B; font-weight: 600; }
-  .price-head .price em { font-size: 13px; color: #64748B; font-weight: 600; font-style: normal; }
+  .price-head .price { font-size: 30px; font-weight: 900; color: #121A33; letter-spacing: -1px; line-height: 1; }
+  .price-head .price small { font-size: 12px; color: #64748B; font-weight: 600; }
+  .price-head .price em { font-size: 12px; color: #64748B; font-weight: 600; font-style: normal; }
 
-  .box { border-radius: 10px; padding: 10px 12px; margin-bottom: 10px; }
+  .box { border-radius: 10px; padding: 8px 11px; margin-bottom: 8px; }
   .box-head { display: flex; justify-content: space-between; align-items: center; }
-  .box-head b { font-size: 12px; font-weight: 700; color: #121A33; }
-
+  .box-head b { font-size: 11px; font-weight: 700; color: #121A33; }
   .box.laranja { background: #FFF7ED; border: 1px solid rgba(247,150,61,0.2); }
-  .box.laranja .amount { font-size: 16px; font-weight: 900; color: #F7963D; }
-  .box.laranja .sub { font-size: 10px; color: #F7963D; font-weight: 600; margin-top: 2px; }
-
+  .box.laranja .amount { font-size: 14px; font-weight: 900; color: #F7963D; }
+  .box.laranja .sub { font-size: 9.5px; color: #F7963D; font-weight: 600; margin-top: 2px; }
   .box.verde { background: #F0FDF4; border: 1px solid rgba(16,185,129,0.2); }
   .box.verde .row2 { display: flex; justify-content: space-between; align-items: center; margin-top: 4px; }
   .box.verde .due { font-size: 10px; color: #64748B; }
-  .box.verde .amount { font-size: 16px; font-weight: 900; color: #10B981; }
+  .box.verde .amount { font-size: 14px; font-weight: 900; color: #10B981; }
   .box.verde .old { font-size: 10px; color: #94A3B8; text-decoration: line-through; margin-right: 6px; }
-  .box.verde .sub { font-size: 10px; color: #10B981; font-weight: 600; text-align: right; margin-top: 2px; }
-
+  .box.verde .sub { font-size: 9.5px; color: #10B981; font-weight: 600; text-align: right; margin-top: 2px; }
   .box.mensal { background: #F8FAFC; border: 1px solid #E2E8F0; }
-  .box.mensal .amount { font-size: 17px; font-weight: 900; color: #121A33; }
+  .box.mensal .amount { font-size: 15px; font-weight: 900; color: #121A33; }
   .box.mensal .amount small { font-size: 10px; color: #64748B; font-weight: 500; }
 
   /* ADESIVO */
-  .adesivo {
-    border: 1.5px solid #F7963D;
-    border-radius: 14px; padding: 12px; margin-top: 10px;
-    background: #fff;
-  }
-  .adesivo-head { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+  .adesivo { border: 1.5px solid #F7963D; border-radius: 12px; padding: 10px; margin-top: 8px; background: #fff; }
+  .adesivo-head { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
   .adesivo-icon {
-    width: 28px; height: 28px; border-radius: 8px;
+    width: 26px; height: 26px; border-radius: 8px;
     background: rgba(247,150,61,0.1); color: #F7963D;
-    display: flex; align-items: center; justify-content: center; font-size: 16px;
+    display: flex; align-items: center; justify-content: center; font-size: 14px;
   }
   .adesivo-title { flex: 1; }
-  .adesivo-title b { display: block; font-size: 11px; color: #121A33; font-weight: 700; }
+  .adesivo-title b { display: block; font-size: 10.5px; color: #121A33; font-weight: 700; }
   .adesivo-title span { display: block; font-size: 9px; color: #64748B; }
-  .adesivo-pct {
-    background: #F7963D; color: #fff;
-    font-size: 10px; font-weight: 800; padding: 3px 8px; border-radius: 999px;
-  }
-  .adesivo-values { background: #FFF7ED; border-radius: 10px; padding: 10px; }
-  .adesivo-values .row { display: flex; justify-content: space-between; align-items: center; font-size: 11px; }
+  .adesivo-pct { background: #F7963D; color: #fff; font-size: 9.5px; font-weight: 800; padding: 3px 7px; border-radius: 999px; }
+  .adesivo-values { background: #FFF7ED; border-radius: 9px; padding: 8px 10px; }
+  .adesivo-values .row { display: flex; justify-content: space-between; align-items: center; font-size: 10.5px; }
   .adesivo-values .row span { color: #64748B; font-weight: 500; }
   .adesivo-values .row s { color: #94A3B8; font-size: 10px; margin-right: 6px; }
-  .adesivo-values .laranja { color: #F7963D; font-size: 14px; font-weight: 900; }
-  .adesivo-values .verde { color: #10B981; font-size: 14px; font-weight: 900; }
-  .adesivo-values .divider { height: 1px; background: rgba(247,150,61,0.15); margin: 8px 0; }
-  .adesivo-foot { font-size: 9px; color: #94A3B8; text-align: center; margin-top: 6px; }
+  .adesivo-values .laranja { color: #F7963D; font-size: 13px; font-weight: 900; }
+  .adesivo-values .verde { color: #10B981; font-size: 13px; font-weight: 900; }
+  .adesivo-values .divider { height: 1px; background: rgba(247,150,61,0.15); margin: 6px 0; }
+  .adesivo-foot { font-size: 9px; color: #94A3B8; text-align: center; margin-top: 5px; }
 
   /* CTA */
   .cta {
-    margin-top: 14px;
+    margin-top: 12px;
     background: linear-gradient(90deg,#F7963D,#F9A95E);
     color: #fff; font-weight: 800; font-size: 13px;
-    text-align: center; padding: 12px; border-radius: 999px;
+    text-align: center; padding: 11px; border-radius: 999px;
     box-shadow: 0 6px 14px rgba(247,150,61,0.25);
   }
-  .susep {
-    font-size: 9px; color: #94A3B8;
-    text-align: center; margin-top: 8px;
+  .susep { font-size: 9px; color: #94A3B8; text-align: center; margin-top: 6px; }
+
+  /* COMPARATIVO — página 2 */
+  .compare-title {
+    text-align: center; margin-bottom: 14px;
   }
+  .compare-title h2 {
+    font-size: 18px; font-weight: 800; color: #121A33; margin: 0 0 4px;
+    letter-spacing: -0.2px;
+  }
+  .compare-title p { font-size: 11.5px; color: #64748B; margin: 0; }
+
+  .plans-grid {
+    display: grid; gap: 10px;
+    grid-template-columns: ${gridCols};
+  }
+  .plan-card {
+    background: #fff; border: 1px solid #E8ECF4; border-radius: 14px;
+    padding: 14px; position: relative;
+    box-shadow: 0 4px 12px rgba(15,23,42,0.04);
+  }
+  .plan-card.highlight {
+    border: 2px solid #1B4DA1;
+    box-shadow: 0 8px 22px rgba(27,77,161,0.15);
+  }
+  .plan-card-head {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 8px;
+  }
+  .plan-name { font-size: 13px; font-weight: 800; color: #1B4DA1; }
+  .badge {
+    font-size: 9px; font-weight: 800; padding: 3px 7px; border-radius: 999px;
+  }
+  .badge.selected { background: #1B4DA1; color: #fff; }
+  .badge.popular { background: #F7963D; color: #fff; }
+  .plan-price {
+    display: flex; align-items: baseline; gap: 2px;
+    margin: 4px 0 12px; padding-bottom: 10px; border-bottom: 1px solid #F0F4FA;
+  }
+  .plan-price small { font-size: 11px; color: #64748B; font-weight: 600; }
+  .plan-price b { font-size: 22px; font-weight: 900; color: #121A33; letter-spacing: -0.5px; line-height: 1; }
+  .plan-price em { font-size: 11px; color: #64748B; font-weight: 600; font-style: normal; margin-left: 2px; }
+
+  .plan-card ul.features li { font-size: 10px; padding: 2px 0; gap: 6px; }
+  .plan-card ul.features li .dot { width: 13px; height: 13px; font-size: 8px; }
 
   /* FOOTER */
   .footer {
-    margin-top: 18px; padding-top: 12px;
+    margin-top: 14px; padding-top: 10px;
     border-top: 1px solid #E8ECF4;
     display: flex; justify-content: space-between; align-items: center;
     font-size: 9.5px; color: #64748B;
@@ -273,13 +367,14 @@ function renderHTML(input: QuotePdfInput): string {
 </style>
 </head>
 <body>
+
+  <!-- ============ PÁGINA 1: Plano selecionado ============ -->
   <div class="page">
 
     <div class="header">
-      <div class="brand">
-        <div class="logo">21</div>
-        <div class="name">21<span>Go</span></div>
-      </div>
+      ${logoUrl
+        ? `<img src="${logoUrl}" class="brand-logo" alt="21Go Proteção Veicular"/>`
+        : `<div style="font-weight:900;font-size:24px;color:#1B4DA1;">21Go</div>`}
       <div class="meta">
         <b>Simulação de Proteção Veicular</b><br/>
         Emitida em ${hoje} &middot; válida até ${validade}
@@ -287,14 +382,14 @@ function renderHTML(input: QuotePdfInput): string {
     </div>
 
     <div class="title">
-      <h1>${input.nome.split(' ')[0]}, sua simulação está pronta!</h1>
-      <p>${veiculoTitulo} — ${corLine}${placaLine}FIPE: <b>R$ ${formatBRL(input.fipe)}</b></p>
+      <h1>${input.nome.split(' ')[0].toUpperCase()}, sua simulação está pronta!</h1>
+      <p>${veiculoTitulo} — ${placaLine}FIPE: <b>R$ ${formatBRL(input.fipe)}</b></p>
     </div>
 
     <div class="veic">
       <div class="left">
         <b>${veiculoTitulo}</b>
-        <span>${input.placa ? `Placa ${input.placa}` : 'Sem placa informada'} ${input.cor ? ' &middot; ' + input.cor : ''}</span>
+        <span>${input.placa ? `Placa ${input.placa}` : 'Sem placa informada'}${input.cor ? ' &middot; ' + input.cor : ''}</span>
       </div>
       <div class="fipe">
         <span>Valor FIPE</span>
@@ -304,9 +399,23 @@ function renderHTML(input: QuotePdfInput): string {
 
     <div class="grid">
       <div class="card">
-        <div class="plan-tab"><b>${input.planoNome}</b></div>
+        <div class="plan-tab">
+          <div>
+            <div class="pname">${input.planoNome}</div>
+            <div class="pdesc">Plano selecionado por você</div>
+          </div>
+          <span class="pflag">SELECIONADO</span>
+        </div>
         <div class="beneficios-title">Benefícios incluídos</div>
-        <ul class="features">${featuresHTML}</ul>
+        <ul class="features">${
+          (PLAN_INFO[planoEscolhidoId as keyof typeof PLAN_INFO]?.features || [])
+            .map((f) =>
+              f.included
+                ? `<li class="feat yes"><span class="dot ok">&#10003;</span>${f.text}</li>`
+                : `<li class="feat no"><span class="dot no">&#215;</span>${f.text}</li>`,
+            )
+            .join('')
+        }</ul>
       </div>
 
       <div class="card price-card">
@@ -364,6 +473,44 @@ function renderHTML(input: QuotePdfInput): string {
     </div>
 
   </div>
+
+  <!-- ============ PÁGINA 2: Comparativo de todos os planos ============ -->
+  ${planosAplicaveis.length > 1 ? `
+  <div class="page page-break">
+
+    <div class="header">
+      ${logoUrl
+        ? `<img src="${logoUrl}" class="brand-logo" alt="21Go Proteção Veicular"/>`
+        : `<div style="font-weight:900;font-size:24px;color:#1B4DA1;">21Go</div>`}
+      <div class="meta">
+        <b>Compare os planos disponíveis</b><br/>
+        Para o ${veiculoTitulo}
+      </div>
+    </div>
+
+    <div class="compare-title">
+      <h2>Todos os planos para o seu veículo</h2>
+      <p>Cada plano tem cobertura diferente. Escolha o que faz mais sentido pra você.</p>
+    </div>
+
+    <div class="plans-grid">
+      ${comparativoCards}
+    </div>
+
+    <div class="footer">
+      <div>
+        <b>21Go Proteção Veicular</b> &middot; Rio de Janeiro — RJ<br/>
+        WhatsApp (21) 97903-4169 &middot; 21go.site
+      </div>
+      <div class="right">
+        Simulação válida até <b>${validade}</b>
+        <span class="pill">20 anos no Rio</span>
+      </div>
+    </div>
+
+  </div>
+  ` : ''}
+
 </body>
 </html>`
 }

@@ -1,6 +1,5 @@
 /* ─────────────────────────────────────────────────────────────────────────────
  * Tabela de precos REAL da 21Go — 8 planos por faixa de valor FIPE
- * Espelho do arquivo em 21go-website/src/data/pricing.ts
  * ───────────────────────────────────────────────────────────────────────────── */
 
 export type PlanId =
@@ -13,11 +12,17 @@ export type PlanId =
   | 'moto-1000'
   | 'especial'
 
-interface PricingBand {
+export type VehicleCategory = 'carro' | 'moto' | 'suv' | 'especial'
+
+export interface PricingBand {
   min: number
   max: number
   price: number
 }
+
+/* PlanInfo is defined below alongside PLAN_INFO */
+
+/* ─── Faixas de preco por plano ─── */
 
 const BASICO: PricingBand[] = [
   { min: 0, max: 15000, price: 106.50 },
@@ -110,7 +115,7 @@ const PREMIUM: PricingBand[] = [
   { min: 90001, max: 100000, price: 601.05 },
 ]
 
-const SUV_TABLE: PricingBand[] = [
+const SUV: PricingBand[] = [
   { min: 0, max: 15000, price: 145.00 },
   { min: 15001, max: 20000, price: 150.00 },
   { min: 20001, max: 25000, price: 168.00 },
@@ -192,18 +197,264 @@ const ESPECIAL: PricingBand[] = [
   { min: 240001, max: 250000, price: 1280.00 },
 ]
 
+/* ─── Mapa de tabelas ─── */
+export const PRICING_TABLES: Record<PlanId, PricingBand[]> = {
+  'basico': BASICO,
+  'do-seu-jeito': DO_SEU_JEITO,
+  'vip': VIP,
+  'premium': PREMIUM,
+  'suv': SUV,
+  'moto-400': MOTO_400,
+  'moto-1000': MOTO_1000,
+  'especial': ESPECIAL,
+}
+
+/* ─── Info dos planos (benefícios REAIS — hierarquia acumulativa) ─── */
+
+export interface PlanFeatureItem {
+  text: string
+  included: boolean
+  /** true = item novo neste plano (diferencial vs plano anterior) */
+  highlight?: boolean
+  /** Substitui um item do plano anterior (ex: Guincho 200km -> 600km) */
+  upgrade?: boolean
+}
+
+export interface PlanInfo {
+  id: PlanId
+  name: string
+  description: string
+  popular?: boolean
+  features: PlanFeatureItem[]
+}
+
+export const PLAN_INFO: Record<PlanId, PlanInfo> = {
+  'basico': {
+    id: 'basico',
+    name: 'Básico',
+    description: 'Proteção essencial com assistência completa',
+    features: [
+      { text: 'Roubo e Furto', included: true },
+      { text: 'Incêndio', included: true },
+      { text: 'Colisão', included: true },
+      { text: 'Danos a Terceiros R$5.000', included: true },
+      { text: 'Monitoramento 24h', included: true },
+      { text: 'Reboque 200km', included: true },
+      { text: 'Chaveiro', included: true },
+      { text: 'Substituição de pneu furado', included: true },
+      { text: 'Auxílio na falta de combustível', included: true },
+      { text: 'Hospedagem em hotel', included: true },
+      { text: 'Táxi 25km', included: true },
+      { text: 'Retorno a domicílio', included: true },
+      { text: 'Socorro mecânico / elétrico', included: true },
+      { text: 'Clube de Benefícios', included: true },
+      { text: 'Fenômenos da Natureza', included: false },
+      { text: 'Parabrisa', included: false },
+      { text: 'Carro Amigo', included: false },
+      { text: 'Carro Reserva', included: false },
+      { text: 'AP morte/invalidez', included: false },
+      { text: 'Funeral familiar', included: false },
+    ],
+  },
+  'do-seu-jeito': {
+    id: 'do-seu-jeito',
+    name: 'Do Seu Jeito',
+    description: 'Básico + fenômenos, parabrisa e mais',
+    features: [
+      { text: 'Roubo e Furto', included: true },
+      { text: 'Incêndio (proveniente de colisão)', included: true },
+      { text: 'Fenômenos da Natureza', included: true },
+      { text: 'Colisão', included: true },
+      { text: 'Danos a Terceiros R$10.000', included: true },
+      { text: 'Parabrisa', included: true },
+      { text: 'Carro Amigo 25km de raio', included: true },
+      { text: 'Monitoramento 24h', included: true },
+      { text: 'Reboque 400km', included: true },
+      { text: 'Chaveiro', included: true },
+      { text: 'Substituição de pneu furado', included: true },
+      { text: 'Auxílio na falta de combustível', included: true },
+      { text: 'Hospedagem em hotel', included: true },
+      { text: 'Táxi 50km', included: true },
+      { text: 'Retorno a domicílio', included: true },
+      { text: 'Socorro mecânico / elétrico', included: true },
+      { text: 'Clube de Benefícios', included: true },
+      { text: 'Carro Reserva', included: false },
+      { text: 'Todos os Vidros', included: false },
+      { text: 'AP morte/invalidez', included: false },
+      { text: 'Funeral familiar', included: false },
+    ],
+  },
+  'vip': {
+    id: 'vip',
+    name: 'VIP',
+    description: 'O mais escolhido — proteção completa',
+    popular: true,
+    features: [
+      { text: 'Roubo e Furto', included: true },
+      { text: 'Incêndio (proveniente de colisão)', included: true },
+      { text: 'Fenômenos da Natureza', included: true },
+      { text: 'Colisão', included: true },
+      { text: 'Danos a Terceiros R$50.000', included: true },
+      { text: 'Carro Reserva 7 dias (roubo e furto)', included: true },
+      { text: 'Parabrisa', included: true },
+      { text: 'Carro Amigo 25km de raio', included: true },
+      { text: 'Monitoramento 24h (acima R$50.000)', included: true },
+      { text: 'Reboque 1.000km', included: true },
+      { text: 'Chaveiro', included: true },
+      { text: 'Substituição de pneu furado', included: true },
+      { text: 'Auxílio na falta de combustível', included: true },
+      { text: 'Hospedagem em hotel', included: true },
+      { text: 'Táxi 100km', included: true },
+      { text: 'Retorno a domicílio', included: true },
+      { text: 'Socorro mecânico / elétrico', included: true },
+      { text: 'Clube de Benefícios', included: true },
+      { text: 'Funeral familiar até R$5.000', included: true },
+      { text: 'Reboque Adicional', included: false },
+      { text: 'Todos os Vidros', included: false },
+      { text: 'AP morte/invalidez', included: false },
+    ],
+  },
+  'premium': {
+    id: 'premium',
+    name: 'Premium',
+    description: 'Máxima proteção — tudo incluído',
+    features: [
+      { text: 'Roubo e Furto', included: true },
+      { text: 'Incêndio (proveniente de colisão)', included: true },
+      { text: 'Fenômenos da Natureza', included: true },
+      { text: 'Colisão', included: true },
+      { text: 'Danos a Terceiros R$100.000', included: true },
+      { text: 'Carro Reserva 15 dias', included: true },
+      { text: 'Parabrisa', included: true },
+      { text: 'Carro Amigo', included: true },
+      { text: 'Reboque Adicional 200km', included: true },
+      { text: 'Todos os Vidros', included: true },
+      { text: 'Monitoramento 24h', included: true },
+      { text: 'Reboque 1.200km', included: true },
+      { text: 'Chaveiro', included: true },
+      { text: 'Substituição de pneu furado', included: true },
+      { text: 'Auxílio na falta de combustível', included: true },
+      { text: 'Hospedagem em hotel', included: true },
+      { text: 'Táxi 150km', included: true },
+      { text: 'Retorno a domicílio', included: true },
+      { text: 'Socorro mecânico / elétrico', included: true },
+      { text: 'AP morte acidental ou invalidez R$10.000', included: true },
+      { text: 'Clube de Benefícios', included: true },
+      { text: 'Funeral familiar R$5.000', included: true },
+    ],
+  },
+  'suv': {
+    id: 'suv',
+    name: 'VIP SUV',
+    description: 'Para pick-ups, caminhonetes e SUVs',
+    features: [
+      { text: 'Roubo e Furto', included: true },
+      { text: 'Incêndio', included: true },
+      { text: 'Fenômenos da Natureza', included: true },
+      { text: 'Colisão', included: true },
+      { text: 'Danos a Terceiros R$50.000', included: true },
+      { text: 'Carro Reserva 7 dias (roubo e furto)', included: true },
+      { text: 'Parabrisa', included: true },
+      { text: 'Carro Amigo 25km', included: true },
+      { text: 'Monitoramento 24h', included: true },
+      { text: 'Reboque 1.000km', included: true },
+      { text: 'Chaveiro', included: true },
+      { text: 'Substituição de pneu furado', included: true },
+      { text: 'Auxílio na falta de combustível', included: true },
+      { text: 'Hospedagem em hotel', included: true },
+      { text: 'Retorno a domicílio', included: true },
+      { text: 'Socorro mecânico / elétrico', included: true },
+      { text: 'AP morte/invalidez R$10.000', included: true },
+      { text: 'Clube de Benefícios', included: true },
+      { text: 'Funeral familiar até R$5.000', included: true },
+    ],
+  },
+  'moto-400': {
+    id: 'moto-400',
+    name: 'VIP Moto até 400cc',
+    description: 'Proteção completa para motos até 400cc',
+    features: [
+      { text: 'Roubo', included: true },
+      { text: 'Furto', included: true },
+      { text: 'Fenômenos da Natureza', included: true },
+      { text: 'Colisão', included: true },
+      { text: 'Monitoramento 24h (acima de R$8.000)', included: true },
+      { text: 'Reboque 1.000km', included: true },
+      { text: 'Chaveiro', included: true },
+      { text: 'Substituição de pneu furado', included: true },
+      { text: 'Auxílio na falta de combustível', included: true },
+      { text: 'Hospedagem em hotel', included: true },
+      { text: 'Retorno a domicílio', included: true },
+      { text: 'Socorro mecânico / elétrico', included: true },
+      { text: 'AP morte acidental ou invalidez (R$10.000)', included: true },
+      { text: 'Clube de Benefícios', included: true },
+      { text: 'Funeral familiar', included: true },
+    ],
+  },
+  'moto-1000': {
+    id: 'moto-1000',
+    name: 'VIP Moto 450-1000cc',
+    description: 'Proteção completa para motos de 450 a 1000cc',
+    features: [
+      { text: 'Roubo', included: true },
+      { text: 'Furto', included: true },
+      { text: 'Fenômenos da Natureza', included: true },
+      { text: 'Colisão', included: true },
+      { text: 'Monitoramento 24h (acima de R$8.000)', included: true },
+      { text: 'Reboque 1.000km', included: true },
+      { text: 'Chaveiro', included: true },
+      { text: 'Substituição de pneu furado', included: true },
+      { text: 'Auxílio na falta de combustível', included: true },
+      { text: 'Hospedagem em hotel', included: true },
+      { text: 'Retorno a domicílio', included: true },
+      { text: 'Socorro mecânico / elétrico', included: true },
+      { text: 'AP morte acidental ou invalidez (R$10.000)', included: true },
+      { text: 'Clube de Benefícios', included: true },
+      { text: 'Funeral familiar', included: true },
+    ],
+  },
+  'especial': {
+    id: 'especial',
+    name: 'Veículos Especiais',
+    description: 'Elétricos e veículos acima de R$150 mil',
+    features: [
+      { text: 'Roubo e Furto', included: true },
+      { text: 'Incêndio (proveniente de colisão)', included: true },
+      { text: 'Fenômenos da Natureza', included: true },
+      { text: 'Colisão', included: true },
+      { text: 'Danos a Terceiros R$50.000', included: true },
+      { text: 'Carro Reserva 7 dias (roubo e furto)', included: true },
+      { text: 'Parabrisa', included: true },
+      { text: 'Carro Amigo 25km', included: true },
+      { text: 'Monitoramento 24h', included: true },
+      { text: 'Reboque 1.000km', included: true },
+      { text: 'Chaveiro', included: true },
+      { text: 'Substituição de pneu furado', included: true },
+      { text: 'Auxílio na falta de combustível', included: true },
+      { text: 'Hospedagem em hotel', included: true },
+      { text: 'Retorno a domicílio', included: true },
+      { text: 'Socorro mecânico / elétrico', included: true },
+      { text: 'Clube de Benefícios', included: true },
+      { text: 'Funeral familiar até R$5.000', included: true },
+    ],
+  },
+}
+
 /* ─── Helpers ─── */
 
-function findPrice(table: PricingBand[], fipeValue: number): number | null {
+/** Busca preco na tabela por faixa FIPE */
+export function findPrice(table: PricingBand[], fipeValue: number): number | null {
   const band = table.find(b => fipeValue >= b.min && fipeValue <= b.max)
   return band ? band.price : null
 }
 
+/** Categorias da API Brasil que indicam SUV/pick-up/caminhonete */
 const SUV_KEYWORDS = [
   'caminhonete', 'camioneta', 'suv', 'pick-up', 'pickup',
   'utilitario', 'utilitária',
 ]
 
+/** Modelos conhecidos que sao SUV/pick-up (fallback quando categoria nao vem da API) */
 const SUV_MODELS = [
   'compass', 'renegade', 'commander', 'tracker', 'equinox', 'trailblazer',
   'creta', 'tucson', 'ix35', 'santa fe', 'sportage', 'sorento', 'seltos',
@@ -219,6 +470,7 @@ const SUV_MODELS = [
   'cayenne', 'macan', 'urus',
 ]
 
+/** Detecta se o combustivel indica veiculo eletrico */
 const ELETRICO_KEYWORDS = ['eletrico', 'elétrico', 'electric', 'híbrido', 'hibrido']
 
 export interface QuotePlan {
@@ -228,6 +480,15 @@ export interface QuotePlan {
   popular?: boolean
 }
 
+/**
+ * Retorna os planos aplicaveis e seus precos para um veiculo.
+ *
+ * @param fipeValue - valor FIPE do veiculo em reais
+ * @param categoria - categoria retornada pela API (ex: "AUTOMOVEL", "CAMINHONETE", "MOTOCICLETA")
+ * @param combustivel - tipo de combustivel (ex: "GASOLINA", "ELETRICO")
+ * @param cilindrada - cilindrada em cc (para motos)
+ * @param modelo - nome do modelo (fallback para detectar SUV quando categoria nao vem)
+ */
 export function getApplicablePlans(
   fipeValue: number,
   categoria?: string,
@@ -247,7 +508,9 @@ export function getApplicablePlans(
   // Veiculo especial: eletrico ou FIPE > 150.000
   if (isEletrico || fipeValue > 150000) {
     const price = findPrice(ESPECIAL, fipeValue)
-    if (price) return [{ id: 'especial', name: 'Veículos Especiais', monthly: price }]
+    if (price) {
+      return [{ id: 'especial', name: 'Veículos Especiais', monthly: price }]
+    }
     return []
   }
 
@@ -261,6 +524,7 @@ export function getApplicablePlans(
       const price = findPrice(MOTO_1000, fipeValue)
       if (price) return [{ id: 'moto-1000', name: 'VIP Moto 450-1000cc', monthly: price }]
     }
+    // Se cilindrada desconhecida, mostra ambos
     const plans: QuotePlan[] = []
     const p400 = findPrice(MOTO_400, fipeValue)
     if (p400) plans.push({ id: 'moto-400', name: 'VIP Moto até 400cc', monthly: p400 })
@@ -271,7 +535,7 @@ export function getApplicablePlans(
 
   // SUV / Pick-up / Caminhonete
   if (isSuv) {
-    const price = findPrice(SUV_TABLE, fipeValue)
+    const price = findPrice(SUV, fipeValue)
     if (price) return [{ id: 'suv', name: 'SUV', monthly: price }]
     return []
   }
@@ -287,4 +551,9 @@ export function getApplicablePlans(
   const pPremium = findPrice(PREMIUM, fipeValue)
   if (pPremium) plans.push({ id: 'premium', name: 'Premium', monthly: pPremium })
   return plans
+}
+
+/** Formata preco para exibicao: "106,50" */
+export function formatPrice(value: number): string {
+  return value.toFixed(2).replace('.', ',')
 }
