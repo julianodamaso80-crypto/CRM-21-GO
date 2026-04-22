@@ -771,10 +771,10 @@ export default function CotacaoPage() {
                         type="button"
                         onClick={switchToModelo}
                         disabled={loading}
-                        className="mt-2 ml-1 inline-flex items-center gap-1.5 text-xs font-semibold text-[#375191] hover:text-[#3D72DE] transition-colors disabled:opacity-50"
+                        className="mt-3 inline-flex items-center gap-2 rounded-xl border border-[#375191]/25 bg-[#375191]/5 px-4 py-2.5 text-sm font-semibold text-[#375191] hover:border-[#375191]/50 hover:bg-[#375191]/10 transition-all disabled:opacity-50"
                       >
-                        <Search className="w-3.5 h-3.5" />
-                        Não tenho a placa — buscar por modelo
+                        <Search className="w-4 h-4" />
+                        Não tenho a placa — <span className="underline underline-offset-2 decoration-[#375191]/40">buscar por modelo</span>
                       </button>
                     </div>
                   ) : (
