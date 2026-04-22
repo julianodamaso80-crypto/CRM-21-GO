@@ -67,6 +67,10 @@ export async function createPublicLead(input: PublicLeadInput, ip?: string, user
           cotacaoPlano: input.plano || existing.cotacaoPlano,
           cotacaoEnviada: true,
           cotacaoData: new Date(),
+          // Cliente refez cotação → libera novo envio de PDF/follow-up
+          followUpEnviado: false,
+          pdfEnviado: false,
+          pdfUrl: null,
           gclid: input.gclid || existing.gclid,
           fbclid: input.fbclid || existing.fbclid,
           fbp: input.fbp || existing.fbp,
@@ -119,17 +123,21 @@ export async function createPublicLead(input: PublicLeadInput, ip?: string, user
       action = 'created'
     }
 
+    console.log(`[LeadCapture] Lead ${action} id=${leadId} — disparando envio imediato (force:true)`)
+
     // Fora do fluxo crítico (fire-and-forget):
     //  1) Envia PDF + mensagem IMEDIATAMENTE (cliente acabou de ver a simulação)
     //  2) Agenda follow-up de 5min como BACKUP (worker pula se followUpEnviado=true)
     ;(async () => {
       try {
-        const result = await sendFollowUp({ leadId, withPdf: true })
+        const result = await sendFollowUp({ leadId, withPdf: true, force: true })
         if (!result.success) {
           console.warn('[LeadCapture] Envio imediato falhou:', result.error)
+        } else {
+          console.log('[LeadCapture] Envio imediato OK:', JSON.stringify(result))
         }
       } catch (err: any) {
-        console.error('[LeadCapture] Erro no envio imediato:', err.message)
+        console.error('[LeadCapture] Erro no envio imediato:', err.message, err.stack)
       }
       await scheduleFollowUp(leadId).catch((err) =>
         console.error('[LeadCapture] Falha ao agendar follow-up:', err.message),

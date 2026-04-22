@@ -1,4 +1,5 @@
-import puppeteer from 'puppeteer'
+import puppeteer from 'puppeteer-core'
+import chromium from '@sparticuz/chromium'
 import { PLAN_INFO, planIdFromName } from './plan-features'
 
 export interface QuotePdfInput {
@@ -372,37 +373,73 @@ function renderHTML(input: QuotePdfInput): string {
  * Puppeteer — browser reutilizado (singleton) para evitar custo de boot
  * ─────────────────────────────────────────────────────────────────────── */
 
-let browserPromise: Promise<import('puppeteer').Browser> | null = null
+let browserPromise: Promise<import('puppeteer-core').Browser> | null = null
+
+async function resolveExecutablePath(): Promise<string> {
+  const fromEnv = process.env.PUPPETEER_EXECUTABLE_PATH
+  if (fromEnv) {
+    console.log('[PDF] Usando PUPPETEER_EXECUTABLE_PATH:', fromEnv)
+    return fromEnv
+  }
+  console.log('[PDF] Resolvendo Chromium via @sparticuz/chromium...')
+  const exec = await chromium.executablePath()
+  console.log('[PDF] @sparticuz/chromium executablePath:', exec)
+  if (!exec) throw new Error('Chromium executable não encontrado (sparticuz retornou vazio)')
+  return exec
+}
 
 async function getBrowser() {
   if (!browserPromise) {
-    browserPromise = puppeteer.launch({
-      headless: true,
-      executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || undefined,
-      args: [
+    browserPromise = (async () => {
+      const executablePath = await resolveExecutablePath()
+      const args = [
+        ...chromium.args,
         '--no-sandbox',
         '--disable-setuid-sandbox',
         '--disable-dev-shm-usage',
         '--disable-gpu',
         '--font-render-hinting=none',
-      ],
+      ]
+      console.log('[PDF] Lançando Chromium (headless)...')
+      const t0 = Date.now()
+      const browser = await puppeteer.launch({
+        headless: true,
+        executablePath,
+        args,
+        defaultViewport: chromium.defaultViewport,
+      })
+      console.log(`[PDF] Chromium pronto em ${Date.now() - t0}ms`)
+      return browser
+    })().catch((err) => {
+      console.error('[PDF] Falha ao lançar Chromium:', err.message, err.stack)
+      browserPromise = null
+      throw err
     })
   }
   return browserPromise
 }
 
 export async function generateQuotePdf(input: QuotePdfInput): Promise<Buffer> {
+  console.log('[PDF] generateQuotePdf iniciado para', input.nome, '-', input.marca, input.modelo)
   const html = renderHTML(input)
+  console.log('[PDF] HTML renderizado:', html.length, 'chars')
   const browser = await getBrowser()
   const page = await browser.newPage()
   try {
+    const t0 = Date.now()
     await page.setContent(html, { waitUntil: 'networkidle0' })
+    console.log(`[PDF] setContent ok em ${Date.now() - t0}ms`)
+    const t1 = Date.now()
     const pdf = await page.pdf({
       format: 'A4',
       printBackground: true,
       preferCSSPageSize: true,
     })
+    console.log(`[PDF] pdf gerado em ${Date.now() - t1}ms — ${pdf.length} bytes`)
     return Buffer.from(pdf)
+  } catch (err: any) {
+    console.error('[PDF] Erro durante geração:', err.message, err.stack)
+    throw err
   } finally {
     await page.close().catch(() => {})
   }

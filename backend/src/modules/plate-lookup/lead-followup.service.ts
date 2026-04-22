@@ -77,16 +77,24 @@ function formatPhone(whatsapp: string): string {
 }
 
 async function sendText(phone: string, text: string) {
-  return fetch(`${EVOLUTION_API_URL}/message/sendText/${EVOLUTION_INSTANCE}`, {
+  const url = `${EVOLUTION_API_URL}/message/sendText/${EVOLUTION_INSTANCE}`
+  console.log('[FollowUp] sendText →', phone, '(', text.length, 'chars )')
+  const res = await fetch(url, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', apikey: EVOLUTION_API_KEY },
     body: JSON.stringify({ number: phone, text }),
   })
+  const body = await res.text().catch(() => '')
+  console.log('[FollowUp] sendText resp:', res.status, body.slice(0, 300))
+  if (!res.ok) throw new Error(`sendText falhou ${res.status}: ${body.slice(0, 200)}`)
+  return res
 }
 
 async function sendPdfMedia(phone: string, media: string, caption: string, filename: string) {
-  // Evolution API — sendMedia aceita URL pública OU string base64 (sem prefixo data:).
-  return fetch(`${EVOLUTION_API_URL}/message/sendMedia/${EVOLUTION_INSTANCE}`, {
+  const url = `${EVOLUTION_API_URL}/message/sendMedia/${EVOLUTION_INSTANCE}`
+  const isUrl = media.startsWith('http')
+  console.log('[FollowUp] sendPdfMedia →', phone, isUrl ? `URL=${media.slice(0, 80)}` : `base64=${media.length} chars`, 'file=', filename)
+  const res = await fetch(url, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', apikey: EVOLUTION_API_KEY },
     body: JSON.stringify({
@@ -98,6 +106,10 @@ async function sendPdfMedia(phone: string, media: string, caption: string, filen
       fileName: filename,
     }),
   })
+  const body = await res.text().catch(() => '')
+  console.log('[FollowUp] sendPdfMedia resp:', res.status, body.slice(0, 300))
+  if (!res.ok) throw new Error(`sendPdfMedia falhou ${res.status}: ${body.slice(0, 200)}`)
+  return res
 }
 
 interface PdfData {
@@ -114,27 +126,39 @@ interface PdfData {
  */
 async function ensurePdfData(lead: LeadForFollowUp): Promise<PdfData | null> {
   const filename = `simulacao-21go-${lead.id}.pdf`
-  if (lead.pdfUrl) return { url: lead.pdfUrl, filename }
-  if (!lead.marcaInteresse || !lead.modeloInteresse || !lead.valorFipeConsultado || !lead.cotacaoPlano || !lead.cotacaoValor) {
+  if (lead.pdfUrl) {
+    console.log('[FollowUp] Reusando pdfUrl existente:', lead.pdfUrl)
+    return { url: lead.pdfUrl, filename }
+  }
+  const missing: string[] = []
+  if (!lead.marcaInteresse) missing.push('marcaInteresse')
+  if (!lead.modeloInteresse) missing.push('modeloInteresse')
+  if (!lead.valorFipeConsultado) missing.push('valorFipeConsultado')
+  if (!lead.cotacaoPlano) missing.push('cotacaoPlano')
+  if (!lead.cotacaoValor) missing.push('cotacaoValor')
+  if (missing.length) {
+    console.warn('[FollowUp] Lead sem dados pra gerar PDF — faltam:', missing.join(', '))
     return null
   }
   let pdf: Buffer
   try {
+    console.log('[FollowUp] Gerando PDF para lead', lead.id)
     pdf = await generateQuotePdf({
       nome: lead.nome,
       whatsapp: lead.whatsapp || '',
       email: lead.email,
       placa: lead.placaInteresse,
-      marca: lead.marcaInteresse,
-      modelo: lead.modeloInteresse,
+      marca: lead.marcaInteresse!,
+      modelo: lead.modeloInteresse!,
       ano: lead.anoInteresse ? String(lead.anoInteresse) : '',
-      fipe: lead.valorFipeConsultado,
-      planoNome: lead.cotacaoPlano,
-      mensalidade: lead.cotacaoValor,
+      fipe: lead.valorFipeConsultado!,
+      planoNome: lead.cotacaoPlano!,
+      mensalidade: lead.cotacaoValor!,
       isMoto: (lead.cotacaoPlano || '').toLowerCase().includes('moto'),
     })
+    console.log('[FollowUp] PDF buffer ok —', pdf.length, 'bytes')
   } catch (err: any) {
-    console.error('[FollowUp] Falha ao gerar PDF (Puppeteer):', err.message)
+    console.error('[FollowUp] Falha ao gerar PDF (Puppeteer):', err.message, err.stack)
     return null
   }
 
@@ -142,7 +166,9 @@ async function ensurePdfData(lead: LeadForFollowUp): Promise<PdfData | null> {
   if (isR2Configured()) {
     try {
       const key = `quotes/${new Date().toISOString().slice(0, 10)}/${lead.id}.pdf`
+      console.log('[FollowUp] Subindo PDF para R2:', key)
       const { url } = await uploadPdf(key, pdf, filename)
+      console.log('[FollowUp] R2 ok:', url)
       await prisma.lead.update({
         where: { id: lead.id },
         data: { pdfUrl: url, pdfGeradoEm: new Date() },
@@ -151,6 +177,8 @@ async function ensurePdfData(lead: LeadForFollowUp): Promise<PdfData | null> {
     } catch (err: any) {
       console.warn('[FollowUp] R2 upload falhou, vai cair pro base64:', err.message)
     }
+  } else {
+    console.log('[FollowUp] R2 não configurado — usando base64')
   }
 
   // Fallback: envia direto via base64 (sem persistência)
@@ -166,6 +194,7 @@ async function ensurePdfData(lead: LeadForFollowUp): Promise<PdfData | null> {
  * caption curta e um segundo sendText com a mensagem completa.
  */
 export async function sendFollowUp(input: FollowUpInput) {
+  console.log('[FollowUp] === START ===', JSON.stringify({ leadId: input.leadId, withPdf: input.withPdf, force: input.force }))
   if (!EVOLUTION_API_KEY) {
     console.warn('[FollowUp] Evolution API key não configurada, skip')
     return { success: false, error: 'Evolution API not configured' }
@@ -176,7 +205,15 @@ export async function sendFollowUp(input: FollowUpInput) {
     if (!lead) return { success: false, error: 'Lead not found' }
     if (!lead.whatsapp) return { success: false, error: 'Lead sem whatsapp' }
 
+    console.log('[FollowUp] Lead carregado:', JSON.stringify({
+      id: lead.id, nome: lead.nome, etapaFunil: lead.etapaFunil,
+      followUpEnviado: lead.followUpEnviado, pdfEnviado: lead.pdfEnviado,
+      hasMarca: !!lead.marcaInteresse, hasPlano: !!lead.cotacaoPlano,
+      hasFipe: !!lead.valorFipeConsultado, hasValor: !!lead.cotacaoValor,
+    }))
+
     if (!input.force && (lead.etapaFunil === 'convertido' || lead.followUpEnviado)) {
+      console.warn('[FollowUp] BLOQUEADO — etapaFunil=', lead.etapaFunil, 'followUpEnviado=', lead.followUpEnviado, '(use force:true pra reenviar)')
       return { success: false, error: 'Lead already converted or followed up' }
     }
 
