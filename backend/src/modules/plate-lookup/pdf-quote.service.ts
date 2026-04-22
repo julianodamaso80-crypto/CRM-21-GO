@@ -1,5 +1,4 @@
 import puppeteer from 'puppeteer-core'
-import chromium from '@sparticuz/chromium'
 import { PLAN_INFO, planIdFromName } from './plan-features'
 
 export interface QuotePdfInput {
@@ -375,38 +374,22 @@ function renderHTML(input: QuotePdfInput): string {
 
 let browserPromise: Promise<import('puppeteer-core').Browser> | null = null
 
-async function resolveExecutablePath(): Promise<string> {
-  const fromEnv = process.env.PUPPETEER_EXECUTABLE_PATH
-  if (fromEnv) {
-    console.log('[PDF] Usando PUPPETEER_EXECUTABLE_PATH:', fromEnv)
-    return fromEnv
-  }
-  console.log('[PDF] Resolvendo Chromium via @sparticuz/chromium...')
-  const exec = await chromium.executablePath()
-  console.log('[PDF] @sparticuz/chromium executablePath:', exec)
-  if (!exec) throw new Error('Chromium executable não encontrado (sparticuz retornou vazio)')
-  return exec
-}
-
 async function getBrowser() {
   if (!browserPromise) {
     browserPromise = (async () => {
-      const executablePath = await resolveExecutablePath()
-      const args = [
-        ...chromium.args,
-        '--no-sandbox',
-        '--disable-setuid-sandbox',
-        '--disable-dev-shm-usage',
-        '--disable-gpu',
-        '--font-render-hinting=none',
-      ]
-      console.log('[PDF] Lançando Chromium (headless)...')
+      const executablePath = process.env.PUPPETEER_EXECUTABLE_PATH || '/usr/bin/chromium'
+      console.log('[PDF] Lançando Chromium (headless) em:', executablePath)
       const t0 = Date.now()
       const browser = await puppeteer.launch({
         headless: true,
         executablePath,
-        args,
-        defaultViewport: chromium.defaultViewport,
+        args: [
+          '--no-sandbox',
+          '--disable-setuid-sandbox',
+          '--disable-dev-shm-usage',
+          '--disable-gpu',
+          '--font-render-hinting=none',
+        ],
       })
       console.log(`[PDF] Chromium pronto em ${Date.now() - t0}ms`)
       return browser
