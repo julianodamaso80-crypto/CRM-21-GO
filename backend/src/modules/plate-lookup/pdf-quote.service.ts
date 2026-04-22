@@ -1,6 +1,6 @@
 import puppeteer from 'puppeteer-core'
 import { PLAN_INFO, planIdFromName } from './plan-features'
-import { getApplicablePlans, type QuotePlan, type PlanId } from './pricing'
+import { getAllRelevantPlans, type QuotePlanFull, type PlanId } from './pricing'
 import { LOGO_21GO_BASE64 } from './assets/logo-base64'
 
 export interface QuotePdfInput {
@@ -49,7 +49,7 @@ function addDaysBR(date: Date, days: number): string {
  * Usa categoria/combustível/cilindrada se vierem; caso contrário infere
  * pelo nome do plano selecionado e modelo.
  */
-function resolvePlans(input: QuotePdfInput): QuotePlan[] {
+function resolvePlans(input: QuotePdfInput): QuotePlanFull[] {
   // Inferência de categoria a partir do plano escolhido (fallback)
   const planId = planIdFromName(input.planoNome)
   let categoria = input.categoria || ''
@@ -63,7 +63,7 @@ function resolvePlans(input: QuotePdfInput): QuotePlan[] {
   if (!cilindrada && planId === 'moto-400') cilindrada = 300
   if (!cilindrada && planId === 'moto-1000') cilindrada = 800
 
-  const plans = getApplicablePlans(
+  const plans = getAllRelevantPlans(
     input.fipe,
     categoria,
     input.combustivel || undefined,
@@ -73,65 +73,57 @@ function resolvePlans(input: QuotePdfInput): QuotePlan[] {
 
   // Se ainda não retornou nada (pricing band não cobre), pelo menos o plano escolhido
   if (plans.length === 0) {
-    return [{ id: planId as PlanId, name: input.planoNome, monthly: input.mensalidade }]
+    return [{
+      id: planId as PlanId,
+      name: input.planoNome,
+      monthly: input.mensalidade,
+      applicable: true,
+      categoryLabel: '',
+    }]
   }
   return plans
 }
 
-function renderPlanCard(plan: QuotePlan, isSelected: boolean): string {
+/**
+ * Renderiza UMA página completa (estilo imagem de referência):
+ * título + veículo + card de benefícios + card de preço com breakdown
+ * (1º pagamento, 2º pagamento com 5%, mensalidade regular, adesivo).
+ * Cada plano aplicável vira uma página dessas — não há mais card comparativo simplificado.
+ */
+function renderPlanPage(
+  plan: QuotePlanFull,
+  input: QuotePdfInput,
+  isSelected: boolean,
+  ctx: {
+    logoUrl: string
+    taxa: number
+    hoje: string
+    validade: string
+    dueDate: string
+    veiculoTitulo: string
+  },
+  isFirst: boolean,
+): string {
   const info = PLAN_INFO[plan.id as keyof typeof PLAN_INFO]
   const features = info?.features || []
-  const incluidos = features.filter((f) => f.included).slice(0, 12)
-  const naoIncluidos = features.filter((f) => !f.included).slice(0, 4)
 
-  const featHTML =
-    incluidos
-      .map((f) => `<li class="feat yes"><span class="dot ok">&#10003;</span>${f.text}</li>`)
-      .join('') +
-    naoIncluidos
-      .map((f) => `<li class="feat no"><span class="dot no">&#215;</span>${f.text}</li>`)
-      .join('')
+  const featHTML = features
+    .map((f) =>
+      f.included
+        ? `<li class="feat yes"><span class="dot ok">&#10003;</span>${f.text}</li>`
+        : `<li class="feat no"><span class="dot no">&#215;</span>${f.text}</li>`,
+    )
+    .join('')
 
-  const badge = isSelected
-    ? `<span class="badge selected">Você selecionou</span>`
-    : plan.popular
-    ? `<span class="badge popular">Mais escolhido</span>`
-    : ''
-
-  return `
-    <div class="plan-card ${isSelected ? 'highlight' : ''}">
-      <div class="plan-card-head">
-        <div class="plan-name">${plan.name}</div>
-        ${badge}
-      </div>
-      <div class="plan-price">
-        <small>R$</small><b>${formatBRL(plan.monthly)}</b><em>/mês</em>
-      </div>
-      <ul class="features">${featHTML}</ul>
-    </div>
-  `
-}
-
-function renderHTML(input: QuotePdfInput): string {
-  const taxa = input.taxaAtivacao ?? 399
-  const mensalidade = input.mensalidade
+  const mensalidade = plan.monthly
   const descontoEarly = mensalidade * 0.95
   const stickerPct = 15
   const comAdesivo = mensalidade * (1 - stickerPct / 100)
   const adesivoMaisEmDia = comAdesivo * 0.95
 
-  const dueDate = addDaysBR(new Date(), 30)
-  const validade = addDaysBR(new Date(), 7)
-  const hoje = new Date().toLocaleDateString('pt-BR')
+  const isMotoPlan = plan.id === 'moto-400' || plan.id === 'moto-1000'
 
-  const veiculoTitulo = `${input.marca} ${input.modelo} ${input.ano}`.trim()
-  const placaLine = input.placa ? `Placa: <b>${input.placa}</b> &middot; ` : ''
-
-  const logoUrl = getLogoDataUrl()
-  const planosAplicaveis = resolvePlans(input)
-  const planoEscolhidoId = planIdFromName(input.planoNome)
-
-  const adesivoBlock = input.isMoto
+  const adesivoBlock = isMotoPlan
     ? ''
     : `
     <div class="adesivo">
@@ -161,12 +153,132 @@ function renderHTML(input: QuotePdfInput): string {
     </div>
   `
 
-  const comparativoCards = planosAplicaveis
-    .map((p) => renderPlanCard(p, p.id === planoEscolhidoId))
-    .join('')
+  const flag = isSelected ? 'SELECIONADO' : plan.popular ? 'MAIS ESCOLHIDO' : 'DISPONÍVEL'
+  const flagClass = isSelected ? 'sel' : plan.popular ? 'pop' : 'avail'
+  const subtitle = isSelected ? 'Plano selecionado por você' : `Plano ${plan.name}`
 
-  // Grid: 1, 2 ou 3 colunas conforme número de planos
-  const gridCols = planosAplicaveis.length >= 3 ? 'repeat(3, 1fr)' : planosAplicaveis.length === 2 ? 'repeat(2, 1fr)' : '1fr'
+  return `
+  <div class="page ${isFirst ? '' : 'page-break'}">
+
+    <div class="header">
+      ${ctx.logoUrl
+        ? `<img src="${ctx.logoUrl}" class="brand-logo" alt="21Go Proteção Veicular"/>`
+        : `<div style="font-weight:900;font-size:24px;color:#1B4DA1;">21Go</div>`}
+      <div class="meta">
+        <b>Simulação de Proteção Veicular</b><br/>
+        Emitida em ${ctx.hoje} &middot; válida até ${ctx.validade}
+      </div>
+    </div>
+
+    <div class="title">
+      <h1>${input.nome.split(' ')[0].toUpperCase()}, ${isFirst ? 'sua simulação está pronta!' : `confira também o plano <span class="plan-hl">${plan.name}</span>`}</h1>
+      <p>${ctx.veiculoTitulo} — ${input.placa ? `Placa: <b>${input.placa}</b> &middot; ` : ''}FIPE: <b>R$ ${formatBRL(input.fipe)}</b></p>
+    </div>
+
+    <div class="veic">
+      <div class="left">
+        <b>${ctx.veiculoTitulo}</b>
+        <span>${input.placa ? `Placa ${input.placa}` : 'Sem placa informada'}${input.cor ? ' &middot; ' + input.cor : ''}</span>
+      </div>
+      <div class="fipe">
+        <span>Valor FIPE</span>
+        <b>R$ ${formatBRL(input.fipe)}</b>
+      </div>
+    </div>
+
+    <div class="grid">
+      <div class="card">
+        <div class="plan-tab">
+          <div>
+            <div class="pname">${plan.name}</div>
+            <div class="pdesc">${subtitle}</div>
+          </div>
+          <span class="pflag ${flagClass}">${flag}</span>
+        </div>
+        <div class="beneficios-title">Benefícios incluídos</div>
+        <ul class="features">${featHTML}</ul>
+      </div>
+
+      <div class="card price-card">
+        <div class="price-head">
+          <div class="label">Plano ${plan.name}</div>
+          <div class="price"><small>R$</small> ${formatBRL(mensalidade)}<em>/mês</em></div>
+        </div>
+
+        <div class="box laranja">
+          <div class="box-head">
+            <b>1º pagamento</b>
+            <span class="amount">R$ ${formatBRL(ctx.taxa)}</span>
+          </div>
+          <div class="sub">Taxa de ativação — pagamento único</div>
+        </div>
+
+        <div class="box verde">
+          <div class="box-head">
+            <b>2º pagamento</b>
+            <span class="due">vence ${ctx.dueDate}</span>
+          </div>
+          <div class="row2">
+            <span></span>
+            <div>
+              <span class="old">R$ ${formatBRL(mensalidade)}</span>
+              <span class="amount">R$ ${formatBRL(descontoEarly)}</span>
+            </div>
+          </div>
+          <div class="sub">5% de desconto pagando antes do vencimento</div>
+        </div>
+
+        <div class="box mensal">
+          <div class="box-head">
+            <b>Mensalidade regular</b>
+            <span class="amount">R$ ${formatBRL(mensalidade)}<small>/mês</small></span>
+          </div>
+        </div>
+
+        ${adesivoBlock}
+
+        <div class="cta">Contratar pelo WhatsApp &rarr;</div>
+        <div class="susep">&#128274; Associação de proteção veicular &middot; 20 anos no RJ</div>
+      </div>
+    </div>
+
+    <div class="footer">
+      <div>
+        <b>21Go Proteção Veicular</b> &middot; Rio de Janeiro — RJ<br/>
+        WhatsApp (21) 97903-4169 &middot; 21go.site
+      </div>
+      <div class="right">
+        Simulação válida até <b>${ctx.validade}</b>
+        <span class="pill">20 anos no Rio</span>
+      </div>
+    </div>
+
+  </div>
+  `
+}
+
+function renderHTML(input: QuotePdfInput): string {
+  const taxa = input.taxaAtivacao ?? 399
+  const dueDate = addDaysBR(new Date(), 30)
+  const validade = addDaysBR(new Date(), 7)
+  const hoje = new Date().toLocaleDateString('pt-BR')
+  const veiculoTitulo = `${input.marca} ${input.modelo} ${input.ano}`.trim()
+  const logoUrl = getLogoDataUrl()
+
+  const planosAplicaveis = resolvePlans(input)
+  const planoEscolhidoId = planIdFromName(input.planoNome)
+
+  // Ordena: plano escolhido primeiro, depois os outros
+  const ordered = [...planosAplicaveis].sort((a, b) => {
+    if (a.id === planoEscolhidoId) return -1
+    if (b.id === planoEscolhidoId) return 1
+    return 0
+  })
+
+  const ctx = { logoUrl, taxa, hoje, validade, dueDate, veiculoTitulo }
+  const pagesHTML = ordered
+    .map((p, idx) => renderPlanPage(p, input, p.id === planoEscolhidoId, ctx, idx === 0))
+    .join('')
 
   return `<!doctype html>
 <html lang="pt-BR">
@@ -306,49 +418,11 @@ function renderHTML(input: QuotePdfInput): string {
   }
   .susep { font-size: 9px; color: #94A3B8; text-align: center; margin-top: 6px; }
 
-  /* COMPARATIVO — página 2 */
-  .compare-title {
-    text-align: center; margin-bottom: 14px;
-  }
-  .compare-title h2 {
-    font-size: 18px; font-weight: 800; color: #121A33; margin: 0 0 4px;
-    letter-spacing: -0.2px;
-  }
-  .compare-title p { font-size: 11.5px; color: #64748B; margin: 0; }
-
-  .plans-grid {
-    display: grid; gap: 10px;
-    grid-template-columns: ${gridCols};
-  }
-  .plan-card {
-    background: #fff; border: 1px solid #E8ECF4; border-radius: 14px;
-    padding: 14px; position: relative;
-    box-shadow: 0 4px 12px rgba(15,23,42,0.04);
-  }
-  .plan-card.highlight {
-    border: 2px solid #1B4DA1;
-    box-shadow: 0 8px 22px rgba(27,77,161,0.15);
-  }
-  .plan-card-head {
-    display: flex; align-items: center; justify-content: space-between;
-    margin-bottom: 8px;
-  }
-  .plan-name { font-size: 13px; font-weight: 800; color: #1B4DA1; }
-  .badge {
-    font-size: 9px; font-weight: 800; padding: 3px 7px; border-radius: 999px;
-  }
-  .badge.selected { background: #1B4DA1; color: #fff; }
-  .badge.popular { background: #F7963D; color: #fff; }
-  .plan-price {
-    display: flex; align-items: baseline; gap: 2px;
-    margin: 4px 0 12px; padding-bottom: 10px; border-bottom: 1px solid #F0F4FA;
-  }
-  .plan-price small { font-size: 11px; color: #64748B; font-weight: 600; }
-  .plan-price b { font-size: 22px; font-weight: 900; color: #121A33; letter-spacing: -0.5px; line-height: 1; }
-  .plan-price em { font-size: 11px; color: #64748B; font-weight: 600; font-style: normal; margin-left: 2px; }
-
-  .plan-card ul.features li { font-size: 10px; padding: 2px 0; gap: 6px; }
-  .plan-card ul.features li .dot { width: 13px; height: 13px; font-size: 8px; }
+  /* Variações da flag do plano (sel / pop / avail) */
+  .plan-tab .pflag.sel { background: #F7963D; }
+  .plan-tab .pflag.pop { background: #10B981; }
+  .plan-tab .pflag.avail { background: rgba(255,255,255,0.2); }
+  .plan-hl { color: #1B4DA1; }
 
   /* FOOTER */
   .footer {
@@ -367,150 +441,7 @@ function renderHTML(input: QuotePdfInput): string {
 </style>
 </head>
 <body>
-
-  <!-- ============ PÁGINA 1: Plano selecionado ============ -->
-  <div class="page">
-
-    <div class="header">
-      ${logoUrl
-        ? `<img src="${logoUrl}" class="brand-logo" alt="21Go Proteção Veicular"/>`
-        : `<div style="font-weight:900;font-size:24px;color:#1B4DA1;">21Go</div>`}
-      <div class="meta">
-        <b>Simulação de Proteção Veicular</b><br/>
-        Emitida em ${hoje} &middot; válida até ${validade}
-      </div>
-    </div>
-
-    <div class="title">
-      <h1>${input.nome.split(' ')[0].toUpperCase()}, sua simulação está pronta!</h1>
-      <p>${veiculoTitulo} — ${placaLine}FIPE: <b>R$ ${formatBRL(input.fipe)}</b></p>
-    </div>
-
-    <div class="veic">
-      <div class="left">
-        <b>${veiculoTitulo}</b>
-        <span>${input.placa ? `Placa ${input.placa}` : 'Sem placa informada'}${input.cor ? ' &middot; ' + input.cor : ''}</span>
-      </div>
-      <div class="fipe">
-        <span>Valor FIPE</span>
-        <b>R$ ${formatBRL(input.fipe)}</b>
-      </div>
-    </div>
-
-    <div class="grid">
-      <div class="card">
-        <div class="plan-tab">
-          <div>
-            <div class="pname">${input.planoNome}</div>
-            <div class="pdesc">Plano selecionado por você</div>
-          </div>
-          <span class="pflag">SELECIONADO</span>
-        </div>
-        <div class="beneficios-title">Benefícios incluídos</div>
-        <ul class="features">${
-          (PLAN_INFO[planoEscolhidoId as keyof typeof PLAN_INFO]?.features || [])
-            .map((f) =>
-              f.included
-                ? `<li class="feat yes"><span class="dot ok">&#10003;</span>${f.text}</li>`
-                : `<li class="feat no"><span class="dot no">&#215;</span>${f.text}</li>`,
-            )
-            .join('')
-        }</ul>
-      </div>
-
-      <div class="card price-card">
-        <div class="price-head">
-          <div class="label">Plano ${input.planoNome}</div>
-          <div class="price"><small>R$</small> ${formatBRL(mensalidade)}<em>/mês</em></div>
-        </div>
-
-        <div class="box laranja">
-          <div class="box-head">
-            <b>1º pagamento</b>
-            <span class="amount">R$ ${formatBRL(taxa)}</span>
-          </div>
-          <div class="sub">Taxa de ativação — pagamento único</div>
-        </div>
-
-        <div class="box verde">
-          <div class="box-head">
-            <b>2º pagamento</b>
-            <span class="due">vence ${dueDate}</span>
-          </div>
-          <div class="row2">
-            <span></span>
-            <div>
-              <span class="old">R$ ${formatBRL(mensalidade)}</span>
-              <span class="amount">R$ ${formatBRL(descontoEarly)}</span>
-            </div>
-          </div>
-          <div class="sub">5% de desconto pagando antes do vencimento</div>
-        </div>
-
-        <div class="box mensal">
-          <div class="box-head">
-            <b>Mensalidade regular</b>
-            <span class="amount">R$ ${formatBRL(mensalidade)}<small>/mês</small></span>
-          </div>
-        </div>
-
-        ${adesivoBlock}
-
-        <div class="cta">Contratar pelo WhatsApp &rarr;</div>
-        <div class="susep">&#128274; SUSEP — LC 213/2025</div>
-      </div>
-    </div>
-
-    <div class="footer">
-      <div>
-        <b>21Go Proteção Veicular</b> &middot; Rio de Janeiro — RJ<br/>
-        WhatsApp (21) 97903-4169 &middot; 21go.site
-      </div>
-      <div class="right">
-        Simulação válida até <b>${validade}</b>
-        <span class="pill">20 anos no Rio</span>
-      </div>
-    </div>
-
-  </div>
-
-  <!-- ============ PÁGINA 2: Comparativo de todos os planos ============ -->
-  ${planosAplicaveis.length > 1 ? `
-  <div class="page page-break">
-
-    <div class="header">
-      ${logoUrl
-        ? `<img src="${logoUrl}" class="brand-logo" alt="21Go Proteção Veicular"/>`
-        : `<div style="font-weight:900;font-size:24px;color:#1B4DA1;">21Go</div>`}
-      <div class="meta">
-        <b>Compare os planos disponíveis</b><br/>
-        Para o ${veiculoTitulo}
-      </div>
-    </div>
-
-    <div class="compare-title">
-      <h2>Todos os planos para o seu veículo</h2>
-      <p>Cada plano tem cobertura diferente. Escolha o que faz mais sentido pra você.</p>
-    </div>
-
-    <div class="plans-grid">
-      ${comparativoCards}
-    </div>
-
-    <div class="footer">
-      <div>
-        <b>21Go Proteção Veicular</b> &middot; Rio de Janeiro — RJ<br/>
-        WhatsApp (21) 97903-4169 &middot; 21go.site
-      </div>
-      <div class="right">
-        Simulação válida até <b>${validade}</b>
-        <span class="pill">20 anos no Rio</span>
-      </div>
-    </div>
-
-  </div>
-  ` : ''}
-
+  ${pagesHTML}
 </body>
 </html>`
 }
