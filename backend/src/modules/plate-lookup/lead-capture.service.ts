@@ -1,7 +1,6 @@
 import { prisma } from '../../config/database'
-import { generateQuotePdf } from './pdf-quote.service'
-import { uploadPdf, isR2Configured } from './r2-upload.service'
 import { scheduleFollowUp } from './quote-queue'
+import { sendFollowUp } from './lead-followup.service'
 
 interface PublicLeadInput {
   // Dados do formulário
@@ -32,46 +31,6 @@ interface PublicLeadInput {
   fbclid?: string
   fbp?: string
   fbc?: string
-}
-
-/**
- * Gera PDF, faz upload no R2 e retorna URL. Nunca lança — erros são logados.
- */
-async function buildAndUploadPdf(
-  leadId: string,
-  input: PublicLeadInput,
-): Promise<string | null> {
-  if (!isR2Configured()) {
-    console.warn('[LeadCapture] R2 não configurado — PDF não será gerado')
-    return null
-  }
-  if (!input.marca || !input.modelo || !input.valorFipe || !input.plano || !input.valorMensal) {
-    // Sem dados suficientes para PDF completo
-    return null
-  }
-  try {
-    const pdf = await generateQuotePdf({
-      nome: input.nome,
-      whatsapp: input.whatsapp,
-      email: input.email || null,
-      placa: input.placa || null,
-      marca: input.marca,
-      modelo: input.modelo,
-      ano: input.ano || '',
-      cor: input.cor || null,
-      fipe: input.valorFipe,
-      planoNome: input.plano,
-      mensalidade: input.valorMensal,
-      isMoto: (input.plano || '').toLowerCase().includes('moto'),
-    })
-    const key = `quotes/${new Date().toISOString().slice(0, 10)}/${leadId}.pdf`
-    const filename = `simulacao-21go-${leadId}.pdf`
-    const { url } = await uploadPdf(key, pdf, filename)
-    return url
-  } catch (err: any) {
-    console.error('[LeadCapture] Falha ao gerar/subir PDF:', err.message)
-    return null
-  }
 }
 
 export async function createPublicLead(input: PublicLeadInput, ip?: string, userAgent?: string) {
@@ -160,16 +119,17 @@ export async function createPublicLead(input: PublicLeadInput, ip?: string, user
       action = 'created'
     }
 
-    // Fora do fluxo crítico: gera PDF + agenda follow-up em paralelo (fire-and-forget)
+    // Fora do fluxo crítico (fire-and-forget):
+    //  1) Envia PDF + mensagem IMEDIATAMENTE (cliente acabou de ver a simulação)
+    //  2) Agenda follow-up de 5min como BACKUP (worker pula se followUpEnviado=true)
     ;(async () => {
-      const pdfUrl = await buildAndUploadPdf(leadId, input)
-      if (pdfUrl) {
-        await prisma.lead
-          .update({
-            where: { id: leadId },
-            data: { pdfUrl, pdfGeradoEm: new Date() },
-          })
-          .catch((err) => console.error('[LeadCapture] Falha ao salvar pdfUrl:', err.message))
+      try {
+        const result = await sendFollowUp({ leadId, withPdf: true })
+        if (!result.success) {
+          console.warn('[LeadCapture] Envio imediato falhou:', result.error)
+        }
+      } catch (err: any) {
+        console.error('[LeadCapture] Erro no envio imediato:', err.message)
       }
       await scheduleFollowUp(leadId).catch((err) =>
         console.error('[LeadCapture] Falha ao agendar follow-up:', err.message),

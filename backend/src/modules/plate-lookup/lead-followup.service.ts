@@ -84,8 +84,8 @@ async function sendText(phone: string, text: string) {
   })
 }
 
-async function sendPdfByUrl(phone: string, pdfUrl: string, caption: string, filename: string) {
-  // Evolution API — endpoint sendMedia aceita URL pública ou base64.
+async function sendPdfMedia(phone: string, media: string, caption: string, filename: string) {
+  // Evolution API — sendMedia aceita URL pública OU string base64 (sem prefixo data:).
   return fetch(`${EVOLUTION_API_URL}/message/sendMedia/${EVOLUTION_INSTANCE}`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', apikey: EVOLUTION_API_KEY },
@@ -93,25 +93,34 @@ async function sendPdfByUrl(phone: string, pdfUrl: string, caption: string, file
       number: phone,
       mediatype: 'document',
       mimetype: 'application/pdf',
-      media: pdfUrl,
+      media,
       caption,
       fileName: filename,
     }),
   })
 }
 
+interface PdfData {
+  /** URL pública (quando R2 está configurado e upload funcionou) */
+  url?: string
+  /** Buffer em memória — Evolution recebe como base64 (fallback sem R2) */
+  buffer?: Buffer
+  filename: string
+}
+
 /**
- * Garante que o lead tenha um pdfUrl. Se não tiver, tenta gerar agora.
- * Retorna a URL ou null em caso de falha.
+ * Garante que o lead tenha PDF disponível (URL R2 ou Buffer em memória).
+ * Sempre tenta gerar; só retorna null se faltar dado essencial ou Puppeteer falhar.
  */
-async function ensurePdfUrl(lead: LeadForFollowUp): Promise<string | null> {
-  if (lead.pdfUrl) return lead.pdfUrl
-  if (!isR2Configured()) return null
+async function ensurePdfData(lead: LeadForFollowUp): Promise<PdfData | null> {
+  const filename = `simulacao-21go-${lead.id}.pdf`
+  if (lead.pdfUrl) return { url: lead.pdfUrl, filename }
   if (!lead.marcaInteresse || !lead.modeloInteresse || !lead.valorFipeConsultado || !lead.cotacaoPlano || !lead.cotacaoValor) {
     return null
   }
+  let pdf: Buffer
   try {
-    const pdf = await generateQuotePdf({
+    pdf = await generateQuotePdf({
       nome: lead.nome,
       whatsapp: lead.whatsapp || '',
       email: lead.email,
@@ -124,17 +133,31 @@ async function ensurePdfUrl(lead: LeadForFollowUp): Promise<string | null> {
       mensalidade: lead.cotacaoValor,
       isMoto: (lead.cotacaoPlano || '').toLowerCase().includes('moto'),
     })
-    const key = `quotes/${new Date().toISOString().slice(0, 10)}/${lead.id}.pdf`
-    const { url } = await uploadPdf(key, pdf, `simulacao-21go-${lead.id}.pdf`)
-    await prisma.lead.update({
-      where: { id: lead.id },
-      data: { pdfUrl: url, pdfGeradoEm: new Date() },
-    })
-    return url
   } catch (err: any) {
-    console.error('[FollowUp] Falha ao gerar PDF sob demanda:', err.message)
+    console.error('[FollowUp] Falha ao gerar PDF (Puppeteer):', err.message)
     return null
   }
+
+  // Se R2 disponível, sobe e retorna URL (melhor — persistente)
+  if (isR2Configured()) {
+    try {
+      const key = `quotes/${new Date().toISOString().slice(0, 10)}/${lead.id}.pdf`
+      const { url } = await uploadPdf(key, pdf, filename)
+      await prisma.lead.update({
+        where: { id: lead.id },
+        data: { pdfUrl: url, pdfGeradoEm: new Date() },
+      })
+      return { url, filename }
+    } catch (err: any) {
+      console.warn('[FollowUp] R2 upload falhou, vai cair pro base64:', err.message)
+    }
+  }
+
+  // Fallback: envia direto via base64 (sem persistência)
+  await prisma.lead
+    .update({ where: { id: lead.id }, data: { pdfGeradoEm: new Date() } })
+    .catch(() => {})
+  return { buffer: pdf, filename }
 }
 
 /**
@@ -160,17 +183,16 @@ export async function sendFollowUp(input: FollowUpInput) {
     const phone = formatPhone(lead.whatsapp)
     const message = buildFollowUpMessage(lead as LeadForFollowUp)
 
-    let pdfUrl: string | null = null
+    let pdfData: PdfData | null = null
     if (input.withPdf !== false) {
-      pdfUrl = await ensurePdfUrl(lead as LeadForFollowUp)
+      pdfData = await ensurePdfData(lead as LeadForFollowUp)
     }
 
-    if (pdfUrl) {
-      // 1) manda PDF como documento com caption curta
+    if (pdfData) {
       const firstName = lead.nome.split(' ')[0]
       const caption = `${firstName}, aqui está sua *simulação completa* 21Go 📄`
-      await sendPdfByUrl(phone, pdfUrl, caption, `simulacao-21go-${lead.id}.pdf`)
-      // 2) em seguida a mensagem completa
+      const media = pdfData.url ?? (pdfData.buffer as Buffer).toString('base64')
+      await sendPdfMedia(phone, media, caption, pdfData.filename)
       await sendText(phone, message)
     } else {
       // Fallback: só mensagem de texto
@@ -183,13 +205,13 @@ export async function sendFollowUp(input: FollowUpInput) {
         followUpEnviado: true,
         followUpData: new Date(),
         etapaFunil: 'followup_enviado',
-        pdfEnviado: Boolean(pdfUrl),
-        pdfEnviadoEm: pdfUrl ? new Date() : null,
+        pdfEnviado: Boolean(pdfData),
+        pdfEnviadoEm: pdfData ? new Date() : null,
       },
     })
 
-    console.log(`[FollowUp] Enviado para ${lead.nome} (${phone}) — PDF: ${Boolean(pdfUrl)}`)
-    return { success: true, leadId: lead.id, phone, pdfUrl }
+    console.log(`[FollowUp] Enviado para ${lead.nome} (${phone}) — PDF: ${pdfData ? (pdfData.url ? 'url' : 'base64') : 'no'}`)
+    return { success: true, leadId: lead.id, phone, pdfSent: Boolean(pdfData) }
   } catch (err: any) {
     console.error('[FollowUp] Error:', err.message)
     return { success: false, error: err.message }
