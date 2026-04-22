@@ -557,3 +557,99 @@ export function getApplicablePlans(
 export function formatPrice(value: number): string {
   return value.toFixed(2).replace('.', ',')
 }
+
+/**
+ * Retorna TODOS os planos da 21Go com seus valores para o veículo.
+ * Diferente de getApplicablePlans (que filtra por categoria), esta função
+ * mostra o leque completo de planos com preços calculados pela faixa FIPE,
+ * marcando qual é "recomendado" para o veículo do cliente.
+ *
+ * Lógica:
+ *  - Carro normal → recomenda Básico/Do Seu Jeito/VIP/Premium
+ *  - SUV → recomenda SUV
+ *  - Moto → recomenda variante de moto pela cilindrada
+ *  - Especial (elétrico ou FIPE > 150k) → recomenda Especial
+ *
+ * Sempre retorna TODOS os planos elegíveis pela faixa FIPE (mesmo os não
+ * recomendados), para o cliente ver o leque completo.
+ */
+export interface QuotePlanFull extends QuotePlan {
+  /** true se este plano se aplica ao veículo do cliente */
+  applicable: boolean
+  /** Categoria do plano (ex: "Carro", "SUV/Caminhonete", "Moto", "Especial") */
+  categoryLabel: string
+}
+
+export function getAllRelevantPlans(
+  fipeValue: number,
+  categoria?: string,
+  combustivel?: string,
+  cilindrada?: number,
+  modelo?: string,
+): QuotePlanFull[] {
+  const cat = (categoria || '').toLowerCase()
+  const fuel = (combustivel || '').toLowerCase()
+  const mod = (modelo || '').toLowerCase()
+  const isMoto = cat.includes('moto') || cat.includes('ciclomotor') || cat.includes('triciclo')
+  const isSuvByCat = SUV_KEYWORDS.some(k => cat.includes(k))
+  const isSuvByModel = SUV_MODELS.some(k => mod.includes(k))
+  const isSuv = isSuvByCat || isSuvByModel
+  const isEletrico = ELETRICO_KEYWORDS.some(k => fuel.includes(k))
+  const isEspecial = isEletrico || fipeValue > 150000
+
+  const cc = cilindrada || 0
+
+  // Define quais ids são "aplicáveis" ao veículo
+  const applicableIds = new Set<PlanId>()
+  if (isEspecial) {
+    applicableIds.add('especial')
+  } else if (isMoto) {
+    if (cc > 0 && cc <= 400) applicableIds.add('moto-400')
+    else if (cc >= 450 && cc <= 1000) applicableIds.add('moto-1000')
+    else { applicableIds.add('moto-400'); applicableIds.add('moto-1000') }
+  } else if (isSuv) {
+    applicableIds.add('suv')
+  } else {
+    applicableIds.add('basico')
+    applicableIds.add('do-seu-jeito')
+    applicableIds.add('vip')
+    applicableIds.add('premium')
+  }
+
+  // Lista de todos os planos da 21Go com seus labels
+  const allPlans: { id: PlanId; name: string; categoryLabel: string; popular?: boolean }[] = isMoto
+    ? [
+        { id: 'moto-400', name: 'VIP Moto até 400cc', categoryLabel: 'Moto' },
+        { id: 'moto-1000', name: 'VIP Moto 450-1000cc', categoryLabel: 'Moto', popular: true },
+      ]
+    : isEspecial
+    ? [
+        { id: 'especial', name: 'Veículos Especiais', categoryLabel: 'Especial' },
+      ]
+    : isSuv
+    ? [
+        { id: 'suv', name: 'SUV / Caminhonete', categoryLabel: 'SUV', popular: true },
+      ]
+    : [
+        { id: 'basico', name: 'Básico', categoryLabel: 'Carro' },
+        { id: 'do-seu-jeito', name: 'Do Seu Jeito', categoryLabel: 'Carro' },
+        { id: 'vip', name: 'VIP', categoryLabel: 'Carro', popular: true },
+        { id: 'premium', name: 'Premium', categoryLabel: 'Carro' },
+      ]
+
+  const result: QuotePlanFull[] = []
+  for (const p of allPlans) {
+    const price = findPrice(PRICING_TABLES[p.id], fipeValue)
+    if (price) {
+      result.push({
+        id: p.id,
+        name: p.name,
+        monthly: price,
+        popular: p.popular,
+        applicable: applicableIds.has(p.id),
+        categoryLabel: p.categoryLabel,
+      })
+    }
+  }
+  return result
+}
