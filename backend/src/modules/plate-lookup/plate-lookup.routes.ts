@@ -10,6 +10,8 @@ import {
 import { createPublicLead } from './lead-capture.service'
 import { convertLead } from './lead-convert.service'
 import { sendFollowUp } from './lead-followup.service'
+import { cancelFollowUp } from './quote-queue'
+import { prisma } from '../../config/database'
 
 function normalizeKind(v: string | undefined): VehicleKind {
   return v === 'motos' ? 'motos' : 'carros'
@@ -180,6 +182,52 @@ export async function plateLookupRoutes(fastify: FastifyInstance) {
       const { id } = request.params
       const result = await sendFollowUp({ leadId: id })
       return reply.send(result)
+    },
+  )
+
+  // POST /lead/:id/whatsapp-click — Cliente clicou em "Contratar pelo WhatsApp"
+  // Cancela follow-up agendado, marca tracking e envia PDF imediato.
+  fastify.post<{ Params: { id: string } }>(
+    '/lead/:id/whatsapp-click',
+    {
+      schema: {
+        description: 'Registra clique em Contratar pelo WhatsApp — cancela follow-up de 5min e envia PDF imediato',
+        tags: ['Lead Capture'],
+      },
+    },
+    async (request: FastifyRequest<{ Params: { id: string } }>, reply: FastifyReply) => {
+      const { id } = request.params
+
+      const lead = await prisma.lead.findUnique({ where: { id } })
+      if (!lead) {
+        return reply.status(404).send({ success: false, error: 'Lead não encontrado' })
+      }
+
+      // Cancela job de follow-up (se ainda estiver agendado)
+      const cancelled = await cancelFollowUp(id).catch(() => false)
+
+      // Marca tracking de clique
+      await prisma.lead.update({
+        where: { id },
+        data: {
+          whatsappClicado: true,
+          whatsappClicadoEm: new Date(),
+          etapaFunil: lead.etapaFunil === 'cotacao_enviada' ? 'negociacao' : lead.etapaFunil,
+        },
+      })
+
+      // Dispara envio imediato do PDF (não aguarda — resposta rápida ao cliente)
+      if (!lead.pdfEnviado) {
+        ;(async () => {
+          try {
+            await sendFollowUp({ leadId: id, withPdf: true, force: true })
+          } catch (err: any) {
+            console.error('[whatsapp-click] Falha envio imediato:', err.message)
+          }
+        })()
+      }
+
+      return reply.send({ success: true, cancelled, leadId: id })
     },
   )
 

@@ -184,7 +184,7 @@ export default function CotacaoPage() {
       : `${vehicle.marca} ${vehicle.modelo} ${vehicle.ano || ''}`.trim()
   }, [vehicle])
 
-  // Helper: notify WhatsApp click to API
+  // Helper: notify WhatsApp click to API (legado + backend/CRM com envio imediato de PDF)
   const notifyWhatsAppClick = useCallback(() => {
     whatsappClicked.current = true
     followUpSent.current = true // also cancel follow-up
@@ -192,18 +192,25 @@ export default function CotacaoPage() {
       clearTimeout(abandonmentTimer.current)
       abandonmentTimer.current = null
     }
+    // Tracking legado (in-memory no Next — mantido por compat)
     fetch('/api/whatsapp-clicked', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ leadId, whatsapp: form.whatsapp }),
     }).catch(() => {})
+    // Backend CRM: cancela follow-up agendado e dispara envio imediato do PDF
+    if (leadId) {
+      fetch(`${API_BASE}/api/vehicle/lead/${leadId}/whatsapp-click`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+      }).catch(() => {})
+    }
   }, [leadId, form.whatsapp])
 
   // 5-minute abandonment timer: fires when step 2 shown, cancelled if WhatsApp clicked
   useEffect(() => {
     if (step === 2 && plans.length > 0 && !followUpSent.current && !whatsappClicked.current) {
       const sel = plans[selectedPlanIdx] || plans[0]
-      const isMoto = (sel?.name || '').toLowerCase().includes('moto')
 
       abandonmentTimer.current = setTimeout(() => {
         if (whatsappClicked.current || followUpSent.current) return
@@ -212,22 +219,10 @@ export default function CotacaoPage() {
         const veiculoLabel = getVeiculoLabel()
         const valorFormatted = sel ? `R$ ${sel.monthly.toFixed(2).replace('.', ',')}` : ''
 
-        // 1. Send follow-up message to the CLIENT
-        fetch('/api/followup', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            nome: form.nome,
-            whatsapp: form.whatsapp,
-            veiculo: veiculoLabel,
-            placa: form.placa,
-            valor: valorFormatted,
-            plano: sel?.name || '',
-            tipo: isMoto ? 'moto' : 'carro',
-          }),
-        }).catch(() => {})
+        // Follow-up do CLIENTE (texto + PDF) agora é responsabilidade do backend CRM
+        // via Bull job agendado em lead-capture.service — não duplicar aqui.
 
-        // 2. Notify JULIANO that lead abandoned
+        // Notifica JULIANO que lead abandonou
         fetch('/api/lead-abandoned', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },

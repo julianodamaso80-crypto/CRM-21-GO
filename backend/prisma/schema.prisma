@@ -17,7 +17,7 @@ datasource db {
 
 model Company {
   id       String  @id @default(uuid())
-  name     String  // "21Go Protecao Veicular"
+  name     String // "21Go Protecao Veicular"
   slug     String  @unique
   logo     String?
   website  String?
@@ -64,7 +64,7 @@ model Company {
 model User {
   id        String  @id @default(uuid())
   email     String  @unique
-  password  String  // bcrypt hashed — LGPD: dado de autenticacao
+  password  String // bcrypt hashed — LGPD: dado de autenticacao
   firstName String  @map("first_name")
   lastName  String  @map("last_name")
   avatar    String?
@@ -99,9 +99,9 @@ model User {
   updatedAt   DateTime  @updatedAt @map("updated_at")
   lastLoginAt DateTime? @map("last_login_at")
 
-  @@map("users")
   @@index([companyId])
   @@index([role])
+  @@map("users")
 }
 
 model RefreshToken {
@@ -112,8 +112,8 @@ model RefreshToken {
   expiresAt DateTime @map("expires_at")
   createdAt DateTime @default(now()) @map("created_at")
 
-  @@map("refresh_tokens")
   @@index([userId])
+  @@map("refresh_tokens")
 }
 
 // ============================================================================
@@ -121,18 +121,18 @@ model RefreshToken {
 // ============================================================================
 
 model Associado {
-  id        String @id @default(uuid())
-  companyId String @map("company_id")
+  id        String  @id @default(uuid())
+  companyId String  @map("company_id")
   company   Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
 
   // Identificacao — LGPD: dados pessoais sensiveis
   nome           String
-  cpf            String?  // LGPD: dado pessoal sensivel — unique por empresa
-  rg             String?  // LGPD: dado pessoal
+  cpf            String? // LGPD: dado pessoal sensivel — unique por empresa
+  rg             String? // LGPD: dado pessoal
   dataNascimento DateTime? @map("data_nascimento")
-  email          String?  // LGPD: dado pessoal
-  telefone       String?  // LGPD: dado pessoal
-  whatsapp       String?  // LGPD: dado pessoal
+  email          String? // LGPD: dado pessoal
+  telefone       String? // LGPD: dado pessoal
+  whatsapp       String? // LGPD: dado pessoal
 
   // Endereco
   endereco String?
@@ -151,11 +151,11 @@ model Associado {
   hinovaId String? @map("hinova_id")
 
   // MGM — Indicacao (self-reference)
-  indicadoPorId   String?    @map("indicado_por_id")
-  indicadoPor     Associado? @relation("IndicacaoMGM", fields: [indicadoPorId], references: [id], onDelete: SetNull)
+  indicadoPorId   String?     @map("indicado_por_id")
+  indicadoPor     Associado?  @relation("IndicacaoMGM", fields: [indicadoPorId], references: [id], onDelete: SetNull)
   indicados       Associado[] @relation("IndicacaoMGM")
-  totalIndicacoes Int        @default(0) @map("total_indicacoes")
-  descontoMgm     Float      @default(0) @map("desconto_mgm") // 0 a 100 (%)
+  totalIndicacoes Int         @default(0) @map("total_indicacoes")
+  descontoMgm     Float       @default(0) @map("desconto_mgm") // 0 a 100 (%)
 
   // Vendedor responsavel
   vendedorId String? @map("vendedor_id")
@@ -176,13 +176,13 @@ model Associado {
   customFields Json     @default("{}") @map("custom_fields")
 
   // Relationships
-  vehicles   Vehicle[]
-  leads      Lead[]
-  cotacoes   Cotacao[]
-  sinistros  Sinistro[]
-  vistorias  Vistoria[]
-  boletos    Boleto[]
-  npsSurveys NpsSurvey[]
+  vehicles      Vehicle[]
+  leads         Lead[]
+  cotacoes      Cotacao[]
+  sinistros     Sinistro[]
+  vistorias     Vistoria[]
+  boletos       Boleto[]
+  npsSurveys    NpsSurvey[]
   conversations Conversation[]
 
   // MGM — como indicador
@@ -192,7 +192,6 @@ model Associado {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
-  @@map("associados")
   @@unique([companyId, cpf])
   @@index([companyId])
   @@index([hinovaId])
@@ -200,6 +199,7 @@ model Associado {
   @@index([status])
   @@index([origem])
   @@index([nome])
+  @@map("associados")
 }
 
 // ============================================================================
@@ -207,8 +207,8 @@ model Associado {
 // ============================================================================
 
 model Vehicle {
-  id        String @id @default(uuid())
-  companyId String @map("company_id")
+  id        String  @id @default(uuid())
+  companyId String  @map("company_id")
   company   Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
 
   associadoId String    @map("associado_id")
@@ -252,10 +252,10 @@ model Vehicle {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
-  @@map("vehicles")
   @@unique([companyId, placa])
   @@index([associadoId])
   @@index([codigoFipe])
+  @@map("vehicles")
 }
 
 // ============================================================================
@@ -263,15 +263,15 @@ model Vehicle {
 // ============================================================================
 
 model Lead {
-  id        String @id @default(uuid())
-  companyId String @map("company_id")
+  id        String  @id @default(uuid())
+  companyId String  @map("company_id")
   company   Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
 
   // Dados do lead — LGPD: dados pessoais
-  nome      String
-  telefone  String?  // LGPD: dado pessoal
-  email     String?  // LGPD: dado pessoal
-  whatsapp  String?
+  nome     String
+  telefone String? // LGPD: dado pessoal
+  email    String? // LGPD: dado pessoal
+  whatsapp String?
 
   // Veiculo de interesse (pre-venda)
   placaInteresse  String? @map("placa_interesse")
@@ -280,10 +280,10 @@ model Lead {
   anoInteresse    Int?    @map("ano_interesse")
 
   // Cotacao FIPE (Agente Pre-Venda calcula)
-  valorFipeConsultado Float?  @map("valor_fipe_consultado")
-  cotacaoValor        Float?  @map("cotacao_valor")
-  cotacaoPlano        String? @map("cotacao_plano") // basico, completo, premium
-  cotacaoEnviada      Boolean @default(false) @map("cotacao_enviada")
+  valorFipeConsultado Float?    @map("valor_fipe_consultado")
+  cotacaoValor        Float?    @map("cotacao_valor")
+  cotacaoPlano        String?   @map("cotacao_plano") // basico, completo, premium
+  cotacaoEnviada      Boolean   @default(false) @map("cotacao_enviada")
   cotacaoData         DateTime? @map("cotacao_data")
 
   // Qualificacao
@@ -298,7 +298,7 @@ model Lead {
   agenteIaConversaId String? @map("agente_ia_conversa_id")
 
   // Funil de vendas
-  etapaFunil String @default("novo") @map("etapa_funil")
+  etapaFunil  String  @default("novo") @map("etapa_funil")
   // novo, qualificado, cotacao_enviada, negociacao, fechado, perdido
   motivoPerda String? @map("motivo_perda")
 
@@ -319,16 +319,16 @@ model Lead {
   userAgent String? @map("user_agent")
 
   // Conversão (quando lead vira cliente)
-  status          String @default("lead") // lead, cliente_ativo, cancelado
+  status          String    @default("lead") // lead, cliente_ativo, cancelado
   valorCompra     Float?    @map("valor_compra")
   produtoComprado String?   @map("produto_comprado")
   dataConversao   DateTime? @map("data_conversao")
 
   // Flags de envio de conversão offline
-  metaCapiSent     Boolean   @default(false) @map("meta_capi_sent")
-  metaCapiSentAt   DateTime? @map("meta_capi_sent_at")
-  googleAdsSent    Boolean   @default(false) @map("google_ads_sent")
-  googleAdsSentAt  DateTime? @map("google_ads_sent_at")
+  metaCapiSent    Boolean   @default(false) @map("meta_capi_sent")
+  metaCapiSentAt  DateTime? @map("meta_capi_sent_at")
+  googleAdsSent   Boolean   @default(false) @map("google_ads_sent")
+  googleAdsSentAt DateTime? @map("google_ads_sent_at")
 
   // Associado resultante (quando lead vira associado)
   associadoId String?    @map("associado_id")
@@ -347,25 +347,33 @@ model Lead {
   followUpEnviado Boolean   @default(false) @map("follow_up_enviado")
   followUpData    DateTime? @map("follow_up_data")
 
+  // PDF de cotação + tracking de intenção (clique em Contratar pelo WhatsApp)
+  pdfUrl            String?   @map("pdf_url")
+  pdfGeradoEm       DateTime? @map("pdf_gerado_em")
+  whatsappClicado   Boolean   @default(false) @map("whatsapp_clicado")
+  whatsappClicadoEm DateTime? @map("whatsapp_clicado_em")
+  pdfEnviado        Boolean   @default(false) @map("pdf_enviado")
+  pdfEnviadoEm      DateTime? @map("pdf_enviado_em")
+
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
-  @@map("leads")
   @@index([companyId])
   @@index([email])
   @@index([telefone])
   @@index([vendedorId])
   @@index([etapaFunil])
   @@index([origem])
+  @@map("leads")
 }
 
 model Cotacao {
-  id        String @id @default(uuid())
-  companyId String @map("company_id")
+  id        String  @id @default(uuid())
+  companyId String  @map("company_id")
   company   Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
 
-  leadId      String? @map("lead_id")
-  lead        Lead?   @relation(fields: [leadId], references: [id], onDelete: SetNull)
+  leadId String? @map("lead_id")
+  lead   Lead?   @relation(fields: [leadId], references: [id], onDelete: SetNull)
 
   associadoId String?    @map("associado_id")
   associado   Associado? @relation(fields: [associadoId], references: [id], onDelete: SetNull)
@@ -375,24 +383,24 @@ model Cotacao {
   // { placa, marca, modelo, ano, cor, combustivel, tipo }
 
   // Calculo (Agente Pre-Venda)
-  valorFipe   Float   @map("valor_fipe")
-  plano       String  // basico, completo, premium
-  taxaPlano   Float   @map("taxa_plano")   // ex: 0.018, 0.028, 0.038
-  taxaAdmin   Float   @map("taxa_admin")   // ex: 35.00
-  valorMensal Float   @map("valor_mensal") // resultado final
+  valorFipe   Float  @map("valor_fipe")
+  plano       String // basico, completo, premium
+  taxaPlano   Float  @map("taxa_plano") // ex: 0.018, 0.028, 0.038
+  taxaAdmin   Float  @map("taxa_admin") // ex: 35.00
+  valorMensal Float  @map("valor_mensal") // resultado final
 
   // Validade e status
   validade DateTime
-  status   String @default("pendente") // pendente, enviada, aceita, recusada, expirada
+  status   String   @default("pendente") // pendente, enviada, aceita, recusada, expirada
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
-  @@map("cotacoes")
   @@index([companyId])
   @@index([leadId])
   @@index([associadoId])
   @@index([status])
+  @@map("cotacoes")
 }
 
 // ============================================================================
@@ -417,9 +425,9 @@ model PlateLookup {
 
   createdAt DateTime @default(now()) @map("created_at")
 
-  @@map("plate_lookups")
   @@index([placa, createdAt])
   @@index([createdAt])
+  @@map("plate_lookups")
 }
 
 // ============================================================================
@@ -427,8 +435,8 @@ model PlateLookup {
 // ============================================================================
 
 model Sinistro {
-  id        String @id @default(uuid())
-  companyId String @map("company_id")
+  id        String  @id @default(uuid())
+  companyId String  @map("company_id")
   company   Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
 
   associadoId String    @map("associado_id")
@@ -438,11 +446,11 @@ model Sinistro {
   veiculo   Vehicle @relation(fields: [veiculoId], references: [id], onDelete: Cascade)
 
   // Ocorrencia
-  tipo            String // roubo, furto, colisao, incendio, terceiros
-  descricao       String? @db.Text
-  dataOcorrencia  DateTime @map("data_ocorrencia")
-  localOcorrencia String?  @map("local_ocorrencia")
-  boletimOcorrencia String? @map("boletim_ocorrencia")
+  tipo              String // roubo, furto, colisao, incendio, terceiros
+  descricao         String?  @db.Text
+  dataOcorrencia    DateTime @map("data_ocorrencia")
+  localOcorrencia   String?  @map("local_ocorrencia")
+  boletimOcorrencia String?  @map("boletim_ocorrencia")
 
   // Status (fluxo do Agente Sinistros)
   // aberto > analise > aprovado/negado > oficina > aguardando_peca > reparo > pronto > entregue > encerrado
@@ -474,29 +482,29 @@ model Sinistro {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
-  @@map("sinistros")
   @@index([companyId])
   @@index([associadoId])
   @@index([veiculoId])
   @@index([status])
   @@index([dataAbertura])
   @@index([oficinaId])
+  @@map("sinistros")
 }
 
 model Oficina {
-  id        String @id @default(uuid())
-  companyId String @map("company_id")
+  id        String  @id @default(uuid())
+  companyId String  @map("company_id")
   company   Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
 
-  nome         String
-  endereco     String?
-  cidade       String?
-  uf           String?
-  telefone     String?
-  responsavel  String?
-  especialidade String? // funilaria, pintura, mecanica_geral, eletrica, vidros
-  ativa        Boolean @default(true)
-  avaliacaoMedia Float? @map("avaliacao_media") // 0-5
+  nome           String
+  endereco       String?
+  cidade         String?
+  uf             String?
+  telefone       String?
+  responsavel    String?
+  especialidade  String? // funilaria, pintura, mecanica_geral, eletrica, vidros
+  ativa          Boolean @default(true)
+  avaliacaoMedia Float?  @map("avaliacao_media") // 0-5
 
   // Relationships
   sinistros Sinistro[]
@@ -504,9 +512,9 @@ model Oficina {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
-  @@map("oficinas")
   @@index([companyId])
   @@index([ativa])
+  @@map("oficinas")
 }
 
 // ============================================================================
@@ -514,8 +522,8 @@ model Oficina {
 // ============================================================================
 
 model Vistoria {
-  id        String @id @default(uuid())
-  companyId String @map("company_id")
+  id        String  @id @default(uuid())
+  companyId String  @map("company_id")
   company   Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
 
   associadoId String    @map("associado_id")
@@ -537,18 +545,18 @@ model Vistoria {
   vistoriador   User?   @relation("VistoriadorVistorias", fields: [vistoriadorId], references: [id], onDelete: SetNull)
 
   // Evidencias
-  fotos       Json    @default("[]") // [{ url, angulo, descricao }]
-  observacoes String? @db.Text
+  fotos            Json    @default("[]") // [{ url, angulo, descricao }]
+  observacoes      String? @db.Text
   motivoReprovacao String? @map("motivo_reprovacao")
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
-  @@map("vistorias")
   @@index([companyId])
   @@index([associadoId])
   @@index([veiculoId])
   @@index([status])
+  @@map("vistorias")
 }
 
 // ============================================================================
@@ -556,8 +564,8 @@ model Vistoria {
 // ============================================================================
 
 model Boleto {
-  id        String @id @default(uuid())
-  companyId String @map("company_id")
+  id        String  @id @default(uuid())
+  companyId String  @map("company_id")
   company   Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
 
   associadoId String    @map("associado_id")
@@ -575,11 +583,11 @@ model Boleto {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
-  @@map("boletos")
   @@index([companyId])
   @@index([associadoId])
   @@index([status])
   @@index([dataVencimento])
+  @@map("boletos")
 }
 
 // ============================================================================
@@ -587,26 +595,26 @@ model Boleto {
 // ============================================================================
 
 model NpsSurvey {
-  id        String @id @default(uuid())
-  companyId String @map("company_id")
+  id        String  @id @default(uuid())
+  companyId String  @map("company_id")
   company   Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
 
   associadoId String    @map("associado_id")
   associado   Associado @relation(fields: [associadoId], references: [id], onDelete: Cascade)
 
-  score   Int     // 0-10
+  score   Int // 0-10
   comment String?
-  channel String  // whatsapp, email, app, manual
+  channel String // whatsapp, email, app, manual
   tipo    String  @default("periodico") // onboarding, periodico, pos_sinistro, pos_atendimento
 
   respondidoEm DateTime? @map("respondido_em")
 
   createdAt DateTime @default(now()) @map("created_at")
 
-  @@map("nps_surveys")
   @@index([companyId])
   @@index([associadoId])
   @@index([score])
+  @@map("nps_surveys")
 }
 
 // ============================================================================
@@ -614,8 +622,8 @@ model NpsSurvey {
 // ============================================================================
 
 model Indicacao {
-  id        String @id @default(uuid())
-  companyId String @map("company_id")
+  id        String  @id @default(uuid())
+  companyId String  @map("company_id")
   company   Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
 
   // Quem indicou
@@ -623,9 +631,9 @@ model Indicacao {
   indicador   Associado @relation("Indicador", fields: [indicadorId], references: [id], onDelete: Cascade)
 
   // Pessoa indicada
-  indicadoNome     String @map("indicado_nome")
+  indicadoNome     String  @map("indicado_nome")
   indicadoTelefone String? @map("indicado_telefone") // LGPD: dado pessoal
-  indicadoEmail    String? @map("indicado_email")    // LGPD: dado pessoal
+  indicadoEmail    String? @map("indicado_email") // LGPD: dado pessoal
 
   // Progresso
   leadId String? @unique @map("lead_id")
@@ -645,10 +653,10 @@ model Indicacao {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
-  @@map("indicacoes")
   @@index([companyId])
   @@index([indicadorId])
   @@index([status])
+  @@map("indicacoes")
 }
 
 // ============================================================================
@@ -656,15 +664,15 @@ model Indicacao {
 // ============================================================================
 
 model Projeto {
-  id        String @id @default(uuid())
-  companyId String @map("company_id")
+  id        String  @id @default(uuid())
+  companyId String  @map("company_id")
   company   Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
 
   titulo      String
-  descricao   String?  @db.Text
-  status      String   @default("backlog") // backlog, todo, doing, review, done
-  prioridade  String   @default("media")   // alta, media, baixa
-  tags        String[] @default([])
+  descricao   String?   @db.Text
+  status      String    @default("backlog") // backlog, todo, doing, review, done
+  prioridade  String    @default("media") // alta, media, baixa
+  tags        String[]  @default([])
   responsavel String?
   dataEntrega DateTime? @map("data_entrega")
   progresso   Int       @default(0) // 0-100
@@ -672,9 +680,9 @@ model Projeto {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
-  @@map("projetos")
   @@index([companyId])
   @@index([status])
+  @@map("projetos")
 }
 
 // ============================================================================
@@ -682,8 +690,8 @@ model Projeto {
 // ============================================================================
 
 model Conversation {
-  id        String @id @default(uuid())
-  companyId String @map("company_id")
+  id        String  @id @default(uuid())
+  companyId String  @map("company_id")
   company   Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
 
   // Pode ser de associado ou lead
@@ -694,7 +702,7 @@ model Conversation {
   lead   Lead?   @relation(fields: [leadId], references: [id], onDelete: SetNull)
 
   channel String @default("whatsapp") // whatsapp, chat, email
-  status  String @default("open")     // open, assigned, resolved, closed
+  status  String @default("open") // open, assigned, resolved, closed
 
   // Atribuicao
   assignedToId String? @map("assigned_to_id")
@@ -711,17 +719,17 @@ model Conversation {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
-  @@map("conversations")
   @@index([companyId])
   @@index([associadoId])
   @@index([leadId])
   @@index([assignedToId])
   @@index([status])
+  @@map("conversations")
 }
 
 model Message {
-  id        String @id @default(uuid())
-  companyId String @map("company_id")
+  id        String  @id @default(uuid())
+  companyId String  @map("company_id")
   company   Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
 
   conversationId String       @map("conversation_id")
@@ -733,12 +741,12 @@ model Message {
   sender String // associado, agente, vendedor, sistema
 
   // Se enviado por user
-  senderId String? @map("sender_id")
-  senderUser User?  @relation("SentMessages", fields: [senderId], references: [id], onDelete: SetNull)
+  senderId   String? @map("sender_id")
+  senderUser User?   @relation("SentMessages", fields: [senderId], references: [id], onDelete: SetNull)
 
   // Tipo e mídia (integração Evolution API / WhatsApp)
   messageType   String  @default("text") @map("message_type") // text, audio, image, video, document, sticker, location
-  mediaBase64   String? @db.Text @map("media_base64")
+  mediaBase64   String? @map("media_base64") @db.Text
   mediaMimeType String? @map("media_mime_type")
   mediaUrl      String? @map("media_url")
   direction     String  @default("inbound") // inbound (cliente→nós), outbound (nós→cliente)
@@ -748,10 +756,10 @@ model Message {
 
   createdAt DateTime @default(now()) @map("created_at")
 
-  @@map("messages")
   @@index([conversationId])
   @@index([createdAt])
   @@index([whatsappMessageId])
+  @@map("messages")
 }
 
 // ============================================================================
@@ -759,25 +767,25 @@ model Message {
 // ============================================================================
 
 model AIAgent {
-  id        String @id @default(uuid())
-  companyId String @map("company_id")
+  id        String  @id @default(uuid())
+  companyId String  @map("company_id")
   company   Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
 
-  nome        String
-  agentId     String  @map("agent_id") // slug: 21go-chief, agente-pre-venda, etc
-  descricao   String?
-  icon        String?
-  tier        Int     @default(1) // 0=orchestrator, 1=specialist
-  squad       String  @default("21go-squad")
-  type        String  @default("internal") // internal, customer_facing
-  provider    String  @default("anthropic") // openai, anthropic, google
-  model       String  @default("claude-sonnet-4-6")
-  temperature Float   @default(0.5)
-  maxTokens   Int     @default(2000) @map("max_tokens")
-  systemPrompt String @db.Text @map("system_prompt")
+  nome         String
+  agentId      String  @map("agent_id") // slug: 21go-chief, agente-pre-venda, etc
+  descricao    String?
+  icon         String?
+  tier         Int     @default(1) // 0=orchestrator, 1=specialist
+  squad        String  @default("21go-squad")
+  type         String  @default("internal") // internal, customer_facing
+  provider     String  @default("anthropic") // openai, anthropic, google
+  model        String  @default("claude-sonnet-4-6")
+  temperature  Float   @default(0.5)
+  maxTokens    Int     @default(2000) @map("max_tokens")
+  systemPrompt String  @map("system_prompt") @db.Text
 
   // Permissoes (RBAC dos agentes)
-  allowedRoles  Json @default("[]") @map("allowed_roles")  // ["vendedor","gestor","admin"]
+  allowedRoles  Json @default("[]") @map("allowed_roles") // ["vendedor","gestor","admin"]
   allowedScopes Json @default("[]") @map("allowed_scopes") // ["associados","leads","analytics"]
   permissions   Json @default("{}") // { canCreateLeads, canUpdateLeads, canTransferToHuman, ... }
 
@@ -790,14 +798,14 @@ model AIAgent {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
-  @@map("ai_agents")
   @@index([companyId])
   @@index([agentId])
+  @@map("ai_agents")
 }
 
 model KnowledgeBase {
-  id        String @id @default(uuid())
-  companyId String @map("company_id")
+  id        String  @id @default(uuid())
+  companyId String  @map("company_id")
   company   Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
 
   nome      String
@@ -810,8 +818,8 @@ model KnowledgeBase {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
-  @@map("knowledge_bases")
   @@index([companyId])
+  @@map("knowledge_bases")
 }
 
 model KnowledgeDocument {
@@ -820,7 +828,7 @@ model KnowledgeDocument {
   knowledgeBase   KnowledgeBase @relation(fields: [knowledgeBaseId], references: [id], onDelete: Cascade)
 
   nome       String
-  sourceType String @map("source_type") // pdf, txt, url, text, crm_data
+  sourceType String  @map("source_type") // pdf, txt, url, text, crm_data
   fileName   String? @map("file_name")
   fileSize   Int?    @map("file_size")
   status     String  @default("pending") // pending, processing, completed, failed
@@ -828,8 +836,8 @@ model KnowledgeDocument {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
-  @@map("knowledge_documents")
   @@index([knowledgeBaseId])
+  @@map("knowledge_documents")
 }
 
 // ============================================================================
@@ -837,12 +845,12 @@ model KnowledgeDocument {
 // ============================================================================
 
 model Automacao {
-  id        String @id @default(uuid())
-  companyId String @map("company_id")
+  id        String  @id @default(uuid())
+  companyId String  @map("company_id")
   company   Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
 
   nome       String
-  trigger    String  // evento que dispara
+  trigger    String // evento que dispara
   conditions Json    @default("[]") // condicoes para executar
   actions    Json    @default("[]") // acoes a executar
   ativa      Boolean @default(true)
@@ -850,8 +858,8 @@ model Automacao {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
-  @@map("automacoes")
   @@index([companyId])
+  @@map("automacoes")
 }
 
 // ============================================================================
@@ -859,28 +867,28 @@ model Automacao {
 // ============================================================================
 
 model AuditLog {
-  id        String @id @default(uuid())
-  companyId String @map("company_id")
+  id        String  @id @default(uuid())
+  companyId String  @map("company_id")
   company   Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
 
-  userId    String? @map("user_id")
-  user      User?   @relation(fields: [userId], references: [id], onDelete: SetNull)
+  userId String? @map("user_id")
+  user   User?   @relation(fields: [userId], references: [id], onDelete: SetNull)
 
-  action    String  // create, update, delete, login, logout, export, access_sensitive_data
-  resource  String  // associado, lead, sinistro, boleto, etc
-  resourceId String? @map("resource_id")
+  action      String // create, update, delete, login, logout, export, access_sensitive_data
+  resource    String // associado, lead, sinistro, boleto, etc
+  resourceId  String? @map("resource_id")
   description String?
-  changes   Json?   // { before: {}, after: {} }
-  ipAddress String? @map("ip_address")
-  userAgent String? @map("user_agent")
+  changes     Json? // { before: {}, after: {} }
+  ipAddress   String? @map("ip_address")
+  userAgent   String? @map("user_agent")
 
   createdAt DateTime @default(now()) @map("created_at")
 
-  @@map("audit_logs")
   @@index([companyId])
   @@index([userId])
   @@index([resource, resourceId])
   @@index([createdAt])
+  @@map("audit_logs")
 }
 
 // ============================================================================
@@ -888,15 +896,15 @@ model AuditLog {
 // ============================================================================
 
 model Pipe {
-  id        String @id @default(uuid())
-  companyId String @map("company_id")
+  id        String  @id @default(uuid())
+  companyId String  @map("company_id")
   company   Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
 
   name        String
   description String?
   icon        String?
-  color       String @default("#1B4DA1")
-  status      String @default("active") // active, archived
+  color       String   @default("#1B4DA1")
+  status      String   @default("active") // active, archived
   tags        String[] @default([])
 
   phases           Phase[]
@@ -906,8 +914,8 @@ model Pipe {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
-  @@map("pipes")
   @@index([companyId])
+  @@map("pipes")
 }
 
 model Phase {
@@ -918,9 +926,9 @@ model Phase {
   pipe   Pipe   @relation(fields: [pipeId], references: [id], onDelete: Cascade)
 
   name        String
-  color       String @default("#6B7280")
+  color       String  @default("#6B7280")
   position    Int
-  probability Int    @default(0) // 0-100
+  probability Int     @default(0) // 0-100
   isWon       Boolean @default(false) @map("is_won")
   isLost      Boolean @default(false) @map("is_lost")
 
@@ -929,8 +937,8 @@ model Phase {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
-  @@map("phases")
   @@index([pipeId, position])
+  @@map("phases")
 }
 
 model FieldDefinition {
@@ -952,26 +960,26 @@ model FieldDefinition {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
-  @@map("field_definitions")
   @@unique([pipeId, name])
+  @@map("field_definitions")
 }
 
 model Card {
   id        String @id @default(uuid())
   companyId String @map("company_id")
 
-  pipeId         String @map("pipe_id")
-  pipe           Pipe   @relation(fields: [pipeId], references: [id], onDelete: Cascade)
+  pipeId String @map("pipe_id")
+  pipe   Pipe   @relation(fields: [pipeId], references: [id], onDelete: Cascade)
 
   currentPhaseId String @map("current_phase_id")
   currentPhase   Phase  @relation(fields: [currentPhaseId], references: [id])
 
   title       String
   description String?
-  status      String @default("active") // active, done, archived
+  status      String  @default("active") // active, done, archived
 
-  createdById  String @map("created_by_id")
-  createdBy    User   @relation("CreatedCards", fields: [createdById], references: [id])
+  createdById String @map("created_by_id")
+  createdBy   User   @relation("CreatedCards", fields: [createdById], references: [id])
 
   assignedToId String? @map("assigned_to_id")
   assignedTo   User?   @relation("AssignedCards", fields: [assignedToId], references: [id], onDelete: SetNull)
@@ -984,18 +992,18 @@ model Card {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
-  @@map("cards")
   @@index([companyId, pipeId])
   @@index([currentPhaseId])
   @@index([status])
+  @@map("cards")
 }
 
 model CardFieldValue {
   id        String @id @default(uuid())
   companyId String @map("company_id")
 
-  cardId            String          @map("card_id")
-  card              Card            @relation(fields: [cardId], references: [id], onDelete: Cascade)
+  cardId String @map("card_id")
+  card   Card   @relation(fields: [cardId], references: [id], onDelete: Cascade)
 
   fieldDefinitionId String          @map("field_definition_id")
   fieldDefinition   FieldDefinition @relation(fields: [fieldDefinitionId], references: [id], onDelete: Cascade)
@@ -1005,8 +1013,8 @@ model CardFieldValue {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
-  @@map("card_field_values")
   @@unique([cardId, fieldDefinitionId])
+  @@map("card_field_values")
 }
 
 // ============================================================================
@@ -1014,27 +1022,27 @@ model CardFieldValue {
 // ============================================================================
 
 model Ouvidoria {
-  id        String @id @default(uuid())
-  companyId String @default("company-21go") @map("company_id")
+  id        String  @id @default(uuid())
+  companyId String  @default("company-21go") @map("company_id")
   company   Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
 
-  tipo      String // reclamacao, sugestao, denuncia
-  nome      String? // null para denuncia anonima
-  telefone  String? // null para denuncia anonima
-  assunto   String? // usado na denuncia
-  mensagem  String? // reclamacao/sugestao
+  tipo       String // reclamacao, sugestao, denuncia
+  nome       String? // null para denuncia anonima
+  telefone   String? // null para denuncia anonima
+  assunto    String? // usado na denuncia
+  mensagem   String? // reclamacao/sugestao
   comentario String? // denuncia
-  arquivos  Json    @default("[]") // nomes dos arquivos
+  arquivos   Json    @default("[]") // nomes dos arquivos
 
-  status    String  @default("pendente") // pendente, em_analise, resolvido
-  resposta  String? // resposta interna da diretoria
+  status   String  @default("pendente") // pendente, em_analise, resolvido
+  resposta String? // resposta interna da diretoria
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
-  @@map("ouvidoria")
   @@index([companyId])
   @@index([tipo])
   @@index([status])
   @@index([createdAt])
+  @@map("ouvidoria")
 }
