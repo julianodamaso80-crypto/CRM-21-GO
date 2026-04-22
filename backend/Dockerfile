@@ -54,4 +54,5 @@ RUN npx prisma generate
 
 EXPOSE 3333
 
-CMD ["npm", "run", "dev"]
+# Aplica migrations pendentes antes de subir (idempotente — não faz nada se já aplicadas)
+CMD npx prisma migrate deploy && npm run dev

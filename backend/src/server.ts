@@ -40,6 +40,7 @@ import { cotacoesRoutes } from './modules/cotacoes/cotacoes.routes'
 import { indicacoesRoutes } from './modules/indicacoes/indicacoes.routes'
 import { projectsRoutes } from './modules/projects/projects.routes'
 import { plateLookupRoutes } from './modules/plate-lookup/plate-lookup.routes'
+import { startReengajamentoWorker } from './modules/plate-lookup/lead-followup.service'
 import { webhookEvolutionRoutes } from './modules/webhook-evolution/webhook-evolution.routes'
 
 const port = Number(process.env.PORT) || env.PORT || 3333
@@ -233,6 +234,14 @@ async function bootstrap() {
       await socketService.initialize(fastify)
     } catch (err) {
       console.warn('[WebSocket] Failed to initialize:', err)
+    }
+
+    // Worker de reengajamento: a cada 60s, busca leads que receberam follow-up
+    // há mais de 5 min, não clicaram em "Contratar pelo WhatsApp" e não responderam.
+    try {
+      startReengajamentoWorker()
+    } catch (err) {
+      console.warn('[Reengajamento] Failed to start worker:', err)
     }
 
     console.log(`

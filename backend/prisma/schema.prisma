@@ -347,6 +347,11 @@ model Lead {
   followUpEnviado Boolean   @default(false) @map("follow_up_enviado")
   followUpData    DateTime? @map("follow_up_data")
 
+  // Reengajamento automático: 5 min após o follow-up, se cliente não clicou
+  // em "Contratar pelo WhatsApp" e não respondeu, reengaja com mensagem leve.
+  reengajamentoEnviado Boolean   @default(false) @map("reengajamento_enviado")
+  reengajamentoData    DateTime? @map("reengajamento_data")
+
   // PDF de cotação + tracking de intenção (clique em Contratar pelo WhatsApp)
   pdfUrl            String?   @map("pdf_url")
   pdfGeradoEm       DateTime? @map("pdf_gerado_em")

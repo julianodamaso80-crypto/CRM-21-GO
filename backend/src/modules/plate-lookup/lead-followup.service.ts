@@ -29,6 +29,30 @@ type LeadForFollowUp = {
   pdfUrl: string | null
 }
 
+function buildReengajamentoMessage(lead: LeadForFollowUp): string {
+  const firstName = lead.nome.split(' ')[0]
+  const isMoto =
+    (lead.marcaInteresse || '').toLowerCase().includes('moto') ||
+    (lead.cotacaoPlano || '').toLowerCase().includes('moto')
+  const tipo = isMoto ? 'moto' : 'carro'
+  const veiculo =
+    lead.modeloInteresse && lead.modeloInteresse !== '(manual)' && lead.modeloInteresse !== '(informado manualmente)'
+      ? `${lead.marcaInteresse} ${lead.modeloInteresse}`.trim()
+      : tipo === 'moto'
+      ? 'sua moto'
+      : 'seu carro'
+
+  const lines = [
+    `Oi *${firstName}*! Tudo bem? 😊`,
+    ``,
+    `Vi que você fez a simulação d${isMoto ? 'a' : 'o'} *${veiculo}* há pouco — ficou alguma dúvida sobre as coberturas?`,
+    ``,
+    `Me responde por aqui que eu te ajudo agora 🚀`,
+  ]
+
+  return lines.join('\n')
+}
+
 function buildFollowUpMessage(lead: LeadForFollowUp): string {
   const firstName = lead.nome.split(' ')[0]
   const isMoto =
@@ -237,5 +261,135 @@ export async function sendFollowUp(input: FollowUpInput) {
   } catch (err: any) {
     console.error('[FollowUp] Error:', err.message)
     return { success: false, error: err.message }
+  }
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
+ * REENGAJAMENTO automático — 5 min após follow-up
+ *
+ * Se o cliente não clicou em "Contratar pelo WhatsApp" e não respondeu,
+ * manda uma mensagem leve perguntando se ficou alguma dúvida.
+ * ───────────────────────────────────────────────────────────────────────── */
+
+const REENGAJAMENTO_DELAY_MS = 5 * 60 * 1000 // 5 minutos
+
+/**
+ * Verifica se o lead respondeu via WhatsApp depois do follow-up.
+ * Conta como "respondeu" qualquer message inbound em qualquer conversation
+ * desse lead com createdAt >= followUpData.
+ */
+async function leadRespondeuAposFollowUp(leadId: string, since: Date): Promise<boolean> {
+  const inbound = await prisma.message.findFirst({
+    where: {
+      direction: 'inbound',
+      createdAt: { gte: since },
+      conversation: { leadId },
+    },
+    select: { id: true },
+  })
+  return Boolean(inbound)
+}
+
+export async function sendReengajamento(leadId: string) {
+  if (!EVOLUTION_API_KEY) {
+    console.warn('[Reengajamento] Evolution API key não configurada, skip')
+    return { success: false, error: 'Evolution API not configured' }
+  }
+
+  const lead = await prisma.lead.findUnique({ where: { id: leadId } })
+  if (!lead) return { success: false, error: 'Lead not found' }
+  if (!lead.whatsapp) return { success: false, error: 'Lead sem whatsapp' }
+
+  // Guards: não envia se já enviou, se converteu, se cliente clicou ou respondeu
+  if (lead.reengajamentoEnviado) return { success: false, error: 'Já reengajado' }
+  if (lead.etapaFunil === 'convertido' || lead.etapaFunil === 'perdido') {
+    return { success: false, error: `etapaFunil=${lead.etapaFunil}` }
+  }
+  if (lead.whatsappClicado) return { success: false, error: 'Cliente clicou no botão' }
+  if (!lead.followUpData) return { success: false, error: 'Sem followUpData' }
+
+  if (await leadRespondeuAposFollowUp(lead.id, lead.followUpData)) {
+    // Cliente já respondeu — não precisa reengajar, marca como enviado pra não voltar
+    await prisma.lead.update({
+      where: { id: lead.id },
+      data: { reengajamentoEnviado: true, reengajamentoData: new Date() },
+    })
+    return { success: false, error: 'Cliente respondeu' }
+  }
+
+  const phone = formatPhone(lead.whatsapp)
+  const message = buildReengajamentoMessage(lead as LeadForFollowUp)
+
+  try {
+    await sendText(phone, message)
+    await prisma.lead.update({
+      where: { id: lead.id },
+      data: { reengajamentoEnviado: true, reengajamentoData: new Date() },
+    })
+    console.log(`[Reengajamento] Enviado para ${lead.nome} (${phone})`)
+    return { success: true, leadId: lead.id, phone }
+  } catch (err: any) {
+    console.error('[Reengajamento] Error:', err.message)
+    return { success: false, error: err.message }
+  }
+}
+
+/**
+ * Worker: processa leads pendentes de reengajamento.
+ * Roda em loop (chamado pelo startReengajamentoWorker no startup).
+ */
+async function processReengajamentosPendentes() {
+  const cutoff = new Date(Date.now() - REENGAJAMENTO_DELAY_MS)
+
+  const pendentes = await prisma.lead.findMany({
+    where: {
+      followUpEnviado: true,
+      reengajamentoEnviado: false,
+      whatsappClicado: false,
+      followUpData: { lte: cutoff },
+      whatsapp: { not: null },
+      etapaFunil: { notIn: ['convertido', 'perdido'] },
+    },
+    select: { id: true },
+    take: 50, // limite por ciclo pra não sobrecarregar
+  })
+
+  if (pendentes.length === 0) return
+
+  console.log(`[Reengajamento] Processando ${pendentes.length} lead(s) pendente(s)`)
+  for (const { id } of pendentes) {
+    try {
+      await sendReengajamento(id)
+    } catch (err: any) {
+      console.error(`[Reengajamento] Falha em lead ${id}:`, err.message)
+    }
+  }
+}
+
+let reengajamentoInterval: NodeJS.Timeout | null = null
+
+/**
+ * Inicia o worker que processa reengajamentos pendentes a cada 60s.
+ * Chamar uma vez no startup do servidor.
+ */
+export function startReengajamentoWorker() {
+  if (reengajamentoInterval) return
+  console.log('[Reengajamento] Worker iniciado (intervalo: 60s, delay: 5min)')
+  // Roda imediatamente, depois a cada 60s
+  processReengajamentosPendentes().catch(err =>
+    console.error('[Reengajamento] Worker init error:', err.message),
+  )
+  reengajamentoInterval = setInterval(() => {
+    processReengajamentosPendentes().catch(err =>
+      console.error('[Reengajamento] Worker tick error:', err.message),
+    )
+  }, 60_000)
+}
+
+export function stopReengajamentoWorker() {
+  if (reengajamentoInterval) {
+    clearInterval(reengajamentoInterval)
+    reengajamentoInterval = null
+    console.log('[Reengajamento] Worker parado')
   }
 }
