@@ -46,8 +46,6 @@ function buildReengajamentoMessage(lead: LeadForFollowUp): string {
     `Oi *${firstName}*! Tudo bem? 😊`,
     ``,
     `Vi que você fez a simulação d${isMoto ? 'a' : 'o'} *${veiculo}* há pouco — ficou alguma dúvida sobre as coberturas?`,
-    ``,
-    `Me responde por aqui que eu te ajudo agora 🚀`,
   ]
 
   return lines.join('\n')
