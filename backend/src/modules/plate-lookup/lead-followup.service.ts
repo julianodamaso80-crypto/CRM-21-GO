@@ -224,6 +224,33 @@ export async function sendFollowUp(input: FollowUpInput) {
       return { success: false, error: 'Lead already converted or followed up' }
     }
 
+    // DEBOUNCE GLOBAL POR WHATSAPP — regra dura contra spam
+    // Se o MESMO WhatsApp já recebeu follow-up nas últimas 24h (em QUALQUER lead),
+    // não envia de novo. Protege contra o caso Ramon: cliente faz 2 cotações com
+    // carros diferentes e o sistema cria 2 leads — sem isso ele recebe 2 PDFs.
+    if (!input.force) {
+      const cutoff = new Date(Date.now() - 24 * 60 * 60 * 1000)
+      const recentSent = await prisma.lead.findFirst({
+        where: {
+          whatsapp: lead.whatsapp,
+          followUpEnviado: true,
+          followUpData: { gte: cutoff },
+          id: { not: lead.id },
+        },
+        select: { id: true, followUpData: true },
+      })
+      if (recentSent) {
+        console.warn('[FollowUp] BLOQUEADO (debounce 24h) — whatsapp', lead.whatsapp,
+          'recebeu follow-up no lead', recentSent.id, 'em', recentSent.followUpData?.toISOString())
+        // Marca este lead como "já enviado" pra evitar re-tentativas em cascata
+        await prisma.lead.update({
+          where: { id: lead.id },
+          data: { followUpEnviado: true, followUpData: new Date() },
+        }).catch(() => {})
+        return { success: false, error: 'Debounce 24h por whatsapp' }
+      }
+    }
+
     const phone = formatPhone(lead.whatsapp)
     const message = buildFollowUpMessage(lead as LeadForFollowUp)
 
@@ -269,12 +296,12 @@ export async function sendFollowUp(input: FollowUpInput) {
  * manda uma mensagem leve perguntando se ficou alguma dúvida.
  * ───────────────────────────────────────────────────────────────────────── */
 
-const REENGAJAMENTO_DELAY_MS = 5 * 60 * 1000 // 5 minutos
+const REENGAJAMENTO_DELAY_MS = 5 * 60 * 1000 // mínimo: 5 minutos após follow-up
+const REENGAJAMENTO_JANELA_MAX_MS = 15 * 60 * 1000 // máximo: 15 minutos — depois disso, cancela (janela de oportunidade perdida, vendedor provavelmente já pegou)
 
 /**
  * Verifica se o lead respondeu via WhatsApp depois do follow-up.
- * Conta como "respondeu" qualquer message inbound em qualquer conversation
- * desse lead com createdAt >= followUpData.
+ * Busca inbound do cliente no conversation do lead.
  */
 async function leadRespondeuAposFollowUp(leadId: string, since: Date): Promise<boolean> {
   const inbound = await prisma.message.findFirst({
@@ -305,6 +332,40 @@ export async function sendReengajamento(leadId: string) {
   }
   if (lead.whatsappClicado) return { success: false, error: 'Cliente clicou no botão' }
   if (!lead.followUpData) return { success: false, error: 'Sem followUpData' }
+
+  // JANELA TEMPORAL ESTRITA — evita o caso Wellington (reengajamento 41min após follow-up
+  // por cima da conversa do vendedor). Se a janela de 15min já passou, marca como enviado
+  // e cancela pra sempre.
+  const followUpAge = Date.now() - lead.followUpData.getTime()
+  if (followUpAge > REENGAJAMENTO_JANELA_MAX_MS) {
+    console.log(`[Reengajamento] Janela expirada (${Math.round(followUpAge / 60000)}min > 15min) — cancelando lead ${lead.id}`)
+    await prisma.lead.update({
+      where: { id: lead.id },
+      data: { reengajamentoEnviado: true, reengajamentoData: new Date() },
+    }).catch(() => {})
+    return { success: false, error: 'Janela de reengajamento expirada' }
+  }
+
+  // DEBOUNCE POR WHATSAPP — se o mesmo WhatsApp já recebeu reengajamento nas últimas 24h
+  // (em outro lead), não envia de novo. Protege contra o caso Ramon (2 cotações = 2 leads).
+  const cutoff24h = new Date(Date.now() - 24 * 60 * 60 * 1000)
+  const recentReengaj = await prisma.lead.findFirst({
+    where: {
+      whatsapp: lead.whatsapp,
+      reengajamentoEnviado: true,
+      reengajamentoData: { gte: cutoff24h },
+      id: { not: lead.id },
+    },
+    select: { id: true },
+  })
+  if (recentReengaj) {
+    console.log(`[Reengajamento] BLOQUEADO (debounce 24h) — whatsapp já reengajado no lead ${recentReengaj.id}`)
+    await prisma.lead.update({
+      where: { id: lead.id },
+      data: { reengajamentoEnviado: true, reengajamentoData: new Date() },
+    }).catch(() => {})
+    return { success: false, error: 'Debounce 24h por whatsapp' }
+  }
 
   if (await leadRespondeuAposFollowUp(lead.id, lead.followUpData)) {
     // Cliente já respondeu — não precisa reengajar, marca como enviado pra não voltar
@@ -337,14 +398,16 @@ export async function sendReengajamento(leadId: string) {
  * Roda em loop (chamado pelo startReengajamentoWorker no startup).
  */
 async function processReengajamentosPendentes() {
-  const cutoff = new Date(Date.now() - REENGAJAMENTO_DELAY_MS)
+  const cutoffMin = new Date(Date.now() - REENGAJAMENTO_DELAY_MS)       // >= 5min atrás
+  const cutoffMax = new Date(Date.now() - REENGAJAMENTO_JANELA_MAX_MS)  // <= 15min atrás
 
   const pendentes = await prisma.lead.findMany({
     where: {
       followUpEnviado: true,
       reengajamentoEnviado: false,
       whatsappClicado: false,
-      followUpData: { lte: cutoff },
+      // Janela de oportunidade: follow-up entre 5min e 15min atrás
+      followUpData: { lte: cutoffMin, gte: cutoffMax },
       whatsapp: { not: null },
       etapaFunil: { notIn: ['convertido', 'perdido'] },
     },

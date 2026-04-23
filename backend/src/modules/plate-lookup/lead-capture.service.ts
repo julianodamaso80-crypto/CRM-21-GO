@@ -1,5 +1,4 @@
 import { prisma } from '../../config/database'
-import { scheduleFollowUp } from './quote-queue'
 import { sendFollowUp } from './lead-followup.service'
 
 interface PublicLeadInput {
@@ -67,10 +66,9 @@ export async function createPublicLead(input: PublicLeadInput, ip?: string, user
           cotacaoPlano: input.plano || existing.cotacaoPlano,
           cotacaoEnviada: true,
           cotacaoData: new Date(),
-          // Cliente refez cotação → libera novo envio de PDF/follow-up
-          followUpEnviado: false,
-          pdfEnviado: false,
-          pdfUrl: null,
+          // NÃO resetamos followUpEnviado/pdfEnviado: o debounce global por
+          // WhatsApp (em sendFollowUp) garante que o cliente não receba PDF
+          // duplicado se refizer cotação.
           gclid: input.gclid || existing.gclid,
           fbclid: input.fbclid || existing.fbclid,
           fbp: input.fbp || existing.fbp,
@@ -123,14 +121,15 @@ export async function createPublicLead(input: PublicLeadInput, ip?: string, user
       action = 'created'
     }
 
-    console.log(`[LeadCapture] Lead ${action} id=${leadId} — disparando envio imediato (force:true)`)
+    console.log(`[LeadCapture] Lead ${action} id=${leadId} — disparando envio imediato`)
 
-    // Fora do fluxo crítico (fire-and-forget):
-    //  1) Envia PDF + mensagem IMEDIATAMENTE (cliente acabou de ver a simulação)
-    //  2) Agenda follow-up de 5min como BACKUP (worker pula se followUpEnviado=true)
+    // Fire-and-forget: envia PDF + mensagem imediatamente (msg 1 de 2).
+    // Reengajamento (msg 2) é disparado 5min depois pelo worker de reengajamento
+    // SÓ se o cliente não engajou. O debounce em sendFollowUp evita PDF duplicado
+    // se o cliente refizer cotação.
     ;(async () => {
       try {
-        const result = await sendFollowUp({ leadId, withPdf: true, force: true })
+        const result = await sendFollowUp({ leadId, withPdf: true })
         if (!result.success) {
           console.warn('[LeadCapture] Envio imediato falhou:', result.error)
         } else {
@@ -139,9 +138,6 @@ export async function createPublicLead(input: PublicLeadInput, ip?: string, user
       } catch (err: any) {
         console.error('[LeadCapture] Erro no envio imediato:', err.message, err.stack)
       }
-      await scheduleFollowUp(leadId).catch((err) =>
-        console.error('[LeadCapture] Falha ao agendar follow-up:', err.message),
-      )
     })()
 
     return { success: true, leadId, action }
