@@ -29,7 +29,12 @@ export interface QuotePdfInput {
   combustivel?: string | null
   /** Cilindrada da moto em cc. Opcional. */
   cilindrada?: number | null
+  /** Carro de aplicativo (Uber, 99, etc.) — adiciona +R$ 20/mês em todos os planos. */
+  carroApp?: boolean | null
 }
+
+/** Carro de app: +R$ 20/mes em todos os planos exibidos. */
+const CARRO_APP_EXTRA = 20
 
 /* ─────────────────────────────────────────────────────────────────────────
  * Logo — embutida em base64 no bundle (sem I/O em runtime)
@@ -117,7 +122,7 @@ export function resolvePlans(input: QuotePdfInput): QuotePlanFull[] {
     combustivel = 'ELETRICO'
   }
 
-  const plans = getAllRelevantPlans(
+  const plansRaw = getAllRelevantPlans(
     input.fipe,
     categoria,
     combustivel || undefined,
@@ -126,14 +131,19 @@ export function resolvePlans(input: QuotePdfInput): QuotePlanFull[] {
   )
 
   // Se nada bateu (pricing band não cobre), devolve pelo menos o plano selecionado
-  if (plans.length === 0) {
-    return [{
-      id: planId,
-      name: input.planoNome,
-      monthly: input.mensalidade,
-      applicable: true,
-      categoryLabel: '',
-    }]
+  const plans = plansRaw.length === 0
+    ? [{
+        id: planId,
+        name: input.planoNome,
+        monthly: input.mensalidade,
+        applicable: true,
+        categoryLabel: '',
+      }]
+    : plansRaw
+
+  // Se for carro de aplicativo, soma +R$ 20/mês em TODOS os planos exibidos.
+  if (input.carroApp) {
+    return plans.map((p) => ({ ...p, monthly: p.monthly + CARRO_APP_EXTRA }))
   }
   return plans
 }
@@ -321,7 +331,8 @@ function renderHTML(input: QuotePdfInput): string {
 
   const planosAplicaveis = resolvePlans(input)
   // Identifica o plano selecionado pelo valor primeiro (defesa robusta),
-  // caindo no nome só se não houver match por valor.
+  // caindo no nome só se não houver match por valor. Usa valor PURO (sem
+  // o extra de carroApp) pois o detectPlanByValue cruza com PRICING_TABLES.
   const planoEscolhidoId =
     detectPlanByValue(input.fipe, input.mensalidade) || planIdFromName(input.planoNome)
 
@@ -345,7 +356,10 @@ function renderHTML(input: QuotePdfInput): string {
   const planoReferencia =
     refOrder.map((id) => planosAplicaveis.find((p) => p.id === id)).find(Boolean) ||
     planosAplicaveis[0]
-  const taxa = Math.max(200, (planoReferencia?.monthly || input.mensalidade) + 50)
+  // Subtrai o extra de carroApp pra fórmula da adesão usar valor RAW.
+  // Extra é só na mensalidade, não na taxa de adesão.
+  const referenciaRaw = (planoReferencia?.monthly || input.mensalidade) - (input.carroApp ? CARRO_APP_EXTRA : 0)
+  const taxa = Math.max(200, referenciaRaw + 50)
 
   const ctx = { logoUrl, hoje, validade, dueDate, veiculoTitulo, taxa }
   const pagesHTML = ordered

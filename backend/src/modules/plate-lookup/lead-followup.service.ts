@@ -27,6 +27,7 @@ type LeadForFollowUp = {
   valorFipeConsultado: number | null
   email: string | null
   pdfUrl: string | null
+  carroApp: boolean
 }
 
 function buildReengajamentoMessage(lead: LeadForFollowUp): string {
@@ -162,6 +163,7 @@ async function ensurePdfData(lead: LeadForFollowUp): Promise<PdfData | null> {
       planoNome: lead.cotacaoPlano!,
       mensalidade: lead.cotacaoValor!,
       isMoto: (lead.cotacaoPlano || '').toLowerCase().includes('moto'),
+      carroApp: lead.carroApp,
     })
     console.log('[FollowUp] PDF buffer ok —', pdf.length, 'bytes')
   } catch (err: any) {

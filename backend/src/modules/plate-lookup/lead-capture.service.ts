@@ -20,6 +20,9 @@ interface PublicLeadInput {
   plano?: string
   valorMensal?: number
 
+  // Carro de aplicativo (Uber, 99) — adiciona +R$ 20/mes na mensalidade
+  carroApp?: boolean
+
   // Tracking
   utmSource?: string
   utmMedium?: string
@@ -66,6 +69,7 @@ export async function createPublicLead(input: PublicLeadInput, ip?: string, user
           cotacaoPlano: input.plano || existing.cotacaoPlano,
           cotacaoEnviada: true,
           cotacaoData: new Date(),
+          carroApp: typeof input.carroApp === 'boolean' ? input.carroApp : existing.carroApp,
           // NÃO resetamos followUpEnviado/pdfEnviado: o debounce global por
           // WhatsApp (em sendFollowUp) garante que o cliente não receba PDF
           // duplicado se refizer cotação.
@@ -96,6 +100,7 @@ export async function createPublicLead(input: PublicLeadInput, ip?: string, user
           cotacaoPlano: input.plano || null,
           cotacaoEnviada: true,
           cotacaoData: new Date(),
+          carroApp: input.carroApp || false,
 
           qualificadoPor: 'site',
           scoreQualificacao: 50,

@@ -476,6 +476,7 @@ export default function CotacaoPage() {
           valorFipe: v.fipeValue,
           plano: defaultPlan.name,
           valorMensal: defaultPlan.monthly,
+          carroApp: form.carroApp === 'sim',
           ...tracking.utms,
           gclid: tracking.clickIds.gclid,
           fbclid: tracking.clickIds.fbclid,
@@ -533,6 +534,7 @@ export default function CotacaoPage() {
               valorFipe: v.fipeValue,
               plano: 'EXCLUIDO',
               valorMensal: 0,
+              carroApp: form.carroApp === 'sim',
               ...tracking.utms,
               gclid: tracking.clickIds.gclid,
               fbclid: tracking.clickIds.fbclid,
@@ -622,7 +624,9 @@ export default function CotacaoPage() {
 
   const selectedPlan = plans[selectedPlanIdx] || null
   const planInfo = selectedPlan ? PLAN_INFO[selectedPlan.id as PlanId] : null
-  const price = selectedPlan?.monthly || 0
+  // Carro de aplicativo: +R$ 20/mês na mensalidade (regra 21Go)
+  const carroAppExtra = form.carroApp === 'sim' ? 20 : 0
+  const price = (selectedPlan?.monthly || 0) + carroAppExtra
   const priceFormatted = formatPrice(price)
   const isManualQuote = vehicle?.modelo === '(informado manualmente)'
   const vehicleLabel = vehicle
@@ -941,11 +945,6 @@ export default function CotacaoPage() {
                         </button>
                       ))}
                     </div>
-                    {form.carroApp === 'sim' && (
-                      <p className="mt-2 text-xs text-[#F7963D] font-medium">
-                        Rastreador obrigatório · +R$ 100,00 na adesão · +R$ 20,00/mês na mensalidade
-                      </p>
-                    )}
                   </div>
                 </div>
 

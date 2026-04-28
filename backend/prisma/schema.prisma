@@ -352,6 +352,10 @@ model Lead {
   reengajamentoEnviado Boolean   @default(false) @map("reengajamento_enviado")
   reengajamentoData    DateTime? @map("reengajamento_data")
 
+  // Carro de aplicativo (Uber, 99, etc.) — adiciona +R$ 20/mês na mensalidade
+  // de TODOS os planos exibidos (site, PDF, mensagens). Regra 21Go.
+  carroApp Boolean @default(false) @map("carro_app")
+
   // PDF de cotação + tracking de intenção (clique em Contratar pelo WhatsApp)
   pdfUrl            String?   @map("pdf_url")
   pdfGeradoEm       DateTime? @map("pdf_gerado_em")
