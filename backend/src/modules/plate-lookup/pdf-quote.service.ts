@@ -150,11 +150,11 @@ function renderPlanPage(
   isSelected: boolean,
   ctx: {
     logoUrl: string
-    taxa: number
     hoje: string
     validade: string
     dueDate: string
     veiculoTitulo: string
+    taxa: number
   },
   isFirst: boolean,
 ): string {
@@ -170,6 +170,7 @@ function renderPlanPage(
     .join('')
 
   const mensalidade = plan.monthly
+  const taxa = ctx.taxa
   const descontoEarly = mensalidade * 0.95
   const stickerPct = 15
   const comAdesivo = mensalidade * (1 - stickerPct / 100)
@@ -262,9 +263,9 @@ function renderPlanPage(
         <div class="box laranja">
           <div class="box-head">
             <b>1º pagamento</b>
-            <span class="amount">R$ ${formatBRL(ctx.taxa)}</span>
+            <span class="amount">R$ ${formatBRL(taxa)}</span>
           </div>
-          <div class="sub">Taxa de ativação — pagamento único</div>
+          <div class="sub">Ativação do plano — pagamento único</div>
         </div>
 
         <div class="box verde">
@@ -312,7 +313,6 @@ function renderPlanPage(
 }
 
 function renderHTML(input: QuotePdfInput): string {
-  const taxa = input.taxaAtivacao ?? 399
   const dueDate = addDaysBR(new Date(), 30)
   const validade = addDaysBR(new Date(), 7)
   const hoje = new Date().toLocaleDateString('pt-BR')
@@ -332,7 +332,22 @@ function renderHTML(input: QuotePdfInput): string {
     return 0
   })
 
-  const ctx = { logoUrl, taxa, hoje, validade, dueDate, veiculoTitulo }
+  /**
+   * Regra 21Go para taxa de adesão (única por veículo, não por plano):
+   *   taxa = mensalidade do plano de referência + R$ 50, mínimo R$ 200
+   * Plano de referência:
+   *   - Carros normais → VIP
+   *   - SUV → SUV (único)
+   *   - Moto → Moto 450-1000cc (senão Moto 400)
+   *   - Especial → Especial (único)
+   */
+  const refOrder: PlanId[] = ['vip', 'suv', 'moto-1000', 'moto-400', 'especial']
+  const planoReferencia =
+    refOrder.map((id) => planosAplicaveis.find((p) => p.id === id)).find(Boolean) ||
+    planosAplicaveis[0]
+  const taxa = Math.max(200, (planoReferencia?.monthly || input.mensalidade) + 50)
+
+  const ctx = { logoUrl, hoje, validade, dueDate, veiculoTitulo, taxa }
   const pagesHTML = ordered
     .map((p, idx) => renderPlanPage(p, input, p.id === planoEscolhidoId, ctx, idx === 0))
     .join('')

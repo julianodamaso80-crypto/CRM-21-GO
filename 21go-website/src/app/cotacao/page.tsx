@@ -38,6 +38,7 @@ interface FormData {
   email: string
   placa: string
   leilao: 'nao' | 'leilao' | 'remarcado'
+  carroApp: 'nao' | 'sim'
 }
 
 interface VehicleData {
@@ -162,6 +163,7 @@ export default function CotacaoPage() {
     email: '',
     placa: '',
     leilao: 'nao',
+    carroApp: 'nao',
   })
 
   const set = useCallback((field: keyof FormData, value: string) => {
@@ -915,6 +917,36 @@ export default function CotacaoPage() {
                       </p>
                     )}
                   </div>
+
+                  {/* Carro de aplicativo */}
+                  <div>
+                    <label className="block text-sm font-semibold text-[#121A33] mb-2">É carro de aplicativo (Uber, 99, etc.)?</label>
+                    <div className="grid grid-cols-2 gap-3">
+                      {([
+                        { value: 'nao', label: 'Não' },
+                        { value: 'sim', label: 'Sim' },
+                      ] as const).map(opt => (
+                        <button
+                          key={opt.value}
+                          type="button"
+                          disabled={loading}
+                          onClick={() => set('carroApp', opt.value)}
+                          className={`py-3.5 rounded-2xl border-2 text-sm font-semibold transition-all duration-200 disabled:opacity-50 ${
+                            form.carroApp === opt.value
+                              ? 'border-[#375191] bg-[#375191]/10 text-[#375191] shadow-sm'
+                              : 'border-[#D1DFFA] bg-[#F7F8FC] text-[#64748B] hover:border-[#375191]/40'
+                          }`}
+                        >
+                          {opt.label}
+                        </button>
+                      ))}
+                    </div>
+                    {form.carroApp === 'sim' && (
+                      <p className="mt-2 text-xs text-[#F7963D] font-medium">
+                        Rastreador obrigatório · +R$ 100,00 na adesão · +R$ 20,00/mês na mensalidade
+                      </p>
+                    )}
+                  </div>
                 </div>
 
                 {/* API Error */}
@@ -1179,13 +1211,13 @@ export default function CotacaoPage() {
                   </div>
 
                   <div className="border-t border-[#E8ECF4] pt-4 mb-6 space-y-4 text-sm">
-                    {/* 1º PAGAMENTO — Taxa de ativação */}
+                    {/* 1º PAGAMENTO — Ativação do plano */}
                     <div className="bg-[#FFF7ED] border border-[#F7963D]/20 rounded-xl p-4">
                       <div className="flex justify-between items-center">
                         <span className="font-bold text-[#121A33]">1º pagamento</span>
                         <span className="font-extrabold text-[#F7963D] text-xl">R$ {formatPrice(taxaAtivacao)}</span>
                       </div>
-                      <p className="text-xs text-[#F7963D] font-semibold mt-1">Taxa de ativação — pagamento único</p>
+                      <p className="text-xs text-[#F7963D] font-semibold mt-1">Ativação do plano — pagamento único</p>
                     </div>
 
                     {/* 2º PAGAMENTO — Mensalidade com desconto */}
