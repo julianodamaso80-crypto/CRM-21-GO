@@ -1128,7 +1128,7 @@ export default function CotacaoPage() {
                     setExcluded(false)
                     setVehicle(null)
                     setPlans([])
-                    setForm({ nome: '', whatsapp: '', email: '', placa: '', leilao: 'nao' })
+                    setForm({ nome: '', whatsapp: '', email: '', placa: '', leilao: 'nao', carroApp: 'nao' })
                   }}
                   className="inline-flex items-center gap-2 text-sm text-[#64748B] hover:text-[#121A33] transition-colors"
                 >
@@ -1354,7 +1354,7 @@ export default function CotacaoPage() {
                   className="inline-flex items-center gap-2 text-sm text-[#64748B] hover:text-[#121A33] transition-colors">
                   <ArrowLeft className="w-4 h-4" /> Editar dados
                 </button>
-                <button onClick={() => { setStep(1); setForm({ nome: '', whatsapp: '', email: '', placa: '', leilao: 'nao' }); setVehicle(null); setPlans([]); setShowFallback(false); setFallbackFipe(0); setExcluded(false); setSearchMode('placa'); setFipeMarcaCode(''); setFipeModeloCode(''); setFipeAnoCode(''); whatsappClicked.current = false }}
+                <button onClick={() => { setStep(1); setForm({ nome: '', whatsapp: '', email: '', placa: '', leilao: 'nao', carroApp: 'nao' }); setVehicle(null); setPlans([]); setShowFallback(false); setFallbackFipe(0); setExcluded(false); setSearchMode('placa'); setFipeMarcaCode(''); setFipeModeloCode(''); setFipeAnoCode(''); whatsappClicked.current = false }}
                   className="text-sm text-[#375191] hover:text-[#3D72DE] transition-colors">
                   Nova simulação
                 </button>
