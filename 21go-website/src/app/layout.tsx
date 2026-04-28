@@ -8,7 +8,6 @@ import { GTMProvider } from '@/components/GTMProvider'
 import { SchemaOrg } from '@/components/seo/SchemaOrg'
 import SmoothScrollProvider from '@/components/SmoothScrollProvider'
 import MobileCTA from '@/components/MobileCTA'
-import SloganPopup from '@/components/SloganPopup'
 
 /* Barlow = equivalente web da fonte DIN (família oficial da 21Go) */
 const barlow = Barlow({
@@ -51,7 +50,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <Footer />
           <WhatsAppButton />
           <MobileCTA />
-          <SloganPopup />
         </SmoothScrollProvider>
       </body>
     </html>
