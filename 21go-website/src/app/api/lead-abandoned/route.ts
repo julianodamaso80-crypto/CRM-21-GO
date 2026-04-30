@@ -36,7 +36,7 @@ export async function POST(request: NextRequest) {
       `Valor: ${valor || 'N/A'}/m\u{EA}s`,
       `Origem: ${origemLabel}`,
       `Carro de app: ${carroAppLabel}`,
-      `Seguro atual: ${seguroLabel}`,
+      `Seguro/prote\u{E7}\u{E3}o atual: ${seguroLabel}`,
       ``,
       `\u{23F0} J\u{E1} se passaram 5 minutos sem contato.`,
       `Entre em contato AGORA pra recuperar essa venda!`,

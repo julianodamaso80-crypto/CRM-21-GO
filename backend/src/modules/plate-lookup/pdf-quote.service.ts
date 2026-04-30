@@ -33,6 +33,8 @@ export interface QuotePdfInput {
   carroApp?: boolean | null
   /** Origem do veículo: "nao" | "leilao" | "remarcado". Quando leilão/remarcado, indenização cobre 80% da FIPE. */
   leilao?: string | null
+  /** Seguro/proteção atual do veículo (texto livre — ex: "Porto Seguro", "Allianz"). */
+  seguroAtual?: string | null
 }
 
 /** Carro de app: +R$ 20/mes em todos os planos exibidos. */
@@ -188,6 +190,17 @@ function renderPlanPage(
   const comAdesivo = mensalidade * (1 - stickerPct / 100)
   const adesivoMaisEmDia = comAdesivo * 0.95
 
+  /* Mercado Pago — gross-up pra receber o valor liquido na hora.
+   * Taxas estimadas conservadoras (recebimento imediato no cartao):
+   *   - 1x a vista: 4,98%
+   *   - 12x parcelado: 11% (margem segura sobre a faixa tipica 8,99%-13%)
+   */
+  const MP_FEE_AVISTA = 0.0498
+  const MP_FEE_12X = 0.11
+  const taxaAvista = taxa / (1 - MP_FEE_AVISTA)
+  const taxa12xTotal = taxa / (1 - MP_FEE_12X)
+  const taxa12xParcela = taxa12xTotal / 12
+
   const isMotoPlan = plan.id === 'moto-400' || plan.id === 'moto-1000'
 
   const adesivoBlock = isMotoPlan
@@ -236,6 +249,13 @@ function renderPlanPage(
   if (input.carroApp) {
     condicoesItems.push(
       `<div class="cond-item"><span class="cond-icon">🚕</span><div><b>Carro de aplicativo</b><span>Uber, 99 e similares. Adicional de R$ 20/mês já incluso na mensalidade</span></div></div>`,
+    )
+  }
+  if (input.seguroAtual && input.seguroAtual.trim()) {
+    const seguroEscaped = input.seguroAtual.trim()
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+    condicoesItems.push(
+      `<div class="cond-item"><span class="cond-icon">🛡️</span><div><b>Seguro/proteção atual</b><span>${seguroEscaped}</span></div></div>`,
     )
   }
   const condicoesBlock = condicoesItems.length
@@ -295,9 +315,17 @@ function renderPlanPage(
         <div class="box laranja">
           <div class="box-head">
             <b>1º pagamento</b>
-            <span class="amount">R$ ${formatBRL(taxa)}</span>
+            <span class="badge-ativacao">Ativação</span>
           </div>
-          <div class="sub">Ativação do plano &middot; pagamento único</div>
+          <div class="ativ-row">
+            <span class="ativ-label">À vista no cartão</span>
+            <span class="ativ-amount laranja">R$ ${formatBRL(taxaAvista)}</span>
+          </div>
+          <div class="ativ-row">
+            <span class="ativ-label">ou 12x de</span>
+            <span class="ativ-amount verde">R$ ${formatBRL(taxa12xParcela)}</span>
+          </div>
+          <div class="sub-ativ">Pagamento único de ativação do plano &middot; cartão de crédito</div>
         </div>
 
         <div class="box verde">
@@ -504,6 +532,22 @@ function renderHTML(input: QuotePdfInput): string {
   .box.laranja { background: #FFF7ED; border: 1px solid rgba(247,150,61,0.2); }
   .box.laranja .amount { font-size: 14px; font-weight: 900; color: #F7963D; }
   .box.laranja .sub { font-size: 9.5px; color: #F7963D; font-weight: 600; margin-top: 2px; }
+
+  /* Ativacao — duas opcoes (a vista e 12x) com mesmo destaque visual */
+  .badge-ativacao {
+    background: #F7963D; color: #fff; font-size: 9px; font-weight: 800;
+    padding: 2px 7px; border-radius: 999px;
+    text-transform: uppercase; letter-spacing: 0.5px;
+  }
+  .ativ-row {
+    display: flex; justify-content: space-between; align-items: baseline;
+    margin-top: 5px;
+  }
+  .ativ-label { font-size: 10px; color: #64748B; font-weight: 600; }
+  .ativ-amount { font-size: 17px; font-weight: 900; letter-spacing: -0.3px; }
+  .ativ-amount.laranja { color: #F7963D; }
+  .ativ-amount.verde { color: #10B981; }
+  .sub-ativ { font-size: 9px; color: #94A3B8; margin-top: 5px; line-height: 1.3; }
   .box.verde { background: #F0FDF4; border: 1px solid rgba(16,185,129,0.2); }
   .box.verde .row2 { display: flex; justify-content: space-between; align-items: center; margin-top: 4px; }
   .box.verde .due { font-size: 10px; color: #64748B; }

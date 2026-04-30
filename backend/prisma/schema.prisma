@@ -361,9 +361,9 @@ model Lead {
   // exibida no PDF, na mensagem ao cliente e na notificação interna.
   leilao String?
 
-  // Seguro atual do veículo (texto livre — ex: "Porto Seguro", "Mapfre").
-  // Null = cliente declarou não ter seguro / não respondeu. Apenas pra
-  // qualificação interna e abordagem do corretor (não exibimos no PDF).
+  // Seguro/proteção atual do veículo (texto livre — ex: "Porto Seguro", "Allianz").
+  // Null = cliente declarou não ter seguro/proteção / não respondeu. Exibido no
+  // PDF, na mensagem ao cliente e na notificação ao corretor.
   seguroAtual String? @map("seguro_atual")
 
   // PDF de cotação + tracking de intenção (clique em Contratar pelo WhatsApp)

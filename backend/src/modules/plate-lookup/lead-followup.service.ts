@@ -29,6 +29,7 @@ type LeadForFollowUp = {
   pdfUrl: string | null
   carroApp: boolean
   leilao: string | null
+  seguroAtual: string | null
 }
 
 /** Rotulo amigavel pra origem do veiculo (leilao / remarcado / nao). */
@@ -110,6 +111,9 @@ function buildExcludedMessage(lead: LeadForFollowUp): string {
   const origem = leilaoLabel(lead.leilao)
   if (origem) lines.push(`• Origem: *${origem}*`)
   if (lead.carroApp) lines.push(`• Carro de aplicativo: *Sim* (Uber/99)`)
+  if (lead.seguroAtual && lead.seguroAtual.trim()) {
+    lines.push(`• Seguro/proteção atual: *${lead.seguroAtual.trim()}*`)
+  }
 
   lines.push('')
   lines.push('')
@@ -148,6 +152,9 @@ function buildFollowUpMessage(lead: LeadForFollowUp): string {
   const extras: string[] = []
   if (origem) extras.push(`📌 *Veículo de ${origem.toLowerCase()}*: indenização de 80% da FIPE`)
   if (lead.carroApp) extras.push(`🚕 *Carro de aplicativo* (Uber/99): adicional de R$ 20/mês já incluso`)
+  if (lead.seguroAtual && lead.seguroAtual.trim()) {
+    extras.push(`🛡️ *Seguro/proteção atual*: ${lead.seguroAtual.trim()}`)
+  }
   if (extras.length) {
     lines.push('')
     lines.push(...extras)
@@ -246,6 +253,7 @@ async function ensurePdfData(lead: LeadForFollowUp): Promise<PdfData | null> {
       isMoto: (lead.cotacaoPlano || '').toLowerCase().includes('moto'),
       carroApp: lead.carroApp,
       leilao: lead.leilao,
+      seguroAtual: lead.seguroAtual,
     })
     console.log('[FollowUp] PDF buffer ok —', pdf.length, 'bytes')
   } catch (err: any) {

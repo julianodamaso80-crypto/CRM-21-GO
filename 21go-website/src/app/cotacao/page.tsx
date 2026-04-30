@@ -648,6 +648,18 @@ export default function CotacaoPage() {
 
   // Lógica de pagamento: 1º = taxa ativação, 2º = mensalidade com desconto 5%
   const taxaAtivacao = 399
+
+  /* Mercado Pago — gross-up pra receber o valor liquido na hora.
+   * Taxas estimadas conservadoras (recebimento imediato no cartao):
+   *   - 1x a vista: 4,98%
+   *   - 12x parcelado: 11% (margem segura sobre a faixa tipica 8,99%-13%)
+   * Atualizar quando tivermos os numeros reais do painel da conta.
+   */
+  const MP_FEE_AVISTA = 0.0498
+  const MP_FEE_12X = 0.11
+  const ativacaoAvista = taxaAtivacao / (1 - MP_FEE_AVISTA)
+  const ativacaoTotal12x = taxaAtivacao / (1 - MP_FEE_12X)
+  const ativacaoParcela12x = ativacaoTotal12x / 12
   const today = new Date()
   const dayOfMonth = today.getDate()
   const currentMonth = today.getMonth()
@@ -959,7 +971,7 @@ export default function CotacaoPage() {
 
                   {/* Seguro atual */}
                   <div>
-                    <label className="block text-sm font-semibold text-[#121A33] mb-2">Esse carro possui seguro?</label>
+                    <label className="block text-sm font-semibold text-[#121A33] mb-2">Esse carro possui seguro ou proteção?</label>
                     <div className="grid grid-cols-2 gap-3">
                       {([
                         { value: 'nao', label: 'Não' },
@@ -986,11 +998,11 @@ export default function CotacaoPage() {
                     {form.temSeguro === 'sim' && (
                       <div className="mt-3">
                         <PillInput
-                          label="Qual seguro?"
+                          label="Qual o seguro ou proteção?"
                           name="nomeSeguro"
                           value={form.nomeSeguro}
                           onChange={v => set('nomeSeguro', v)}
-                          placeholder="Ex: Porto Seguro, Mapfre, Bradesco..."
+                          placeholder="Ex: Porto Seguro, Allianz, Proteção Itamaraty..."
                           disabled={loading}
                         />
                       </div>
@@ -1147,7 +1159,7 @@ export default function CotacaoPage() {
                 </p>
 
                 <a
-                  href={`https://wa.me/5521979034169?text=${encodeURIComponent(`Olá! Fiz uma simulação no site mas meu veículo precisa de cotação especial.\nNome: ${form.nome}\nWhatsApp: ${form.whatsapp}\nPlaca: ${form.placa}\nVeículo: ${vehicle.marca} ${vehicle.modelo} ${vehicle.ano}\nFIPE: R$ ${vehicle.fipeValue.toLocaleString('pt-BR')}${form.leilao !== 'nao' ? `\nOrigem: ${form.leilao === 'leilao' ? 'Leilão' : 'Remarcado'}` : ''}${form.carroApp === 'sim' ? `\nCarro de aplicativo: Sim (Uber/99)` : ''}${form.temSeguro === 'sim' ? `\nSeguro atual: ${form.nomeSeguro.trim() || 'Sim (não informado)'}` : ''}\nPode me ajudar?`)}`}
+                  href={`https://wa.me/5521979034169?text=${encodeURIComponent(`Olá! Fiz uma simulação no site mas meu veículo precisa de cotação especial.\nNome: ${form.nome}\nWhatsApp: ${form.whatsapp}\nPlaca: ${form.placa}\nVeículo: ${vehicle.marca} ${vehicle.modelo} ${vehicle.ano}\nFIPE: R$ ${vehicle.fipeValue.toLocaleString('pt-BR')}${form.leilao !== 'nao' ? `\nOrigem: ${form.leilao === 'leilao' ? 'Leilão' : 'Remarcado'}` : ''}${form.carroApp === 'sim' ? `\nCarro de aplicativo: Sim (Uber/99)` : ''}${form.temSeguro === 'sim' ? `\nSeguro/proteção atual: ${form.nomeSeguro.trim() || 'Sim (não informado)'}` : ''}\nPode me ajudar?`)}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   onClick={() => {
@@ -1260,13 +1272,25 @@ export default function CotacaoPage() {
                   </div>
 
                   <div className="border-t border-[#E8ECF4] pt-4 mb-6 space-y-4 text-sm">
-                    {/* 1º PAGAMENTO — Ativação do plano */}
+                    {/* 1º PAGAMENTO — Ativação do plano (cartão à vista ou 12x) */}
                     <div className="bg-[#FFF7ED] border border-[#F7963D]/20 rounded-xl p-4">
-                      <div className="flex justify-between items-center">
+                      <div className="flex items-center justify-between mb-2">
                         <span className="font-bold text-[#121A33]">1º pagamento</span>
-                        <span className="font-extrabold text-[#F7963D] text-xl">R$ {formatPrice(taxaAtivacao)}</span>
+                        <span className="text-[10px] uppercase tracking-wider font-bold text-[#F7963D] bg-[#F7963D]/10 px-2 py-0.5 rounded-full">Ativação</span>
                       </div>
-                      <p className="text-xs text-[#F7963D] font-semibold mt-1">Ativação do plano · pagamento único</p>
+                      <div className="space-y-1.5">
+                        <div className="flex items-baseline justify-between">
+                          <span className="text-xs text-[#64748B] font-semibold">À vista no cartão</span>
+                          <span className="font-extrabold text-[#F7963D] text-xl">R$ {formatPrice(ativacaoAvista)}</span>
+                        </div>
+                        <div className="flex items-baseline justify-between">
+                          <span className="text-xs text-[#64748B] font-semibold">ou 12x de</span>
+                          <span className="font-extrabold text-[#10B981] text-xl">R$ {formatPrice(ativacaoParcela12x)}</span>
+                        </div>
+                      </div>
+                      <p className="text-[10px] text-[#94A3B8] mt-2 leading-tight">
+                        Pagamento único de ativação do plano · cartão de crédito
+                      </p>
                     </div>
 
                     {/* 2º PAGAMENTO — Mensalidade com desconto */}
@@ -1370,7 +1394,7 @@ export default function CotacaoPage() {
                   </div>
                   )}
 
-                  <a href={`https://wa.me/5521979034169?text=${encodeURIComponent(`Olá! Fiz uma simulação no site.\nNome: ${form.nome}\nWhatsApp: ${form.whatsapp}${form.email ? `\nE-mail: ${form.email}` : ''}\nPlaca: ${form.placa}${form.leilao !== 'nao' ? `\nOrigem: ${form.leilao === 'leilao' ? 'Leilão' : 'Remarcado'}` : ''}${form.carroApp === 'sim' ? `\nCarro de aplicativo: Sim (Uber/99)` : ''}${form.temSeguro === 'sim' ? `\nSeguro atual: ${form.nomeSeguro.trim() || 'Sim (não informado)'}` : ''}\nVeículo: ${vehicleLabel}\nFIPE: R$ ${fipeFormatted}\nPlano: ${selectedPlan.name}\nMensalidade: R$ ${priceFormatted}/mês\nAdesão: R$ ${formatPrice(taxaAtivacao)}\nQuero contratar!`)}`}
+                  <a href={`https://wa.me/5521979034169?text=${encodeURIComponent(`Olá! Fiz uma simulação no site.\nNome: ${form.nome}\nWhatsApp: ${form.whatsapp}${form.email ? `\nE-mail: ${form.email}` : ''}\nPlaca: ${form.placa}${form.leilao !== 'nao' ? `\nOrigem: ${form.leilao === 'leilao' ? 'Leilão' : 'Remarcado'}` : ''}${form.carroApp === 'sim' ? `\nCarro de aplicativo: Sim (Uber/99)` : ''}${form.temSeguro === 'sim' ? `\nSeguro/proteção atual: ${form.nomeSeguro.trim() || 'Sim (não informado)'}` : ''}\nVeículo: ${vehicleLabel}\nFIPE: R$ ${fipeFormatted}\nPlano: ${selectedPlan.name}\nMensalidade: R$ ${priceFormatted}/mês\nAtivação: R$ ${formatPrice(ativacaoAvista)} à vista no cartão ou 12x de R$ ${formatPrice(ativacaoParcela12x)}\nQuero contratar!`)}`}
                     target="_blank" rel="noopener noreferrer"
                     onClick={() => {
                       trackWhatsAppClick('cotacao_resultado', { plano: selectedPlan.name, valor: price })
