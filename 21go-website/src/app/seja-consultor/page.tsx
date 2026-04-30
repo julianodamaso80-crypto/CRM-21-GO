@@ -1,7 +1,7 @@
 'use client'
 
 import { motion, useInView } from 'framer-motion'
-import { useRef } from 'react'
+import { useRef, useState, useCallback } from 'react'
 import Link from 'next/link'
 import {
   Briefcase,
@@ -19,7 +19,28 @@ import {
   Zap,
   ShieldCheck,
   Clock,
+  X,
+  Loader2,
+  AlertCircle,
+  Mail,
+  User,
 } from 'lucide-react'
+
+function maskPhone(v: string) {
+  const d = v.replace(/\D/g, '').slice(0, 11)
+  if (d.length <= 2) return `(${d}`
+  if (d.length <= 7) return `(${d.slice(0, 2)}) ${d.slice(2)}`
+  return `(${d.slice(0, 2)}) ${d.slice(2, 7)}-${d.slice(7)}`
+}
+
+function isValidWhatsApp(v: string): string | null {
+  const digits = v.replace(/\D/g, '')
+  if (digits.length < 11) return 'WhatsApp incompleto — DDD + 9 dígitos'
+  const ddd = parseInt(digits.slice(0, 2))
+  if (ddd < 11 || ddd > 99) return 'DDD inválido'
+  if (digits[2] !== '9') return 'Celular deve começar com 9 depois do DDD'
+  return null
+}
 
 const fadeInUp = { hidden: { opacity: 0, y: 30 }, visible: { opacity: 1, y: 0, transition: { duration: 0.6 } } }
 const stagger = { hidden: {}, visible: { transition: { staggerChildren: 0.12 } } }
@@ -74,6 +95,9 @@ const testimonials = [
 export default function SejaConsultorPage() {
   const ref = useRef(null)
   const isInView = useInView(ref, { once: true })
+  const [modalOpen, setModalOpen] = useState(false)
+  const openModal = useCallback(() => setModalOpen(true), [])
+  const closeModal = useCallback(() => setModalOpen(false), [])
 
   return (
     <>
@@ -116,15 +140,14 @@ export default function SejaConsultorPage() {
           </motion.p>
 
           <motion.div variants={fadeInUp} className="flex flex-wrap items-center justify-center gap-4">
-            <a
-              href="https://wa.me/5521979034169?text=Ol%C3%A1!%20Quero%20ser%20consultor%2021Go."
-              target="_blank"
-              rel="noopener noreferrer"
+            <button
+              type="button"
+              onClick={openModal}
               className="inline-flex items-center gap-2.5 px-8 py-4 bg-gradient-to-r from-[#F7963D] to-[#F9A95E] text-white font-bold rounded-full shadow-lg shadow-[#F7963D]/20 hover:shadow-xl hover:shadow-[#F7963D]/30 hover:scale-[1.02] active:scale-[0.98] transition-all"
             >
               <MessageCircle className="w-5 h-5" />
               Quero Ser Consultor
-            </a>
+            </button>
             <a href="#como-funciona" className="inline-flex items-center gap-2 px-6 py-4 rounded-full border border-white/15 bg-white/5 text-white font-semibold text-sm hover:bg-white/10 transition-all">
               Saiba mais <ArrowRight className="w-4 h-4" />
             </a>
@@ -269,17 +292,267 @@ export default function SejaConsultorPage() {
           <p className="text-lg text-white/50 mb-10">
             Entre em contato agora e comece a construir sua renda como consultor de proteção veicular.
           </p>
-          <a
-            href="https://wa.me/5521979034169?text=Ol%C3%A1!%20Quero%20ser%20consultor%2021Go.%20Como%20funciona%3F"
-            target="_blank"
-            rel="noopener noreferrer"
+          <button
+            type="button"
+            onClick={openModal}
             className="inline-flex items-center gap-2.5 px-10 py-4 bg-gradient-to-r from-[#F7963D] to-[#F9A95E] text-white font-bold text-lg rounded-full shadow-lg shadow-[#F7963D]/25 hover:shadow-xl hover:scale-[1.02] active:scale-[0.98] transition-all"
           >
             <MessageCircle className="w-5 h-5" />
             Quero Ser Consultor
-          </a>
+          </button>
         </div>
       </section>
+
+      <ConsultorModal open={modalOpen} onClose={closeModal} />
     </>
+  )
+}
+
+/* ─── Modal de cadastro do consultor ─── */
+function ConsultorModal({ open, onClose }: { open: boolean; onClose: () => void }) {
+  const [form, setForm] = useState({ nome: '', email: '', contato: '', experiencia: '' })
+  const [errors, setErrors] = useState<Record<string, string>>({})
+  const [loading, setLoading] = useState(false)
+  const [submitted, setSubmitted] = useState(false)
+  const [serverError, setServerError] = useState('')
+
+  const set = useCallback((field: keyof typeof form, value: string) => {
+    setForm((prev) => ({ ...prev, [field]: value }))
+    setErrors((prev) => ({ ...prev, [field]: '' }))
+  }, [])
+
+  function validate(): boolean {
+    const e: Record<string, string> = {}
+    if (!form.nome.trim()) e.nome = 'Informe seu nome completo'
+    if (!form.email.trim()) e.email = 'Informe seu e-mail'
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) e.email = 'E-mail inválido'
+    const phoneErr = isValidWhatsApp(form.contato)
+    if (phoneErr) e.contato = phoneErr
+    setErrors(e)
+    return Object.keys(e).length === 0
+  }
+
+  async function handleSubmit(ev: React.FormEvent) {
+    ev.preventDefault()
+    setServerError('')
+    if (!validate()) return
+    setLoading(true)
+    try {
+      const res = await fetch('/api/consultor', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(form),
+      })
+      const data = await res.json()
+      if (!res.ok || !data.success) {
+        setServerError(data.error || 'Não foi possível enviar. Tente novamente.')
+        return
+      }
+      setSubmitted(true)
+    } catch {
+      setServerError('Falha de rede. Tente novamente em instantes.')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  function handleClose() {
+    onClose()
+    // reset depois do fade-out pra não piscar
+    setTimeout(() => {
+      setForm({ nome: '', email: '', contato: '', experiencia: '' })
+      setErrors({})
+      setSubmitted(false)
+      setServerError('')
+    }, 200)
+  }
+
+  if (!open) return null
+
+  const waLink = `https://wa.me/5521979034169?text=${encodeURIComponent(
+    `Olá! Acabei de me cadastrar como consultor 21Go.\nNome: ${form.nome}\nWhatsApp: ${form.contato}`,
+  )}`
+
+  return (
+    <div
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="consultor-modal-title"
+      className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center bg-[#121A33]/70 backdrop-blur-sm p-0 sm:p-4 animate-in fade-in duration-200"
+      onClick={handleClose}
+    >
+      <div
+        onClick={(e) => e.stopPropagation()}
+        className="relative w-full sm:max-w-lg bg-white rounded-t-3xl sm:rounded-3xl shadow-2xl max-h-[92vh] overflow-y-auto"
+      >
+        <button
+          onClick={handleClose}
+          aria-label="Fechar"
+          className="absolute right-4 top-4 w-9 h-9 rounded-full bg-[#F7F8FC] text-[#64748B] hover:bg-[#E8ECF4] hover:text-[#121A33] flex items-center justify-center transition-colors z-10"
+        >
+          <X className="w-5 h-5" />
+        </button>
+
+        {!submitted ? (
+          <form onSubmit={handleSubmit} className="p-6 sm:p-8">
+            <div className="mb-6">
+              <span className="inline-flex items-center gap-2 rounded-full bg-[#F7963D]/10 px-3 py-1 text-xs font-bold text-[#F7963D] uppercase tracking-wider mb-3">
+                <Briefcase className="w-3.5 h-3.5" />
+                Cadastro
+              </span>
+              <h2 id="consultor-modal-title" className="font-[var(--font-display)] text-2xl font-bold text-[#121A33] mb-2">
+                Quero ser Consultor 21Go
+              </h2>
+              <p className="text-sm text-[#64748B]">
+                Preencha seus dados que entramos em contato pelo WhatsApp.
+              </p>
+            </div>
+
+            <div className="space-y-4">
+              <Field
+                label="Nome completo"
+                name="nome"
+                value={form.nome}
+                onChange={(v) => set('nome', v)}
+                placeholder="Seu nome completo"
+                error={errors.nome}
+                icon={<User className="w-4 h-4 text-[#94A3B8]" />}
+                disabled={loading}
+              />
+              <Field
+                label="E-mail"
+                name="email"
+                type="email"
+                value={form.email}
+                onChange={(v) => set('email', v)}
+                placeholder="seu@email.com"
+                error={errors.email}
+                icon={<Mail className="w-4 h-4 text-[#94A3B8]" />}
+                disabled={loading}
+              />
+              <Field
+                label="WhatsApp"
+                name="contato"
+                value={form.contato}
+                onChange={(v) => set('contato', maskPhone(v))}
+                placeholder="(21) 99999-9999"
+                error={errors.contato}
+                icon={<MessageCircle className="w-4 h-4 text-[#25D366]" />}
+                disabled={loading}
+              />
+
+              <div>
+                <label htmlFor="experiencia" className="block text-sm font-semibold text-[#121A33] mb-2">
+                  Você já trabalhou com proteção veicular antes?
+                  <span className="text-[#94A3B8] font-normal"> (opcional)</span>
+                </label>
+                <textarea
+                  id="experiencia"
+                  value={form.experiencia}
+                  onChange={(e) => set('experiencia', e.target.value)}
+                  placeholder="Ex: trabalhei 2 anos em outra associação de proteção veicular, ou nunca trabalhei mas tenho interesse..."
+                  rows={4}
+                  disabled={loading}
+                  className="w-full px-5 py-3.5 rounded-2xl border-2 border-[#D1DFFA] hover:border-[#375191]/40 text-[#121A33] text-[15px] placeholder:text-[#94A3B8] bg-[#F7F8FC] focus:outline-none focus:border-[#375191] focus:bg-white focus:shadow-[0_0_0_3px_rgba(55,81,145,0.1)] transition-all duration-200 disabled:opacity-50 resize-none"
+                />
+              </div>
+            </div>
+
+            {serverError && (
+              <div className="mt-5 flex items-start gap-3 p-4 rounded-2xl bg-[#FEF2F2] border border-[#FECACA] text-[#DC2626] text-sm">
+                <AlertCircle className="w-5 h-5 flex-shrink-0 mt-0.5" />
+                <p className="font-medium">{serverError}</p>
+              </div>
+            )}
+
+            <button
+              type="submit"
+              disabled={loading}
+              className="mt-6 w-full inline-flex items-center justify-center gap-2.5 px-8 py-4 bg-gradient-to-r from-[#F7963D] to-[#F9A95E] text-white font-bold rounded-full shadow-lg shadow-[#F7963D]/20 hover:shadow-xl hover:scale-[1.01] active:scale-[0.99] transition-all disabled:opacity-70 disabled:cursor-not-allowed disabled:hover:scale-100"
+            >
+              {loading ? (
+                <>
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                  Enviando...
+                </>
+              ) : (
+                <>
+                  <MessageCircle className="w-5 h-5" />
+                  Enviar Cadastro
+                </>
+              )}
+            </button>
+
+            <p className="mt-4 text-[11px] text-center text-[#94A3B8]">
+              Seus dados estão seguros. Sem spam.
+            </p>
+          </form>
+        ) : (
+          <div className="p-6 sm:p-10 text-center">
+            <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-[#10B981]/10 mb-5">
+              <Check className="w-8 h-8 text-[#10B981]" />
+            </div>
+            <h2 className="font-[var(--font-display)] text-2xl font-bold text-[#121A33] mb-3">
+              Cadastro recebido!
+            </h2>
+            <p className="text-[#64748B] mb-6 leading-relaxed">
+              Obrigado pelo interesse, <b className="text-[#121A33]">{form.nome.split(' ')[0]}</b>.
+              Nosso time vai te chamar pelo WhatsApp em breve pra dar os próximos passos.
+            </p>
+            <a
+              href={waLink}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center justify-center gap-2.5 w-full py-4 bg-gradient-to-r from-[#25D366] to-[#20BD5A] text-white font-bold rounded-full shadow-lg shadow-[#25D366]/20 hover:shadow-xl hover:scale-[1.01] active:scale-[0.99] transition-all mb-3"
+            >
+              <MessageCircle className="w-5 h-5" />
+              Falar agora pelo WhatsApp
+            </a>
+            <button
+              onClick={handleClose}
+              className="text-sm text-[#64748B] hover:text-[#121A33] transition-colors"
+            >
+              Fechar
+            </button>
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}
+
+/* ─── Campo de input do modal ─── */
+function Field({
+  label, name, value, onChange, placeholder, type = 'text', icon, error, disabled,
+}: {
+  label: string
+  name: string
+  value: string
+  onChange: (v: string) => void
+  placeholder?: string
+  type?: string
+  icon?: React.ReactNode
+  error?: string
+  disabled?: boolean
+}) {
+  return (
+    <div>
+      <label htmlFor={name} className="block text-sm font-semibold text-[#121A33] mb-2">{label}</label>
+      <div className="relative">
+        {icon && <div className="absolute left-5 top-1/2 -translate-y-1/2">{icon}</div>}
+        <input
+          id={name}
+          type={type}
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          placeholder={placeholder}
+          disabled={disabled}
+          className={`w-full ${icon ? 'pl-12' : 'px-5'} pr-5 py-3.5 rounded-2xl border-2 text-[#121A33] text-[15px] font-medium placeholder:text-[#94A3B8] bg-[#F7F8FC] focus:outline-none focus:border-[#375191] focus:bg-white focus:shadow-[0_0_0_3px_rgba(55,81,145,0.1)] transition-all duration-200 disabled:opacity-50 ${
+            error ? 'border-[#EF4444] bg-[#FEF2F2]' : 'border-[#D1DFFA] hover:border-[#375191]/40'
+          }`}
+        />
+      </div>
+      {error && <p className="mt-1.5 ml-4 text-xs text-[#EF4444] font-medium">{error}</p>}
+    </div>
   )
 }
