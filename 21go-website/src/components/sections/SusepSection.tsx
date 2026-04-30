@@ -37,7 +37,7 @@ export function SusepSection() {
             variants={fadeInUp}
             className="font-[var(--font-outfit)] text-2xl md:text-3xl lg:text-4xl font-bold text-[#121A33]"
           >
-            Cadastrada na SUSEP — Sua Segurança Garantida pelo Governo
+            Cadastrada na SUSEP. Sua Segurança Garantida pelo Governo
           </motion.h2>
 
           <motion.div variants={fadeInUp} className="mt-6 space-y-4 text-[#334155] leading-relaxed">

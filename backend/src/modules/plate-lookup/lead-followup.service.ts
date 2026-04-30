@@ -57,14 +57,14 @@ function buildReengajamentoMessage(lead: LeadForFollowUp): string {
     return [
       `Oi *${firstName}*! Tudo bem? 😊`,
       ``,
-      `Vi que você fez uma simulação d${isMoto ? 'a' : 'o'} *${veiculo}* — me confirma seus dados que eu já preparo a proposta especial pra você?`,
+      `Vi que você fez uma simulação d${isMoto ? 'a' : 'o'} *${veiculo}*. Me confirma seus dados que eu já preparo a proposta especial pra você?`,
     ].join('\n')
   }
 
   const lines = [
     `Oi *${firstName}*! Tudo bem? 😊`,
     ``,
-    `Vi que você fez a simulação d${isMoto ? 'a' : 'o'} *${veiculo}* há pouco — ficou alguma dúvida sobre os benefícios?`,
+    `Vi que você fez a simulação d${isMoto ? 'a' : 'o'} *${veiculo}* há pouco. Ficou alguma dúvida sobre os benefícios?`,
   ]
 
   return lines.join('\n')
@@ -82,9 +82,8 @@ function formatFipeBR(value: number | null | undefined): string {
   return value.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
 }
 
-/** Mensagem para veiculos da lista de exclusao — nao tem PDF, precisa de
- *  cotacao especial com o consultor. Repete os dados do lead pra facilitar
- *  o atendimento. */
+/** Mensagem para veiculos da lista de exclusao. Nao tem PDF; abre conversa
+ *  com o consultor pedindo confirmacao dos dados. */
 function buildExcludedMessage(lead: LeadForFollowUp): string {
   const firstName = lead.nome.split(' ')[0]
   const veiculo =
@@ -98,9 +97,8 @@ function buildExcludedMessage(lead: LeadForFollowUp): string {
   const lines = [
     `Oi *${firstName}*! Tudo bem? 😊`,
     ``,
-    `Vi que você fez uma simulação no nosso site, mas o seu veículo precisa de uma *cotação especial* — vou preparar pra você por aqui.`,
+    `Vi que você fez uma simulação no nosso site, mas o seu veículo precisa de uma *cotação especial*`,
     ``,
-    `Confirma os dados pra eu seguir?`,
     `• Nome: *${lead.nome}*`,
     ...(whatsapp ? [`• WhatsApp: *${whatsapp}*`] : []),
     ...(placa ? [`• Placa: *${placa}*`] : []),
@@ -108,13 +106,14 @@ function buildExcludedMessage(lead: LeadForFollowUp): string {
     ...(fipe ? [`• FIPE: *R$ ${fipe}*`] : []),
   ]
 
-  // Condicoes especiais — uteis pra qualificar o atendimento manual
+  // Condicoes especiais informadas na cotacao
   const origem = leilaoLabel(lead.leilao)
   if (origem) lines.push(`• Origem: *${origem}*`)
   if (lead.carroApp) lines.push(`• Carro de aplicativo: *Sim* (Uber/99)`)
 
   lines.push('')
-  lines.push(`Me responde por aqui que eu te passo a melhor proposta 🚀`)
+  lines.push('')
+  lines.push(`Confirma os dados por favor`)
 
   return lines.join('\n')
 }
@@ -140,22 +139,22 @@ function buildFollowUpMessage(lead: LeadForFollowUp): string {
   const lines = [
     `Oi *${firstName}*! Tudo bem? 😊`,
     ``,
-    `Preparei sua *simulação completa* em PDF d${artigo} *${veiculo}*${placa ? ` — placa *${placa}*` : ''}.`,
+    `Preparei sua *simulação completa* em PDF d${artigo} *${veiculo}*${placa ? `, placa *${placa}*` : ''}.`,
   ]
 
   // Acrescenta condicoes especiais informadas na cotacao (visivel pro cliente
   // e pro corretor no historico da conversa).
   const origem = leilaoLabel(lead.leilao)
   const extras: string[] = []
-  if (origem) extras.push(`📌 *Veículo de ${origem.toLowerCase()}* — indenização de 80% da FIPE`)
-  if (lead.carroApp) extras.push(`🚕 *Carro de aplicativo* (Uber/99) — adicional de R$ 20/mês já incluso`)
+  if (origem) extras.push(`📌 *Veículo de ${origem.toLowerCase()}*: indenização de 80% da FIPE`)
+  if (lead.carroApp) extras.push(`🚕 *Carro de aplicativo* (Uber/99): adicional de R$ 20/mês já incluso`)
   if (extras.length) {
     lines.push('')
     lines.push(...extras)
   }
 
   lines.push('')
-  lines.push(`Qualquer dúvida me responde por aqui — *estou te acompanhando para fechar hoje* 🚀`)
+  lines.push(`Qualquer dúvida me responde por aqui. *Estou te acompanhando para fechar hoje* 🚀`)
 
   return lines.join('\n')
 }

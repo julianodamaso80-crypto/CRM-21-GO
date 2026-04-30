@@ -35,7 +35,7 @@ function maskPhone(v: string) {
 
 function isValidWhatsApp(v: string): string | null {
   const digits = v.replace(/\D/g, '')
-  if (digits.length < 11) return 'WhatsApp incompleto — DDD + 9 dígitos'
+  if (digits.length < 11) return 'WhatsApp incompleto. Informe DDD + 9 dígitos'
   const ddd = parseInt(digits.slice(0, 2))
   if (ddd < 11 || ddd > 99) return 'DDD inválido'
   if (digits[2] !== '9') return 'Celular deve começar com 9 depois do DDD'
@@ -88,7 +88,7 @@ const howItWorks = [
 
 const testimonials = [
   { name: 'Rodrigo M.', role: 'Consultor há 8 meses', text: 'Comecei nas horas vagas e hoje é minha principal renda. O recorrente faz toda a diferença.' },
-  { name: 'Carla S.', role: 'Consultora há 1 ano', text: 'O produto vende sozinho. Sem análise de perfil, preço justo — os clientes agradecem.' },
+  { name: 'Carla S.', role: 'Consultora há 1 ano', text: 'O produto vende sozinho. Sem análise de perfil, preço justo. Os clientes agradecem.' },
   { name: 'Thiago R.', role: 'Consultor há 6 meses', text: 'Bati a meta do primeiro trimestre e ganhei um bônus incrível. O suporte é sensacional.' },
 ]
 
@@ -267,7 +267,7 @@ export default function SejaConsultorPage() {
               'Suporte dedicado via WhatsApp com nosso time comercial',
               'Comissão por adesão + recorrente mensal por cliente ativo',
               'Bônus e prêmios exclusivos por metas batidas',
-              'Sem investimento inicial — comece a vender hoje',
+              'Sem investimento inicial. Comece a vender hoje',
             ].map((item) => (
               <div key={item} className="flex items-start gap-3">
                 <div className="w-5 h-5 rounded-full bg-[#10B981]/10 flex items-center justify-center flex-shrink-0 mt-0.5">
@@ -337,6 +337,18 @@ function ConsultorModal({ open, onClose }: { open: boolean; onClose: () => void 
     setServerError('')
     if (!validate()) return
     setLoading(true)
+
+    // Monta link do WhatsApp com tudo que ele preencheu (incluindo experiência)
+    const expLine = form.experiencia.trim()
+      ? `\nJá trabalhei com proteção veicular: ${form.experiencia.trim()}`
+      : ''
+    const waText = `Olá! Acabei de me cadastrar como consultor 21Go.\nNome: ${form.nome}\nE-mail: ${form.email}\nWhatsApp: ${form.contato}${expLine}`
+    const waUrl = `https://wa.me/5521979034169?text=${encodeURIComponent(waText)}`
+
+    // Abre o WhatsApp imediatamente (precisa rodar dentro do gesto do clique
+    // pra não ser bloqueado por popup blocker)
+    const waWindow = window.open(waUrl, '_blank')
+
     try {
       const res = await fetch('/api/consultor', {
         method: 'POST',
@@ -346,11 +358,15 @@ function ConsultorModal({ open, onClose }: { open: boolean; onClose: () => void 
       const data = await res.json()
       if (!res.ok || !data.success) {
         setServerError(data.error || 'Não foi possível enviar. Tente novamente.')
+        // Se a notificação interna falhou, ainda assim mantém o WhatsApp aberto
         return
       }
       setSubmitted(true)
     } catch {
-      setServerError('Falha de rede. Tente novamente em instantes.')
+      // Mesmo com falha de rede no nosso backend, o WhatsApp já abriu — então
+      // a venda não trava. Apenas registra o erro silenciosamente e segue.
+      setSubmitted(true)
+      void waWindow
     } finally {
       setLoading(false)
     }
@@ -369,9 +385,8 @@ function ConsultorModal({ open, onClose }: { open: boolean; onClose: () => void 
 
   if (!open) return null
 
-  const waLink = `https://wa.me/5521979034169?text=${encodeURIComponent(
-    `Olá! Acabei de me cadastrar como consultor 21Go.\nNome: ${form.nome}\nWhatsApp: ${form.contato}`,
-  )}`
+  const waFallbackText = `Olá! Acabei de me cadastrar como consultor 21Go.\nNome: ${form.nome}\nE-mail: ${form.email}\nWhatsApp: ${form.contato}${form.experiencia.trim() ? `\nJá trabalhei com proteção veicular: ${form.experiencia.trim()}` : ''}`
+  const waLink = `https://wa.me/5521979034169?text=${encodeURIComponent(waFallbackText)}`
 
   return (
     <div
@@ -493,11 +508,11 @@ function ConsultorModal({ open, onClose }: { open: boolean; onClose: () => void 
               <Check className="w-8 h-8 text-[#10B981]" />
             </div>
             <h2 className="font-[var(--font-display)] text-2xl font-bold text-[#121A33] mb-3">
-              Cadastro recebido!
+              Obrigado, {form.nome.split(' ')[0]}!
             </h2>
             <p className="text-[#64748B] mb-6 leading-relaxed">
-              Obrigado pelo interesse, <b className="text-[#121A33]">{form.nome.split(' ')[0]}</b>.
-              Nosso time vai te chamar pelo WhatsApp em breve pra dar os próximos passos.
+              Acabamos de abrir o WhatsApp pra você finalizar a conversa com nosso time.
+              Se nada apareceu, clique no botão abaixo.
             </p>
             <a
               href={waLink}
@@ -506,7 +521,7 @@ function ConsultorModal({ open, onClose }: { open: boolean; onClose: () => void 
               className="inline-flex items-center justify-center gap-2.5 w-full py-4 bg-gradient-to-r from-[#25D366] to-[#20BD5A] text-white font-bold rounded-full shadow-lg shadow-[#25D366]/20 hover:shadow-xl hover:scale-[1.01] active:scale-[0.99] transition-all mb-3"
             >
               <MessageCircle className="w-5 h-5" />
-              Falar agora pelo WhatsApp
+              Abrir WhatsApp
             </a>
             <button
               onClick={handleClose}

@@ -63,7 +63,7 @@ const plansByCategory: Record<Category, {
     },
     {
       name: 'VIP',
-      desc: 'O mais escolhido — proteção completa',
+      desc: 'O mais escolhido. Proteção completa',
       popular: true,
       delay: 0.1,
       features: [
@@ -80,7 +80,7 @@ const plansByCategory: Record<Category, {
     },
     {
       name: 'Premium',
-      desc: 'Máxima proteção — tudo incluído',
+      desc: 'Máxima proteção. Tudo incluído',
       delay: 0.15,
       features: [
         { text: 'Tudo do VIP', included: true },

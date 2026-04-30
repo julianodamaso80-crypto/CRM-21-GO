@@ -104,11 +104,11 @@ function cleanPhone(v: string): string {
 /** Valida WhatsApp: DDD (11-99) + 9 dígitos começando com 9 */
 function isValidWhatsApp(v: string): string | null {
   const digits = v.replace(/\D/g, '')
-  if (digits.length < 11) return 'WhatsApp incompleto — precisa de DDD + 9 dígitos'
+  if (digits.length < 11) return 'WhatsApp incompleto. Informe DDD + 9 dígitos'
   const ddd = parseInt(digits.slice(0, 2))
   if (ddd < 11 || ddd > 99) return 'DDD inválido'
   if (digits[2] !== '9') return 'Celular deve começar com 9 depois do DDD'
-  if (digits.length !== 11) return 'WhatsApp incompleto — precisa de DDD + 9 dígitos'
+  if (digits.length !== 11) return 'WhatsApp incompleto. Informe DDD + 9 dígitos'
   return null // válido
 }
 
@@ -641,7 +641,7 @@ export default function CotacaoPage() {
   const isManualQuote = vehicle?.modelo === '(informado manualmente)'
   const vehicleLabel = vehicle
     ? isManualQuote
-      ? `${vehicle.marca} — Valor estimado`
+      ? `${vehicle.marca} · Valor estimado`
       : `${vehicle.marca} ${vehicle.modelo} ${vehicle.ano}`
     : ''
   const fipeFormatted = vehicle ? vehicle.fipeValue.toLocaleString('pt-BR') : '0'
@@ -790,7 +790,7 @@ export default function CotacaoPage() {
                         className="mt-3 inline-flex items-center gap-2 rounded-xl border border-[#375191]/25 bg-[#375191]/5 px-4 py-2.5 text-sm font-semibold text-[#375191] hover:border-[#375191]/50 hover:bg-[#375191]/10 transition-all disabled:opacity-50"
                       >
                         <Search className="w-4 h-4" />
-                        Não tenho a placa — <span className="underline underline-offset-2 decoration-[#375191]/40">buscar por modelo</span>
+                        Não tenho a placa, <span className="underline underline-offset-2 decoration-[#375191]/40">buscar por modelo</span>
                       </button>
                     </div>
                   ) : (
@@ -1200,8 +1200,8 @@ export default function CotacaoPage() {
                 </h2>
                 <p className="text-[#64748B]">
                   {vehicleLabel}
-                  {vehicle.cor ? ` — ${vehicle.cor}` : ''}
-                  {' — '}FIPE: R$ {fipeFormatted}
+                  {vehicle.cor ? ` · ${vehicle.cor}` : ''}
+                  {' · '}FIPE: R$ {fipeFormatted}
                 </p>
               </div>
 
@@ -1266,7 +1266,7 @@ export default function CotacaoPage() {
                         <span className="font-bold text-[#121A33]">1º pagamento</span>
                         <span className="font-extrabold text-[#F7963D] text-xl">R$ {formatPrice(taxaAtivacao)}</span>
                       </div>
-                      <p className="text-xs text-[#F7963D] font-semibold mt-1">Ativação do plano — pagamento único</p>
+                      <p className="text-xs text-[#F7963D] font-semibold mt-1">Ativação do plano · pagamento único</p>
                     </div>
 
                     {/* 2º PAGAMENTO — Mensalidade com desconto */}
@@ -1392,7 +1392,7 @@ export default function CotacaoPage() {
 
                   <div className="flex items-center justify-center gap-2 text-xs text-[#94A3B8]">
                     <Lock className="w-3.5 h-3.5" />
-                    SUSEP — LC 213/2025
+                    SUSEP · LC 213/2025
                   </div>
                 </div>
               </div>

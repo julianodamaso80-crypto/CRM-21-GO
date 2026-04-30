@@ -235,7 +235,7 @@ function renderPlanPage(
   }
   if (input.carroApp) {
     condicoesItems.push(
-      `<div class="cond-item"><span class="cond-icon">🚕</span><div><b>Carro de aplicativo</b><span>Uber, 99 e similares — adicional de R$ 20/mês já incluso na mensalidade</span></div></div>`,
+      `<div class="cond-item"><span class="cond-icon">🚕</span><div><b>Carro de aplicativo</b><span>Uber, 99 e similares. Adicional de R$ 20/mês já incluso na mensalidade</span></div></div>`,
     )
   }
   const condicoesBlock = condicoesItems.length
@@ -257,7 +257,7 @@ function renderPlanPage(
 
     <div class="title">
       <h1>${input.nome.split(' ')[0].toUpperCase()}, ${isFirst ? 'sua simulação está pronta!' : `confira também o plano <span class="plan-hl">${plan.name}</span>`}</h1>
-      <p>${ctx.veiculoTitulo} — ${input.placa ? `Placa: <b>${input.placa}</b> &middot; ` : ''}FIPE: <b>R$ ${formatBRL(input.fipe)}</b></p>
+      <p>${ctx.veiculoTitulo} &middot; ${input.placa ? `Placa: <b>${input.placa}</b> &middot; ` : ''}FIPE: <b>R$ ${formatBRL(input.fipe)}</b></p>
     </div>
 
     <div class="veic">
@@ -297,7 +297,7 @@ function renderPlanPage(
             <b>1º pagamento</b>
             <span class="amount">R$ ${formatBRL(taxa)}</span>
           </div>
-          <div class="sub">Ativação do plano — pagamento único</div>
+          <div class="sub">Ativação do plano &middot; pagamento único</div>
         </div>
 
         <div class="box verde">
@@ -331,7 +331,7 @@ function renderPlanPage(
 
     <div class="footer">
       <div>
-        <b>21Go Proteção Veicular</b> &middot; Rio de Janeiro — RJ<br/>
+        <b>21Go Proteção Veicular</b> &middot; Rio de Janeiro &middot; RJ<br/>
         WhatsApp (21) 97903-4169 &middot; 21go.site
       </div>
       <div class="right">
@@ -392,7 +392,7 @@ function renderHTML(input: QuotePdfInput): string {
 <html lang="pt-BR">
 <head>
 <meta charset="utf-8"/>
-<title>Simulação 21Go — ${input.nome}</title>
+<title>Simulação 21Go · ${input.nome}</title>
 <style>
   @page { size: A4; margin: 0; }
   * { box-sizing: border-box; }
