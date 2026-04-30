@@ -31,6 +31,8 @@ export interface QuotePdfInput {
   cilindrada?: number | null
   /** Carro de aplicativo (Uber, 99, etc.) — adiciona +R$ 20/mês em todos os planos. */
   carroApp?: boolean | null
+  /** Origem do veículo: "nao" | "leilao" | "remarcado". Quando leilão/remarcado, indenização cobre 80% da FIPE. */
+  leilao?: string | null
 }
 
 /** Carro de app: +R$ 20/mes em todos os planos exibidos. */
@@ -222,6 +224,24 @@ function renderPlanPage(
   const flagClass = isSelected ? 'sel' : plan.popular ? 'pop' : 'avail'
   const subtitle = isSelected ? 'Plano selecionado por você' : `Plano ${plan.name}`
 
+  // Selo de condicoes especiais — origem do veiculo (leilao/remarcado) e carro de app.
+  const origemLabel =
+    input.leilao === 'leilao' ? 'Leilão' : input.leilao === 'remarcado' ? 'Remarcado' : ''
+  const condicoesItems: string[] = []
+  if (origemLabel) {
+    condicoesItems.push(
+      `<div class="cond-item"><span class="cond-icon">⚠️</span><div><b>Veículo de ${origemLabel}</b><span>Indenização: 80% do valor da tabela FIPE</span></div></div>`,
+    )
+  }
+  if (input.carroApp) {
+    condicoesItems.push(
+      `<div class="cond-item"><span class="cond-icon">🚕</span><div><b>Carro de aplicativo</b><span>Uber, 99 e similares — adicional de R$ 20/mês já incluso na mensalidade</span></div></div>`,
+    )
+  }
+  const condicoesBlock = condicoesItems.length
+    ? `<div class="condicoes">${condicoesItems.join('')}</div>`
+    : ''
+
   return `
   <div class="page ${isFirst ? '' : 'page-break'}">
 
@@ -250,6 +270,8 @@ function renderPlanPage(
         <b>R$ ${formatBRL(input.fipe)}</b>
       </div>
     </div>
+
+    ${condicoesBlock}
 
     <div class="grid">
       <div class="card">
@@ -417,6 +439,25 @@ function renderHTML(input: QuotePdfInput): string {
   .veic .fipe { text-align: right; }
   .veic .fipe span { font-size: 11px; color: #64748B; display: block; }
   .veic .fipe b { font-size: 16px; color: #1B4DA1; font-weight: 800; }
+
+  /* CONDICOES ESPECIAIS — leilao/remarcado, carro de app */
+  .condicoes {
+    background: #FFF7ED; border: 1.5px solid rgba(247,150,61,0.35);
+    border-radius: 12px; padding: 10px 14px; margin-bottom: 14px;
+    display: flex; flex-direction: column; gap: 8px;
+  }
+  .condicoes .cond-item {
+    display: flex; align-items: flex-start; gap: 10px; line-height: 1.35;
+  }
+  .condicoes .cond-icon {
+    font-size: 16px; flex-shrink: 0; line-height: 1;
+  }
+  .condicoes .cond-item b {
+    display: block; font-size: 11.5px; color: #B45309; font-weight: 800; margin-bottom: 1px;
+  }
+  .condicoes .cond-item span {
+    display: block; font-size: 10.5px; color: #92400E;
+  }
 
   /* GRID PRIMARY */
   .grid { display: grid; grid-template-columns: 1fr 250px; gap: 14px; }

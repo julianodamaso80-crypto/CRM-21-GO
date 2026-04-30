@@ -70,6 +70,7 @@ export async function createPublicLead(input: PublicLeadInput, ip?: string, user
           cotacaoEnviada: true,
           cotacaoData: new Date(),
           carroApp: typeof input.carroApp === 'boolean' ? input.carroApp : existing.carroApp,
+          leilao: input.leilao || existing.leilao,
           // NÃO resetamos followUpEnviado/pdfEnviado: o debounce global por
           // WhatsApp (em sendFollowUp) garante que o cliente não receba PDF
           // duplicado se refizer cotação.
@@ -101,6 +102,7 @@ export async function createPublicLead(input: PublicLeadInput, ip?: string, user
           cotacaoEnviada: true,
           cotacaoData: new Date(),
           carroApp: input.carroApp || false,
+          leilao: input.leilao || null,
 
           qualificadoPor: 'site',
           scoreQualificacao: 50,

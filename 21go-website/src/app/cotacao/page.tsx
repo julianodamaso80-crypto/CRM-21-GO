@@ -389,6 +389,7 @@ export default function CotacaoPage() {
         valorFipe: fallbackFipe,
         plano: defaultPlan.name,
         valorMensal: defaultPlan.monthly,
+        carroApp: form.carroApp === 'sim',
         ...tracking.utms,
         gclid: tracking.clickIds.gclid,
         fbclid: tracking.clickIds.fbclid,
@@ -599,6 +600,7 @@ export default function CotacaoPage() {
             valorFipe: v.fipeValue,
             plano: defaultPlan.name,
             valorMensal: defaultPlan.monthly,
+            carroApp: form.carroApp === 'sim',
             ...tracking.utms,
             gclid: tracking.clickIds.gclid,
             fbclid: tracking.clickIds.fbclid,
@@ -1320,7 +1322,7 @@ export default function CotacaoPage() {
                   </div>
                   )}
 
-                  <a href={`https://wa.me/5521979034169?text=${encodeURIComponent(`Olá! Fiz uma simulação no site.\nNome: ${form.nome}\nWhatsApp: ${form.whatsapp}${form.email ? `\nE-mail: ${form.email}` : ''}\nPlaca: ${form.placa}${form.leilao !== 'nao' ? `\nOrigem: ${form.leilao === 'leilao' ? 'Leilão' : 'Remarcado'}` : ''}\nVeículo: ${vehicleLabel}\nFIPE: R$ ${fipeFormatted}\nPlano: ${selectedPlan.name}\nMensalidade: R$ ${priceFormatted}/mês\nAdesão: R$ ${formatPrice(taxaAtivacao)}\nQuero contratar!`)}`}
+                  <a href={`https://wa.me/5521979034169?text=${encodeURIComponent(`Olá! Fiz uma simulação no site.\nNome: ${form.nome}\nWhatsApp: ${form.whatsapp}${form.email ? `\nE-mail: ${form.email}` : ''}\nPlaca: ${form.placa}${form.leilao !== 'nao' ? `\nOrigem: ${form.leilao === 'leilao' ? 'Leilão' : 'Remarcado'}` : ''}${form.carroApp === 'sim' ? `\nCarro de aplicativo: Sim (Uber/99)` : ''}\nVeículo: ${vehicleLabel}\nFIPE: R$ ${fipeFormatted}\nPlano: ${selectedPlan.name}\nMensalidade: R$ ${priceFormatted}/mês\nAdesão: R$ ${formatPrice(taxaAtivacao)}\nQuero contratar!`)}`}
                     target="_blank" rel="noopener noreferrer"
                     onClick={() => {
                       trackWhatsAppClick('cotacao_resultado', { plano: selectedPlan.name, valor: price })

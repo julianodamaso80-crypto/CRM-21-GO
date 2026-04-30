@@ -28,6 +28,15 @@ type LeadForFollowUp = {
   email: string | null
   pdfUrl: string | null
   carroApp: boolean
+  leilao: string | null
+}
+
+/** Rotulo amigavel pra origem do veiculo (leilao / remarcado / nao). */
+function leilaoLabel(leilao: string | null | undefined): string | null {
+  if (!leilao || leilao === 'nao') return null
+  if (leilao === 'leilao') return 'Leilão'
+  if (leilao === 'remarcado') return 'Remarcado'
+  return null
 }
 
 function buildReengajamentoMessage(lead: LeadForFollowUp): string {
@@ -71,9 +80,21 @@ function buildFollowUpMessage(lead: LeadForFollowUp): string {
     `Oi *${firstName}*! Tudo bem? 😊`,
     ``,
     `Preparei sua *simulação completa* em PDF d${artigo} *${veiculo}*${placa ? ` — placa *${placa}*` : ''}.`,
-    ``,
-    `Qualquer dúvida me responde por aqui — *estou te acompanhando para fechar hoje* 🚀`,
   ]
+
+  // Acrescenta condicoes especiais informadas na cotacao (visivel pro cliente
+  // e pro corretor no historico da conversa).
+  const origem = leilaoLabel(lead.leilao)
+  const extras: string[] = []
+  if (origem) extras.push(`📌 *Veículo de ${origem.toLowerCase()}* — indenização de 80% da FIPE`)
+  if (lead.carroApp) extras.push(`🚕 *Carro de aplicativo* (Uber/99) — adicional de R$ 20/mês já incluso`)
+  if (extras.length) {
+    lines.push('')
+    lines.push(...extras)
+  }
+
+  lines.push('')
+  lines.push(`Qualquer dúvida me responde por aqui — *estou te acompanhando para fechar hoje* 🚀`)
 
   return lines.join('\n')
 }
@@ -164,6 +185,7 @@ async function ensurePdfData(lead: LeadForFollowUp): Promise<PdfData | null> {
       mensalidade: lead.cotacaoValor!,
       isMoto: (lead.cotacaoPlano || '').toLowerCase().includes('moto'),
       carroApp: lead.carroApp,
+      leilao: lead.leilao,
     })
     console.log('[FollowUp] PDF buffer ok —', pdf.length, 'bytes')
   } catch (err: any) {

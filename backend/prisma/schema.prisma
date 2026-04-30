@@ -356,6 +356,11 @@ model Lead {
   // de TODOS os planos exibidos (site, PDF, mensagens). Regra 21Go.
   carroApp Boolean @default(false) @map("carro_app")
 
+  // Origem do veículo: "nao" | "leilao" | "remarcado".
+  // Quando leilão/remarcado: indenização cobre 80% da FIPE — informação
+  // exibida no PDF, na mensagem ao cliente e na notificação interna.
+  leilao String?
+
   // PDF de cotação + tracking de intenção (clique em Contratar pelo WhatsApp)
   pdfUrl            String?   @map("pdf_url")
   pdfGeradoEm       DateTime? @map("pdf_gerado_em")
