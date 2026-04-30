@@ -32,14 +32,6 @@ type LeadForFollowUp = {
   seguroAtual: string | null
 }
 
-/** Rotulo amigavel pra origem do veiculo (leilao / remarcado / nao). */
-function leilaoLabel(leilao: string | null | undefined): string | null {
-  if (!leilao || leilao === 'nao') return null
-  if (leilao === 'leilao') return 'Leilão'
-  if (leilao === 'remarcado') return 'Remarcado'
-  return null
-}
-
 function buildReengajamentoMessage(lead: LeadForFollowUp): string {
   const firstName = lead.nome.split(' ')[0]
   const isMoto =
@@ -84,7 +76,8 @@ function formatFipeBR(value: number | null | undefined): string {
 }
 
 /** Mensagem para veiculos da lista de exclusao. Nao tem PDF; abre conversa
- *  com o consultor pedindo confirmacao dos dados. */
+ *  com o consultor pedindo confirmacao dos dados. Sem condicoes especiais
+ *  (leilao, carro de app, seguro) — essas vao em outros canais internos. */
 function buildExcludedMessage(lead: LeadForFollowUp): string {
   const firstName = lead.nome.split(' ')[0]
   const veiculo =
@@ -105,19 +98,10 @@ function buildExcludedMessage(lead: LeadForFollowUp): string {
     ...(placa ? [`• Placa: *${placa}*`] : []),
     `• Veículo: *${veiculo}*`,
     ...(fipe ? [`• FIPE: *R$ ${fipe}*`] : []),
+    ``,
+    ``,
+    `Confirma os dados por favor`,
   ]
-
-  // Condicoes especiais informadas na cotacao
-  const origem = leilaoLabel(lead.leilao)
-  if (origem) lines.push(`• Origem: *${origem}*`)
-  if (lead.carroApp) lines.push(`• Carro de aplicativo: *Sim* (Uber/99)`)
-  if (lead.seguroAtual && lead.seguroAtual.trim()) {
-    lines.push(`• Seguro/proteção atual: *${lead.seguroAtual.trim()}*`)
-  }
-
-  lines.push('')
-  lines.push('')
-  lines.push(`Confirma os dados por favor`)
 
   return lines.join('\n')
 }
@@ -140,30 +124,16 @@ function buildFollowUpMessage(lead: LeadForFollowUp): string {
   const placa = lead.placaInteresse || ''
   const artigo = isMoto ? 'a' : 'o'
 
-  const lines = [
+  // Mensagem pro CLIENTE — sem condicoes especiais (carro de app, leilao,
+  // seguro atual). Essas infos sao internas pro corretor, vao via PDF e
+  // via notificacao no whatsapp dele.
+  return [
     `Oi *${firstName}*! Tudo bem? 😊`,
     ``,
     `Preparei sua *simulação completa* em PDF d${artigo} *${veiculo}*${placa ? `, placa *${placa}*` : ''}.`,
-  ]
-
-  // Acrescenta condicoes especiais informadas na cotacao (visivel pro cliente
-  // e pro corretor no historico da conversa).
-  const origem = leilaoLabel(lead.leilao)
-  const extras: string[] = []
-  if (origem) extras.push(`📌 *Veículo de ${origem.toLowerCase()}*: indenização de 80% da FIPE`)
-  if (lead.carroApp) extras.push(`🚕 *Carro de aplicativo* (Uber/99): adicional de R$ 20/mês já incluso`)
-  if (lead.seguroAtual && lead.seguroAtual.trim()) {
-    extras.push(`🛡️ *Seguro/proteção atual*: ${lead.seguroAtual.trim()}`)
-  }
-  if (extras.length) {
-    lines.push('')
-    lines.push(...extras)
-  }
-
-  lines.push('')
-  lines.push(`Qualquer dúvida me responde por aqui. *Estou te acompanhando para fechar hoje* 🚀`)
-
-  return lines.join('\n')
+    ``,
+    `Qualquer dúvida me responde por aqui. *Estou te acompanhando para fechar hoje* 🚀`,
+  ].join('\n')
 }
 
 /** Formata número brasileiro para o padrão Evolution (55 + DDD + número). */
