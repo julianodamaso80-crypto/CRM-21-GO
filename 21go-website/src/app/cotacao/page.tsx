@@ -1288,8 +1288,8 @@ export default function CotacaoPage() {
                           <span className="font-extrabold text-[#10B981] text-xl">R$ {formatPrice(ativacaoParcela12x)}</span>
                         </div>
                       </div>
-                      <p className="text-[10px] text-[#94A3B8] mt-2 leading-tight">
-                        Pagamento único de ativação do plano · cartão de crédito
+                      <p className="text-[13px] text-[#DC2626] font-extrabold mt-2.5 leading-tight">
+                        Pagamento único de ativação do plano
                       </p>
                     </div>
 

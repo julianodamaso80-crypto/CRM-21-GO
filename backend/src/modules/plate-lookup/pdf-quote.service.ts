@@ -325,7 +325,7 @@ function renderPlanPage(
             <span class="ativ-label">ou 12x de</span>
             <span class="ativ-amount verde">R$ ${formatBRL(taxa12xParcela)}</span>
           </div>
-          <div class="sub-ativ">Pagamento único de ativação do plano &middot; cartão de crédito</div>
+          <div class="sub-ativ">Pagamento único de ativação do plano</div>
         </div>
 
         <div class="box verde">
@@ -547,7 +547,7 @@ function renderHTML(input: QuotePdfInput): string {
   .ativ-amount { font-size: 17px; font-weight: 900; letter-spacing: -0.3px; }
   .ativ-amount.laranja { color: #F7963D; }
   .ativ-amount.verde { color: #10B981; }
-  .sub-ativ { font-size: 9px; color: #94A3B8; margin-top: 5px; line-height: 1.3; }
+  .sub-ativ { font-size: 11px; color: #DC2626; font-weight: 800; margin-top: 7px; line-height: 1.3; }
   .box.verde { background: #F0FDF4; border: 1px solid rgba(16,185,129,0.2); }
   .box.verde .row2 { display: flex; justify-content: space-between; align-items: center; margin-top: 4px; }
   .box.verde .due { font-size: 10px; color: #64748B; }
