@@ -45,22 +45,11 @@ function buildReengajamentoMessage(lead: LeadForFollowUp): string {
       ? 'sua moto'
       : 'seu carro'
 
-  // Veiculos excluidos nao receberam PDF — reengajamento foca na cotacao especial
-  if (isExcludedLead(lead)) {
-    return [
-      `Oi *${firstName}*! Tudo bem? 😊`,
-      ``,
-      `Vi que você fez uma simulação d${isMoto ? 'a' : 'o'} *${veiculo}*. Me confirma seus dados que eu já preparo a proposta especial pra você?`,
-    ].join('\n')
-  }
-
-  const lines = [
+  return [
     `Oi *${firstName}*! Tudo bem? 😊`,
     ``,
     `Vi que você fez a simulação d${isMoto ? 'a' : 'o'} *${veiculo}* há pouco. Ficou alguma dúvida sobre os benefícios?`,
-  ]
-
-  return lines.join('\n')
+  ].join('\n')
 }
 
 /** Lead caiu na lista de exclusao do site — sem cotacao automatica, precisa de
@@ -124,15 +113,16 @@ function buildFollowUpMessage(lead: LeadForFollowUp): string {
   const placa = lead.placaInteresse || ''
   const artigo = isMoto ? 'a' : 'o'
 
-  // Mensagem pro CLIENTE — sem condicoes especiais (carro de app, leilao,
-  // seguro atual). Essas infos sao internas pro corretor, vao via PDF e
-  // via notificacao no whatsapp dele.
+  // Vai como CAPTION do PDF (1 mensagem so) pra evitar muitas mensagens
+  // seguidas e risco de bloqueio do chip pelo whatsapp.
   return [
     `Oi *${firstName}*! Tudo bem? 😊`,
     ``,
+    `Me chamo Letycia e estou aqui para dar sequência no seu atendimento.`,
+    ``,
     `Preparei sua *simulação completa* em PDF d${artigo} *${veiculo}*${placa ? `, placa *${placa}*` : ''}.`,
     ``,
-    `Qualquer dúvida me responde por aqui. *Estou te acompanhando para fechar hoje* 🚀`,
+    `Ficou com alguma dúvida que eu possa te ajudar?`,
   ].join('\n')
 }
 
@@ -258,9 +248,9 @@ async function ensurePdfData(lead: LeadForFollowUp): Promise<PdfData | null> {
 }
 
 /**
- * Envia follow-up (ou envio imediato). Se `withPdf` estiver habilitado e o PDF
- * estiver disponível, manda o PDF como documento (Evolution sendMedia) com
- * caption curta e um segundo sendText com a mensagem completa.
+ * Envia follow-up (ou envio imediato). Se `withPdf` estiver habilitado e o
+ * PDF estiver disponível, manda 1 ÚNICA mensagem: PDF + texto completo
+ * como caption. Se nao houver PDF (ex: veiculo excluido), manda so texto.
  */
 export async function sendFollowUp(input: FollowUpInput) {
   console.log('[FollowUp] === START ===', JSON.stringify({ leadId: input.leadId, withPdf: input.withPdf, force: input.force }))
@@ -322,13 +312,12 @@ export async function sendFollowUp(input: FollowUpInput) {
     }
 
     if (pdfData) {
-      const firstName = lead.nome.split(' ')[0]
-      const caption = `${firstName}, aqui está sua *simulação completa* 21Go 📄`
+      // Manda PDF + mensagem completa como CAPTION (1 mensagem so) pra evitar
+      // muitas mensagens seguidas (risco de bloqueio do chip pelo whatsapp).
       const media = pdfData.url ?? (pdfData.buffer as Buffer).toString('base64')
-      await sendPdfMedia(phone, media, caption, pdfData.filename)
-      await sendText(phone, message)
+      await sendPdfMedia(phone, media, message, pdfData.filename)
     } else {
-      // Fallback: só mensagem de texto
+      // Fallback: só mensagem de texto (ex: lead excluido, sem PDF)
       await sendText(phone, message)
     }
 
@@ -394,6 +383,16 @@ export async function sendReengajamento(leadId: string) {
   }
   if (lead.whatsappClicado) return { success: false, error: 'Cliente clicou no botão' }
   if (!lead.followUpData) return { success: false, error: 'Sem followUpData' }
+
+  // Veiculos da lista de exclusao nao tem reengajamento — a primeira mensagem
+  // ja pede confirmacao dos dados; reengajar nao faz sentido nesse caso.
+  if (isExcludedLead(lead as LeadForFollowUp)) {
+    await prisma.lead.update({
+      where: { id: lead.id },
+      data: { reengajamentoEnviado: true, reengajamentoData: new Date() },
+    }).catch(() => {})
+    return { success: false, error: 'Lead excluido — sem reengajamento' }
+  }
 
   // JANELA TEMPORAL ESTRITA — evita o caso Wellington (reengajamento 41min após follow-up
   // por cima da conversa do vendedor). Se a janela de 15min já passou, marca como enviado
@@ -472,6 +471,9 @@ async function processReengajamentosPendentes() {
       followUpData: { lte: cutoffMin, gte: cutoffMax },
       whatsapp: { not: null },
       etapaFunil: { notIn: ['convertido', 'perdido'] },
+      // Veiculos da lista de exclusao nao tem reengajamento — a primeira
+      // mensagem ja pede confirmacao dos dados ao cliente.
+      cotacaoPlano: { not: 'EXCLUIDO' },
     },
     select: { id: true },
     take: 50, // limite por ciclo pra não sobrecarregar

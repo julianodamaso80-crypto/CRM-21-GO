@@ -393,23 +393,10 @@ function renderHTML(input: QuotePdfInput): string {
     return 0
   })
 
-  /**
-   * Regra 21Go para taxa de adesão (única por veículo, não por plano):
-   *   taxa = mensalidade do plano de referência + R$ 50, mínimo R$ 200
-   * Plano de referência:
-   *   - Carros normais → VIP
-   *   - SUV → SUV (único)
-   *   - Moto → Moto 450-1000cc (senão Moto 400)
-   *   - Especial → Especial (único)
-   */
-  const refOrder: PlanId[] = ['vip', 'suv', 'moto-1000', 'moto-400', 'especial']
-  const planoReferencia =
-    refOrder.map((id) => planosAplicaveis.find((p) => p.id === id)).find(Boolean) ||
-    planosAplicaveis[0]
-  // Subtrai o extra de carroApp pra fórmula da adesão usar valor RAW.
-  // Extra é só na mensalidade, não na taxa de adesão.
-  const referenciaRaw = (planoReferencia?.monthly || input.mensalidade) - (input.carroApp ? CARRO_APP_EXTRA : 0)
-  const taxa = Math.max(200, referenciaRaw + 50)
+  // Taxa de ativacao FIXA (alinhada com o valor exibido no site /cotacao).
+  // Quando o operador quiser mudar (ex: passar pra R$ 500), atualiza a
+  // constante TAXA_ATIVACAO no site E aqui pra que ambos batam sempre.
+  const taxa = 399
 
   const ctx = { logoUrl, hoje, validade, dueDate, veiculoTitulo, taxa }
   const pagesHTML = ordered
