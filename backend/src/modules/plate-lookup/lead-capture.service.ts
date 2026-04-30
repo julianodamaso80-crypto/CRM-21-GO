@@ -23,6 +23,10 @@ interface PublicLeadInput {
   // Carro de aplicativo (Uber, 99) — adiciona +R$ 20/mes na mensalidade
   carroApp?: boolean
 
+  // Seguro atual do veiculo (texto livre — ex: "Porto Seguro"). Quando null/undefined,
+  // cliente declarou que nao tem seguro ou nao respondeu.
+  seguroAtual?: string
+
   // Tracking
   utmSource?: string
   utmMedium?: string
@@ -71,6 +75,7 @@ export async function createPublicLead(input: PublicLeadInput, ip?: string, user
           cotacaoData: new Date(),
           carroApp: typeof input.carroApp === 'boolean' ? input.carroApp : existing.carroApp,
           leilao: input.leilao || existing.leilao,
+          seguroAtual: input.seguroAtual !== undefined ? input.seguroAtual : existing.seguroAtual,
           // NÃO resetamos followUpEnviado/pdfEnviado: o debounce global por
           // WhatsApp (em sendFollowUp) garante que o cliente não receba PDF
           // duplicado se refizer cotação.
@@ -103,6 +108,7 @@ export async function createPublicLead(input: PublicLeadInput, ip?: string, user
           cotacaoData: new Date(),
           carroApp: input.carroApp || false,
           leilao: input.leilao || null,
+          seguroAtual: input.seguroAtual || null,
 
           qualificadoPor: 'site',
           scoreQualificacao: 50,

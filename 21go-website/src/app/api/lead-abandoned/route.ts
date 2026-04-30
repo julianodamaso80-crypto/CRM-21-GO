@@ -12,7 +12,7 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json()
-    const { nome, whatsapp, placa, veiculo, plano, valor, leilao, carroApp } = body
+    const { nome, whatsapp, placa, veiculo, plano, valor, leilao, carroApp, seguroAtual } = body
 
     if (!nome || !whatsapp) {
       return NextResponse.json({ success: false, error: 'nome and whatsapp required' }, { status: 400 })
@@ -21,6 +21,7 @@ export async function POST(request: NextRequest) {
     const origemLabel =
       leilao === 'leilao' ? 'Leil\u{E3}o' : leilao === 'remarcado' ? 'Remarcado' : 'N\u{E3}o'
     const carroAppLabel = carroApp ? 'Sim (Uber/99)' : 'N\u{E3}o'
+    const seguroLabel = seguroAtual?.trim() ? seguroAtual.trim() : 'N\u{E3}o'
 
     const message = [
       `\u{1F6A8} LEAD ABANDONADO - 21Go!`,
@@ -35,6 +36,7 @@ export async function POST(request: NextRequest) {
       `Valor: ${valor || 'N/A'}/m\u{EA}s`,
       `Origem: ${origemLabel}`,
       `Carro de app: ${carroAppLabel}`,
+      `Seguro atual: ${seguroLabel}`,
       ``,
       `\u{23F0} J\u{E1} se passaram 5 minutos sem contato.`,
       `Entre em contato AGORA pra recuperar essa venda!`,

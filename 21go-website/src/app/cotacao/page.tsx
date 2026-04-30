@@ -39,6 +39,8 @@ interface FormData {
   placa: string
   leilao: 'nao' | 'leilao' | 'remarcado'
   carroApp: 'nao' | 'sim'
+  temSeguro: 'nao' | 'sim'
+  nomeSeguro: string
 }
 
 interface VehicleData {
@@ -164,6 +166,8 @@ export default function CotacaoPage() {
     placa: '',
     leilao: 'nao',
     carroApp: 'nao',
+    temSeguro: 'nao',
+    nomeSeguro: '',
   })
 
   const set = useCallback((field: keyof FormData, value: string) => {
@@ -390,6 +394,7 @@ export default function CotacaoPage() {
         plano: defaultPlan.name,
         valorMensal: defaultPlan.monthly,
         carroApp: form.carroApp === 'sim',
+        seguroAtual: form.temSeguro === 'sim' ? (form.nomeSeguro.trim() || 'Sim (não informado)') : undefined,
         ...tracking.utms,
         gclid: tracking.clickIds.gclid,
         fbclid: tracking.clickIds.fbclid,
@@ -478,6 +483,7 @@ export default function CotacaoPage() {
           plano: defaultPlan.name,
           valorMensal: defaultPlan.monthly,
           carroApp: form.carroApp === 'sim',
+          seguroAtual: form.temSeguro === 'sim' ? (form.nomeSeguro.trim() || 'Sim (não informado)') : undefined,
           ...tracking.utms,
           gclid: tracking.clickIds.gclid,
           fbclid: tracking.clickIds.fbclid,
@@ -536,6 +542,7 @@ export default function CotacaoPage() {
               plano: 'EXCLUIDO',
               valorMensal: 0,
               carroApp: form.carroApp === 'sim',
+              seguroAtual: form.temSeguro === 'sim' ? (form.nomeSeguro.trim() || 'Sim (não informado)') : undefined,
               ...tracking.utms,
               gclid: tracking.clickIds.gclid,
               fbclid: tracking.clickIds.fbclid,
@@ -601,6 +608,7 @@ export default function CotacaoPage() {
             plano: defaultPlan.name,
             valorMensal: defaultPlan.monthly,
             carroApp: form.carroApp === 'sim',
+            seguroAtual: form.temSeguro === 'sim' ? (form.nomeSeguro.trim() || 'Sim (não informado)') : undefined,
             ...tracking.utms,
             gclid: tracking.clickIds.gclid,
             fbclid: tracking.clickIds.fbclid,
@@ -948,6 +956,46 @@ export default function CotacaoPage() {
                       ))}
                     </div>
                   </div>
+
+                  {/* Seguro atual */}
+                  <div>
+                    <label className="block text-sm font-semibold text-[#121A33] mb-2">Esse carro possui seguro?</label>
+                    <div className="grid grid-cols-2 gap-3">
+                      {([
+                        { value: 'nao', label: 'Não' },
+                        { value: 'sim', label: 'Sim' },
+                      ] as const).map(opt => (
+                        <button
+                          key={opt.value}
+                          type="button"
+                          disabled={loading}
+                          onClick={() => {
+                            set('temSeguro', opt.value)
+                            if (opt.value === 'nao') set('nomeSeguro', '')
+                          }}
+                          className={`py-3.5 rounded-2xl border-2 text-sm font-semibold transition-all duration-200 disabled:opacity-50 ${
+                            form.temSeguro === opt.value
+                              ? 'border-[#375191] bg-[#375191]/10 text-[#375191] shadow-sm'
+                              : 'border-[#D1DFFA] bg-[#F7F8FC] text-[#64748B] hover:border-[#375191]/40'
+                          }`}
+                        >
+                          {opt.label}
+                        </button>
+                      ))}
+                    </div>
+                    {form.temSeguro === 'sim' && (
+                      <div className="mt-3">
+                        <PillInput
+                          label="Qual seguro?"
+                          name="nomeSeguro"
+                          value={form.nomeSeguro}
+                          onChange={v => set('nomeSeguro', v)}
+                          placeholder="Ex: Porto Seguro, Mapfre, Bradesco..."
+                          disabled={loading}
+                        />
+                      </div>
+                    )}
+                  </div>
                 </div>
 
                 {/* API Error */}
@@ -1099,7 +1147,7 @@ export default function CotacaoPage() {
                 </p>
 
                 <a
-                  href={`https://wa.me/5521979034169?text=${encodeURIComponent(`Olá! Fiz uma simulação no site mas meu veículo precisa de cotação especial.\nNome: ${form.nome}\nWhatsApp: ${form.whatsapp}\nPlaca: ${form.placa}\nVeículo: ${vehicle.marca} ${vehicle.modelo} ${vehicle.ano}\nFIPE: R$ ${vehicle.fipeValue.toLocaleString('pt-BR')}${form.leilao !== 'nao' ? `\nOrigem: ${form.leilao === 'leilao' ? 'Leilão' : 'Remarcado'}` : ''}${form.carroApp === 'sim' ? `\nCarro de aplicativo: Sim (Uber/99)` : ''}\nPode me ajudar?`)}`}
+                  href={`https://wa.me/5521979034169?text=${encodeURIComponent(`Olá! Fiz uma simulação no site mas meu veículo precisa de cotação especial.\nNome: ${form.nome}\nWhatsApp: ${form.whatsapp}\nPlaca: ${form.placa}\nVeículo: ${vehicle.marca} ${vehicle.modelo} ${vehicle.ano}\nFIPE: R$ ${vehicle.fipeValue.toLocaleString('pt-BR')}${form.leilao !== 'nao' ? `\nOrigem: ${form.leilao === 'leilao' ? 'Leilão' : 'Remarcado'}` : ''}${form.carroApp === 'sim' ? `\nCarro de aplicativo: Sim (Uber/99)` : ''}${form.temSeguro === 'sim' ? `\nSeguro atual: ${form.nomeSeguro.trim() || 'Sim (não informado)'}` : ''}\nPode me ajudar?`)}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   onClick={() => {
@@ -1129,7 +1177,7 @@ export default function CotacaoPage() {
                     setExcluded(false)
                     setVehicle(null)
                     setPlans([])
-                    setForm({ nome: '', whatsapp: '', email: '', placa: '', leilao: 'nao', carroApp: 'nao' })
+                    setForm({ nome: '', whatsapp: '', email: '', placa: '', leilao: 'nao', carroApp: 'nao', temSeguro: 'nao', nomeSeguro: '' })
                   }}
                   className="inline-flex items-center gap-2 text-sm text-[#64748B] hover:text-[#121A33] transition-colors"
                 >
@@ -1322,7 +1370,7 @@ export default function CotacaoPage() {
                   </div>
                   )}
 
-                  <a href={`https://wa.me/5521979034169?text=${encodeURIComponent(`Olá! Fiz uma simulação no site.\nNome: ${form.nome}\nWhatsApp: ${form.whatsapp}${form.email ? `\nE-mail: ${form.email}` : ''}\nPlaca: ${form.placa}${form.leilao !== 'nao' ? `\nOrigem: ${form.leilao === 'leilao' ? 'Leilão' : 'Remarcado'}` : ''}${form.carroApp === 'sim' ? `\nCarro de aplicativo: Sim (Uber/99)` : ''}\nVeículo: ${vehicleLabel}\nFIPE: R$ ${fipeFormatted}\nPlano: ${selectedPlan.name}\nMensalidade: R$ ${priceFormatted}/mês\nAdesão: R$ ${formatPrice(taxaAtivacao)}\nQuero contratar!`)}`}
+                  <a href={`https://wa.me/5521979034169?text=${encodeURIComponent(`Olá! Fiz uma simulação no site.\nNome: ${form.nome}\nWhatsApp: ${form.whatsapp}${form.email ? `\nE-mail: ${form.email}` : ''}\nPlaca: ${form.placa}${form.leilao !== 'nao' ? `\nOrigem: ${form.leilao === 'leilao' ? 'Leilão' : 'Remarcado'}` : ''}${form.carroApp === 'sim' ? `\nCarro de aplicativo: Sim (Uber/99)` : ''}${form.temSeguro === 'sim' ? `\nSeguro atual: ${form.nomeSeguro.trim() || 'Sim (não informado)'}` : ''}\nVeículo: ${vehicleLabel}\nFIPE: R$ ${fipeFormatted}\nPlano: ${selectedPlan.name}\nMensalidade: R$ ${priceFormatted}/mês\nAdesão: R$ ${formatPrice(taxaAtivacao)}\nQuero contratar!`)}`}
                     target="_blank" rel="noopener noreferrer"
                     onClick={() => {
                       trackWhatsAppClick('cotacao_resultado', { plano: selectedPlan.name, valor: price })
@@ -1355,7 +1403,7 @@ export default function CotacaoPage() {
                   className="inline-flex items-center gap-2 text-sm text-[#64748B] hover:text-[#121A33] transition-colors">
                   <ArrowLeft className="w-4 h-4" /> Editar dados
                 </button>
-                <button onClick={() => { setStep(1); setForm({ nome: '', whatsapp: '', email: '', placa: '', leilao: 'nao', carroApp: 'nao' }); setVehicle(null); setPlans([]); setShowFallback(false); setFallbackFipe(0); setExcluded(false); setSearchMode('placa'); setFipeMarcaCode(''); setFipeModeloCode(''); setFipeAnoCode(''); whatsappClicked.current = false }}
+                <button onClick={() => { setStep(1); setForm({ nome: '', whatsapp: '', email: '', placa: '', leilao: 'nao', carroApp: 'nao', temSeguro: 'nao', nomeSeguro: '' }); setVehicle(null); setPlans([]); setShowFallback(false); setFallbackFipe(0); setExcluded(false); setSearchMode('placa'); setFipeMarcaCode(''); setFipeModeloCode(''); setFipeAnoCode(''); whatsappClicked.current = false }}
                   className="text-sm text-[#375191] hover:text-[#3D72DE] transition-colors">
                   Nova simulação
                 </button>
