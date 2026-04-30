@@ -52,16 +52,77 @@ function buildReengajamentoMessage(lead: LeadForFollowUp): string {
       ? 'sua moto'
       : 'seu carro'
 
+  // Veiculos excluidos nao receberam PDF — reengajamento foca na cotacao especial
+  if (isExcludedLead(lead)) {
+    return [
+      `Oi *${firstName}*! Tudo bem? 😊`,
+      ``,
+      `Vi que você fez uma simulação d${isMoto ? 'a' : 'o'} *${veiculo}* — me confirma seus dados que eu já preparo a proposta especial pra você?`,
+    ].join('\n')
+  }
+
   const lines = [
     `Oi *${firstName}*! Tudo bem? 😊`,
     ``,
-    `Vi que você fez a simulação d${isMoto ? 'a' : 'o'} *${veiculo}* há pouco — ficou alguma dúvida sobre as coberturas?`,
+    `Vi que você fez a simulação d${isMoto ? 'a' : 'o'} *${veiculo}* há pouco — ficou alguma dúvida sobre os benefícios?`,
   ]
 
   return lines.join('\n')
 }
 
+/** Lead caiu na lista de exclusao do site — sem cotacao automatica, precisa de
+ *  consultor pra cotar manualmente. */
+function isExcludedLead(lead: LeadForFollowUp): boolean {
+  return (lead.cotacaoPlano || '').toUpperCase() === 'EXCLUIDO'
+}
+
+/** Formata FIPE em BRL (sem o "R$"). */
+function formatFipeBR(value: number | null | undefined): string {
+  if (!value) return ''
+  return value.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+}
+
+/** Mensagem para veiculos da lista de exclusao — nao tem PDF, precisa de
+ *  cotacao especial com o consultor. Repete os dados do lead pra facilitar
+ *  o atendimento. */
+function buildExcludedMessage(lead: LeadForFollowUp): string {
+  const firstName = lead.nome.split(' ')[0]
+  const veiculo =
+    lead.modeloInteresse && lead.modeloInteresse !== '(manual)' && lead.modeloInteresse !== '(informado manualmente)'
+      ? `${lead.marcaInteresse || ''} ${lead.modeloInteresse} ${lead.anoInteresse || ''}`.trim()
+      : (lead.marcaInteresse || 'seu veículo')
+  const placa = lead.placaInteresse || ''
+  const fipe = formatFipeBR(lead.valorFipeConsultado)
+  const whatsapp = lead.whatsapp || ''
+
+  const lines = [
+    `Oi *${firstName}*! Tudo bem? 😊`,
+    ``,
+    `Vi que você fez uma simulação no nosso site, mas o seu veículo precisa de uma *cotação especial* — vou preparar pra você por aqui.`,
+    ``,
+    `Confirma os dados pra eu seguir?`,
+    `• Nome: *${lead.nome}*`,
+    ...(whatsapp ? [`• WhatsApp: *${whatsapp}*`] : []),
+    ...(placa ? [`• Placa: *${placa}*`] : []),
+    `• Veículo: *${veiculo}*`,
+    ...(fipe ? [`• FIPE: *R$ ${fipe}*`] : []),
+  ]
+
+  // Condicoes especiais — uteis pra qualificar o atendimento manual
+  const origem = leilaoLabel(lead.leilao)
+  if (origem) lines.push(`• Origem: *${origem}*`)
+  if (lead.carroApp) lines.push(`• Carro de aplicativo: *Sim* (Uber/99)`)
+
+  lines.push('')
+  lines.push(`Me responde por aqui que eu te passo a melhor proposta 🚀`)
+
+  return lines.join('\n')
+}
+
 function buildFollowUpMessage(lead: LeadForFollowUp): string {
+  // Veiculos da lista de exclusao: mensagem especifica (sem PDF / "simulacao completa")
+  if (isExcludedLead(lead)) return buildExcludedMessage(lead)
+
   const firstName = lead.nome.split(' ')[0]
   const isMoto =
     (lead.marcaInteresse || '').toLowerCase().includes('moto') ||
