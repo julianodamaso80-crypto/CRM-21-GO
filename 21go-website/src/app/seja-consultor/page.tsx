@@ -350,20 +350,34 @@ function ConsultorModal({ open, onClose }: { open: boolean; onClose: () => void 
     const waWindow = window.open(waUrl, '_blank')
 
     try {
-      const res = await fetch('/api/consultor', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(form),
-      })
-      const data = await res.json()
-      if (!res.ok || !data.success) {
-        setServerError(data.error || 'Não foi possível enviar. Tente novamente.')
-        // Se a notificação interna falhou, ainda assim mantém o WhatsApp aberto
-        return
-      }
+      // Dispara em paralelo pro nosso backend e pro Google Sheets (Planilha)
+      const googleUrl = 'https://script.google.com/macros/s/AKfycbx_WBlHRFcVvzv3VuqmNufGPL2-27A2Q3s5vOHp7Ds8PcYySkmnfxd1rLKpdFdOBtsLow/exec'
+      
+      await Promise.all([
+        // Envia pra planilha
+        fetch(googleUrl, {
+          method: 'POST',
+          mode: 'no-cors', // Evita bloqueio do navegador (CORS)
+          headers: { 'Content-Type': 'text/plain' },
+          body: JSON.stringify({
+            nome: form.nome,
+            email: form.email,
+            whatsapp: form.contato,
+            experiencia: form.experiencia
+          }),
+        }).catch(() => {}), // ignora falhas da planilha pra não travar
+
+        // Envia pro backend original (se existir)
+        fetch('/api/consultor', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(form),
+        }).catch(() => {})
+      ])
+
       setSubmitted(true)
     } catch {
-      // Mesmo com falha de rede no nosso backend, o WhatsApp já abriu — então
+      // Mesmo com falha, o WhatsApp já abriu — então
       // a venda não trava. Apenas registra o erro silenciosamente e segue.
       setSubmitted(true)
       void waWindow
