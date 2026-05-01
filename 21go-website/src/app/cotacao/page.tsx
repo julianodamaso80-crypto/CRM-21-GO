@@ -214,12 +214,12 @@ export default function CotacaoPage() {
     return Object.keys(e).length === 0
   }
 
-  async function fetchVehicle(placa: string): Promise<any> {
+  async function fetchVehicle(placa: string, whatsapp: string): Promise<any> {
     const controller = new AbortController()
     const timeout = setTimeout(() => controller.abort(), 12000)
     try {
       const res = await fetch(
-        `${API_BASE}/api/vehicle/plate/${placa}`,
+        `${API_BASE}/api/vehicle/plate/${placa}?whatsapp=${encodeURIComponent(whatsapp)}`,
         { signal: controller.signal },
       )
       clearTimeout(timeout)
@@ -514,7 +514,7 @@ export default function CotacaoPage() {
     setApiError('')
 
     try {
-      const data = await fetchVehicle(form.placa)
+      const data = await fetchVehicle(form.placa, form.whatsapp)
 
       if (data.success) {
         const v = data.vehicle

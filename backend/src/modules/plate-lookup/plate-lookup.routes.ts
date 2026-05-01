@@ -37,20 +37,22 @@ export async function plateLookupRoutes(fastify: FastifyInstance) {
         },
       },
     },
-    async (request: FastifyRequest<{ Params: { placa: string } }>, reply: FastifyReply) => {
+    async (request: FastifyRequest<{ Params: { placa: string }; Querystring: { whatsapp?: string } }>, reply: FastifyReply) => {
       const { placa } = request.params
+      const { whatsapp } = request.query
       const ip = request.ip
 
-      // Rate limit: bloqueia IPs que fazem muitas consultas de placas diferentes
+      // Rate limit: bloqueia IPs e WhatsApps que fazem muitas consultas de placas diferentes
       // (protege saldo da API contra vendedores concorrentes)
-      if (!isPlateAlreadyCounted(ip, placa)) {
-        const limit = checkRateLimit(ip)
+      if (!isPlateAlreadyCounted(ip, placa, whatsapp)) {
+        const limit = checkRateLimit(ip, whatsapp)
         if (!limit.allowed) {
           const horasRestantes = Math.ceil((limit.retryAfterMs || 0) / 3600000)
-          console.log(`[RateLimit] IP ${ip} BLOQUEADO — tentou consultar placa ${placa}`)
+          const blockReason = limit.blockedBy === 'whatsapp' ? 'WhatsApp' : 'IP'
+          console.log(`[RateLimit] Bloqueado por ${blockReason} (IP ${ip} / WPP ${whatsapp}) — placa ${placa}`)
           return reply.status(429).send({
             success: false,
-            error: `Você atingiu o limite de consultas. Tente novamente em ${horasRestantes}h ou entre em contato pelo WhatsApp.`,
+            error: `Você atingiu o limite de consultas. Tente novamente em alguns dias ou entre em contato pelo WhatsApp.`,
           })
         }
       }
@@ -59,7 +61,7 @@ export async function plateLookupRoutes(fastify: FastifyInstance) {
 
       // Registra no rate limiter SOMENTE se não veio do cache (gastou crédito)
       if (result.success && !(result as any)._fromCache) {
-        recordLookup(ip, placa)
+        recordLookup(ip, placa, whatsapp)
       }
 
       return reply.send(result)

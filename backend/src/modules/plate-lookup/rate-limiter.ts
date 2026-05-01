@@ -1,99 +1,155 @@
 /* ─────────────────────────────────────────────────────────────────────────────
  * Rate Limiter para consulta de placas — protege saldo da API Brasil
  *
+ * DUPLA PROTEÇÃO: limita por IP E por WhatsApp.
+ *
  * Regras:
- *  - Cada IP pode fazer no máximo N consultas de placas DIFERENTES por janela.
+ *  - Cada WhatsApp pode consultar no máximo 2 placas DIFERENTES a cada 7 dias.
+ *  - Cada IP pode consultar no máximo 3 placas DIFERENTES a cada 7 dias.
+ *  - O limite mais restritivo prevalece (basta UM estourar pra bloquear).
  *  - Consultas que batem no cache (mesma placa já consultada hoje) NÃO contam.
  *  - A janela reseta automaticamente (limpeza periódica do Map).
- *  - IPs que excedem o limite recebem erro 429 amigável.
  *
  * Proteção contra: vendedores concorrentes usando o site pra consultar
  * preços rapidamente sem serem clientes reais.
  * ───────────────────────────────────────────────────────────────────────────── */
 
-/** Máximo de consultas de placas NOVAS (não-cache) por IP por janela */
-const MAX_LOOKUPS_PER_IP = 3
+/** Máximo de placas NOVAS por WhatsApp por janela */
+const MAX_PER_WHATSAPP = 2
 
-/** Janela de rate limit em milissegundos (24 horas) */
-const WINDOW_MS = 24 * 60 * 60 * 1000
+/** Máximo de placas NOVAS por IP por janela (fallback se WhatsApp não for fornecido) */
+const MAX_PER_IP = 3
 
-interface IpRecord {
+/** Janela em milissegundos (7 dias) */
+const WINDOW_MS = 7 * 24 * 60 * 60 * 1000
+
+interface LookupRecord {
   /** Placas distintas consultadas (que gastaram crédito da API) */
   plates: Set<string>
   /** Timestamp da primeira consulta nesta janela */
   windowStart: number
 }
 
-const ipMap = new Map<string, IpRecord>()
+/** Mapa por WhatsApp (chave = digits do telefone) */
+const whatsappMap = new Map<string, LookupRecord>()
+
+/** Mapa por IP (proteção adicional) */
+const ipMap = new Map<string, LookupRecord>()
 
 /** Limpa registros expirados a cada 30 minutos pra não vazar memória */
 setInterval(() => {
   const now = Date.now()
-  for (const [ip, record] of ipMap) {
-    if (now - record.windowStart > WINDOW_MS) {
-      ipMap.delete(ip)
-    }
+  for (const [key, record] of whatsappMap) {
+    if (now - record.windowStart > WINDOW_MS) whatsappMap.delete(key)
+  }
+  for (const [key, record] of ipMap) {
+    if (now - record.windowStart > WINDOW_MS) ipMap.delete(key)
   }
 }, 30 * 60 * 1000)
 
+/** Extrai apenas dígitos do WhatsApp */
+function normalizeWhatsApp(wpp: string): string {
+  return wpp.replace(/\D/g, '')
+}
+
+function getRecord(map: Map<string, LookupRecord>, key: string): LookupRecord | null {
+  const record = map.get(key)
+  if (!record) return null
+  if (Date.now() - record.windowStart > WINDOW_MS) {
+    map.delete(key)
+    return null
+  }
+  return record
+}
+
 /**
- * Verifica se o IP pode fazer mais consultas.
+ * Verifica se a consulta pode ser feita.
  * Retorna { allowed: true } se pode, { allowed: false, ... } se bloqueado.
- *
- * IMPORTANTE: chamar `recordLookup` SOMENTE quando a consulta realmente
- * for feita (ou seja, NÃO veio do cache).
  */
-export function checkRateLimit(ip: string): {
+export function checkRateLimit(
+  ip: string,
+  whatsapp?: string,
+): {
   allowed: boolean
   remaining?: number
   retryAfterMs?: number
+  blockedBy?: 'whatsapp' | 'ip'
 } {
-  const now = Date.now()
-  const record = ipMap.get(ip)
-
-  // Sem registro = primeiro acesso — libera
-  if (!record) {
-    return { allowed: true, remaining: MAX_LOOKUPS_PER_IP }
+  // 1) Verifica por WhatsApp (mais forte)
+  if (whatsapp) {
+    const wppKey = normalizeWhatsApp(whatsapp)
+    if (wppKey.length >= 10) {
+      const record = getRecord(whatsappMap, wppKey)
+      if (record && record.plates.size >= MAX_PER_WHATSAPP) {
+        const retryAfterMs = WINDOW_MS - (Date.now() - record.windowStart)
+        return { allowed: false, remaining: 0, retryAfterMs, blockedBy: 'whatsapp' }
+      }
+    }
   }
 
-  // Janela expirou — reseta
-  if (now - record.windowStart > WINDOW_MS) {
-    ipMap.delete(ip)
-    return { allowed: true, remaining: MAX_LOOKUPS_PER_IP }
+  // 2) Verifica por IP
+  const ipRecord = getRecord(ipMap, ip)
+  if (ipRecord && ipRecord.plates.size >= MAX_PER_IP) {
+    const retryAfterMs = WINDOW_MS - (Date.now() - ipRecord.windowStart)
+    return { allowed: false, remaining: 0, retryAfterMs, blockedBy: 'ip' }
   }
 
-  const used = record.plates.size
-  if (used >= MAX_LOOKUPS_PER_IP) {
-    const retryAfterMs = WINDOW_MS - (now - record.windowStart)
-    return { allowed: false, remaining: 0, retryAfterMs }
-  }
+  // Calcula remaining (o menor dos dois)
+  const wppUsed = whatsapp ? (getRecord(whatsappMap, normalizeWhatsApp(whatsapp))?.plates.size || 0) : 0
+  const ipUsed = ipRecord?.plates.size || 0
+  const wppRemaining = MAX_PER_WHATSAPP - wppUsed
+  const ipRemaining = MAX_PER_IP - ipUsed
+  const remaining = whatsapp ? Math.min(wppRemaining, ipRemaining) : ipRemaining
 
-  return { allowed: true, remaining: MAX_LOOKUPS_PER_IP - used }
+  return { allowed: true, remaining }
 }
 
 /**
  * Registra uma consulta que GASTOU crédito da API (não cache).
- * Chamar DEPOIS de confirmar que a consulta não veio do cache.
  */
-export function recordLookup(ip: string, placa: string): void {
+export function recordLookup(ip: string, placa: string, whatsapp?: string): void {
   const now = Date.now()
-  let record = ipMap.get(ip)
+  const normalPlaca = placa.toUpperCase()
 
-  if (!record || now - record.windowStart > WINDOW_MS) {
-    record = { plates: new Set(), windowStart: now }
-    ipMap.set(ip, record)
+  // Registra no IP
+  let ipRec = getRecord(ipMap, ip)
+  if (!ipRec) {
+    ipRec = { plates: new Set(), windowStart: now }
+    ipMap.set(ip, ipRec)
   }
+  ipRec.plates.add(normalPlaca)
 
-  record.plates.add(placa.toUpperCase())
+  // Registra no WhatsApp
+  if (whatsapp) {
+    const wppKey = normalizeWhatsApp(whatsapp)
+    if (wppKey.length >= 10) {
+      let wppRec = getRecord(whatsappMap, wppKey)
+      if (!wppRec) {
+        wppRec = { plates: new Set(), windowStart: now }
+        whatsappMap.set(wppKey, wppRec)
+      }
+      wppRec.plates.add(normalPlaca)
+    }
+  }
 }
 
 /**
- * Verifica se a placa já foi contabilizada para este IP
+ * Verifica se a placa já foi contabilizada para este IP/WhatsApp
  * (evita contar a mesma placa 2x se o cliente recarregar a página).
  */
-export function isPlateAlreadyCounted(ip: string, placa: string): boolean {
-  const record = ipMap.get(ip)
-  if (!record) return false
-  if (Date.now() - record.windowStart > WINDOW_MS) return false
-  return record.plates.has(placa.toUpperCase())
+export function isPlateAlreadyCounted(ip: string, placa: string, whatsapp?: string): boolean {
+  const normalPlaca = placa.toUpperCase()
+
+  // Se já contou pro IP, não conta de novo
+  const ipRec = getRecord(ipMap, ip)
+  if (ipRec?.plates.has(normalPlaca)) return true
+
+  // Se já contou pro WhatsApp, não conta de novo
+  if (whatsapp) {
+    const wppKey = normalizeWhatsApp(whatsapp)
+    const wppRec = getRecord(whatsappMap, wppKey)
+    if (wppRec?.plates.has(normalPlaca)) return true
+  }
+
+  return false
 }
