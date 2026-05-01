@@ -516,11 +516,35 @@ export function getApplicablePlans(
 
   // Moto
   if (isMoto) {
-    const cc = cilindrada || 0
-    if (cc > 0 && cc <= 400) {
+    // Tenta usar a cilindrada da API, ou extrai do nome do modelo (ex: "XRE 190" -> 190)
+    let cc = cilindrada || 0
+    if (cc === 0 && mod) {
+      const matches = mod.match(/\b(\d{2,4})\b/g)
+      if (matches) {
+        for (const match of matches) {
+          const num = parseInt(match, 10)
+          if (num > 1900 && num < 2100) continue // ignora anos
+          if (num >= 50 && num <= 2500) {
+            cc = num
+            break
+          }
+        }
+      }
+      // Casos especiais Yamaha MT
+      if (cc === 0) {
+        if (mod.includes('mt-03') || mod.includes('mt 03')) cc = 321
+        else if (mod.includes('mt-07') || mod.includes('mt 07')) cc = 689
+        else if (mod.includes('mt-09') || mod.includes('mt 09')) cc = 890
+      }
+    }
+
+    if (cc > 0 && cc <= 449) {
       const price = findPrice(MOTO_400, fipeValue)
       if (price) return [{ id: 'moto-400', name: 'VIP Moto até 400cc', monthly: price }]
     } else if (cc >= 450 && cc <= 1000) {
+      const price = findPrice(MOTO_1000, fipeValue)
+      if (price) return [{ id: 'moto-1000', name: 'VIP Moto 450-1000cc', monthly: price }]
+    }
       const price = findPrice(MOTO_1000, fipeValue)
       if (price) return [{ id: 'moto-1000', name: 'VIP Moto 450-1000cc', monthly: price }]
     }
