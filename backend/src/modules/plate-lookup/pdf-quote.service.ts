@@ -314,8 +314,8 @@ function renderPlanPage(
 
         <div class="box laranja">
           <div class="box-head">
-            <b>1º pagamento</b>
-            <span class="badge-ativacao">Ativação</span>
+            <b>Ativação</b>
+            <span class="badge-ativacao">Pagamento único</span>
           </div>
           <div class="ativ-row">
             <span class="ativ-label">À vista no cartão</span>
@@ -330,7 +330,7 @@ function renderPlanPage(
 
         <div class="box verde">
           <div class="box-head">
-            <b>2º pagamento</b>
+            <b>1º pagamento</b>
             <span class="due">vence ${ctx.dueDate}</span>
           </div>
           <div class="row2">
@@ -373,9 +373,18 @@ function renderPlanPage(
 }
 
 function renderHTML(input: QuotePdfInput): string {
-  const dueDate = addDaysBR(new Date(), 30)
-  const validade = addDaysBR(new Date(), 7)
-  const hoje = new Date().toLocaleDateString('pt-BR')
+  const now = new Date()
+  const dayOfMonth = now.getDate()
+  const currentMonth = now.getMonth()
+  const currentYear = now.getFullYear()
+  // Regra 21Go: ativou dia 1-15 → vence dia 10 do mês seguinte;
+  //             ativou dia 16-31 → vence dia 20 do mês seguinte.
+  const dueDateObj = dayOfMonth <= 15
+    ? new Date(currentYear, currentMonth + 1, 10)
+    : new Date(currentYear, currentMonth + 1, 20)
+  const dueDate = dueDateObj.toLocaleDateString('pt-BR')
+  const validade = addDaysBR(now, 7)
+  const hoje = now.toLocaleDateString('pt-BR')
   const veiculoTitulo = `${input.marca} ${input.modelo} ${input.ano}`.trim()
   const logoUrl = getLogoDataUrl()
 

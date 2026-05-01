@@ -1,0 +1,33 @@
+name = "21go-router"
+main = "src/index.js"
+compatibility_date = "2025-03-01"
+
+# Routes — interceptam paths específicos no 21go.site
+# Padrões NÃO listados aqui passam direto pro origin (Vercel)
+[[routes]]
+pattern = "21go.site/dash"
+zone_name = "21go.site"
+
+[[routes]]
+pattern = "21go.site/dash/*"
+zone_name = "21go.site"
+
+[[routes]]
+pattern = "21go.site/tracker"
+zone_name = "21go.site"
+
+[[routes]]
+pattern = "21go.site/checkout-session"
+zone_name = "21go.site"
+
+[[routes]]
+pattern = "21go.site/webhook/*"
+zone_name = "21go.site"
+
+[[routes]]
+pattern = "21go.site/api/sync/*"
+zone_name = "21go.site"
+
+[[routes]]
+pattern = "21go.site/scripts/*"
+zone_name = "21go.site"

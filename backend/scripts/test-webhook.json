@@ -1,0 +1,1 @@
+{"event":"MESSAGES_UPSERT","instance":"21gosite","data":{"key":{"remoteJid":"5521988887777@s.whatsapp.net","fromMe":false,"id":"TEST_MSG_E2E_002"},"pushName":"Cliente Teste Webhook","message":{"conversation":"Oi, quero saber sobre protecao veicular!"}}}

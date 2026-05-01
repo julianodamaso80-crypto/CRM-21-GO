@@ -122,7 +122,7 @@ function buildFollowUpMessage(lead: LeadForFollowUp): string {
     ``,
     `Preparei sua *simulação completa* em PDF d${artigo} *${veiculo}*${placa ? `, placa *${placa}*` : ''}.`,
     ``,
-    `Ficou com alguma dúvida que eu possa te ajudar?`,
+    `Ficou com alguma dúvida que eu possa te ajudar? Se sim, qual dúvida?`,
   ].join('\n')
 }
 
@@ -367,154 +367,30 @@ async function leadRespondeuAposFollowUp(leadId: string, since: Date): Promise<b
 }
 
 export async function sendReengajamento(leadId: string) {
-  if (!EVOLUTION_API_KEY) {
-    console.warn('[Reengajamento] Evolution API key não configurada, skip')
-    return { success: false, error: 'Evolution API not configured' }
-  }
-
-  const lead = await prisma.lead.findUnique({ where: { id: leadId } })
-  if (!lead) return { success: false, error: 'Lead not found' }
-  if (!lead.whatsapp) return { success: false, error: 'Lead sem whatsapp' }
-
-  // Guards: não envia se já enviou, se converteu, se cliente clicou ou respondeu
-  if (lead.reengajamentoEnviado) return { success: false, error: 'Já reengajado' }
-  if (lead.etapaFunil === 'convertido' || lead.etapaFunil === 'perdido') {
-    return { success: false, error: `etapaFunil=${lead.etapaFunil}` }
-  }
-  if (lead.whatsappClicado) return { success: false, error: 'Cliente clicou no botão' }
-  if (!lead.followUpData) return { success: false, error: 'Sem followUpData' }
-
-  // Veiculos da lista de exclusao nao tem reengajamento — a primeira mensagem
-  // ja pede confirmacao dos dados; reengajar nao faz sentido nesse caso.
-  if (isExcludedLead(lead as LeadForFollowUp)) {
-    await prisma.lead.update({
-      where: { id: lead.id },
-      data: { reengajamentoEnviado: true, reengajamentoData: new Date() },
-    }).catch(() => {})
-    return { success: false, error: 'Lead excluido — sem reengajamento' }
-  }
-
-  // JANELA TEMPORAL ESTRITA — evita o caso Wellington (reengajamento 41min após follow-up
-  // por cima da conversa do vendedor). Se a janela de 15min já passou, marca como enviado
-  // e cancela pra sempre.
-  const followUpAge = Date.now() - lead.followUpData.getTime()
-  if (followUpAge > REENGAJAMENTO_JANELA_MAX_MS) {
-    console.log(`[Reengajamento] Janela expirada (${Math.round(followUpAge / 60000)}min > 15min) — cancelando lead ${lead.id}`)
-    await prisma.lead.update({
-      where: { id: lead.id },
-      data: { reengajamentoEnviado: true, reengajamentoData: new Date() },
-    }).catch(() => {})
-    return { success: false, error: 'Janela de reengajamento expirada' }
-  }
-
-  // DEBOUNCE POR WHATSAPP — se o mesmo WhatsApp já recebeu reengajamento nas últimas 24h
-  // (em outro lead), não envia de novo. Protege contra o caso Ramon (2 cotações = 2 leads).
-  const cutoff24h = new Date(Date.now() - 24 * 60 * 60 * 1000)
-  const recentReengaj = await prisma.lead.findFirst({
-    where: {
-      whatsapp: lead.whatsapp,
-      reengajamentoEnviado: true,
-      reengajamentoData: { gte: cutoff24h },
-      id: { not: lead.id },
-    },
-    select: { id: true },
-  })
-  if (recentReengaj) {
-    console.log(`[Reengajamento] BLOQUEADO (debounce 24h) — whatsapp já reengajado no lead ${recentReengaj.id}`)
-    await prisma.lead.update({
-      where: { id: lead.id },
-      data: { reengajamentoEnviado: true, reengajamentoData: new Date() },
-    }).catch(() => {})
-    return { success: false, error: 'Debounce 24h por whatsapp' }
-  }
-
-  if (await leadRespondeuAposFollowUp(lead.id, lead.followUpData)) {
-    // Cliente já respondeu — não precisa reengajar, marca como enviado pra não voltar
-    await prisma.lead.update({
-      where: { id: lead.id },
-      data: { reengajamentoEnviado: true, reengajamentoData: new Date() },
-    })
-    return { success: false, error: 'Cliente respondeu' }
-  }
-
-  const phone = formatPhone(lead.whatsapp)
-  const message = buildReengajamentoMessage(lead as LeadForFollowUp)
-
-  try {
-    await sendText(phone, message)
-    await prisma.lead.update({
-      where: { id: lead.id },
-      data: { reengajamentoEnviado: true, reengajamentoData: new Date() },
-    })
-    console.log(`[Reengajamento] Enviado para ${lead.nome} (${phone})`)
-    return { success: true, leadId: lead.id, phone }
-  } catch (err: any) {
-    console.error('[Reengajamento] Error:', err.message)
-    return { success: false, error: err.message }
-  }
+  // DESATIVADO — após o envio inicial (PDF + mensagem), o bot NÃO envia
+  // mais nenhuma mensagem. O reengajamento automático foi removido.
+  console.log(`[Reengajamento] DESATIVADO — ignorando lead ${leadId}`)
+  // Marca como enviado pra que o worker não tente de novo
+  await prisma.lead.update({
+    where: { id: leadId },
+    data: { reengajamentoEnviado: true, reengajamentoData: new Date() },
+  }).catch(() => {})
+  return { success: false, error: 'Reengajamento desativado' }
 }
 
 /**
- * Worker: processa leads pendentes de reengajamento.
- * Roda em loop (chamado pelo startReengajamentoWorker no startup).
- */
-async function processReengajamentosPendentes() {
-  const cutoffMin = new Date(Date.now() - REENGAJAMENTO_DELAY_MS)       // >= 5min atrás
-  const cutoffMax = new Date(Date.now() - REENGAJAMENTO_JANELA_MAX_MS)  // <= 15min atrás
-
-  const pendentes = await prisma.lead.findMany({
-    where: {
-      followUpEnviado: true,
-      reengajamentoEnviado: false,
-      whatsappClicado: false,
-      // Janela de oportunidade: follow-up entre 5min e 15min atrás
-      followUpData: { lte: cutoffMin, gte: cutoffMax },
-      whatsapp: { not: null },
-      etapaFunil: { notIn: ['convertido', 'perdido'] },
-      // Veiculos da lista de exclusao nao tem reengajamento — a primeira
-      // mensagem ja pede confirmacao dos dados ao cliente.
-      cotacaoPlano: { not: 'EXCLUIDO' },
-    },
-    select: { id: true },
-    take: 50, // limite por ciclo pra não sobrecarregar
-  })
-
-  if (pendentes.length === 0) return
-
-  console.log(`[Reengajamento] Processando ${pendentes.length} lead(s) pendente(s)`)
-  for (const { id } of pendentes) {
-    try {
-      await sendReengajamento(id)
-    } catch (err: any) {
-      console.error(`[Reengajamento] Falha em lead ${id}:`, err.message)
-    }
-  }
-}
-
-let reengajamentoInterval: NodeJS.Timeout | null = null
-
-/**
- * Inicia o worker que processa reengajamentos pendentes a cada 60s.
- * Chamar uma vez no startup do servidor.
+ * Inicia o worker que processa reengajamentos pendentes.
+ * DESATIVADO — após o envio inicial (PDF + mensagem), o bot NÃO envia
+ * mais nenhuma mensagem. Qualquer interação posterior é feita pelo
+ * atendente humano. O reengajamento automático foi desativado para
+ * evitar que o bot envie mensagem depois que o cliente já respondeu.
  */
 export function startReengajamentoWorker() {
-  if (reengajamentoInterval) return
-  console.log('[Reengajamento] Worker iniciado (intervalo: 60s, delay: 5min)')
-  // Roda imediatamente, depois a cada 60s
-  processReengajamentosPendentes().catch(err =>
-    console.error('[Reengajamento] Worker init error:', err.message),
-  )
-  reengajamentoInterval = setInterval(() => {
-    processReengajamentosPendentes().catch(err =>
-      console.error('[Reengajamento] Worker tick error:', err.message),
-    )
-  }, 60_000)
+  console.log('[Reengajamento] Worker DESATIVADO — bot envia apenas a mensagem inicial com PDF')
+  // No-op: reengajamento automático removido por decisão de negócio.
 }
 
 export function stopReengajamentoWorker() {
-  if (reengajamentoInterval) {
-    clearInterval(reengajamentoInterval)
-    reengajamentoInterval = null
-    console.log('[Reengajamento] Worker parado')
-  }
+  // No-op: worker já desativado.
 }
+

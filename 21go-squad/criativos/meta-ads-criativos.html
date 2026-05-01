@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>21Go — Criativos Meta Ads</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'DM Sans', sans-serif; background: #f5f5f5; padding: 40px 20px; }
+  h1 { font-family: 'Outfit', sans-serif; text-align: center; margin-bottom: 10px; color: #0A1E3D; }
+  .subtitle { text-align: center; color: #64748B; margin-bottom: 40px; }
+  .grid { display: flex; flex-wrap: wrap; gap: 40px; justify-content: center; }
+
+  /* ===== CRIATIVO BASE ===== */
+  .criativo {
+    width: 540px; height: 540px;
+    border-radius: 16px; overflow: hidden;
+    position: relative;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+    flex-shrink: 0;
+  }
+  .criativo * { font-family: 'Outfit', sans-serif; }
+  .label { text-align: center; margin-top: 16px; font-size: 14px; color: #64748B; font-family: 'DM Sans'; }
+
+  /* ===== CRIATIVO 1 — LEILÃO ===== */
+  .c1 {
+    background: linear-gradient(135deg, #0A1E3D 0%, #11336D 50%, #1B4DA1 100%);
+    padding: 40px;
+    display: flex; flex-direction: column; justify-content: space-between;
+  }
+  .c1 .orb1 {
+    position: absolute; top: -80px; right: -80px;
+    width: 300px; height: 300px; border-radius: 50%;
+    background: radial-gradient(circle, rgba(201,168,76,0.3), transparent 70%);
+    filter: blur(60px);
+  }
+  .c1 .orb2 {
+    position: absolute; bottom: -60px; left: -60px;
+    width: 250px; height: 250px; border-radius: 50%;
+    background: radial-gradient(circle, rgba(27,77,161,0.4), transparent 70%);
+    filter: blur(50px);
+  }
+  .c1 .geo {
+    position: absolute; top: 20%; right: 10%;
+    width: 80px; height: 80px; border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 16px; transform: rotate(15deg);
+  }
+  .c1 .content { position: relative; z-index: 2; }
+  .c1 .badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: rgba(201,168,76,0.15); border: 1px solid rgba(201,168,76,0.3);
+    border-radius: 100px; padding: 6px 14px; font-size: 12px; color: #C9A84C;
+    font-weight: 600; margin-bottom: 20px;
+  }
+  .c1 .big-number {
+    font-size: 96px; font-weight: 800; line-height: 1;
+    background: linear-gradient(135deg, #C9A84C, #E8D48B, #C9A84C);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    background-clip: text; margin-bottom: 8px;
+  }
+  .c1 .headline { font-size: 20px; font-weight: 700; color: white; margin-bottom: 24px; }
+  .c1 .calc {
+    background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 12px; padding: 16px; margin-bottom: 24px;
+  }
+  .c1 .calc-row {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 6px 0; font-size: 13px; color: rgba(255,255,255,0.7);
+  }
+  .c1 .calc-row.highlight { color: #10B981; font-weight: 700; font-size: 15px; }
+  .c1 .calc-row .val { font-weight: 700; color: white; }
+  .c1 .calc-row.highlight .val { color: #10B981; }
+  .c1 .calc-row.bad { color: #EF4444; }
+  .c1 .calc-row.bad .val { color: #EF4444; }
+  .c1 .cta-bar {
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .c1 .cta-btn {
+    background: #E07620; color: white; padding: 12px 24px;
+    border-radius: 12px; font-weight: 700; font-size: 14px;
+    border: none; cursor: pointer;
+    box-shadow: 0 4px 20px rgba(224,118,32,0.4);
+  }
+  .c1 .logo { display: flex; align-items: center; gap: 8px; }
+  .c1 .logo img { width: 28px; height: 28px; border-radius: 6px; }
+  .c1 .logo span { font-weight: 700; font-size: 16px; color: white; }
+
+  /* ===== CRIATIVO 2 — APP ===== */
+  .c2 {
+    background: linear-gradient(160deg, #0A1E3D 0%, #0D2653 40%, #1B4DA1 100%);
+    padding: 40px;
+    display: flex; flex-direction: column; justify-content: space-between;
+  }
+  .c2 .orb1 {
+    position: absolute; top: -60px; left: -60px;
+    width: 300px; height: 300px; border-radius: 50%;
+    background: radial-gradient(circle, rgba(224,118,32,0.25), transparent 70%);
+    filter: blur(60px);
+  }
+  .c2 .orb2 {
+    position: absolute; bottom: -80px; right: -80px;
+    width: 350px; height: 350px; border-radius: 50%;
+    background: radial-gradient(circle, rgba(27,77,161,0.3), transparent 70%);
+    filter: blur(70px);
+  }
+  .c2 .content { position: relative; z-index: 2; }
+  .c2 .badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: rgba(224,118,32,0.15); border: 1px solid rgba(224,118,32,0.3);
+    border-radius: 100px; padding: 6px 14px; font-size: 12px; color: #E07620;
+    font-weight: 600; margin-bottom: 20px;
+  }
+  .c2 .big-number {
+    font-size: 96px; font-weight: 800; line-height: 1;
+    color: #E07620; margin-bottom: 8px;
+  }
+  .c2 .headline { font-size: 20px; font-weight: 700; color: white; margin-bottom: 24px; }
+  .c2 .compare {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 12px;
+    margin-bottom: 20px;
+  }
+  .c2 .compare-card {
+    border-radius: 12px; padding: 16px; font-size: 13px;
+  }
+  .c2 .compare-card.bad {
+    background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.2);
+  }
+  .c2 .compare-card.good {
+    background: rgba(16,185,129,0.08); border: 1px solid rgba(16,185,129,0.2);
+  }
+  .c2 .compare-card h4 {
+    font-size: 12px; font-weight: 700; margin-bottom: 10px;
+    text-transform: uppercase; letter-spacing: 1px;
+  }
+  .c2 .compare-card.bad h4 { color: #EF4444; }
+  .c2 .compare-card.good h4 { color: #10B981; }
+  .c2 .compare-card li {
+    list-style: none; padding: 3px 0; font-size: 12px;
+    color: rgba(255,255,255,0.7);
+  }
+  .c2 .compare-card.bad li::before { content: '✗ '; color: #EF4444; font-weight: 700; }
+  .c2 .compare-card.good li::before { content: '✓ '; color: #10B981; font-weight: 700; }
+  .c2 .example {
+    background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 10px; padding: 12px 16px; font-size: 13px;
+    color: rgba(255,255,255,0.8); margin-bottom: 20px;
+  }
+  .c2 .example strong { color: #E07620; }
+  .c2 .cta-bar { display: flex; align-items: center; justify-content: space-between; }
+  .c2 .cta-btn {
+    background: #E07620; color: white; padding: 12px 24px;
+    border-radius: 12px; font-weight: 700; font-size: 14px;
+    border: none; cursor: pointer;
+    box-shadow: 0 4px 20px rgba(224,118,32,0.4);
+  }
+  .c2 .logo { display: flex; align-items: center; gap: 8px; }
+  .c2 .logo img { width: 28px; height: 28px; border-radius: 6px; }
+  .c2 .logo span { font-weight: 700; font-size: 16px; color: white; }
+
+  /* ===== CRIATIVO 3 — SUSEP ===== */
+  .c3 {
+    background: linear-gradient(180deg, #FAFBFC 0%, #F0F4FA 100%);
+    padding: 40px;
+    display: flex; flex-direction: column; justify-content: space-between;
+  }
+  .c3 .accent-line {
+    position: absolute; top: 0; left: 0; right: 0; height: 4px;
+    background: linear-gradient(90deg, #1B4DA1, #3D72DE, #1B4DA1);
+  }
+  .c3 .content { position: relative; z-index: 2; }
+  .c3 .badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: rgba(27,77,161,0.08); border: 1px solid rgba(27,77,161,0.15);
+    border-radius: 100px; padding: 6px 14px; font-size: 12px; color: #1B4DA1;
+    font-weight: 600; margin-bottom: 20px;
+  }
+  .c3 .shield-icon {
+    width: 64px; height: 64px; border-radius: 16px;
+    background: rgba(27,77,161,0.08); display: flex;
+    align-items: center; justify-content: center;
+    margin-bottom: 16px;
+  }
+  .c3 .shield-icon svg { width: 32px; height: 32px; color: #1B4DA1; }
+  .c3 .headline {
+    font-size: 32px; font-weight: 800; color: #0A1E3D;
+    line-height: 1.15; margin-bottom: 6px;
+  }
+  .c3 .sub { font-size: 16px; color: #64748B; margin-bottom: 24px; }
+  .c3 .points { margin-bottom: 20px; }
+  .c3 .point {
+    display: flex; align-items: center; gap: 12px;
+    padding: 10px 0; border-bottom: 1px solid rgba(0,0,0,0.05);
+    font-size: 14px; color: #0A1E3D;
+  }
+  .c3 .point:last-child { border-bottom: none; }
+  .c3 .point-icon {
+    width: 32px; height: 32px; border-radius: 8px;
+    background: rgba(16,185,129,0.1); display: flex;
+    align-items: center; justify-content: center;
+    font-size: 16px; flex-shrink: 0;
+  }
+  .c3 .warning {
+    background: rgba(224,118,32,0.06); border: 1px solid rgba(224,118,32,0.15);
+    border-radius: 10px; padding: 12px 16px; font-size: 12px;
+    color: #0A1E3D; margin-bottom: 20px; line-height: 1.5;
+  }
+  .c3 .warning strong { color: #E07620; }
+  .c3 .cta-bar { display: flex; align-items: center; justify-content: space-between; }
+  .c3 .cta-btn {
+    background: #1B4DA1; color: white; padding: 12px 24px;
+    border-radius: 12px; font-weight: 700; font-size: 14px;
+    border: none; cursor: pointer;
+    box-shadow: 0 4px 20px rgba(27,77,161,0.3);
+  }
+  .c3 .logo { display: flex; align-items: center; gap: 8px; }
+  .c3 .logo img { width: 28px; height: 28px; border-radius: 6px; }
+  .c3 .logo span { font-weight: 700; font-size: 16px; color: #1B4DA1; }
+</style>
+</head>
+<body>
+
+<h1>Criativos Meta Ads — 21Go</h1>
+<p class="subtitle">1080x1080 Feed Instagram/Facebook (visualização em 540px)</p>
+
+<div class="grid">
+
+<!-- ===== CRIATIVO 1 — LEILÃO 80% FIPE ===== -->
+<div>
+<div class="criativo c1">
+  <div class="orb1"></div>
+  <div class="orb2"></div>
+  <div class="geo"></div>
+
+  <div class="content">
+    <div class="badge">🏷️ Diferencial Exclusivo</div>
+
+    <div class="big-number">80%</div>
+    <div class="headline">Pagamos 80% da FIPE<br>para veículos de leilão</div>
+
+    <div class="calc">
+      <div class="calc-row">
+        <span>Comprou no leilão</span>
+        <span class="val">R$ 35.000</span>
+      </div>
+      <div class="calc-row">
+        <span>Valor FIPE do veículo</span>
+        <span class="val">R$ 60.000</span>
+      </div>
+      <div class="calc-row highlight">
+        <span>Se roubar → você recebe</span>
+        <span class="val">R$ 48.000</span>
+      </div>
+      <div class="calc-row bad">
+        <span>Seguradora?</span>
+        <span class="val">Recusa leilão</span>
+      </div>
+    </div>
+
+    <div class="cta-bar">
+      <div class="logo">
+        <img src="https://21go-website-production.up.railway.app/logo21go.png" alt="21Go">
+        <span>21Go</span>
+      </div>
+      <button class="cta-btn">Faça sua cotação grátis</button>
+    </div>
+  </div>
+</div>
+<p class="label">Criativo 1 — Leilão 80% FIPE</p>
+</div>
+
+<!-- ===== CRIATIVO 2 — APP 6% COTA ===== -->
+<div>
+<div class="criativo c2">
+  <div class="orb1"></div>
+  <div class="orb2"></div>
+
+  <div class="content">
+    <div class="badge">🚗 Motorista de App</div>
+
+    <div class="big-number">6%</div>
+    <div class="headline">Cota de participação<br>de apenas 6%</div>
+
+    <div class="compare">
+      <div class="compare-card bad">
+        <h4>Seguradora</h4>
+        <ul>
+          <li>Recusa uso comercial</li>
+          <li>+40% no preço</li>
+          <li>Franquia oculta</li>
+        </ul>
+      </div>
+      <div class="compare-card good">
+        <h4>21Go</h4>
+        <ul>
+          <li>Aceita carro de app</li>
+          <li>Cota de apenas 6%</li>
+          <li>Valor transparente</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="example">
+      HB20 2022 (FIPE ~R$ 78.000) → Cota = <strong>R$ 4.680</strong> em sinistro parcial
+    </div>
+
+    <div class="cta-bar">
+      <div class="logo">
+        <img src="https://21go-website-production.up.railway.app/logo21go.png" alt="21Go">
+        <span>21Go</span>
+      </div>
+      <button class="cta-btn">Faça sua cotação grátis</button>
+    </div>
+  </div>
+</div>
+<p class="label">Criativo 2 — App Cota 6%</p>
+</div>
+
+<!-- ===== CRIATIVO 3 — SUSEP ===== -->
+<div>
+<div class="criativo c3">
+  <div class="accent-line"></div>
+
+  <div class="content">
+    <div class="badge">🛡️ Segurança Regulamentada</div>
+
+    <div class="shield-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+        <path d="m9 12 2 2 4-4"/>
+      </svg>
+    </div>
+
+    <div class="headline">Cadastrada<br>na SUSEP</div>
+    <div class="sub">Sua proteção com respaldo do governo federal</div>
+
+    <div class="points">
+      <div class="point">
+        <div class="point-icon">🔒</div>
+        <span>Recursos protegidos por lei</span>
+      </div>
+      <div class="point">
+        <div class="point-icon">⚖️</div>
+        <span>LC 213/2025 — regulamentação federal</span>
+      </div>
+      <div class="point">
+        <div class="point-icon">✅</div>
+        <span>Operação fiscalizada pelo governo</span>
+      </div>
+    </div>
+
+    <div class="warning">
+      <strong>⚠️ Antes de contratar:</strong> Pergunte "vocês são cadastrados na SUSEP?" — se não forem, saia correndo.
+    </div>
+
+    <div class="cta-bar">
+      <div class="logo">
+        <img src="https://21go-website-production.up.railway.app/logo21go.png" alt="21Go">
+        <span>21Go</span>
+      </div>
+      <button class="cta-btn">Faça sua cotação grátis</button>
+    </div>
+  </div>
+</div>
+<p class="label">Criativo 3 — SUSEP</p>
+</div>
+
+</div>
+
+</body>
+</html>

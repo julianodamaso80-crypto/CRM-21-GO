@@ -646,7 +646,7 @@ export default function CotacaoPage() {
     : ''
   const fipeFormatted = vehicle ? vehicle.fipeValue.toLocaleString('pt-BR') : '0'
 
-  // Lógica de pagamento: 1º = taxa ativação, 2º = mensalidade com desconto 5%
+  // Lógica de pagamento: Ativação (cartão) + 1º pagamento (mensalidade com desconto 5%)
   const taxaAtivacao = 399
 
   /* Mercado Pago — gross-up pra receber o valor liquido na hora.
@@ -1272,11 +1272,11 @@ export default function CotacaoPage() {
                   </div>
 
                   <div className="border-t border-[#E8ECF4] pt-4 mb-6 space-y-4 text-sm">
-                    {/* 1º PAGAMENTO — Ativação do plano (cartão à vista ou 12x) */}
+                    {/* ATIVAÇÃO — Pagamento único do plano (cartão à vista ou 12x) */}
                     <div className="bg-[#FFF7ED] border border-[#F7963D]/20 rounded-xl p-4">
                       <div className="flex items-center justify-between mb-2">
-                        <span className="font-bold text-[#121A33]">1º pagamento</span>
-                        <span className="text-[10px] uppercase tracking-wider font-bold text-[#F7963D] bg-[#F7963D]/10 px-2 py-0.5 rounded-full">Ativação</span>
+                        <span className="font-bold text-[#121A33]">Ativação</span>
+                        <span className="text-[10px] uppercase tracking-wider font-bold text-[#F7963D] bg-[#F7963D]/10 px-2 py-0.5 rounded-full">Pagamento único</span>
                       </div>
                       <div className="space-y-1.5">
                         <div className="flex items-baseline justify-between">
@@ -1293,10 +1293,10 @@ export default function CotacaoPage() {
                       </p>
                     </div>
 
-                    {/* 2º PAGAMENTO — Mensalidade com desconto */}
+                    {/* 1º PAGAMENTO — Mensalidade com desconto */}
                     <div className="bg-[#F0FDF4] border border-[#10B981]/20 rounded-xl p-4">
                       <div className="flex justify-between items-center mb-1">
-                        <span className="font-bold text-[#121A33]">2º pagamento</span>
+                        <span className="font-bold text-[#121A33]">1º pagamento</span>
                         <span className="text-xs text-[#64748B]">vencimento até {dueDateFormatted}</span>
                       </div>
                       <div className="flex items-baseline justify-end gap-2 mt-1">

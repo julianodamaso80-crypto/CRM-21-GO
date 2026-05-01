@@ -38,7 +38,8 @@
       "Bash(npm run prisma:seed:*)",
       "Bash(powershell -Command \"Stop-Process -Id 103544 -Force\")",
       "Bash(if exist CRM dir CRM /a)",
-      "Bash(kill:*)"
+      "Bash(kill:*)",
+      "WebSearch"
     ]
   }
 }

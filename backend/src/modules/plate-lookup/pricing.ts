@@ -616,12 +616,19 @@ export function getAllRelevantPlans(
     applicableIds.add('premium')
   }
 
-  // Lista de todos os planos da 21Go com seus labels
+  // Lista de planos da 21Go — para motos, mostra SOMENTE o plano
+  // correspondente à cilindrada (se conhecida). Evita que o PDF/site
+  // apresente o plano errado ao cliente.
   const allPlans: { id: PlanId; name: string; categoryLabel: string; popular?: boolean }[] = isMoto
-    ? [
-        { id: 'moto-400', name: 'VIP Moto até 400cc', categoryLabel: 'Moto' },
-        { id: 'moto-1000', name: 'VIP Moto 450-1000cc', categoryLabel: 'Moto', popular: true },
-      ]
+    ? (cc > 0 && cc <= 400)
+      ? [{ id: 'moto-400', name: 'VIP Moto até 400cc', categoryLabel: 'Moto' }]
+      : (cc >= 450 && cc <= 1000)
+      ? [{ id: 'moto-1000', name: 'VIP Moto 450-1000cc', categoryLabel: 'Moto' }]
+      : [
+          // Cilindrada desconhecida — mostra ambos
+          { id: 'moto-400', name: 'VIP Moto até 400cc', categoryLabel: 'Moto' },
+          { id: 'moto-1000', name: 'VIP Moto 450-1000cc', categoryLabel: 'Moto', popular: true },
+        ]
     : isEspecial
     ? [
         { id: 'especial', name: 'Veículos Especiais', categoryLabel: 'Especial' },
