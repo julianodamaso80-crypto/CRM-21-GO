@@ -25,8 +25,9 @@ const WINDOW_MS = 7 * 24 * 60 * 60 * 1000
 
 /** Números de WhatsApp que NÃO tem limite de consultas (admin/testes) */
 const WHITELISTED_WHATSAPPS = [
-  '21992208062', // Número do Juliano (visto nos testes)
-  // Adicione o da sua esposa aqui!
+  '21992208062', // Número do Juliano
+  '21979034169', // Número 2
+  '21965774240', // Número 3
 ]
 
 interface LookupRecord {
