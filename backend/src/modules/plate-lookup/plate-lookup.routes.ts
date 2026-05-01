@@ -12,6 +12,7 @@ import { convertLead } from './lead-convert.service'
 import { sendFollowUp } from './lead-followup.service'
 import { cancelFollowUp } from './quote-queue'
 import { prisma } from '../../config/database'
+import { checkRateLimit, recordLookup, isPlateAlreadyCounted } from './rate-limiter'
 
 function normalizeKind(v: string | undefined): VehicleKind {
   return v === 'motos' ? 'motos' : 'carros'
@@ -38,7 +39,29 @@ export async function plateLookupRoutes(fastify: FastifyInstance) {
     },
     async (request: FastifyRequest<{ Params: { placa: string } }>, reply: FastifyReply) => {
       const { placa } = request.params
+      const ip = request.ip
+
+      // Rate limit: bloqueia IPs que fazem muitas consultas de placas diferentes
+      // (protege saldo da API contra vendedores concorrentes)
+      if (!isPlateAlreadyCounted(ip, placa)) {
+        const limit = checkRateLimit(ip)
+        if (!limit.allowed) {
+          const horasRestantes = Math.ceil((limit.retryAfterMs || 0) / 3600000)
+          console.log(`[RateLimit] IP ${ip} BLOQUEADO — tentou consultar placa ${placa}`)
+          return reply.status(429).send({
+            success: false,
+            error: `Você atingiu o limite de consultas. Tente novamente em ${horasRestantes}h ou entre em contato pelo WhatsApp.`,
+          })
+        }
+      }
+
       const result = await lookupPlate(placa)
+
+      // Registra no rate limiter SOMENTE se não veio do cache (gastou crédito)
+      if (result.success && !(result as any)._fromCache) {
+        recordLookup(ip, placa)
+      }
+
       return reply.send(result)
     },
   )

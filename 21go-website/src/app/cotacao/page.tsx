@@ -619,9 +619,14 @@ export default function CotacaoPage() {
           if (data.leadId) setLeadId(data.leadId)
         }).catch(() => {})
       } else {
-        // API retornou erro — mostra fallback manual
-        setShowFallback(true)
-        setApiError('')
+        // Se a mensagem de erro contém "limite", é rate limit — mostra erro, NÃO mostra fallback
+        if (data.error && (data.error.includes('limite') || data.error.includes('Limit'))) {
+          setApiError(data.error)
+        } else {
+          // API retornou erro normal — mostra fallback manual
+          setShowFallback(true)
+          setApiError('')
+        }
       }
     } catch {
       // Timeout ou erro de rede — mostra fallback manual

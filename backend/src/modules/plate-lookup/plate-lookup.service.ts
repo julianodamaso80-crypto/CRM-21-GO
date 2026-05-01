@@ -79,7 +79,7 @@ export async function lookupPlate(placa: string): Promise<PlateResponse | PlateE
 
   // 1. Check cache
   const cached = await tryCache(normalized)
-  if (cached) return cached
+  if (cached) return { ...cached, _fromCache: true } as PlateResponse
 
   // 2. Call API Brasil
   const token = process.env.APIBRASIL_TOKEN
