@@ -545,9 +545,7 @@ export function getApplicablePlans(
       const price = findPrice(MOTO_1000, fipeValue)
       if (price) return [{ id: 'moto-1000', name: 'VIP Moto 450-1000cc', monthly: price }]
     }
-      const price = findPrice(MOTO_1000, fipeValue)
-      if (price) return [{ id: 'moto-1000', name: 'VIP Moto 450-1000cc', monthly: price }]
-    }
+
     // Se cilindrada desconhecida, mostra ambos
     const plans: QuotePlan[] = []
     const p400 = findPrice(MOTO_400, fipeValue)
