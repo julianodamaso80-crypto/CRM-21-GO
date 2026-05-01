@@ -310,7 +310,7 @@ export default function SejaConsultorPage() {
 
 /* ─── Modal de cadastro do consultor ─── */
 function ConsultorModal({ open, onClose }: { open: boolean; onClose: () => void }) {
-  const [form, setForm] = useState({ nome: '', email: '', contato: '', experiencia: '' })
+  const [form, setForm] = useState({ nome: '', email: '', contato: '', cidade: '', estado: '', experiencia: '' })
   const [errors, setErrors] = useState<Record<string, string>>({})
   const [loading, setLoading] = useState(false)
   const [submitted, setSubmitted] = useState(false)
@@ -326,6 +326,8 @@ function ConsultorModal({ open, onClose }: { open: boolean; onClose: () => void 
     if (!form.nome.trim()) e.nome = 'Informe seu nome completo'
     if (!form.email.trim()) e.email = 'Informe seu e-mail'
     else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) e.email = 'E-mail inválido'
+    if (!form.cidade.trim()) e.cidade = 'Informe sua cidade'
+    if (!form.estado.trim()) e.estado = 'UF'
     const phoneErr = isValidWhatsApp(form.contato)
     if (phoneErr) e.contato = phoneErr
     setErrors(e)
@@ -342,7 +344,7 @@ function ConsultorModal({ open, onClose }: { open: boolean; onClose: () => void 
     const expLine = form.experiencia.trim()
       ? `\nJá trabalhei com proteção veicular: ${form.experiencia.trim()}`
       : ''
-    const waText = `Olá! Acabei de me cadastrar como consultor 21Go.\nNome: ${form.nome}\nE-mail: ${form.email}\nWhatsApp: ${form.contato}${expLine}`
+    const waText = `Olá! Acabei de me cadastrar como consultor 21Go.\nNome: ${form.nome}\nE-mail: ${form.email}\nWhatsApp: ${form.contato}\nLocal: ${form.cidade} - ${form.estado}${expLine}`
     const waUrl = `https://wa.me/5521979034169?text=${encodeURIComponent(waText)}`
 
     // Abre o WhatsApp imediatamente (precisa rodar dentro do gesto do clique
@@ -363,6 +365,8 @@ function ConsultorModal({ open, onClose }: { open: boolean; onClose: () => void 
             nome: form.nome,
             email: form.email,
             whatsapp: form.contato,
+            cidade: form.cidade,
+            estado: form.estado,
             experiencia: form.experiencia
           }),
         }).catch(() => {}), // ignora falhas da planilha pra não travar
@@ -390,7 +394,7 @@ function ConsultorModal({ open, onClose }: { open: boolean; onClose: () => void 
     onClose()
     // reset depois do fade-out pra não piscar
     setTimeout(() => {
-      setForm({ nome: '', email: '', contato: '', experiencia: '' })
+      setForm({ nome: '', email: '', contato: '', cidade: '', estado: '', experiencia: '' })
       setErrors({})
       setSubmitted(false)
       setServerError('')
@@ -399,7 +403,7 @@ function ConsultorModal({ open, onClose }: { open: boolean; onClose: () => void 
 
   if (!open) return null
 
-  const waFallbackText = `Olá! Acabei de me cadastrar como consultor 21Go.\nNome: ${form.nome}\nE-mail: ${form.email}\nWhatsApp: ${form.contato}${form.experiencia.trim() ? `\nJá trabalhei com proteção veicular: ${form.experiencia.trim()}` : ''}`
+  const waFallbackText = `Olá! Acabei de me cadastrar como consultor 21Go.\nNome: ${form.nome}\nE-mail: ${form.email}\nWhatsApp: ${form.contato}\nLocal: ${form.cidade} - ${form.estado}${form.experiencia.trim() ? `\nJá trabalhei com proteção veicular: ${form.experiencia.trim()}` : ''}`
   const waLink = `https://wa.me/5521979034169?text=${encodeURIComponent(waFallbackText)}`
 
   return (
@@ -469,6 +473,31 @@ function ConsultorModal({ open, onClose }: { open: boolean; onClose: () => void 
                 icon={<MessageCircle className="w-4 h-4 text-[#25D366]" />}
                 disabled={loading}
               />
+              
+              <div className="flex gap-4">
+                <div className="flex-1">
+                  <Field
+                    label="Cidade"
+                    name="cidade"
+                    value={form.cidade}
+                    onChange={(v) => set('cidade', v)}
+                    placeholder="Sua cidade"
+                    error={errors.cidade}
+                    disabled={loading}
+                  />
+                </div>
+                <div className="w-24">
+                  <Field
+                    label="Estado"
+                    name="estado"
+                    value={form.estado}
+                    onChange={(v) => set('estado', v.toUpperCase().slice(0, 2))}
+                    placeholder="UF"
+                    error={errors.estado}
+                    disabled={loading}
+                  />
+                </div>
+              </div>
 
               <div>
                 <label htmlFor="experiencia" className="block text-sm font-semibold text-[#121A33] mb-2">
