@@ -178,6 +178,7 @@ export default function CotacaoPage() {
 
   // Lead tracking (backend CRM cuida de follow-up + PDF + Bull queue)
   const [leadId, setLeadId] = useState<string | null>(null)
+  const [showRateLimitModal, setShowRateLimitModal] = useState(false)
   const whatsappClicked = useRef(false)
 
   // Helper: notify WhatsApp click to API (legado + backend/CRM com envio imediato de PDF)
@@ -619,9 +620,9 @@ export default function CotacaoPage() {
           if (data.leadId) setLeadId(data.leadId)
         }).catch(() => {})
       } else {
-        // Se a mensagem de erro contém "limite", é rate limit — mostra erro, NÃO mostra fallback
+        // Se a mensagem de erro contém "limite", é rate limit — mostra popup modal
         if (data.error && (data.error.includes('limite') || data.error.includes('Limit'))) {
-          setApiError(data.error)
+          setShowRateLimitModal(true)
         } else {
           // API retornou erro normal — mostra fallback manual
           setShowFallback(true)
@@ -1441,6 +1442,43 @@ export default function CotacaoPage() {
           )}
         </div>
       </div>
+
+      {/* Rate Limit Modal */}
+      {showRateLimitModal && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-[#121A33]/60 backdrop-blur-sm">
+          <div className="bg-white rounded-3xl p-6 md:p-8 max-w-md w-full shadow-2xl relative animate-in fade-in zoom-in-95 duration-200">
+            <button
+              onClick={() => setShowRateLimitModal(false)}
+              className="absolute top-4 right-4 p-2 text-[#94A3B8] hover:text-[#121A33] hover:bg-[#F7F8FC] rounded-full transition-colors"
+            >
+              <X className="w-5 h-5" />
+            </button>
+            
+            <div className="w-16 h-16 rounded-2xl bg-[#F7963D]/10 flex items-center justify-center mx-auto mb-6">
+              <AlertCircle className="w-8 h-8 text-[#F7963D]" />
+            </div>
+            
+            <h3 className="text-2xl font-extrabold text-[#121A33] text-center mb-3">
+              Limite de Consultas
+            </h3>
+            
+            <p className="text-[#64748B] text-center mb-8 leading-relaxed">
+              Você atingiu o limite de consultas automáticas no nosso site. Se você precisa de uma simulação para o seu veículo, por favor, nos chame no WhatsApp!
+            </p>
+            
+            <a
+              href={`https://wa.me/5521979034169?text=${encodeURIComponent('Olá! Tentei fazer uma simulação no site mas atingi o limite. Podem me ajudar?')}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={() => setShowRateLimitModal(false)}
+              className="flex items-center justify-center gap-2.5 w-full py-4 bg-gradient-to-r from-[#10B981] to-[#059669] text-white font-bold text-base rounded-full shadow-lg shadow-[#10B981]/20 hover:shadow-xl hover:shadow-[#10B981]/30 hover:scale-[1.02] active:scale-[0.98] transition-all duration-200"
+            >
+              <MessageCircle className="w-5 h-5" />
+              Falar com um Consultor
+            </a>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
