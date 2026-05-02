@@ -347,8 +347,8 @@ export async function sendFollowUp(input: FollowUpInput) {
  * manda uma mensagem leve perguntando se ficou alguma dúvida.
  * ───────────────────────────────────────────────────────────────────────── */
 
-const REENGAJAMENTO_DELAY_MS = 5 * 60 * 1000 // mínimo: 5 minutos após follow-up
-const REENGAJAMENTO_JANELA_MAX_MS = 15 * 60 * 1000 // máximo: 15 minutos — depois disso, cancela (janela de oportunidade perdida, vendedor provavelmente já pegou)
+const REENGAJAMENTO_DELAY_MS = 40 * 60 * 60 * 1000 // 40 horas
+const REENGAJAMENTO_JANELA_MAX_MS = 48 * 60 * 60 * 1000 // Janela limite de 48 horas
 
 /**
  * Verifica se o lead respondeu via WhatsApp depois do follow-up.
@@ -367,30 +367,100 @@ async function leadRespondeuAposFollowUp(leadId: string, since: Date): Promise<b
 }
 
 export async function sendReengajamento(leadId: string) {
-  // DESATIVADO — após o envio inicial (PDF + mensagem), o bot NÃO envia
-  // mais nenhuma mensagem. O reengajamento automático foi removido.
-  console.log(`[Reengajamento] DESATIVADO — ignorando lead ${leadId}`)
-  // Marca como enviado pra que o worker não tente de novo
-  await prisma.lead.update({
+  console.log(`[Reengajamento] Processando lead ${leadId}`)
+  
+  const lead = await prisma.lead.findUnique({
     where: { id: leadId },
-    data: { reengajamentoEnviado: true, reengajamentoData: new Date() },
-  }).catch(() => {})
-  return { success: false, error: 'Reengajamento desativado' }
+    select: { id: true, nome: true, whatsapp: true, followUpData: true, reengajamentoEnviado: true },
+  })
+
+  if (!lead || !lead.whatsapp || lead.reengajamentoEnviado || !lead.followUpData) {
+    return { success: false, error: 'Inválido ou já enviado' }
+  }
+
+  // Verifica se o lead respondeu após o follow-up
+  const respondeu = await leadRespondeuAposFollowUp(lead.id, lead.followUpData)
+  
+  if (respondeu) {
+    console.log(`[Reengajamento] Lead ${leadId} já respondeu. Abortando envio.`)
+    await prisma.lead.update({
+      where: { id: leadId },
+      data: { reengajamentoEnviado: true, reengajamentoData: new Date() },
+    })
+    return { success: false, error: 'Lead já respondeu' }
+  }
+
+  const firstName = lead.nome.split(' ')[0]
+  const message = `Oi *${firstName}*, tudo bem? Vi que fez uma simulação em nosso site, oq achou da proposta?`
+  const phone = formatPhone(lead.whatsapp)
+
+  try {
+    await sendText(phone, message)
+    await prisma.lead.update({
+      where: { id: leadId },
+      data: { reengajamentoEnviado: true, reengajamentoData: new Date() },
+    })
+    console.log(`[Reengajamento] Enviado para ${lead.nome}`)
+    return { success: true }
+  } catch (err: any) {
+    console.error(`[Reengajamento] Falha:`, err.message)
+    return { success: false, error: err.message }
+  }
 }
+
+let reengajamentoInterval: NodeJS.Timeout | null = null
 
 /**
  * Inicia o worker que processa reengajamentos pendentes.
- * DESATIVADO — após o envio inicial (PDF + mensagem), o bot NÃO envia
- * mais nenhuma mensagem. Qualquer interação posterior é feita pelo
- * atendente humano. O reengajamento automático foi desativado para
- * evitar que o bot envie mensagem depois que o cliente já respondeu.
  */
 export function startReengajamentoWorker() {
-  console.log('[Reengajamento] Worker DESATIVADO — bot envia apenas a mensagem inicial com PDF')
-  // No-op: reengajamento automático removido por decisão de negócio.
+  if (reengajamentoInterval) return
+  console.log('[Reengajamento] Worker INICIADO (40 horas)')
+
+  reengajamentoInterval = setInterval(async () => {
+    try {
+      const now = Date.now()
+      const minData = new Date(now - REENGAJAMENTO_JANELA_MAX_MS) // há 48h
+      const maxData = new Date(now - REENGAJAMENTO_DELAY_MS) // há 40h
+
+      const pendentes = await prisma.lead.findMany({
+        where: {
+          followUpEnviado: true,
+          reengajamentoEnviado: false,
+          followUpData: {
+            gte: minData,
+            lte: maxData,
+          },
+        },
+        select: { id: true },
+      })
+
+      for (const p of pendentes) {
+        await sendReengajamento(p.id)
+      }
+
+      // Limpeza: Marca como 'reengajamentoEnviado: true' leads muito antigos (mais de 48h)
+      // para não tentar processar infinitamente ou mandar mensagem em uma data aleatória.
+      await prisma.lead.updateMany({
+        where: {
+          followUpEnviado: true,
+          reengajamentoEnviado: false,
+          followUpData: { lt: minData },
+        },
+        data: { reengajamentoEnviado: true, reengajamentoData: new Date() },
+      })
+
+    } catch (err) {
+      console.error('[Reengajamento] Erro no worker:', err)
+    }
+  }, 10 * 60 * 1000) // roda a cada 10 min
 }
 
 export function stopReengajamentoWorker() {
-  // No-op: worker já desativado.
+  if (reengajamentoInterval) {
+    clearInterval(reengajamentoInterval)
+    reengajamentoInterval = null
+    console.log('[Reengajamento] Worker PARADO')
+  }
 }
 

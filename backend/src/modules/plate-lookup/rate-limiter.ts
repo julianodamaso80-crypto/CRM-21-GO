@@ -30,6 +30,13 @@ const WHITELISTED_WHATSAPPS = [
   '21965774240', // Número 3
 ]
 
+/** IPs que NÃO tem limite de consultas (admin/testes) */
+const WHITELISTED_IPS = [
+  '127.0.0.1',
+  '::1',
+  '186.205.14.135', // IP do notebook do Juliano
+]
+
 interface LookupRecord {
   /** Placas distintas consultadas (que gastaram crédito da API) */
   plates: Set<string>
@@ -82,7 +89,12 @@ export function checkRateLimit(
   retryAfterMs?: number
   blockedBy?: 'whatsapp' | 'ip'
 } {
-  // 0) Verifica se é um número VIP (Whitelist)
+  // 0.1) Verifica se o IP é VIP (Whitelist)
+  if (WHITELISTED_IPS.includes(ip)) {
+    return { allowed: true, remaining: 9999 }
+  }
+
+  // 0.2) Verifica se é um número VIP (Whitelist)
   if (whatsapp) {
     const wppKey = normalizeWhatsApp(whatsapp)
     if (WHITELISTED_WHATSAPPS.includes(wppKey) || process.env.ADMIN_WHATSAPP === wppKey) {
@@ -125,6 +137,11 @@ export function checkRateLimit(
 export function recordLookup(ip: string, placa: string, whatsapp?: string): void {
   const now = Date.now()
   const normalPlaca = placa.toUpperCase()
+
+  // Se for IP VIP, não registra limite
+  if (WHITELISTED_IPS.includes(ip)) {
+    return
+  }
 
   // Se for número VIP, não registra limite no IP nem no WhatsApp (burlar limite)
   if (whatsapp) {
