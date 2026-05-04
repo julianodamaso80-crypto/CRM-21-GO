@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import crypto from 'crypto'
 import { supabaseAdmin } from '@/lib/supabase-admin'
 import { quotationAdd, quotationUpdate } from '@/lib/powercrm'
 import { getRequestContext } from '@/lib/request-context'
@@ -104,7 +105,25 @@ export async function POST(req: NextRequest) {
   const ctx = getRequestContext(req)
   const supa = supabaseAdmin()
 
-  const insertPayload = {
+  // Origem mapeada igual a regra do trigger SQL planejado
+  const utmSource = (s(body.utm_source) ?? '').toLowerCase()
+  const utmMedium = (s(body.utm_medium) ?? '').toLowerCase()
+  const origem =
+    !utmSource ? 'site_organico'
+    : utmSource === 'google' && (utmMedium === 'cpc' || utmMedium === 'paid' || utmMedium === 'ads') ? 'google_ads'
+    : (utmSource === 'facebook' || utmSource === 'meta') ? 'meta_ads'
+    : utmSource === 'instagram' ? 'instagram'
+    : utmSource === 'whatsapp' ? 'whatsapp'
+    : 'outro'
+
+  // trk = hash unico para tracking de conversao (compatibilidade com PowerCRM)
+  const trk = crypto.randomBytes(16).toString('hex')
+
+  // Tenta gravar em lead_attribution. Se a tabela nao existir, gravar em public.leads (CRM).
+  // Mantemos lead_attribution como path preferencial para nao quebrar fluxos antigos quando
+  // a migration for aplicada.
+  const attrPayload = {
+    trk,
     nome,
     email: s(body.email) ?? null,
     telefone,
@@ -139,22 +158,75 @@ export async function POST(req: NextRequest) {
     value_cents: typeof body.valorMensal === 'number' ? Math.round(body.valorMensal * 100) : null,
   }
 
-  const { data: inserted, error: insertErr } = await supa
+  let leadId: string
+  const { data: insertedAttr, error: attrErr } = await supa
     .from('lead_attribution')
-    .insert(insertPayload)
+    .insert(attrPayload)
     .select('id, trk')
     .single()
 
-  if (insertErr || !inserted) {
-    console.error('[from-website] supabase insert failed', insertErr)
-    return NextResponse.json(
-      { ok: false, error: 'database_error', detail: insertErr?.message ?? null },
-      { status: 500 },
-    )
-  }
+  if (insertedAttr) {
+    leadId = insertedAttr.id as string
+  } else {
+    // Fallback: tabela lead_attribution nao existe ainda. Grava direto em public.leads (CRM).
+    // Mantem zero perda de leads ate a migration de unificacao ser aplicada.
+    console.warn('[from-website] lead_attribution falhou, fallback pra public.leads:', attrErr?.code, attrErr?.message)
 
-  const leadId = inserted.id as string
-  const trk = inserted.trk as string
+    const companyId = process.env.DEFAULT_COMPANY_ID || 'company-21go'
+    const fallbackId = `lead_${trk}`
+
+    const { error: leadErr } = await supa.from('leads').insert({
+      id: fallbackId,
+      company_id: companyId,
+      nome,
+      telefone,
+      whatsapp: telefone,
+      email: s(body.email) ?? null,
+      placa_interesse: s(body.placa) ?? null,
+      marca_interesse: s(body.marca) ?? null,
+      modelo_interesse: s(body.modelo) ?? null,
+      ano_interesse: n(body.ano) ?? null,
+      cotacao_plano: s(body.plano) ?? null,
+      cotacao_valor: typeof body.valorMensal === 'number' ? body.valorMensal : null,
+      valor_fipe_consultado: typeof body.valorFipe === 'number' ? body.valorFipe : null,
+      etapa_funil: 'novo',
+      status: 'lead',
+      qualificado_por: 'site',
+      score_qualificacao: 0,
+      origem,
+      utm_source: s(body.utm_source) ?? null,
+      utm_medium: s(body.utm_medium) ?? null,
+      utm_campaign: s(body.utm_campaign) ?? null,
+      utm_content: s(body.utm_content) ?? null,
+      utm_term: s(body.utm_term) ?? null,
+      gclid: s(body.gclid) ?? null,
+      fbclid: s(body.fbclid) ?? null,
+      fbp: s(body.fbp) ?? null,
+      fbc: s(body.fbc) ?? null,
+      ip_address: ctx.ip,
+      user_agent: ctx.userAgent,
+      cotacao_enviada: false,
+      meta_capi_sent: false,
+      google_ads_sent: false,
+      follow_up_enviado: false,
+      reengajamento_enviado: false,
+      carro_app: body.carroApp === true,
+      whatsapp_clicado: false,
+      pdf_enviado: false,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    })
+
+    if (leadErr) {
+      console.error('[from-website] fallback leads insert failed', leadErr)
+      return NextResponse.json(
+        { ok: false, error: 'database_error', detail: leadErr.message },
+        { status: 500 },
+      )
+    }
+
+    leadId = fallbackId
+  }
 
   if (!process.env.POWERAPI_TOKEN) {
     return NextResponse.json({
@@ -182,6 +254,7 @@ export async function POST(req: NextRequest) {
 
   const addResult = await quotationAdd(addInput, leadId)
 
+  // Tentar atualizar lead_attribution (se existir) — silenciosamente ignora se nao existir
   await supa
     .from('lead_attribution')
     .update({
@@ -189,6 +262,9 @@ export async function POST(req: NextRequest) {
       powercrm_add_response: addResult.raw as object | null,
     })
     .eq('id', leadId)
+    .then(({ error }) => {
+      if (error) console.warn('[from-website] update lead_attribution skipped:', error.code)
+    })
 
   if (addResult.ok && addResult.quotationCode) {
     const noteParts = [
@@ -215,6 +291,9 @@ export async function POST(req: NextRequest) {
       .from('lead_attribution')
       .update({ powercrm_update_response: updateResult.raw as object | null })
       .eq('id', leadId)
+      .then(({ error }) => {
+        if (error) console.warn('[from-website] update powercrm_response skipped:', error.code)
+      })
   }
 
   return NextResponse.json({
