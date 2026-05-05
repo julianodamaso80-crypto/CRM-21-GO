@@ -168,6 +168,7 @@ export async function upsertLead(input: UpsertLeadInput): Promise<{ id: string; 
     evolution_instance: DEFAULT_INSTANCE,
     conversion_value_cents:
       typeof input.valor_mensal === 'number' ? Math.round(input.valor_mensal * 100) : null,
+    updated_at: new Date().toISOString(),
   }
 
   const { data, error } = await supa
@@ -280,6 +281,8 @@ export async function upsertConversation(
   const instance = input.evolution_instance || DEFAULT_INSTANCE
   const phone = input.contact_phone ?? jidToPhone(input.jid)
 
+  // updated_at é NOT NULL sem default no schema atual — sempre enviamos
+  // created_at tem CURRENT_TIMESTAMP default — deixamos o banco preencher
   const row = {
     company_id: DEFAULT_COMPANY_ID,
     channel: input.channel ?? 'whatsapp',
@@ -291,6 +294,7 @@ export async function upsertConversation(
     profile_pic_url: input.profile_pic_url ?? null,
     lead_id: input.lead_id ?? null,
     status: 'open',
+    updated_at: new Date().toISOString(),
   }
 
   const { data, error } = await supa
@@ -354,6 +358,20 @@ export async function upsertMessage(input: InsertMessageInput): Promise<{ id: st
   const supa = supabaseAdmin()
   const instance = input.evolution_instance || DEFAULT_INSTANCE
 
+  // Fallback de content por message_type (NOT NULL no schema)
+  const messageType = input.message_type ?? 'text'
+  const fallbackContent = (() => {
+    if (input.content) return input.content
+    if (input.caption) return input.caption
+    if (messageType === 'image') return '[imagem]'
+    if (messageType === 'audio') return '[áudio]'
+    if (messageType === 'video') return '[vídeo]'
+    if (messageType === 'document') return input.media_filename || '[documento]'
+    if (messageType === 'sticker') return '[figurinha]'
+    if (messageType === 'location') return '[localização]'
+    return ''
+  })()
+
   const row = {
     company_id: DEFAULT_COMPANY_ID,
     conversation_id: input.conversation_id ?? null,
@@ -363,8 +381,8 @@ export async function upsertMessage(input: InsertMessageInput): Promise<{ id: st
     direction: input.direction,
     status: input.status ?? 'PENDING',
     sender: input.sender ?? (input.direction === 'outbound' ? 'agent' : 'contact'),
-    message_type: input.message_type ?? 'text',
-    content: input.content ?? null,
+    message_type: messageType,
+    content: fallbackContent,
     caption: input.caption ?? null,
     media_url: input.media_url ?? null,
     media_filename: input.media_filename ?? null,
