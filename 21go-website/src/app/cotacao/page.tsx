@@ -82,7 +82,9 @@ const VEHICLE_TYPES = [
 ]
 
 /* ─── API Config ─── */
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'https://crm-21-go-production.up.railway.app'
+// Vazio = mesmo origin (rotas /api/* do próprio site Next).
+// Pra apontar pra outro host, defina NEXT_PUBLIC_API_URL.
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || ''
 
 /* ─── Masks ─── */
 function maskPhone(v: string) {

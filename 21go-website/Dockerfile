@@ -1,5 +1,5 @@
-# Dockerfile minimalista pro 21go-website (Next.js 15)
-# - Sem instalar Chromium (puppeteer eh dep transitiva, nao usado no codigo)
+# Dockerfile do 21go-website (Next.js 15)
+# - Inclui Chromium pra Puppeteer (gera PDF da simulacao)
 # - Multi-stage pra reduzir tamanho da imagem final
 # - Cache de npm pra acelerar rebuilds
 
@@ -25,10 +25,35 @@ RUN npm run build
 # ====== Stage 3: runner ======
 FROM node:20-slim AS runner
 WORKDIR /app
+
+# Instala Chromium + libs necessárias (~250MB extra)
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    chromium \
+    fonts-liberation \
+    fonts-noto-color-emoji \
+    libnss3 \
+    libatk1.0-0 \
+    libatk-bridge2.0-0 \
+    libcups2 \
+    libdrm2 \
+    libxkbcommon0 \
+    libxcomposite1 \
+    libxdamage1 \
+    libxfixes3 \
+    libxrandr2 \
+    libgbm1 \
+    libpango-1.0-0 \
+    libcairo2 \
+    libasound2 \
+    && rm -rf /var/lib/apt/lists/*
+
 ENV NODE_ENV=production \
     PORT=3000 \
     HOSTNAME=0.0.0.0 \
-    NEXT_TELEMETRY_DISABLED=1
+    NEXT_TELEMETRY_DISABLED=1 \
+    PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium \
+    PUPPETEER_SKIP_DOWNLOAD=true
+
 COPY --from=builder /app/public ./public
 COPY --from=builder /app/.next ./.next
 COPY --from=builder /app/node_modules ./node_modules

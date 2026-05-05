@@ -253,7 +253,6 @@ export const PLAN_INFO: Record<PlanId, PlanInfo> = {
       { text: 'Carro Amigo', included: false },
       { text: 'Carro Reserva', included: false },
       { text: 'AP morte/invalidez', included: false },
-      { text: 'Funeral familiar', included: false },
     ],
   },
   'do-seu-jeito': {
@@ -281,7 +280,6 @@ export const PLAN_INFO: Record<PlanId, PlanInfo> = {
       { text: 'Carro Reserva', included: false },
       { text: 'Todos os Vidros', included: false },
       { text: 'AP morte/invalidez', included: false },
-      { text: 'Funeral familiar', included: false },
     ],
   },
   'vip': {
@@ -308,7 +306,6 @@ export const PLAN_INFO: Record<PlanId, PlanInfo> = {
       { text: 'Retorno a domicílio', included: true },
       { text: 'Socorro mecânico / elétrico', included: true },
       { text: 'Clube de Benefícios', included: true },
-      { text: 'Funeral familiar até R$5.000', included: true },
       { text: 'Reboque Adicional', included: false },
       { text: 'Todos os Vidros', included: false },
       { text: 'AP morte/invalidez', included: false },
@@ -340,7 +337,6 @@ export const PLAN_INFO: Record<PlanId, PlanInfo> = {
       { text: 'Socorro mecânico / elétrico', included: true },
       { text: 'AP morte acidental ou invalidez R$10.000', included: true },
       { text: 'Clube de Benefícios', included: true },
-      { text: 'Funeral familiar R$5.000', included: true },
     ],
   },
   'suv': {
@@ -366,7 +362,6 @@ export const PLAN_INFO: Record<PlanId, PlanInfo> = {
       { text: 'Socorro mecânico / elétrico', included: true },
       { text: 'AP morte/invalidez R$10.000', included: true },
       { text: 'Clube de Benefícios', included: true },
-      { text: 'Funeral familiar até R$5.000', included: true },
     ],
   },
   'moto-400': {
@@ -388,7 +383,6 @@ export const PLAN_INFO: Record<PlanId, PlanInfo> = {
       { text: 'Socorro mecânico / elétrico', included: true },
       { text: 'AP morte acidental ou invalidez (R$10.000)', included: true },
       { text: 'Clube de Benefícios', included: true },
-      { text: 'Funeral familiar', included: true },
     ],
   },
   'moto-1000': {
@@ -410,7 +404,6 @@ export const PLAN_INFO: Record<PlanId, PlanInfo> = {
       { text: 'Socorro mecânico / elétrico', included: true },
       { text: 'AP morte acidental ou invalidez (R$10.000)', included: true },
       { text: 'Clube de Benefícios', included: true },
-      { text: 'Funeral familiar', included: true },
     ],
   },
   'especial': {
@@ -435,7 +428,6 @@ export const PLAN_INFO: Record<PlanId, PlanInfo> = {
       { text: 'Retorno a domicílio', included: true },
       { text: 'Socorro mecânico / elétrico', included: true },
       { text: 'Clube de Benefícios', included: true },
-      { text: 'Funeral familiar até R$5.000', included: true },
     ],
   },
 }
@@ -578,4 +570,100 @@ export function getApplicablePlans(
 /** Formata preco para exibicao: "106,50" */
 export function formatPrice(value: number): string {
   return value.toFixed(2).replace('.', ',')
+}
+
+/* ─── getAllRelevantPlans / QuotePlanFull / planIdFromName ───
+ * Espelho do CRM pra usar no PDF.
+ */
+
+export interface QuotePlanFull extends QuotePlan {
+  applicable: boolean
+  categoryLabel: string
+}
+
+export function getAllRelevantPlans(
+  fipeValue: number,
+  categoria?: string,
+  combustivel?: string,
+  cilindrada?: number,
+  modelo?: string,
+): QuotePlanFull[] {
+  const cat = (categoria || '').toLowerCase()
+  const fuel = (combustivel || '').toLowerCase()
+  const mod = (modelo || '').toLowerCase()
+  const isMoto = cat.includes('moto') || cat.includes('ciclomotor') || cat.includes('triciclo')
+  const isSuvByCat = SUV_KEYWORDS.some((k) => cat.includes(k))
+  const isSuvByModel = SUV_MODELS.some((k) => mod.includes(k))
+  const isSuv = isSuvByCat || isSuvByModel
+  const isEletrico = ELETRICO_KEYWORDS.some((k) => fuel.includes(k))
+  const isEspecial = isEletrico || fipeValue > 150000
+
+  const cc = cilindrada || 0
+
+  const applicableIds = new Set<PlanId>()
+  if (isEspecial) {
+    applicableIds.add('especial')
+  } else if (isMoto) {
+    if (cc > 0 && cc <= 400) applicableIds.add('moto-400')
+    else if (cc >= 450 && cc <= 1000) applicableIds.add('moto-1000')
+    else {
+      applicableIds.add('moto-400')
+      applicableIds.add('moto-1000')
+    }
+  } else if (isSuv) {
+    applicableIds.add('suv')
+  } else {
+    applicableIds.add('basico')
+    applicableIds.add('do-seu-jeito')
+    applicableIds.add('vip')
+    applicableIds.add('premium')
+  }
+
+  const allPlans: { id: PlanId; name: string; categoryLabel: string; popular?: boolean }[] = isMoto
+    ? cc > 0 && cc <= 400
+      ? [{ id: 'moto-400', name: 'VIP Moto até 400cc', categoryLabel: 'Moto' }]
+      : cc >= 450 && cc <= 1000
+        ? [{ id: 'moto-1000', name: 'VIP Moto 450-1000cc', categoryLabel: 'Moto' }]
+        : [
+            { id: 'moto-400', name: 'VIP Moto até 400cc', categoryLabel: 'Moto' },
+            { id: 'moto-1000', name: 'VIP Moto 450-1000cc', categoryLabel: 'Moto', popular: true },
+          ]
+    : isEspecial
+      ? [{ id: 'especial', name: 'Veículos Especiais', categoryLabel: 'Especial' }]
+      : isSuv
+        ? [{ id: 'suv', name: 'SUV / Caminhonete', categoryLabel: 'SUV', popular: true }]
+        : [
+            { id: 'basico', name: 'Básico', categoryLabel: 'Carro' },
+            { id: 'do-seu-jeito', name: 'Do Seu Jeito', categoryLabel: 'Carro' },
+            { id: 'vip', name: 'VIP', categoryLabel: 'Carro', popular: true },
+            { id: 'premium', name: 'Premium', categoryLabel: 'Carro' },
+          ]
+
+  const result: QuotePlanFull[] = []
+  for (const p of allPlans) {
+    const price = findPrice(PRICING_TABLES[p.id], fipeValue)
+    if (price) {
+      result.push({
+        id: p.id,
+        name: p.name,
+        monthly: price,
+        popular: p.popular,
+        applicable: applicableIds.has(p.id),
+        categoryLabel: p.categoryLabel,
+      })
+    }
+  }
+  return result
+}
+
+export function planIdFromName(name: string): PlanId {
+  const n = (name || '').toLowerCase()
+  if (n.includes('especial')) return 'especial'
+  if (n.includes('suv')) return 'suv'
+  if (n.includes('moto') && n.includes('400')) return 'moto-400'
+  if (n.includes('moto')) return 'moto-1000'
+  if (n.includes('premium')) return 'premium'
+  if (n.includes('vip')) return 'vip'
+  if (n.includes('jeito')) return 'do-seu-jeito'
+  return 'basico'
 }
