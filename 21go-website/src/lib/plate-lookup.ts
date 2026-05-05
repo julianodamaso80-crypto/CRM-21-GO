@@ -1,34 +1,30 @@
-import axios from 'axios'
-import { getApplicablePlans, type QuotePlan } from '@/data/pricing'
+/**
+ * Plate lookup via PowerCRM (mesma estratégia do /cotar local que funcionou).
+ *
+ * Fluxo:
+ *   1. PowerCRM /api/quotation/plates/{placa} → marca, codFipe, year, city, uf, chassi
+ *   2. PowerCRM /api/quotation/cb?type=1 → mapear marca string pra cb id interno
+ *   3. PowerCRM /api/quotation/cmby?cb=X&cy=Y → modelos com codFipe match
+ *   4. PowerCRM /api/quotation/cmy?cm=X → ano modelo (mdlYr)
+ *   5. PowerCRM /api/quotation/stt + ct → cityId
+ *   6. PowerCRM /api/plans/ POST {mdl, mdlYr, cityId} → planos com preços REAIS
+ *
+ * Para o `fipeValue` em reais (que aparece no PDF do cliente), fazemos
+ * engenharia reversa cruzando o preço retornado pelo PowerCRM (plano BÁSICO
+ * normalmente) com a tabela PRICING_TABLES local — encontra a faixa FIPE e
+ * retorna a média.
+ */
 
-const API_TIMEOUT = 10000
+import {
+  PRICING_TABLES,
+  type PlanId,
+  type QuotePlan,
+} from '@/data/pricing'
 
-/* ─── API Brasil Response Types ─── */
-interface ApiBrasilVeiculo {
-  marca: string
-  modelo: string
-  anoFabricacao: number
-  anoModelo: string
-  cor: string
-  chassi: string
-  codigoFipe: string
-  combustivel: string
-  categoria: string
-  valor: number
-  principal: boolean
-  cilindrada?: number
-}
+const POWERCRM_BASE_URL = process.env.POWERCRM_BASE_URL || 'https://api.powercrm.com.br'
+const POWERAPI_TOKEN = process.env.POWERAPI_TOKEN || ''
+const API_TIMEOUT = 15000
 
-interface ApiBrasilResponse {
-  error: boolean
-  message: string
-  balance?: string
-  data?: {
-    resultados: ApiBrasilVeiculo[]
-  }
-}
-
-/* ─── Output Types ─── */
 export interface PlateResponse {
   success: true
   vehicle: {
@@ -44,6 +40,13 @@ export interface PlateResponse {
     chassi?: string
   }
   plans: QuotePlan[]
+  // Internos pra criação do lead — não usados pelo front
+  _internal?: {
+    mdl?: number
+    mdlYr?: number
+    cityId?: number
+    pcVehicle?: unknown
+  }
 }
 
 export interface PlateErrorResponse {
@@ -51,103 +54,298 @@ export interface PlateErrorResponse {
   error: string
 }
 
-/* ─── In-memory cache (substitui Prisma do CRM original) ─── */
+const apiHeaders = {
+  accept: 'application/json',
+  Authorization: `Bearer ${POWERAPI_TOKEN}`,
+}
+
+async function powerGet<T>(path: string, signal?: AbortSignal): Promise<T | null> {
+  try {
+    const res = await fetch(`${POWERCRM_BASE_URL}${path}`, {
+      headers: apiHeaders,
+      signal: signal ?? AbortSignal.timeout(API_TIMEOUT),
+    })
+    if (!res.ok) return null
+    return (await res.json().catch(() => null)) as T | null
+  } catch {
+    return null
+  }
+}
+
+async function powerPost<T>(path: string, body: unknown): Promise<T | null> {
+  try {
+    const res = await fetch(`${POWERCRM_BASE_URL}${path}`, {
+      method: 'POST',
+      headers: { ...apiHeaders, 'content-type': 'application/json' },
+      body: JSON.stringify(body),
+      signal: AbortSignal.timeout(API_TIMEOUT),
+    })
+    if (!res.ok) return null
+    return (await res.json().catch(() => null)) as T | null
+  } catch {
+    return null
+  }
+}
+
+interface PowerPlatesResp {
+  mensagem?: string
+  city?: string
+  uf?: string
+  chassi?: string
+  brand?: string
+  brandId?: number
+  year?: string
+  fuel?: string
+  color?: string
+  cilinderCapacity?: string
+  vehicleType?: string
+  codFipe?: string
+}
+
+interface PowerCbItem {
+  id: number
+  text: string
+}
+
+interface PowerCmbyItem {
+  id: number
+  text: string
+  back: string
+}
+
+interface PowerCmyItem {
+  id: number
+  text: string
+}
+
+interface PowerSttItem {
+  id: number
+  text: string
+  back: string
+}
+
+interface PowerCtItem {
+  id: number
+  text: string
+}
+
+interface PowerPlansResp {
+  plans?: Array<{
+    planId: number
+    name: string
+    tppId: number
+    price: string
+    priceValue: number
+    accessPrice?: string
+    trackerPrice?: string
+    franchisePrice?: string
+  }>
+  error?: string | null
+}
+
+/** Mapeia nome do plano PowerCRM pra PlanId interno do site */
+function planIdFromPowerName(name: string): PlanId {
+  const n = (name || '').toLowerCase().trim()
+  if (n.includes('especial')) return 'especial'
+  if (n.includes('suv')) return 'suv'
+  if (n.includes('moto') && n.includes('400')) return 'moto-400'
+  if (n.includes('moto')) return 'moto-1000'
+  if (n.includes('premium')) return 'premium'
+  if (n.includes('vip')) return 'vip'
+  if (n.includes('jeito')) return 'do-seu-jeito'
+  return 'basico'
+}
+
+/**
+ * Calcula fipeValue REVERSO baseado no plano BÁSICO do PowerCRM.
+ * Cruza o preço retornado com PRICING_TABLES.basico — se achar uma faixa
+ * (min/max) com price match, retorna a média. Senão, retorna null.
+ */
+function reverseFipeValue(plans: QuotePlan[]): number | null {
+  // Procura plano BÁSICO ou similar (basico, do-seu-jeito, vip, premium, suv)
+  const candidates: PlanId[] = ['basico', 'do-seu-jeito', 'vip', 'premium', 'suv', 'moto-400', 'moto-1000', 'especial']
+  for (const planId of candidates) {
+    const plan = plans.find((p) => p.id === planId)
+    if (!plan) continue
+    const table = PRICING_TABLES[planId]
+    if (!table) continue
+    const band = table.find((b) => Math.abs(b.price - plan.monthly) < 0.01)
+    if (band) {
+      return Math.round((band.min + band.max) / 2)
+    }
+  }
+  return null
+}
+
+/* ─── Cache em memória (placa → resposta, TTL 24h) ─── */
 type CacheEntry = { value: PlateResponse; expiresAt: number }
 const cache = new Map<string, CacheEntry>()
-const CACHE_TTL_MS = 24 * 60 * 60 * 1000 // 24h
+const CACHE_TTL_MS = 24 * 60 * 60 * 1000
 
-function getCached(placa: string): PlateResponse | null {
-  const entry = cache.get(placa)
+function getCached(key: string): PlateResponse | null {
+  const entry = cache.get(key)
   if (!entry) return null
   if (Date.now() > entry.expiresAt) {
-    cache.delete(placa)
+    cache.delete(key)
     return null
   }
   return entry.value
 }
 
-function setCached(placa: string, value: PlateResponse) {
-  cache.set(placa, { value, expiresAt: Date.now() + CACHE_TTL_MS })
+function setCached(key: string, value: PlateResponse) {
+  cache.set(key, { value, expiresAt: Date.now() + CACHE_TTL_MS })
 }
 
-export async function lookupPlate(placa: string): Promise<PlateResponse | PlateErrorResponse> {
+export async function lookupPlate(
+  placa: string,
+): Promise<PlateResponse | PlateErrorResponse> {
   const normalized = placa.toUpperCase().replace(/[^A-Z0-9]/g, '')
-
   if (normalized.length !== 7) {
     return { success: false, error: 'Placa deve ter 7 caracteres' }
   }
-
-  // 1. Check cache
-  const cached = getCached(normalized)
-  if (cached) return cached
-
-  // 2. Call API Brasil
-  const token = process.env.APIBRASIL_TOKEN
-  if (!token) {
+  if (!POWERAPI_TOKEN) {
     return { success: false, error: 'Serviço de consulta indisponível no momento.' }
   }
 
-  try {
-    const { data } = await axios.post<ApiBrasilResponse>(
-      'https://gateway.apibrasil.io/api/v2/consulta/veiculos/credits',
-      {
-        tipo: 'fipe-chassi',
-        placa: normalized,
-        homolog: false,
-      },
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-        timeout: API_TIMEOUT,
-      },
-    )
+  const cached = getCached(normalized)
+  if (cached) return cached
 
-    if (data.error || !data.data?.resultados?.length) {
-      return { success: false, error: data.message || 'Veículo não encontrado' }
-    }
-
-    const veiculo = data.data.resultados.find((r) => r.principal) || data.data.resultados[0]
-    const fipeValue = veiculo.valor
-
-    if (fipeValue <= 0) {
-      return { success: false, error: 'Valor FIPE não encontrado para este veículo' }
-    }
-
-    const plans = getApplicablePlans(
-      fipeValue,
-      veiculo.categoria,
-      veiculo.combustivel,
-      veiculo.cilindrada,
-      veiculo.modelo,
-    )
-
-    const response: PlateResponse = {
-      success: true,
-      vehicle: {
-        marca: veiculo.marca,
-        modelo: veiculo.modelo,
-        ano: veiculo.anoModelo,
-        cor: veiculo.cor,
-        fipeValue,
-        fipeCode: veiculo.codigoFipe,
-        categoria: veiculo.categoria,
-        combustivel: veiculo.combustivel,
-        cilindrada: veiculo.cilindrada,
-        chassi: veiculo.chassi,
-      },
-      plans,
-    }
-
-    setCached(normalized, response)
-    return response
-  } catch (err: unknown) {
-    const code = (err as { code?: string }).code
-    const message =
-      code === 'ECONNABORTED'
-        ? 'Consulta demorou demais. Tente novamente.'
-        : 'Erro ao consultar veículo. Tente novamente.'
-    return { success: false, error: message }
+  // 1) plates/{placa}
+  const pcVehicle = await powerGet<PowerPlatesResp>(
+    `/api/quotation/plates/${normalized}`,
+  )
+  if (!pcVehicle || pcVehicle.mensagem !== 'ok' || !pcVehicle.brand) {
+    return { success: false, error: 'Veículo não encontrado' }
   }
+
+  const brandName = pcVehicle.brand
+  const codFipe = pcVehicle.codFipe || ''
+  const yearStr = pcVehicle.year || ''
+  const yearMatch = yearStr.match(/(\d{4})/)
+  const year = yearMatch ? yearMatch[1] : undefined
+
+  if (!codFipe || !year) {
+    return { success: false, error: 'Dados do veículo incompletos' }
+  }
+
+  // Tipo do veículo (1 = carro/utilitário, 2 = moto, 3 = caminhão)
+  const vt = (pcVehicle.vehicleType || '').toUpperCase()
+  const isMoto = vt.includes('MOTO')
+  const isCaminhao = vt.includes('CAMINHAO') || vt.includes('CAMINHÃO') || vt.includes('ONIBUS')
+  const tipo = isMoto ? 2 : isCaminhao ? 3 : 1
+
+  // 2) cb?type=tipo → mapear marca
+  const cbList = await powerGet<PowerCbItem[]>(`/api/quotation/cb?type=${tipo}`)
+  if (!cbList || !Array.isArray(cbList)) {
+    return { success: false, error: 'Falha ao consultar marcas no PowerCRM' }
+  }
+
+  // Tokens significativos do brand (ignora 'I', 'II' lixo)
+  const tokens = brandName
+    .toUpperCase()
+    .split(/\s+/)
+    .filter((t) => t.length >= 2 && !/^I+$/.test(t))
+  let cbMatch: PowerCbItem | undefined
+  for (const tok of tokens) {
+    cbMatch = cbList.find((c) => (c.text || '').toUpperCase() === tok)
+    if (cbMatch) break
+  }
+  if (!cbMatch) {
+    for (const tok of tokens) {
+      cbMatch = cbList.find((c) => (c.text || '').toUpperCase().includes(tok))
+      if (cbMatch) break
+    }
+  }
+  if (!cbMatch) {
+    return { success: false, error: `Marca '${brandName}' não localizada no PowerCRM` }
+  }
+
+  // 3) cmby?cb=X&cy=year → procura modelo com codFipe match
+  const cmbyList = await powerGet<PowerCmbyItem[]>(
+    `/api/quotation/cmby?cb=${cbMatch.id}&cy=${year}`,
+  )
+  if (!cmbyList || !Array.isArray(cmbyList)) {
+    return { success: false, error: 'Falha ao consultar modelos no PowerCRM' }
+  }
+  const exact = cmbyList.find((m) => m.back === codFipe)
+  if (!exact) {
+    return { success: false, error: 'Modelo não localizado no PowerCRM (codFipe sem match)' }
+  }
+  const mdl = exact.id
+
+  // 4) cmy?cm=mdl → ano modelo
+  const cmyList = await powerGet<PowerCmyItem[]>(
+    `/api/quotation/cmy?cm=${mdl}`,
+  )
+  let mdlYr: number | undefined
+  if (cmyList && Array.isArray(cmyList)) {
+    const matchYear = cmyList.find((y) => (y.text || '').startsWith(year))
+    if (matchYear) mdlYr = matchYear.id
+  }
+
+  // 5) stt + ct → cityId
+  let cityId: number | undefined
+  if (pcVehicle.uf && pcVehicle.city) {
+    const sttList = await powerGet<PowerSttItem[]>(`/api/quotation/stt`)
+    const state = sttList?.find((s) => s.back === pcVehicle.uf)
+    if (state) {
+      const ctList = await powerGet<PowerCtItem[]>(
+        `/api/quotation/ct?st=${state.id}`,
+      )
+      const cityName = pcVehicle.city.toUpperCase()
+      const city = ctList?.find((c) => (c.text || '').toUpperCase() === cityName)
+      if (city) cityId = city.id
+    }
+  }
+
+  // 6) /api/plans/ → planos com preços
+  const plansResp = mdlYr && cityId
+    ? await powerPost<PowerPlansResp>('/api/plans/', {
+        carModelId: mdl,
+        carModelYearId: mdlYr,
+        cityId,
+        quotationWorkVehicle: false,
+      })
+    : null
+
+  // Mapeia plans do PowerCRM pro formato QuotePlan do site
+  const plans: QuotePlan[] = []
+  if (plansResp?.plans && Array.isArray(plansResp.plans)) {
+    const seen = new Set<PlanId>()
+    for (const p of plansResp.plans) {
+      const id = planIdFromPowerName(p.name)
+      if (seen.has(id)) continue
+      seen.add(id)
+      plans.push({
+        id,
+        name: p.name,
+        monthly: p.priceValue,
+        popular: id === 'vip',
+      })
+    }
+  }
+
+  // fipeValue REVERSO (procura faixa em PRICING_TABLES)
+  const fipeValue = reverseFipeValue(plans) ?? 0
+
+  const response: PlateResponse = {
+    success: true,
+    vehicle: {
+      marca: brandName.split(' ')[0], // primeiro token (Jeep, Fiat, etc)
+      modelo: exact.text,
+      ano: year,
+      cor: pcVehicle.color || '',
+      fipeValue,
+      fipeCode: codFipe,
+      categoria: isMoto ? 'MOTOCICLETA' : isCaminhao ? 'CAMINHAO' : 'AUTOMOVEL',
+      combustivel: pcVehicle.fuel || '',
+      cilindrada: pcVehicle.cilinderCapacity ? Number(pcVehicle.cilinderCapacity) : undefined,
+      chassi: pcVehicle.chassi,
+    },
+    plans,
+    _internal: { mdl, mdlYr, cityId, pcVehicle },
+  }
+
+  setCached(normalized, response)
+  return response
 }
