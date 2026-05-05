@@ -240,19 +240,53 @@ export async function lookupPlate(
     return { success: false, error: 'Falha ao consultar marcas no PowerCRM' }
   }
 
+  // Aliases DENATRAN → PowerCRM (siglas que não batem direto com cb.text)
+  const BRAND_ALIASES: Record<string, string> = {
+    MMC: 'MITSUBISHI',
+    VW: 'VOLKSWAGEN',
+    GM: 'CHEVROLET',
+    FCA: 'FIAT',
+    'MERCEDES-BENZ': 'MERCEDES',
+    'CITROËN': 'CITROEN',
+    'CITROEN': 'CITROEN',
+    LR: 'LAND ROVER',
+    'LAND-ROVER': 'LAND ROVER',
+    BMC: 'BMW',
+  }
+
   // Tokens significativos do brand (ignora 'I', 'II' lixo)
-  const tokens = brandName
+  // Tenta primeiro via alias (ex: MMC → MITSUBISHI), depois token literal.
+  const rawTokens = brandName
     .toUpperCase()
     .split(/\s+/)
     .filter((t) => t.length >= 2 && !/^I+$/.test(t))
+  const tokens: string[] = []
+  for (const t of rawTokens) {
+    const alias = BRAND_ALIASES[t]
+    if (alias) tokens.push(alias)
+    tokens.push(t)
+  }
+
   let cbMatch: PowerCbItem | undefined
+  // 1ª passada: match exato (case-insensitive)
   for (const tok of tokens) {
     cbMatch = cbList.find((c) => (c.text || '').toUpperCase() === tok)
     if (cbMatch) break
   }
+  // 2ª passada: cb.text contém token
   if (!cbMatch) {
     for (const tok of tokens) {
       cbMatch = cbList.find((c) => (c.text || '').toUpperCase().includes(tok))
+      if (cbMatch) break
+    }
+  }
+  // 3ª passada: token contém cb.text (ex: "MERCEDES-BENZ" contém "MERCEDES")
+  if (!cbMatch) {
+    for (const tok of tokens) {
+      cbMatch = cbList.find((c) => {
+        const cbText = (c.text || '').toUpperCase()
+        return cbText.length >= 3 && tok.includes(cbText)
+      })
       if (cbMatch) break
     }
   }
