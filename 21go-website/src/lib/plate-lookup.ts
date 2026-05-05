@@ -365,7 +365,8 @@ export async function lookupPlate(
   const response: PlateResponse = {
     success: true,
     vehicle: {
-      marca: brandName.split(' ')[0], // primeiro token (Jeep, Fiat, etc)
+      // Usa o nome OFICIAL do PowerCRM (ex: "Mitsubishi", não "MMC")
+      marca: cbMatch.text,
       modelo: exact.text,
       ano: year,
       cor: pcVehicle.color || '',
