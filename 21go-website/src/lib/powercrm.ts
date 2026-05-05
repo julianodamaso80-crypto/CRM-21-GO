@@ -28,7 +28,7 @@ interface OutboundLogInput {
 async function logOutbound(input: OutboundLogInput): Promise<void> {
   try {
     await supabaseAdmin().from('outbound_event_log').insert({
-      lead_attribution_id: input.leadAttributionId,
+      lead_id: input.leadAttributionId,
       kind: input.kind,
       request_payload: input.request,
       response_payload: input.response,

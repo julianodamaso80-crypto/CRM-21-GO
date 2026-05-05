@@ -15,12 +15,41 @@ export function isWhatsappConfigured(): boolean {
   return Boolean(EVOLUTION_API_URL && EVOLUTION_INSTANCE && EVOLUTION_API_KEY)
 }
 
+export function getEvolutionInstance(): string {
+  return EVOLUTION_INSTANCE
+}
+
 export function formatPhone(whatsapp: string): string {
   const raw = whatsapp.replace(/\D/g, '')
   return raw.startsWith('55') ? raw : `55${raw}`
 }
 
-export async function sendText(phone: string, text: string) {
+/**
+ * Resposta normalizada da Evolution após envio.
+ * `whatsapp_message_id` é o id retornado pela API (key.id),
+ * usado pra dedup no Supabase.
+ */
+export interface SendResult {
+  ok: boolean
+  whatsapp_message_id: string | null
+  remote_jid: string | null
+  status: string | null
+  raw: unknown
+}
+
+function parseEvolutionResponse(raw: unknown): SendResult {
+  const obj = (raw && typeof raw === 'object' ? raw : {}) as Record<string, unknown>
+  const key = obj.key as { id?: string; remoteJid?: string } | undefined
+  return {
+    ok: true,
+    whatsapp_message_id: key?.id ?? null,
+    remote_jid: key?.remoteJid ?? null,
+    status: (obj.status as string) ?? null,
+    raw,
+  }
+}
+
+export async function sendText(phone: string, text: string): Promise<SendResult> {
   if (!EVOLUTION_API_KEY) {
     throw new Error('EVOLUTION_API_KEY não configurada')
   }
@@ -31,10 +60,16 @@ export async function sendText(phone: string, text: string) {
     headers: { 'Content-Type': 'application/json', apikey: EVOLUTION_API_KEY },
     body: JSON.stringify({ number: phone, text }),
   })
-  const body = await res.text().catch(() => '')
-  console.log('[WhatsApp] sendText resp:', res.status, body.slice(0, 300))
-  if (!res.ok) throw new Error(`sendText falhou ${res.status}: ${body.slice(0, 200)}`)
-  return res
+  const bodyText = await res.text().catch(() => '')
+  console.log('[WhatsApp] sendText resp:', res.status, bodyText.slice(0, 300))
+  if (!res.ok) throw new Error(`sendText falhou ${res.status}: ${bodyText.slice(0, 200)}`)
+  let parsed: unknown = null
+  try {
+    parsed = JSON.parse(bodyText)
+  } catch {
+    parsed = bodyText
+  }
+  return parseEvolutionResponse(parsed)
 }
 
 export async function sendPdfMedia(
@@ -42,7 +77,7 @@ export async function sendPdfMedia(
   media: string,
   caption: string,
   filename: string,
-) {
+): Promise<SendResult> {
   if (!EVOLUTION_API_KEY) {
     throw new Error('EVOLUTION_API_KEY não configurada')
   }
@@ -67,10 +102,16 @@ export async function sendPdfMedia(
       fileName: filename,
     }),
   })
-  const body = await res.text().catch(() => '')
-  console.log('[WhatsApp] sendPdfMedia resp:', res.status, body.slice(0, 300))
-  if (!res.ok) throw new Error(`sendPdfMedia falhou ${res.status}: ${body.slice(0, 200)}`)
-  return res
+  const bodyText = await res.text().catch(() => '')
+  console.log('[WhatsApp] sendPdfMedia resp:', res.status, bodyText.slice(0, 300))
+  if (!res.ok) throw new Error(`sendPdfMedia falhou ${res.status}: ${bodyText.slice(0, 200)}`)
+  let parsed: unknown = null
+  try {
+    parsed = JSON.parse(bodyText)
+  } catch {
+    parsed = bodyText
+  }
+  return parseEvolutionResponse(parsed)
 }
 
 /**

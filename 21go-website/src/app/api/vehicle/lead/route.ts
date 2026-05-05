@@ -6,10 +6,21 @@ import {
   buildExcludedMessage,
   buildFollowUpMessage,
   formatPhone,
+  getEvolutionInstance,
   isWhatsappConfigured,
   sendPdfMedia,
   sendText,
+  type SendResult,
 } from '@/lib/whatsapp'
+import {
+  upsertLead,
+  upsertConversation,
+  upsertMessage,
+  phoneToJid,
+  normalizePhone,
+  type UpsertLeadInput,
+} from '@/lib/supabase-store'
+import { getRequestContext } from '@/lib/request-context'
 
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
@@ -23,6 +34,7 @@ interface LeadInput {
   nome?: string
   whatsapp?: string
   email?: string | null
+  cpf?: string | null
   placa?: string | null
   marca?: string | null
   modelo?: string | null
@@ -38,15 +50,25 @@ interface LeadInput {
   carroApp?: boolean
   leilao?: 'nao' | 'leilao' | 'remarcado' | string
   seguroAtual?: string | null
+  cidade?: string | null
+  estado?: string | null
+  // Tracking
   utm_source?: string | null
   utm_medium?: string | null
   utm_campaign?: string | null
   utm_content?: string | null
   utm_term?: string | null
   gclid?: string | null
+  gbraid?: string | null
+  wbraid?: string | null
   fbclid?: string | null
   fbp?: string | null
   fbc?: string | null
+  ga_client_id?: string | null
+  external_id?: string | null
+  event_id?: string | null
+  landing_page?: string | null
+  referrer?: string | null
 }
 
 export async function POST(req: NextRequest) {
@@ -66,18 +88,36 @@ export async function POST(req: NextRequest) {
     )
   }
 
-  const leadId = `lead_${crypto.randomBytes(8).toString('hex')}`
+  const trk = crypto.randomBytes(8).toString('hex')
+  const leadId = `lead_${trk}`
+  const ctx = getRequestContext(req)
 
-  // 1) Cria lead no PowerCRM (chain completa que descobrimos)
+  // 1) Lead no PowerCRM (mantido — caminho crítico)
   const powercrm = POWERAPI_TOKEN
     ? await createLeadPowerCRM(body, leadId).catch((err) => ({
         ok: false,
         error: err instanceof Error ? err.message : String(err),
+        quotationCode: undefined as string | undefined,
+        negotiationCode: undefined as string | undefined,
       }))
-    : { ok: false, error: 'POWERAPI_TOKEN ausente' }
+    : { ok: false, error: 'POWERAPI_TOKEN ausente', quotationCode: undefined as string | undefined, negotiationCode: undefined as string | undefined }
 
-  // 2) Resposta imediata pro front (não trava com PDF/WhatsApp)
-  // PDF + WhatsApp rodam em background.
+  // 2) Persistência no Supabase (lead_attribution unificado em public.leads)
+  //    Idempotente, não bloqueia o fluxo principal.
+  const supaResult = await persistLeadInSupabase({
+    body,
+    trk,
+    leadId,
+    ctx,
+    quotationCode: 'quotationCode' in powercrm ? powercrm.quotationCode : undefined,
+    negotiationCode: 'negotiationCode' in powercrm ? powercrm.negotiationCode : undefined,
+    powercrmPayload: powercrm,
+  }).catch((err) => {
+    console.error('[lead] Falha persistir no Supabase:', err instanceof Error ? err.message : err)
+    return { ok: false, lead_id: leadId }
+  })
+
+  // 3) PDF + WhatsApp em background, registrando cada mensagem no Supabase
   ;(async () => {
     try {
       await sendQuotePdfWhatsApp(body, leadId)
@@ -88,9 +128,101 @@ export async function POST(req: NextRequest) {
 
   return NextResponse.json({
     success: true,
-    leadId,
+    leadId: supaResult.lead_id || leadId,
+    trk,
     powercrm,
   })
+}
+
+/* ───────────────── Supabase ───────────────── */
+
+async function persistLeadInSupabase(args: {
+  body: LeadInput
+  trk: string
+  leadId: string
+  ctx: ReturnType<typeof getRequestContext>
+  quotationCode?: string | null
+  negotiationCode?: string | null
+  powercrmPayload?: unknown
+}): Promise<{ ok: boolean; lead_id: string }> {
+  const { body, trk, ctx } = args
+
+  const phone = normalizePhone(body.whatsapp || '') || ''
+  const yearStr = body.ano ? String(body.ano) : ''
+  const yearNum = (yearStr.match(/(\d{4})/)?.[1])
+    ? Number(yearStr.match(/(\d{4})/)![1])
+    : null
+
+  const input: UpsertLeadInput = {
+    trk,
+    event_id: body.event_id ?? null,
+    nome: body.nome!,
+    telefone: phone,
+    email: body.email ?? null,
+    cpf: body.cpf ?? null,
+
+    placa: body.placa ?? null,
+    marca: body.marca ?? null,
+    modelo: body.modelo ?? null,
+    ano_modelo: yearNum,
+    ano_fabricacao: yearNum,
+    fipe_codigo: body.fipeCode ?? null,
+    valor_fipe: body.valorFipe ?? null,
+
+    plano: body.plano ?? null,
+    valor_mensal: body.valorMensal ?? null,
+
+    cidade: body.cidade ?? null,
+    estado: body.estado ?? null,
+    carro_app: !!body.carroApp,
+    leilao: body.leilao ?? null,
+    seguro_atual: body.seguroAtual ?? null,
+
+    utm_source: body.utm_source ?? null,
+    utm_medium: body.utm_medium ?? null,
+    utm_campaign: body.utm_campaign ?? null,
+    utm_content: body.utm_content ?? null,
+    utm_term: body.utm_term ?? null,
+    gclid: body.gclid ?? null,
+    gbraid: body.gbraid ?? null,
+    wbraid: body.wbraid ?? null,
+    fbclid: body.fbclid ?? null,
+    fbp: body.fbp ?? null,
+    fbc: body.fbc ?? null,
+    ga_client_id: body.ga_client_id ?? null,
+    external_id: body.external_id ?? null,
+    referrer: body.referrer ?? ctx.referer ?? null,
+    landing_page: body.landing_page ?? null,
+    ip_address: ctx.ip,
+    user_agent: ctx.userAgent,
+
+    quotation_code: args.quotationCode ?? null,
+    negotiation_code: args.negotiationCode ?? null,
+    powercrm_payload: args.powercrmPayload as Record<string, unknown> | null,
+
+    etapa_funil: (body.plano || '').toUpperCase() === 'EXCLUIDO' ? 'excluido' : 'cotacao_enviada',
+    status: (body.plano || '').toUpperCase() === 'EXCLUIDO' ? 'excluido' : 'lead',
+  }
+
+  const { id } = await upsertLead(input)
+
+  // Cria/atualiza conversation pra ter pronta antes do envio
+  const jid = phoneToJid(phone)
+  if (jid) {
+    try {
+      await upsertConversation({
+        jid,
+        evolution_instance: getEvolutionInstance(),
+        contact_phone: phone,
+        contact_name: body.nome,
+        lead_id: id,
+      })
+    } catch (err) {
+      console.warn('[lead] upsertConversation falhou:', err instanceof Error ? err.message : err)
+    }
+  }
+
+  return { ok: true, lead_id: id }
 }
 
 /* ───────────────── PowerCRM ───────────────── */
@@ -103,7 +235,6 @@ async function createLeadPowerCRM(body: LeadInput, leadId: string) {
 
   const placa = body.placa?.toUpperCase().replace(/[^A-Z0-9]/g, '')
 
-  // Lookup PowerCRM plates pra pegar dados internos (brandId, codFipe, year, chassi)
   let pcVehicle: Record<string, unknown> | null = null
   if (placa && placa.length === 7) {
     try {
@@ -117,7 +248,6 @@ async function createLeadPowerCRM(body: LeadInput, leadId: string) {
     }
   }
 
-  // Cidade interna PowerCRM (via UF/cidade do plates)
   let cityId: number | undefined
   if (pcVehicle?.uf && pcVehicle?.city) {
     try {
@@ -142,11 +272,9 @@ async function createLeadPowerCRM(body: LeadInput, leadId: string) {
     }
   }
 
-  // Match modelo via codFipe (cb→cmby chain)
   let mdl: number | undefined
   let mdlYr: number | undefined
   const isMoto = (body.categoria || '').toLowerCase().includes('moto')
-  const tipo = isMoto ? 2 : 3 // 1=carro, 2=moto, 3=caminhão? — uso 1 se carro normal
   const tipoFinal = isMoto ? 2 : 1
 
   const brandName = (body.marca || (pcVehicle?.brand as string) || '').toUpperCase()
@@ -198,11 +326,10 @@ async function createLeadPowerCRM(body: LeadInput, leadId: string) {
         }
       }
     } catch {
-      // segue sem mdl/mdlYr
+      // segue
     }
   }
 
-  // Add inicial
   const addPayload: Record<string, unknown> = {
     name: body.nome,
     phone: body.whatsapp?.replace(/\D/g, ''),
@@ -226,7 +353,6 @@ async function createLeadPowerCRM(body: LeadInput, leadId: string) {
   const addJson = (await addRes.json().catch(() => null)) as Record<string, unknown> | null
   const quotationCode = addJson?.quotationCode as string | undefined
 
-  // Updates em sequência (cada campo isolado, evita bug de combinação)
   const internalNotes: string[] = []
   if (body.leilao === 'leilao') internalNotes.push('Veículo de leilão')
   if (body.leilao === 'remarcado') internalNotes.push('Veículo remarcado')
@@ -263,7 +389,7 @@ async function createLeadPowerCRM(body: LeadInput, leadId: string) {
   return {
     ok: addRes.ok,
     quotationCode,
-    negotiationCode: addJson?.negotiationCode,
+    negotiationCode: addJson?.negotiationCode as string | undefined,
     leadId,
   }
 }
@@ -276,35 +402,50 @@ async function sendQuotePdfWhatsApp(body: LeadInput, leadId: string) {
     return
   }
 
-  // Lead excluído (sem cotação) → manda mensagem texto simples sem PDF
   const isExcluded = (body.plano || '').toUpperCase() === 'EXCLUIDO'
   const phone = formatPhone(body.whatsapp || '')
+  const jid = phoneToJid(phone)
+  const instance = getEvolutionInstance()
 
   if (isExcluded) {
-    await sendText(
-      phone,
-      buildExcludedMessage({
-        nome: body.nome || '',
-        whatsapp: body.whatsapp || '',
-        placa: body.placa,
-        marca: body.marca,
-        modelo: body.modelo,
-        ano: body.ano,
-        fipe: body.valorFipe,
-      }),
-    )
+    const text = buildExcludedMessage({
+      nome: body.nome || '',
+      whatsapp: body.whatsapp || '',
+      placa: body.placa,
+      marca: body.marca,
+      modelo: body.modelo,
+      ano: body.ano,
+      fipe: body.valorFipe,
+    })
+    const result = await sendText(phone, text)
+    await registerOutboundMessage({
+      result,
+      jid,
+      instance,
+      leadId,
+      message_type: 'text',
+      content: text,
+    })
     return
   }
 
-  // Validações para gerar PDF
   if (!body.marca || !body.modelo || !body.valorFipe || !body.plano || !body.valorMensal) {
     console.warn('[lead] Dados incompletos pra gerar PDF — enviando mensagem texto')
-    await sendText(phone, buildFollowUpMessage({
+    const text = buildFollowUpMessage({
       nome: body.nome || '',
       marca: body.marca,
       modelo: body.modelo,
       placa: body.placa,
-    }))
+    })
+    const result = await sendText(phone, text)
+    await registerOutboundMessage({
+      result,
+      jid,
+      instance,
+      leadId,
+      message_type: 'text',
+      content: text,
+    })
     return
   }
 
@@ -331,11 +472,13 @@ async function sendQuotePdfWhatsApp(body: LeadInput, leadId: string) {
   })
 
   let media: string
+  let pdfUrl: string | null = null
   if (isStorageConfigured()) {
     try {
       const key = `quotes/${new Date().toISOString().slice(0, 10)}/${leadId}.pdf`
       const { url } = await uploadPdf(key, pdf, filename)
       media = url
+      pdfUrl = url
     } catch (err) {
       console.warn('[lead] Storage upload falhou, usando base64:', err instanceof Error ? err.message : err)
       media = pdf.toString('base64')
@@ -350,5 +493,63 @@ async function sendQuotePdfWhatsApp(body: LeadInput, leadId: string) {
     modelo: body.modelo,
     placa: body.placa,
   })
-  await sendPdfMedia(phone, media, caption, filename)
+  const result = await sendPdfMedia(phone, media, caption, filename)
+  await registerOutboundMessage({
+    result,
+    jid,
+    instance,
+    leadId,
+    message_type: 'document',
+    content: caption,
+    caption,
+    media_url: pdfUrl,
+    media_filename: filename,
+    media_mime_type: 'application/pdf',
+  })
+}
+
+async function registerOutboundMessage(args: {
+  result: SendResult
+  jid: string | null
+  instance: string
+  leadId: string
+  message_type: string
+  content: string
+  caption?: string
+  media_url?: string | null
+  media_filename?: string
+  media_mime_type?: string
+}): Promise<void> {
+  const { result, jid, instance, leadId } = args
+  if (!jid) return
+  if (!result.whatsapp_message_id) {
+    console.warn('[lead] Evolution não retornou whatsapp_message_id — não registra')
+    return
+  }
+  try {
+    const conv = await upsertConversation({
+      jid,
+      evolution_instance: instance,
+      lead_id: leadId,
+    })
+    await upsertMessage({
+      conversation_id: conv.id,
+      whatsapp_message_id: result.whatsapp_message_id,
+      evolution_instance: instance,
+      jid,
+      direction: 'outbound',
+      status: (result.status as 'PENDING' | 'SENT') || 'PENDING',
+      message_type: args.message_type,
+      content: args.content,
+      caption: args.caption,
+      media_url: args.media_url ?? null,
+      media_filename: args.media_filename,
+      media_mime_type: args.media_mime_type,
+      raw_payload: result.raw,
+      sent_at: new Date().toISOString(),
+      lead_id: leadId,
+    })
+  } catch (err) {
+    console.warn('[lead] registerOutboundMessage falhou:', err instanceof Error ? err.message : err)
+  }
 }
