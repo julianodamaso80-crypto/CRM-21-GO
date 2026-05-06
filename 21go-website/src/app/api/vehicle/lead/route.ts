@@ -450,26 +450,54 @@ async function sendQuotePdfWhatsApp(body: LeadInput, leadId: string) {
   }
 
   const filename = `simulacao-21go-${leadId}.pdf`
-  const pdf = await generateQuotePdf({
-    nome: body.nome || '',
-    whatsapp: body.whatsapp || '',
-    email: body.email,
-    placa: body.placa,
-    marca: body.marca,
-    modelo: body.modelo,
-    ano: body.ano || '',
-    cor: body.cor,
-    fipe: body.valorFipe,
-    planoNome: body.plano,
-    mensalidade: body.valorMensal,
-    isMoto: (body.categoria || '').toLowerCase().includes('moto'),
-    categoria: body.categoria,
-    combustivel: body.combustivel,
-    cilindrada: body.cilindrada,
-    carroApp: body.carroApp,
-    leilao: body.leilao,
-    seguroAtual: body.seguroAtual,
-  })
+
+  // Tenta gerar PDF. Se falhar (Chromium quebrado, etc), cai pro fallback texto
+  // e marca pdf_falhou=true no Supabase pra retry posterior via /api/admin/resend.
+  let pdf: Buffer
+  try {
+    pdf = await generateQuotePdf({
+      nome: body.nome || '',
+      whatsapp: body.whatsapp || '',
+      email: body.email,
+      placa: body.placa,
+      marca: body.marca,
+      modelo: body.modelo,
+      ano: body.ano || '',
+      cor: body.cor,
+      fipe: body.valorFipe,
+      planoNome: body.plano,
+      mensalidade: body.valorMensal,
+      isMoto: (body.categoria || '').toLowerCase().includes('moto'),
+      categoria: body.categoria,
+      combustivel: body.combustivel,
+      cilindrada: body.cilindrada,
+      carroApp: body.carroApp,
+      leilao: body.leilao,
+      seguroAtual: body.seguroAtual,
+    })
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err)
+    console.error('[lead] PDF falhou — fallback texto. Erro:', msg)
+    // Marca o lead pra retry
+    await markLeadPdfFailed(leadId, msg).catch(() => {})
+    // Manda texto explicando
+    const fallbackText = buildFollowUpMessage({
+      nome: body.nome || '',
+      marca: body.marca,
+      modelo: body.modelo,
+      placa: body.placa,
+    })
+    const result = await sendText(phone, fallbackText)
+    await registerOutboundMessage({
+      result,
+      jid,
+      instance,
+      leadId,
+      message_type: 'text',
+      content: fallbackText,
+    })
+    return
+  }
 
   let media: string
   let pdfUrl: string | null = null
@@ -506,6 +534,42 @@ async function sendQuotePdfWhatsApp(body: LeadInput, leadId: string) {
     media_filename: filename,
     media_mime_type: 'application/pdf',
   })
+
+  // PDF entregue com sucesso → marca no lead pra observabilidade
+  await markLeadPdfSent(leadId).catch(() => {})
+}
+
+async function markLeadPdfFailed(leadId: string, errorMsg: string): Promise<void> {
+  const { supabaseAdmin } = await import('@/lib/supabase-admin')
+  const supa = supabaseAdmin()
+  await supa
+    .from('leads')
+    .update({
+      pdf_enviado: false,
+      updated_at: new Date().toISOString(),
+    })
+    .eq('id', leadId)
+  // Loga em outbound_event_log pra trail
+  await supa.from('outbound_event_log').insert({
+    lead_id: leadId,
+    kind: 'powerapi_get_negotiation', // reaproveita kind existente — depois posso adicionar 'pdf_generation'
+    request_payload: { leadId },
+    response_payload: { error: errorMsg },
+    error: errorMsg,
+  })
+}
+
+async function markLeadPdfSent(leadId: string): Promise<void> {
+  const { supabaseAdmin } = await import('@/lib/supabase-admin')
+  const supa = supabaseAdmin()
+  await supa
+    .from('leads')
+    .update({
+      pdf_enviado: true,
+      pdf_enviado_em: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    })
+    .eq('id', leadId)
 }
 
 async function registerOutboundMessage(args: {

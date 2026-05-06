@@ -620,10 +620,59 @@ function renderHTML(input: QuotePdfInput): string {
 
 let browserPromise: Promise<import('puppeteer-core').Browser> | null = null
 
+/**
+ * Resolve o caminho do Chromium tentando múltiplos locais conhecidos.
+ * Ordem de preferência:
+ *   1. PUPPETEER_EXECUTABLE_PATH (env)
+ *   2. /root/.cache/puppeteer/chrome/.../chrome  ← Chrome do puppeteer-core
+ *   3. /usr/bin/chromium / chromium-browser / google-chrome (sistema)
+ *
+ * /bin/chromium-browser do Ubuntu 24.04 é um STUB de snap — NÃO usar.
+ */
+async function resolveChromiumPath(): Promise<string | undefined> {
+  const fs = await import('node:fs/promises')
+  const tryPaths: (string | undefined)[] = []
+
+  // 1. Env explícita (mais alta prioridade)
+  if (process.env.PUPPETEER_EXECUTABLE_PATH) {
+    tryPaths.push(process.env.PUPPETEER_EXECUTABLE_PATH)
+  }
+
+  // 2. Chrome baixado pelo puppeteer-core (auto-detect)
+  try {
+    const cacheRoot = '/root/.cache/puppeteer/chrome'
+    const versions = await fs.readdir(cacheRoot).catch(() => [] as string[])
+    for (const v of versions) {
+      tryPaths.push(`${cacheRoot}/${v}/chrome-linux64/chrome`)
+    }
+  } catch {
+    /* noop */
+  }
+
+  // 3. Sistema (Linux)
+  tryPaths.push('/usr/bin/chromium', '/usr/bin/google-chrome')
+
+  for (const p of tryPaths) {
+    if (!p) continue
+    try {
+      await fs.access(p)
+      return p
+    } catch {
+      /* tenta próximo */
+    }
+  }
+  return undefined
+}
+
 async function getBrowser() {
   if (!browserPromise) {
     browserPromise = (async () => {
-      const executablePath = process.env.PUPPETEER_EXECUTABLE_PATH || '/usr/bin/chromium'
+      const executablePath = await resolveChromiumPath()
+      if (!executablePath) {
+        throw new Error(
+          'Chromium não encontrado. Defina PUPPETEER_EXECUTABLE_PATH ou rode `npx puppeteer browsers install chrome`.',
+        )
+      }
       console.log('[PDF] Lançando Chromium (headless) em:', executablePath)
       const t0 = Date.now()
       const browser = await puppeteer.launch({
