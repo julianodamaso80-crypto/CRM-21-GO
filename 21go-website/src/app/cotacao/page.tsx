@@ -84,7 +84,11 @@ const VEHICLE_TYPES = [
 /* ─── API Config ─── */
 // Vazio = mesmo origin (rotas /api/* do próprio site Next).
 // Pra apontar pra outro host, defina NEXT_PUBLIC_API_URL.
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || ''
+// API_BASE: SEMPRE mesmo domínio (string vazia = relativo). Se a env injetar
+// um valor que tenha "railway.app", ignoramos — proteção contra deploy antigo
+// reaparecer. Próprio site sempre serve /api/* corretamente.
+const _RAW_API = process.env.NEXT_PUBLIC_API_URL || ''
+const API_BASE = _RAW_API && !_RAW_API.includes('railway.app') ? _RAW_API : ''
 
 /* ─── Masks ─── */
 function maskPhone(v: string) {
