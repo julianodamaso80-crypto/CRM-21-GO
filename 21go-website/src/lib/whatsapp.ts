@@ -149,6 +149,30 @@ export function buildFollowUpMessage(input: {
 }
 
 /**
+ * Fallback quando dados pra gerar PDF estão incompletos (ex: FIPE = 0,
+ * marca/modelo/plano ausente). Não promete PDF que não vai chegar.
+ */
+export function buildIncompleteDataMessage(input: {
+  nome: string
+  marca?: string | null
+  modelo?: string | null
+  placa?: string | null
+}): string {
+  const firstName = input.nome.split(' ')[0]
+  const veiculoBits = [input.marca, input.modelo].filter(Boolean).join(' ').trim()
+  const placaText = input.placa ? ` (placa *${input.placa}*)` : ''
+  const veiculoText = veiculoBits ? `do *${veiculoBits}*${placaText}` : 'do seu veículo'
+
+  return [
+    `Oi *${firstName}*! Tudo bem? 😊`,
+    ``,
+    `Me chamo Letycia e recebi a sua simulação ${veiculoText}.`,
+    ``,
+    `Preciso confirmar alguns dados pra finalizar o seu orçamento personalizado. Pode me responder por aqui pra eu te ajudar?`,
+  ].join('\n')
+}
+
+/**
  * Mensagem para veículos da lista de exclusão (sem cotação automática).
  */
 export function buildExcludedMessage(input: {

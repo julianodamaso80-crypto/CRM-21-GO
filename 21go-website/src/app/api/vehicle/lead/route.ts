@@ -5,6 +5,7 @@ import { isStorageConfigured, uploadPdf } from '@/lib/storage'
 import {
   buildExcludedMessage,
   buildFollowUpMessage,
+  buildIncompleteDataMessage,
   formatPhone,
   getEvolutionInstance,
   isWhatsappConfigured,
@@ -429,9 +430,9 @@ async function sendQuotePdfWhatsApp(body: LeadInput, leadId: string) {
     return
   }
 
-  if (!body.marca || !body.modelo || !body.valorFipe || !body.plano || !body.valorMensal) {
-    console.warn('[lead] Dados incompletos pra gerar PDF — enviando mensagem texto')
-    const text = buildFollowUpMessage({
+  if (!body.marca || !body.modelo || !body.valorFipe || body.valorFipe <= 0 || !body.plano || !body.valorMensal) {
+    console.warn('[lead] Dados incompletos pra gerar PDF — enviando mensagem honesta sem promessa de PDF')
+    const text = buildIncompleteDataMessage({
       nome: body.nome || '',
       marca: body.marca,
       modelo: body.modelo,
