@@ -20,7 +20,7 @@ import {
   type PlanId,
   type QuotePlan,
 } from '@/data/pricing'
-import { lookupFipeByCode } from './fipe-direct'
+import { lookupFipeDirect } from './fipe-direct'
 
 const POWERCRM_BASE_URL = process.env.POWERCRM_BASE_URL || 'https://api.powercrm.com.br'
 const POWERAPI_TOKEN = process.env.POWERAPI_TOKEN || ''
@@ -363,17 +363,43 @@ export async function lookupPlate(
   // fipeValue REVERSO (procura faixa em PRICING_TABLES baseado nos planos PowerCRM)
   let fipeValue = reverseFipeValue(plans) ?? 0
 
-  // Fallback: se a engenharia reversa falhou, busca direto na Brasil API por codFipe
-  // Sem isso, o PDF poderia ir com FIPE R$ 0 — inaceitável.
-  if (fipeValue <= 0 && codFipe && year) {
+  // Fallback: se a engenharia reversa falhou, busca direto na Parallelum
+  // usando brand+model+year+codFipe vindos do PowerCRM. REGRA ABSOLUTA: FIPE
+  // nunca pode ser zero. Se nem o PowerCRM nem a Parallelum derem valor,
+  // retornamos erro explícito (caller bloqueia o envio do form).
+  if (fipeValue <= 0) {
     try {
-      const direct = await lookupFipeByCode(codFipe, year)
-      if (direct && direct > 0) {
-        console.log(`[plate-lookup] FIPE reverse falhou, usando Brasil API: R$ ${direct} (codFipe=${codFipe}, ano=${year})`)
-        fipeValue = direct
+      const direct = await lookupFipeDirect({
+        brand: cbMatch.text,
+        model: exact.text,
+        year,
+        codFipe,
+        categoria: isMoto ? 'MOTOCICLETA' : isCaminhao ? 'CAMINHAO' : 'AUTOMOVEL',
+      })
+      if (direct && direct.fipeValue > 0) {
+        console.log(
+          `[plate-lookup] FIPE reverse falhou, usando Parallelum: R$ ${direct.fipeValue} (matched: ${direct.matchedBrand} ${direct.matchedModel} ${direct.matchedYear})`,
+        )
+        fipeValue = direct.fipeValue
       }
     } catch (err) {
-      console.warn('[plate-lookup] fallback FIPE falhou:', err instanceof Error ? err.message : err)
+      console.warn(
+        '[plate-lookup] fallback Parallelum falhou:',
+        err instanceof Error ? err.message : err,
+      )
+    }
+  }
+
+  // GUARD ABSOLUTO: nunca retornamos PlateResponse com fipeValue <= 0.
+  // Se nada deu, devolvemos erro pra UI tratar (mostrar fallback manual).
+  if (fipeValue <= 0) {
+    console.error(
+      `[plate-lookup] FALHA TOTAL pra placa ${normalized}: PowerCRM reverse + Parallelum não acharam valor. brand="${cbMatch.text}" model="${exact.text}" year="${year}" codFipe="${codFipe}"`,
+    )
+    return {
+      success: false,
+      error:
+        'Não foi possível obter o valor FIPE deste veículo automaticamente. Por favor, fale com um consultor pra fazer a cotação manual.',
     }
   }
 

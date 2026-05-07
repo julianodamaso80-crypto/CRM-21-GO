@@ -532,6 +532,16 @@ export default function CotacaoPage() {
 
       if (data.success) {
         const v = data.vehicle
+
+        // GUARD ABSOLUTO: nunca prossegue com fipeValue <= 0.
+        // Cliente vai ver fallback manual (faixas de valor) em vez de cotação errada.
+        if (!v.fipeValue || v.fipeValue <= 0) {
+          console.warn('[cotacao] FIPE veio zerado pra placa', form.placa, '— mostrando fallback manual')
+          setShowFallback(true)
+          setApiError('')
+          return
+        }
+
         setVehicle(v)
 
         // Verifica se o veiculo esta na lista de exclusao
