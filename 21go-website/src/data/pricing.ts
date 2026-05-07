@@ -436,6 +436,10 @@ export const PLAN_INFO: Record<PlanId, PlanInfo> = {
 
 /** Busca preco na tabela por faixa FIPE */
 export function findPrice(table: PricingBand[], fipeValue: number): number | null {
+  // GUARD ABSOLUTO: nunca retorna preço pra FIPE <= 0. Sem isso, fipeValue=0
+  // cairia na primeira banda (min: 0) e devolveria preço errado (R$ 126,50
+  // do VIP, R$ 106,50 do BÁSICO etc). Veículo não existe de graça.
+  if (!Number.isFinite(fipeValue) || fipeValue <= 0) return null
   const band = table.find(b => fipeValue >= b.min && fipeValue <= b.max)
   return band ? band.price : null
 }
