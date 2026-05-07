@@ -176,13 +176,17 @@ function renderPlanPage(
   const info = PLAN_INFO[plan.id as keyof typeof PLAN_INFO]
   const features = info?.features || []
 
-  const featHTML = features
-    .map((f) =>
-      f.included
-        ? `<li class="feat yes"><span class="dot ok">&#10003;</span>${f.text}</li>`
-        : `<li class="feat no"><span class="dot no">&#215;</span>${f.text}</li>`,
-    )
+  const incluidos = features.filter((f) => f.included)
+  const naoIncluidos = features.filter((f) => !f.included)
+
+  const incluidosHTML = incluidos
+    .map((f) => `<li><span class="ico ok">✓</span><span class="txt">${f.text}</span></li>`)
     .join('')
+  const naoIncluidosHTML = naoIncluidos.length
+    ? naoIncluidos
+        .map((f) => `<li><span class="ico no">×</span><span class="txt">${f.text}</span></li>`)
+        .join('')
+    : '<li class="empty">Todas as coberturas deste plano estão incluídas</li>'
 
   const mensalidade = plan.monthly
   const taxa = ctx.taxa
@@ -191,11 +195,7 @@ function renderPlanPage(
   const comAdesivo = mensalidade * (1 - stickerPct / 100)
   const adesivoMaisEmDia = comAdesivo * 0.95
 
-  /* Mercado Pago — gross-up pra receber o valor liquido na hora.
-   * Taxas estimadas conservadoras (recebimento imediato no cartao):
-   *   - 1x a vista: 4,98%
-   *   - 12x parcelado: 11% (margem segura sobre a faixa tipica 8,99%-13%)
-   */
+  // Mercado Pago — gross-up pra receber o valor líquido na hora
   const MP_FEE_AVISTA = 0.0498
   const MP_FEE_12X = 0.11
   const taxaAvista = taxa / (1 - MP_FEE_AVISTA)
@@ -204,170 +204,197 @@ function renderPlanPage(
 
   const isMotoPlan = plan.id === 'moto-400' || plan.id === 'moto-1000'
 
-  const adesivoBlock = isMotoPlan
-    ? ''
-    : `
-    <div class="adesivo">
-      <div class="adesivo-head">
-        <div class="adesivo-icon">&#128663;</div>
-        <div class="adesivo-title">
-          <b>Desconto Adesivo 21Go</b>
-          <span>Adesivo no vidro traseiro</span>
-        </div>
-        <span class="adesivo-pct">-${stickerPct}%</span>
-      </div>
-      <div class="adesivo-values">
-        <div class="row">
-          <span>Com adesivo</span>
-          <div>
-            <s>R$ ${formatBRL(mensalidade)}</s>
-            <b class="laranja">R$ ${formatBRL(comAdesivo)}</b>
-          </div>
-        </div>
-        <div class="divider"></div>
-        <div class="row">
-          <span>&#127991; Adesivo + em dia</span>
-          <b class="verde">R$ ${formatBRL(adesivoMaisEmDia)}</b>
-        </div>
-        <div class="adesivo-foot">Descontos acumuláveis: adesivo (${stickerPct}%) + pontualidade (5%)</div>
-      </div>
-    </div>
-  `
-
-  const flag = isSelected ? 'SELECIONADO' : plan.popular ? 'MAIS ESCOLHIDO' : 'DISPONÍVEL'
-  const flagClass = isSelected ? 'sel' : plan.popular ? 'pop' : 'avail'
-  const subtitle = isSelected ? 'Plano selecionado por você' : `Plano ${plan.name}`
-
-  // Selo de condicoes especiais — origem do veiculo (leilao/remarcado) e carro de app.
+  // Selo de condições especiais
   const origemLabel =
     input.leilao === 'leilao' ? 'Leilão' : input.leilao === 'remarcado' ? 'Remarcado' : ''
   const condicoesItems: string[] = []
   if (origemLabel) {
     condicoesItems.push(
-      `<div class="cond-item"><span class="cond-icon">⚠️</span><div><b>Veículo de ${origemLabel}</b><span>Indenização: 80% do valor da tabela FIPE</span></div></div>`,
+      `<div class="cond-pill"><span class="cond-dot">⚠</span>Veículo de <b>${origemLabel}</b> · indenização 80% FIPE</div>`,
     )
   }
   if (input.carroApp) {
     condicoesItems.push(
-      `<div class="cond-item"><span class="cond-icon">🚕</span><div><b>Carro de aplicativo</b><span>Uber, 99 e similares. Adicional de R$ 20/mês já incluso na mensalidade</span></div></div>`,
+      `<div class="cond-pill"><span class="cond-dot">🚕</span><b>Carro de aplicativo</b> · adicional R$ 20/mês incluso</div>`,
     )
   }
   if (input.seguroAtual && input.seguroAtual.trim()) {
-    const seguroEscaped = input.seguroAtual.trim()
-      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+    const seguroEscaped = input.seguroAtual
+      .trim()
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
     condicoesItems.push(
-      `<div class="cond-item"><span class="cond-icon">🛡️</span><div><b>Seguro/proteção atual</b><span>${seguroEscaped}</span></div></div>`,
+      `<div class="cond-pill"><span class="cond-dot">🛡</span>Proteção atual: <b>${seguroEscaped}</b></div>`,
     )
   }
   const condicoesBlock = condicoesItems.length
     ? `<div class="condicoes">${condicoesItems.join('')}</div>`
     : ''
 
+  const firstName = input.nome.split(' ')[0]
+  const flagText = isSelected
+    ? 'Plano escolhido'
+    : plan.popular
+      ? 'Mais escolhido'
+      : 'Disponível'
+  const flagCls = isSelected ? 'sel' : plan.popular ? 'pop' : 'avail'
+
+  const headerTitle = isFirst
+    ? `${firstName}, sua simulação está pronta`
+    : `${firstName}, conheça também o plano ${plan.name}`
+
   return `
   <div class="page ${isFirst ? '' : 'page-break'}">
 
-    <div class="header">
-      ${ctx.logoUrl
-        ? `<img src="${ctx.logoUrl}" class="brand-logo" alt="21Go Proteção Veicular"/>`
-        : `<div style="font-weight:900;font-size:24px;color:#1B4DA1;">21Go</div>`}
-      <div class="meta">
-        <b>Simulação de Proteção Veicular</b><br/>
-        Emitida em ${ctx.hoje} &middot; válida até ${ctx.validade}
+    <header class="hero">
+      <div class="brand">
+        ${
+          ctx.logoUrl
+            ? `<img src="${ctx.logoUrl}" class="brand-logo" alt="21Go"/>`
+            : `<span class="brand-text">21Go</span>`
+        }
       </div>
-    </div>
+      <div class="hero-meta">
+        <span class="hero-meta-line"><b>Simulação personalizada</b></span>
+        <span class="hero-meta-line">Emitida ${ctx.hoje} · válida até ${ctx.validade}</span>
+      </div>
+    </header>
 
-    <div class="title">
-      <h1>${input.nome.split(' ')[0].toUpperCase()}, ${isFirst ? 'sua simulação está pronta!' : `confira também o plano <span class="plan-hl">${plan.name}</span>`}</h1>
-      <p>${ctx.veiculoTitulo} &middot; ${input.placa ? `Placa: <b>${input.placa}</b> &middot; ` : ''}FIPE: <b>R$ ${formatBRL(input.fipe)}</b></p>
-    </div>
+    <section class="greet">
+      <span class="greet-eyebrow">Proteção veicular sob medida</span>
+      <h1>${headerTitle}</h1>
+    </section>
 
-    <div class="veic">
-      <div class="left">
-        <b>${ctx.veiculoTitulo}</b>
-        <span>${input.placa ? `Placa ${input.placa}` : 'Sem placa informada'}${input.cor ? ' &middot; ' + input.cor : ''}</span>
+    <section class="vehicle">
+      <div class="vehicle-info">
+        <span class="v-label">Seu veículo</span>
+        <div class="v-name">${ctx.veiculoTitulo}</div>
+        <div class="v-meta">
+          ${input.placa ? `Placa <b>${input.placa}</b>` : 'Placa não informada'}
+          ${input.cor ? ` · ${input.cor}` : ''}
+          ${input.ano ? ` · ${input.ano}` : ''}
+        </div>
       </div>
-      <div class="fipe">
-        <span>Valor FIPE</span>
-        <b>R$ ${formatBRL(input.fipe)}</b>
+      <div class="vehicle-fipe">
+        <span class="vf-label">Valor FIPE</span>
+        <strong class="vf-amount">R$ ${formatBRL(input.fipe)}</strong>
       </div>
-    </div>
+    </section>
 
     ${condicoesBlock}
 
-    <div class="grid">
-      <div class="card">
-        <div class="plan-tab">
-          <div>
-            <div class="pname">${plan.name}</div>
-            <div class="pdesc">${subtitle}</div>
-          </div>
-          <span class="pflag ${flagClass}">${flag}</span>
+    <section class="plan-hero">
+      <div class="ph-badge ${flagCls}">${flagText}</div>
+      <div class="ph-row">
+        <div class="ph-info">
+          <span class="ph-label">Plano</span>
+          <h2 class="ph-name">${plan.name}</h2>
         </div>
-        <div class="beneficios-title">Benefícios incluídos</div>
-        <ul class="features">${featHTML}</ul>
+        <div class="ph-price">
+          <span class="ph-cur">R$</span>
+          <span class="ph-num">${formatBRL(mensalidade)}</span>
+          <span class="ph-per">/mês</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="benefits">
+      <div class="bcol bcol-yes">
+        <div class="bcol-head">
+          <span class="bcol-icon ok">✓</span>
+          <span class="bcol-title">Coberturas incluídas</span>
+        </div>
+        <ul class="blist">${incluidosHTML}</ul>
+      </div>
+      <div class="bcol bcol-no">
+        <div class="bcol-head">
+          <span class="bcol-icon no">×</span>
+          <span class="bcol-title">Não incluídas</span>
+        </div>
+        <ul class="blist">${naoIncluidosHTML}</ul>
+        ${
+          naoIncluidos.length
+            ? '<p class="bcol-note">Pode ser adicionado em planos superiores.</p>'
+            : ''
+        }
+      </div>
+    </section>
+
+    <section class="payment">
+      <div class="pay-card pay-laranja">
+        <div class="pc-head">
+          <span class="pc-label">Ativação</span>
+          <span class="pc-tag">Pagamento único</span>
+        </div>
+        <div class="pc-row">
+          <span class="pc-row-label">À vista no cartão</span>
+          <strong class="pc-row-val laranja">R$ ${formatBRL(taxaAvista)}</strong>
+        </div>
+        <div class="pc-row">
+          <span class="pc-row-label">12x sem juros</span>
+          <strong class="pc-row-val verde">R$ ${formatBRL(taxa12xParcela)}</strong>
+        </div>
       </div>
 
-      <div class="card price-card">
-        <div class="price-head">
-          <div class="label">Plano ${plan.name}</div>
-          <div class="price"><small>R$</small> ${formatBRL(mensalidade)}<em>/mês</em></div>
+      <div class="pay-card pay-verde">
+        <div class="pc-head">
+          <span class="pc-label">1ª mensalidade</span>
+          <span class="pc-tag verde">5% off</span>
         </div>
-
-        <div class="box laranja">
-          <div class="box-head">
-            <b>Ativação</b>
-            <span class="badge-ativacao">Pagamento único</span>
-          </div>
-          <div class="ativ-row">
-            <span class="ativ-label">À vista no cartão</span>
-            <span class="ativ-amount laranja">R$ ${formatBRL(taxaAvista)}</span>
-          </div>
-          <div class="ativ-row">
-            <span class="ativ-label">ou 12x de</span>
-            <span class="ativ-amount verde">R$ ${formatBRL(taxa12xParcela)}</span>
-          </div>
-          <div class="sub-ativ">Pagamento único de ativação do plano</div>
+        <div class="pc-row pc-discount">
+          <s>R$ ${formatBRL(mensalidade)}</s>
+          <strong class="pc-row-val verde">R$ ${formatBRL(descontoEarly)}</strong>
         </div>
-
-        <div class="box verde">
-          <div class="box-head">
-            <b>1º pagamento</b>
-            <span class="due">vence ${ctx.dueDate}</span>
-          </div>
-          <div class="row2">
-            <span></span>
-            <div>
-              <span class="old">R$ ${formatBRL(mensalidade)}</span>
-              <span class="amount">R$ ${formatBRL(descontoEarly)}</span>
-            </div>
-          </div>
-          <div class="sub">5% de desconto pagando antes do vencimento</div>
-        </div>
-
-        <div class="box mensal">
-          <div class="box-head">
-            <b>Mensalidade regular</b>
-            <span class="amount">R$ ${formatBRL(mensalidade)}<small>/mês</small></span>
-          </div>
-        </div>
-
-        ${adesivoBlock}
-
-        <div class="cta">Contratar pelo WhatsApp &rarr;</div>
-        <div class="susep">&#128274; Associação de proteção veicular &middot; 20 anos no RJ</div>
+        <div class="pc-hint">Pagando até <b>${ctx.dueDate}</b></div>
       </div>
-    </div>
 
-    <div class="footer">
-      <div>
-        <b>21Go Proteção Veicular</b> &middot; Rio de Janeiro &middot; RJ<br/>
-        WhatsApp (21) 97903-4169 &middot; 21go.site
+      <div class="pay-card pay-cinza">
+        <div class="pc-head">
+          <span class="pc-label">Mensalidade regular</span>
+        </div>
+        <div class="pc-row pc-discount">
+          <strong class="pc-row-val">R$ ${formatBRL(mensalidade)}<span class="pc-mes">/mês</span></strong>
+        </div>
+        <div class="pc-hint">Sem qualquer desconto</div>
       </div>
-      <div class="right">
-        Simulação válida até <b>${ctx.validade}</b>
-        <span class="pill">20 anos no Rio</span>
+    </section>
+
+    ${
+      isMotoPlan
+        ? ''
+        : `<section class="adesivo-section">
+      <div class="ad-head">
+        <span class="ad-icon">🚗</span>
+        <div class="ad-title">
+          <b>Desconto Adesivo 21Go</b>
+          <span>Adesivo discreto no vidro traseiro</span>
+        </div>
+        <span class="ad-pct">−${stickerPct}%</span>
       </div>
-    </div>
+      <div class="ad-values">
+        <div class="ad-row">
+          <span>Com adesivo</span>
+          <div><s>R$ ${formatBRL(mensalidade)}</s> <b class="laranja">R$ ${formatBRL(comAdesivo)}/mês</b></div>
+        </div>
+        <div class="ad-row">
+          <span>Adesivo + pagando em dia</span>
+          <b class="verde">R$ ${formatBRL(adesivoMaisEmDia)}/mês</b>
+        </div>
+      </div>
+      <div class="ad-foot">Descontos acumuláveis: adesivo (${stickerPct}%) + pontualidade (5%)</div>
+    </section>`
+    }
+
+    <section class="cta-section">
+      <a class="cta-btn" href="https://wa.me/5521979034169?text=${encodeURIComponent(`Olá! Tenho interesse no plano ${plan.name} pra meu ${input.marca} ${input.modelo}. Pode me ajudar?`)}">Quero contratar pelo WhatsApp →</a>
+      <p class="cta-sub">Atendimento em todo o Brasil · 20 anos de experiência</p>
+    </section>
+
+    <footer class="pdf-footer">
+      <span><b>21Go Proteção Veicular</b> · 21go.site · WhatsApp (21) 97903-4169</span>
+      <span>Simulação válida até <b>${ctx.validade}</b></span>
+    </footer>
 
   </div>
   `
@@ -419,193 +446,375 @@ function renderHTML(input: QuotePdfInput): string {
 <meta charset="utf-8"/>
 <title>Simulação 21Go · ${input.nome}</title>
 <style>
+  /* ============================================================
+   *  21Go — Simulação Proteção Veicular (template moderno)
+   *  Paleta: laranja #F7963D · verde #10B981 · azul #1B4DA1
+   *  Tipografia: Inter / system-ui (fallback)
+   * ============================================================ */
   @page { size: A4; margin: 0; }
   * { box-sizing: border-box; }
-  body {
-    margin: 0;
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-    color: #121A33;
-    background: #F7F8FC;
+  html, body {
+    margin: 0; padding: 0;
     -webkit-print-color-adjust: exact;
     print-color-adjust: exact;
   }
-  .page { width: 210mm; padding: 12mm 14mm 8mm; }
-  .page-break { page-break-before: always; padding-top: 12mm; }
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    color: #0F172A;
+    background: #fff;
+    line-height: 1.4;
+  }
+  .page {
+    width: 210mm;
+    min-height: 297mm;
+    padding: 14mm 14mm 12mm;
+    background: #fff;
+    position: relative;
+  }
+  .page-break { page-break-before: always; }
 
-  /* HEADER */
-  .header {
+  /* ============================ HERO ============================ */
+  .hero {
     display: flex; align-items: center; justify-content: space-between;
-    padding-bottom: 12px;
-    border-bottom: 2px solid #E8ECF4;
+    padding-bottom: 14px;
+    border-bottom: 2px solid #F1F5F9;
+    margin-bottom: 18px;
+  }
+  .brand { display: flex; align-items: center; gap: 10px; }
+  .brand-logo {
+    height: 56px; width: auto; display: block;
+    object-fit: contain;
+  }
+  .brand-text {
+    font-weight: 900; font-size: 26px; color: #1B4DA1;
+    letter-spacing: -0.5px;
+  }
+  .hero-meta {
+    display: flex; flex-direction: column; align-items: flex-end;
+    gap: 2px;
+  }
+  .hero-meta-line {
+    font-size: 10.5px; color: #64748B;
+  }
+  .hero-meta-line b {
+    color: #0F172A; font-weight: 700; font-size: 11.5px;
+  }
+
+  /* ============================ GREETING ============================ */
+  .greet { margin: 4px 0 16px; }
+  .greet-eyebrow {
+    display: inline-block;
+    font-size: 10px; font-weight: 700;
+    color: #F7963D; text-transform: uppercase;
+    letter-spacing: 1.2px; margin-bottom: 6px;
+  }
+  .greet h1 {
+    font-size: 26px; font-weight: 800;
+    color: #0F172A; margin: 0;
+    letter-spacing: -0.6px; line-height: 1.15;
+  }
+
+  /* ============================ VEHICLE ============================ */
+  .vehicle {
+    background: linear-gradient(135deg, #1B4DA1 0%, #2563EB 100%);
+    color: #fff;
+    border-radius: 16px;
+    padding: 18px 22px;
+    margin-bottom: 14px;
+    display: flex; align-items: center; justify-content: space-between;
+    box-shadow: 0 8px 24px rgba(27,77,161,0.18);
+  }
+  .vehicle-info { flex: 1; }
+  .v-label, .vf-label {
+    font-size: 9.5px; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 1.2px;
+    opacity: 0.7; display: block; margin-bottom: 4px;
+  }
+  .v-name {
+    font-size: 16px; font-weight: 800;
+    margin-bottom: 3px; letter-spacing: -0.3px;
+  }
+  .v-meta { font-size: 11px; opacity: 0.85; }
+  .v-meta b { font-weight: 700; }
+  .vehicle-fipe {
+    text-align: right;
+    border-left: 1px solid rgba(255,255,255,0.2);
+    padding-left: 18px; margin-left: 18px;
+  }
+  .vf-amount {
+    font-size: 22px; font-weight: 900;
+    letter-spacing: -0.5px; display: block;
+  }
+
+  /* ============================ CONDICOES PILLS ============================ */
+  .condicoes {
+    display: flex; flex-wrap: wrap; gap: 6px;
     margin-bottom: 14px;
   }
-  .brand-logo { height: 52px; width: auto; display: block; }
-  .header .meta { text-align: right; font-size: 11px; color: #64748B; line-height: 1.4; }
-  .header .meta b { color: #1B4DA1; font-weight: 800; font-size: 12px; }
-
-  /* TITLE */
-  .title { text-align: center; margin: 4px 0 14px; }
-  .title h1 {
-    font-size: 22px; font-weight: 800; color: #121A33; margin: 0 0 4px;
-    letter-spacing: -0.3px;
+  .cond-pill {
+    background: #FFF7ED; border: 1px solid rgba(247,150,61,0.3);
+    color: #B45309; font-size: 10.5px; font-weight: 600;
+    padding: 6px 12px; border-radius: 999px;
+    display: flex; align-items: center; gap: 6px;
   }
-  .title p { font-size: 12px; color: #64748B; margin: 0; }
-  .title p b { color: #121A33; }
+  .cond-pill b { color: #92400E; font-weight: 800; }
+  .cond-dot { font-size: 12px; }
 
-  /* Vehicle strip */
-  .veic {
-    background: #fff; border: 1px solid #E8ECF4;
-    border-radius: 14px; padding: 12px 16px; margin-bottom: 14px;
+  /* ============================ PLAN HERO ============================ */
+  .plan-hero {
+    background: #fff;
+    border: 1px solid #E2E8F0;
+    border-radius: 16px;
+    padding: 16px 20px;
+    margin-bottom: 14px;
+    box-shadow: 0 4px 14px rgba(15,23,42,0.04);
+    position: relative;
+  }
+  .ph-badge {
+    position: absolute; top: -10px; left: 20px;
+    font-size: 9.5px; font-weight: 800;
+    padding: 4px 10px; border-radius: 999px;
+    color: #fff; text-transform: uppercase; letter-spacing: 0.8px;
+  }
+  .ph-badge.sel { background: #F7963D; }
+  .ph-badge.pop { background: #10B981; }
+  .ph-badge.avail { background: #94A3B8; }
+
+  .ph-row {
     display: flex; align-items: center; justify-content: space-between;
-    box-shadow: 0 6px 18px rgba(15,23,42,0.04);
+    margin-top: 4px;
   }
-  .veic .left b { font-size: 14px; color: #121A33; display: block; margin-bottom: 2px; }
-  .veic .left span { font-size: 11.5px; color: #64748B; }
-  .veic .fipe { text-align: right; }
-  .veic .fipe span { font-size: 11px; color: #64748B; display: block; }
-  .veic .fipe b { font-size: 16px; color: #1B4DA1; font-weight: 800; }
+  .ph-info { flex: 1; }
+  .ph-label {
+    font-size: 10px; font-weight: 700;
+    color: #64748B; text-transform: uppercase;
+    letter-spacing: 1px; display: block;
+  }
+  .ph-name {
+    font-size: 24px; font-weight: 800;
+    color: #1B4DA1; margin: 4px 0 0; letter-spacing: -0.5px;
+  }
+  .ph-price {
+    display: flex; align-items: baseline; gap: 3px;
+    color: #0F172A;
+  }
+  .ph-cur { font-size: 14px; font-weight: 700; color: #64748B; }
+  .ph-num { font-size: 36px; font-weight: 900; letter-spacing: -1.2px; }
+  .ph-per { font-size: 14px; font-weight: 600; color: #64748B; }
 
-  /* CONDICOES ESPECIAIS — leilao/remarcado, carro de app */
-  .condicoes {
-    background: #FFF7ED; border: 1.5px solid rgba(247,150,61,0.35);
-    border-radius: 12px; padding: 10px 14px; margin-bottom: 14px;
-    display: flex; flex-direction: column; gap: 8px;
+  /* ============================ BENEFITS — LADO A LADO ============================ */
+  .benefits {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 14px;
   }
-  .condicoes .cond-item {
-    display: flex; align-items: flex-start; gap: 10px; line-height: 1.35;
+  .bcol {
+    background: #fff;
+    border: 1px solid #E2E8F0;
+    border-radius: 14px;
+    padding: 14px 16px;
+    box-shadow: 0 4px 12px rgba(15,23,42,0.03);
   }
-  .condicoes .cond-icon {
-    font-size: 16px; flex-shrink: 0; line-height: 1;
-  }
-  .condicoes .cond-item b {
-    display: block; font-size: 11.5px; color: #B45309; font-weight: 800; margin-bottom: 1px;
-  }
-  .condicoes .cond-item span {
-    display: block; font-size: 10.5px; color: #92400E;
-  }
-
-  /* GRID PRIMARY */
-  .grid { display: grid; grid-template-columns: 1fr 250px; gap: 14px; }
-  .card {
-    background: #fff; border: 1px solid #E8ECF4;
-    border-radius: 16px; padding: 16px;
-    box-shadow: 0 6px 18px rgba(15,23,42,0.04);
-  }
-  .plan-tab {
-    background: #1B4DA1; border-radius: 12px; padding: 10px 14px;
-    margin-bottom: 12px; color: #fff;
-    display: flex; align-items: center; justify-content: space-between;
-  }
-  .plan-tab .pname { font-weight: 800; font-size: 14px; }
-  .plan-tab .pdesc { font-size: 10.5px; color: rgba(255,255,255,0.85); }
-  .plan-tab .pflag { background: #F7963D; color: #fff; font-size: 10px; font-weight: 800; padding: 3px 8px; border-radius: 999px; }
-  .beneficios-title { font-weight: 700; font-size: 12px; color: #121A33; margin-bottom: 8px; }
-  ul.features { list-style: none; padding: 0; margin: 0; }
-  ul.features li {
+  .bcol-yes { border-top: 3px solid #10B981; }
+  .bcol-no { border-top: 3px solid #CBD5E1; }
+  .bcol-head {
     display: flex; align-items: center; gap: 8px;
-    font-size: 11px; padding: 3px 0;
+    margin-bottom: 10px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid #F1F5F9;
   }
-  ul.features li .dot {
+  .bcol-icon {
+    width: 22px; height: 22px;
     display: inline-flex; align-items: center; justify-content: center;
-    width: 16px; height: 16px; border-radius: 50%;
-    font-size: 9px; font-weight: 900; flex-shrink: 0;
+    border-radius: 50%; font-weight: 900; font-size: 12px;
+    flex-shrink: 0;
   }
-  ul.features li .dot.ok { background: rgba(16,185,129,0.12); color: #10B981; }
-  ul.features li .dot.no { background: #F0F4FA; color: #CBD5E1; }
-  ul.features li.no { color: #94A3B8; text-decoration: line-through; }
-  ul.features li.yes { color: #121A33; font-weight: 500; }
-
-  /* RIGHT — Preço */
-  .price-card { padding: 14px; }
-  .price-head { text-align: center; margin-bottom: 12px; padding-bottom: 10px; border-bottom: 1px solid #E8ECF4; }
-  .price-head .label { font-size: 11px; color: #64748B; margin-bottom: 4px; }
-  .price-head .price { font-size: 30px; font-weight: 900; color: #121A33; letter-spacing: -1px; line-height: 1; }
-  .price-head .price small { font-size: 12px; color: #64748B; font-weight: 600; }
-  .price-head .price em { font-size: 12px; color: #64748B; font-weight: 600; font-style: normal; }
-
-  .box { border-radius: 10px; padding: 8px 11px; margin-bottom: 8px; }
-  .box-head { display: flex; justify-content: space-between; align-items: center; }
-  .box-head b { font-size: 11px; font-weight: 700; color: #121A33; }
-  .box.laranja { background: #FFF7ED; border: 1px solid rgba(247,150,61,0.2); }
-  .box.laranja .amount { font-size: 14px; font-weight: 900; color: #F7963D; }
-  .box.laranja .sub { font-size: 9.5px; color: #F7963D; font-weight: 600; margin-top: 2px; }
-
-  /* Ativacao — duas opcoes (a vista e 12x) com mesmo destaque visual */
-  .badge-ativacao {
-    background: #F7963D; color: #fff; font-size: 9px; font-weight: 800;
-    padding: 2px 7px; border-radius: 999px;
-    text-transform: uppercase; letter-spacing: 0.5px;
+  .bcol-icon.ok { background: #10B981; color: #fff; }
+  .bcol-icon.no { background: #CBD5E1; color: #fff; }
+  .bcol-title {
+    font-size: 12px; font-weight: 800;
+    color: #0F172A; letter-spacing: -0.2px;
   }
-  .ativ-row {
-    display: flex; justify-content: space-between; align-items: baseline;
-    margin-top: 5px;
+  ul.blist {
+    list-style: none; margin: 0; padding: 0;
   }
-  .ativ-label { font-size: 10px; color: #64748B; font-weight: 600; }
-  .ativ-amount { font-size: 17px; font-weight: 900; letter-spacing: -0.3px; }
-  .ativ-amount.laranja { color: #F7963D; }
-  .ativ-amount.verde { color: #10B981; }
-  .sub-ativ { font-size: 11px; color: #DC2626; font-weight: 800; margin-top: 7px; line-height: 1.3; }
-  .box.verde { background: #F0FDF4; border: 1px solid rgba(16,185,129,0.2); }
-  .box.verde .row2 { display: flex; justify-content: space-between; align-items: center; margin-top: 4px; }
-  .box.verde .due { font-size: 10px; color: #64748B; }
-  .box.verde .amount { font-size: 14px; font-weight: 900; color: #10B981; }
-  .box.verde .old { font-size: 10px; color: #94A3B8; text-decoration: line-through; margin-right: 6px; }
-  .box.verde .sub { font-size: 9.5px; color: #10B981; font-weight: 600; text-align: right; margin-top: 2px; }
-  .box.mensal { background: #F8FAFC; border: 1px solid #E2E8F0; }
-  .box.mensal .amount { font-size: 15px; font-weight: 900; color: #121A33; }
-  .box.mensal .amount small { font-size: 10px; color: #64748B; font-weight: 500; }
-
-  /* ADESIVO */
-  .adesivo { border: 1.5px solid #F7963D; border-radius: 12px; padding: 10px; margin-top: 8px; background: #fff; }
-  .adesivo-head { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
-  .adesivo-icon {
-    width: 26px; height: 26px; border-radius: 8px;
-    background: rgba(247,150,61,0.1); color: #F7963D;
-    display: flex; align-items: center; justify-content: center; font-size: 14px;
+  ul.blist li {
+    display: flex; align-items: center; gap: 8px;
+    font-size: 10.5px;
+    padding: 4px 0;
+    color: #334155;
   }
-  .adesivo-title { flex: 1; }
-  .adesivo-title b { display: block; font-size: 10.5px; color: #121A33; font-weight: 700; }
-  .adesivo-title span { display: block; font-size: 9px; color: #64748B; }
-  .adesivo-pct { background: #F7963D; color: #fff; font-size: 9.5px; font-weight: 800; padding: 3px 7px; border-radius: 999px; }
-  .adesivo-values { background: #FFF7ED; border-radius: 9px; padding: 8px 10px; }
-  .adesivo-values .row { display: flex; justify-content: space-between; align-items: center; font-size: 10.5px; }
-  .adesivo-values .row span { color: #64748B; font-weight: 500; }
-  .adesivo-values .row s { color: #94A3B8; font-size: 10px; margin-right: 6px; }
-  .adesivo-values .laranja { color: #F7963D; font-size: 13px; font-weight: 900; }
-  .adesivo-values .verde { color: #10B981; font-size: 13px; font-weight: 900; }
-  .adesivo-values .divider { height: 1px; background: rgba(247,150,61,0.15); margin: 6px 0; }
-  .adesivo-foot { font-size: 9px; color: #94A3B8; text-align: center; margin-top: 5px; }
-
-  /* CTA */
-  .cta {
-    margin-top: 12px;
-    background: linear-gradient(90deg,#F7963D,#F9A95E);
-    color: #fff; font-weight: 800; font-size: 13px;
-    text-align: center; padding: 11px; border-radius: 999px;
-    box-shadow: 0 6px 14px rgba(247,150,61,0.25);
+  ul.blist li.empty {
+    color: #10B981; font-style: italic; font-size: 10.5px;
+    padding: 4px 0;
   }
-  .susep { font-size: 9px; color: #94A3B8; text-align: center; margin-top: 6px; }
+  ul.blist li .ico {
+    width: 14px; height: 14px;
+    display: inline-flex; align-items: center; justify-content: center;
+    border-radius: 50%; font-size: 9px; font-weight: 900;
+    flex-shrink: 0;
+  }
+  ul.blist li .ico.ok { background: rgba(16,185,129,0.15); color: #10B981; }
+  ul.blist li .ico.no { background: rgba(203,213,225,0.4); color: #94A3B8; }
+  ul.blist li .txt { line-height: 1.3; }
+  .bcol-no ul.blist li .txt {
+    color: #94A3B8;
+    text-decoration: line-through;
+    text-decoration-color: rgba(148,163,184,0.4);
+  }
+  .bcol-note {
+    font-size: 9.5px; color: #94A3B8;
+    margin: 8px 0 0; font-style: italic;
+    text-align: center;
+  }
 
-  /* Variações da flag do plano (sel / pop / avail) */
-  .plan-tab .pflag.sel { background: #F7963D; }
-  .plan-tab .pflag.pop { background: #10B981; }
-  .plan-tab .pflag.avail { background: rgba(255,255,255,0.2); }
-  .plan-hl { color: #1B4DA1; }
-
-  /* FOOTER */
-  .footer {
-    margin-top: 14px; padding-top: 10px;
-    border-top: 1px solid #E8ECF4;
+  /* ============================ PAYMENT ============================ */
+  .payment {
+    display: grid;
+    grid-template-columns: 1.2fr 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 14px;
+  }
+  .pay-card {
+    border-radius: 12px;
+    padding: 12px 14px;
+    border: 1px solid;
+  }
+  .pay-laranja {
+    background: linear-gradient(135deg, #FFF7ED 0%, #FFEDD5 100%);
+    border-color: rgba(247,150,61,0.25);
+  }
+  .pay-verde {
+    background: linear-gradient(135deg, #F0FDF4 0%, #DCFCE7 100%);
+    border-color: rgba(16,185,129,0.25);
+  }
+  .pay-cinza {
+    background: #F8FAFC;
+    border-color: #E2E8F0;
+  }
+  .pc-head {
     display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 8px;
+  }
+  .pc-label {
+    font-size: 10px; font-weight: 800;
+    color: #0F172A; text-transform: uppercase;
+    letter-spacing: 0.8px;
+  }
+  .pc-tag {
+    background: #F7963D; color: #fff;
+    font-size: 8px; font-weight: 800;
+    padding: 2px 7px; border-radius: 999px;
+    text-transform: uppercase; letter-spacing: 0.6px;
+  }
+  .pc-tag.verde { background: #10B981; }
+  .pc-row {
+    display: flex; justify-content: space-between; align-items: baseline;
+    padding: 3px 0;
+  }
+  .pc-row.pc-discount {
+    margin: 6px 0 4px;
+  }
+  .pc-row-label {
+    font-size: 10.5px; color: #64748B; font-weight: 600;
+  }
+  .pc-row-val {
+    font-size: 17px; font-weight: 900;
+    letter-spacing: -0.5px;
+    color: #0F172A;
+  }
+  .pc-row-val.laranja { color: #F7963D; }
+  .pc-row-val.verde { color: #10B981; }
+  .pc-row s {
+    color: #94A3B8; font-size: 11px; margin-right: 6px;
+  }
+  .pc-mes {
+    font-size: 11px; font-weight: 600; color: #64748B;
+    margin-left: 2px;
+  }
+  .pc-hint {
     font-size: 9.5px; color: #64748B;
+    margin-top: 4px; line-height: 1.3;
   }
-  .footer b { color: #121A33; }
-  .footer .right { text-align: right; }
-  .pill {
-    display: inline-block; background: #F0F4FA; color: #1B4DA1;
-    font-weight: 700; font-size: 9px;
-    padding: 3px 8px; border-radius: 999px; margin-left: 6px;
+  .pc-hint b { color: #0F172A; font-weight: 700; }
+
+  /* ============================ ADESIVO ============================ */
+  .adesivo-section {
+    background: #fff;
+    border: 1.5px solid #F7963D;
+    border-radius: 14px;
+    padding: 14px 16px;
+    margin-bottom: 14px;
+    box-shadow: 0 4px 14px rgba(247,150,61,0.08);
   }
+  .ad-head {
+    display: flex; align-items: center; gap: 10px;
+    margin-bottom: 10px;
+  }
+  .ad-icon {
+    width: 32px; height: 32px;
+    background: rgba(247,150,61,0.12);
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px; flex-shrink: 0;
+  }
+  .ad-title { flex: 1; }
+  .ad-title b {
+    display: block; font-size: 12px;
+    color: #0F172A; font-weight: 800;
+  }
+  .ad-title span {
+    display: block; font-size: 10px; color: #64748B;
+  }
+  .ad-pct {
+    background: #F7963D; color: #fff;
+    font-size: 11px; font-weight: 900;
+    padding: 5px 11px; border-radius: 999px;
+  }
+  .ad-values {
+    background: #FFF7ED; border-radius: 10px;
+    padding: 10px 12px;
+  }
+  .ad-row {
+    display: flex; justify-content: space-between; align-items: center;
+    font-size: 11px; padding: 4px 0;
+  }
+  .ad-row span { color: #64748B; font-weight: 500; }
+  .ad-row s { color: #94A3B8; font-size: 10.5px; margin-right: 6px; }
+  .ad-row .laranja { color: #F7963D; font-size: 13px; font-weight: 900; }
+  .ad-row .verde { color: #10B981; font-size: 13px; font-weight: 900; }
+  .ad-foot {
+    font-size: 9.5px; color: #94A3B8;
+    text-align: center; margin-top: 8px;
+  }
+  .laranja { color: #F7963D; }
+  .verde { color: #10B981; }
+
+  /* ============================ CTA ============================ */
+  .cta-section { text-align: center; margin-bottom: 12px; }
+  .cta-btn {
+    display: inline-block;
+    background: linear-gradient(135deg, #F7963D 0%, #FB923C 100%);
+    color: #fff; text-decoration: none;
+    font-weight: 800; font-size: 14px;
+    padding: 14px 32px; border-radius: 999px;
+    box-shadow: 0 8px 20px rgba(247,150,61,0.28);
+    letter-spacing: -0.2px;
+  }
+  .cta-sub {
+    font-size: 10.5px; color: #64748B;
+    margin: 8px 0 0; font-weight: 500;
+  }
+
+  /* ============================ FOOTER ============================ */
+  .pdf-footer {
+    margin-top: auto; padding-top: 12px;
+    border-top: 1px solid #F1F5F9;
+    display: flex; justify-content: space-between; align-items: center;
+    font-size: 9px; color: #94A3B8;
+  }
+  .pdf-footer b { color: #475569; font-weight: 700; }
 </style>
 </head>
 <body>
