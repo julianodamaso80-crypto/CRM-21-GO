@@ -70,6 +70,10 @@ interface LeadInput {
   event_id?: string | null
   landing_page?: string | null
   referrer?: string | null
+  // Atendimento humano: cliente caiu na tela "Falar com consultor" porque
+  // PowerCRM + API Brasil + Parallelum nao retornaram FIPE confiavel.
+  requires_human_support?: boolean
+  human_support_reason?: 'fipe_indisponivel' | 'consulta_falhou' | 'manual'
 }
 
 export async function POST(req: NextRequest) {
@@ -92,6 +96,41 @@ export async function POST(req: NextRequest) {
   const trk = crypto.randomBytes(8).toString('hex')
   const leadId = `lead_${trk}`
   const ctx = getRequestContext(req)
+
+  // Atendimento humano: nao tenta gerar PDF nem mandar mensagem com promessa
+  // de cotacao. Salva lead parcial pra Letycia ver no Supabase, manda
+  // PowerCRM (pra criar negociacao com responsavel) e termina.
+  if (body.requires_human_support) {
+    console.log(`[lead] requires_human_support=true reason=${body.human_support_reason} lead=${leadId}`)
+    const powercrmHs = POWERAPI_TOKEN
+      ? await createLeadPowerCRM(body, leadId).catch((err) => ({
+          ok: false,
+          error: err instanceof Error ? err.message : String(err),
+          quotationCode: undefined as string | undefined,
+          negotiationCode: undefined as string | undefined,
+        }))
+      : { ok: false, error: 'POWERAPI_TOKEN ausente', quotationCode: undefined as string | undefined, negotiationCode: undefined as string | undefined }
+
+    await persistLeadInSupabase({
+      body,
+      trk,
+      leadId,
+      ctx,
+      quotationCode: 'quotationCode' in powercrmHs ? powercrmHs.quotationCode : undefined,
+      negotiationCode: 'negotiationCode' in powercrmHs ? powercrmHs.negotiationCode : undefined,
+      powercrmPayload: powercrmHs,
+    }).catch((err) => {
+      console.error('[lead] human_support: falha persistir Supabase:', err instanceof Error ? err.message : err)
+    })
+
+    return NextResponse.json({
+      success: true,
+      leadId,
+      trk,
+      requires_human_support: true,
+      powercrm: powercrmHs,
+    })
+  }
 
   // 1) Lead no PowerCRM (mantido — caminho crítico)
   const powercrm = POWERAPI_TOKEN

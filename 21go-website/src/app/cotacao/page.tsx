@@ -59,28 +59,6 @@ interface FipeItem {
   name: string
 }
 
-/* ─── Faixas FIPE para fallback manual ─── */
-const FIPE_RANGES = [
-  { label: 'Até R$ 20.000', value: 17500 },
-  { label: 'R$ 20 a 30 mil', value: 25000 },
-  { label: 'R$ 30 a 40 mil', value: 35000 },
-  { label: 'R$ 40 a 50 mil', value: 45000 },
-  { label: 'R$ 50 a 60 mil', value: 55000 },
-  { label: 'R$ 60 a 70 mil', value: 65000 },
-  { label: 'R$ 70 a 80 mil', value: 75000 },
-  { label: 'R$ 80 a 100 mil', value: 90000 },
-  { label: 'R$ 100 a 130 mil', value: 115000 },
-  { label: 'R$ 130 a 150 mil', value: 140000 },
-  { label: 'Acima de R$ 150 mil', value: 175000 },
-]
-
-const VEHICLE_TYPES = [
-  { label: 'Carro', value: 'carro' },
-  { label: 'SUV / Pick-up', value: 'suv' },
-  { label: 'Moto até 400cc', value: 'moto-400' },
-  { label: 'Moto 450-1000cc', value: 'moto-1000' },
-]
-
 /* ─── API Config ─── */
 // Vazio = mesmo origin (rotas /api/* do próprio site Next).
 // Pra apontar pra outro host, defina NEXT_PUBLIC_API_URL.
@@ -152,10 +130,11 @@ export default function CotacaoPage() {
   // Adesivo toggle
   const [stickerAccepted, setStickerAccepted] = useState(true)
 
-  // Fallback manual state
-  const [showFallback, setShowFallback] = useState(false)
-  const [fallbackType, setFallbackType] = useState('carro')
-  const [fallbackFipe, setFallbackFipe] = useState(0)
+  // Atendimento humano: quando PowerCRM + API Brasil + Parallelum falham
+  // ou quando o veículo não retorna FIPE confiável. Cliente é direcionado
+  // pro WhatsApp da consultora (5521980214882) com dados pré-preenchidos.
+  const [requiresHumanSupport, setRequiresHumanSupport] = useState(false)
+  const [humanSupportReason, setHumanSupportReason] = useState<'fipe_indisponivel' | 'consulta_falhou' | 'manual'>('consulta_falhou')
 
   // Fluxo "não tenho a placa" — busca FIPE por marca/modelo/ano
   const [searchMode, setSearchMode] = useState<'placa' | 'modelo'>('placa')
@@ -315,13 +294,13 @@ export default function CotacaoPage() {
   function switchToPlaca() {
     setSearchMode('placa')
     setApiError('')
-    setShowFallback(false)
+    setRequiresHumanSupport(false)
   }
 
   function switchToModelo() {
     setSearchMode('modelo')
     setApiError('')
-    setShowFallback(false)
+    setRequiresHumanSupport(false)
     setErrors(prev => ({ ...prev, placa: '' }))
     // Reset encadeamento
     setFipeMarcaCode('')
@@ -331,63 +310,18 @@ export default function CotacaoPage() {
     setFipeAnos([])
   }
 
-  /** Cotação via fallback manual (sem API) */
-  function handleFallbackQuote() {
-    if (!fallbackFipe) return
+  /**
+   * Quando a cascata PowerCRM → API Brasil → Parallelum falha (ou cliente
+   * não consegue passar a placa), salvamos lead parcial pra Letycia ver no
+   * Supabase e mostramos a tela de atendimento humano com botão WhatsApp.
+   * NUNCA inventamos valor FIPE — cliente fala direto com a consultora.
+   */
+  function triggerHumanSupport(reason: 'fipe_indisponivel' | 'consulta_falhou' | 'manual') {
+    setHumanSupportReason(reason)
+    setRequiresHumanSupport(true)
+    setLoading(false)
 
-    const isMoto400 = fallbackType === 'moto-400'
-    const isMoto1000 = fallbackType === 'moto-1000'
-    const isSuv = fallbackType === 'suv'
-
-    const localPlans = getApplicablePlans(
-      fallbackFipe,
-      isMoto400 || isMoto1000 ? 'MOTOCICLETA' : isSuv ? 'CAMINHONETE' : 'AUTOMOVEL',
-      undefined,
-      isMoto400 ? 300 : isMoto1000 ? 600 : undefined,
-      isSuv ? 'compass' : undefined,  // trigger SUV detection
-    )
-
-    if (localPlans.length === 0) {
-      setApiError('Não encontramos planos para essa faixa de valor. Fale com um consultor.')
-      return
-    }
-
-    const isLeilao = form.leilao !== 'nao'
-    const finalPlans = isLeilao
-      ? localPlans.map(p => ({ ...p, monthly: Math.round(p.monthly * 0.8 * 100) / 100 }))
-      : localPlans
-
-    const fipeLabel = FIPE_RANGES.find(r => r.value === fallbackFipe)?.label || ''
-    const typeLabel = VEHICLE_TYPES.find(t => t.value === fallbackType)?.label || ''
-
-    setVehicle({
-      marca: typeLabel,
-      modelo: '(informado manualmente)',
-      ano: '',
-      cor: '',
-      fipeValue: fallbackFipe,
-      fipeCode: '',
-      categoria: fallbackType,
-    })
-    setPlans(finalPlans)
-    const popularIdx = finalPlans.findIndex(p => p.popular)
-    setSelectedPlanIdx(popularIdx >= 0 ? popularIdx : 0)
-    setShowFallback(false)
-    setStep(2)
-
-    const defaultPlan = finalPlans[popularIdx >= 0 ? popularIdx : 0]
-    trackCotacaoCompleta({
-      marca: typeLabel,
-      modelo: '(manual)',
-      ano: '',
-      plano: defaultPlan.name,
-      valorMensal: defaultPlan.monthly,
-      valorFipe: fallbackFipe,
-      email: form.email || undefined,
-      phone: form.whatsapp || undefined,
-    })
-
-    // Salvar lead (não bloqueia)
+    // Salva lead parcial pra ficar registrado no Supabase
     const tracking = getTrackingData()
     fetch(`${API_BASE}/api/vehicle/lead`, {
       method: 'POST',
@@ -398,14 +332,10 @@ export default function CotacaoPage() {
         email: form.email || undefined,
         placa: form.placa,
         leilao: form.leilao,
-        marca: typeLabel,
-        modelo: '(manual)',
-        ano: '',
-        valorFipe: fallbackFipe,
-        plano: defaultPlan.name,
-        valorMensal: defaultPlan.monthly,
         carroApp: form.carroApp === 'sim',
         seguroAtual: form.temSeguro === 'sim' ? (form.nomeSeguro.trim() || 'Sim (não informado)') : undefined,
+        requires_human_support: true,
+        human_support_reason: reason,
         ...tracking.utms,
         gclid: tracking.clickIds.gclid,
         fbclid: tracking.clickIds.fbclid,
@@ -533,12 +463,11 @@ export default function CotacaoPage() {
       if (data.success) {
         const v = data.vehicle
 
-        // GUARD ABSOLUTO: nunca prossegue com fipeValue <= 0.
-        // Cliente vai ver fallback manual (faixas de valor) em vez de cotação errada.
+        // GUARD ABSOLUTO: NUNCA prossegue com fipeValue <= 0.
+        // Cliente vai pra atendimento humano (sem chutar valor manualmente).
         if (!v.fipeValue || v.fipeValue <= 0) {
-          console.warn('[cotacao] FIPE veio zerado pra placa', form.placa, '— mostrando fallback manual')
-          setShowFallback(true)
-          setApiError('')
+          console.warn('[cotacao] FIPE indisponivel pra placa', form.placa, '— atendimento humano')
+          triggerHumanSupport('fipe_indisponivel')
           return
         }
 
@@ -643,13 +572,15 @@ export default function CotacaoPage() {
           if (data.leadId) setLeadId(data.leadId)
         }).catch(() => {})
       } else {
-        // Qualquer erro — fallback manual (sem limite de consultas)
-        setShowFallback(true)
+        // PowerCRM/API Brasil/Parallelum falharam OU placa nao encontrada.
+        // Cliente nao preenche nada manualmente — vai pra atendimento humano.
+        const reason = data.requires_human_support ? 'fipe_indisponivel' : 'consulta_falhou'
+        triggerHumanSupport(reason)
         setApiError('')
       }
     } catch {
-      // Timeout ou erro de rede — mostra fallback manual
-      setShowFallback(true)
+      // Timeout ou erro de rede — atendimento humano
+      triggerHumanSupport('consulta_falhou')
       setApiError('')
     } finally {
       setLoading(false)
@@ -662,11 +593,8 @@ export default function CotacaoPage() {
   const carroAppExtra = form.carroApp === 'sim' ? 20 : 0
   const price = (selectedPlan?.monthly || 0) + carroAppExtra
   const priceFormatted = formatPrice(price)
-  const isManualQuote = vehicle?.modelo === '(informado manualmente)'
   const vehicleLabel = vehicle
-    ? isManualQuote
-      ? `${vehicle.marca} · Valor estimado`
-      : `${vehicle.marca} ${vehicle.modelo} ${vehicle.ano}`
+    ? `${vehicle.marca} ${vehicle.modelo} ${vehicle.ano}`
     : ''
   const fipeFormatted = vehicle ? vehicle.fipeValue.toLocaleString('pt-BR') : '0'
 
@@ -1050,71 +978,42 @@ export default function CotacaoPage() {
                   </div>
                 )}
 
-                {/* Fallback Manual — aparece quando API falha */}
-                {showFallback && (
-                  <div className="mt-6 p-6 rounded-2xl bg-[#FFFBF5] border-2 border-[#F7963D]/20">
-                    <div className="flex items-start gap-3 mb-5">
+                {/* Atendimento humano — aparece quando PowerCRM + API Brasil + Parallelum falham */}
+                {requiresHumanSupport && (
+                  <div className="mt-6 p-6 rounded-2xl bg-[#FFFBF5] border-2 border-[#F7963D]/30">
+                    <div className="flex items-start gap-3 mb-4">
                       <div className="w-10 h-10 rounded-xl bg-[#F7963D]/10 flex items-center justify-center flex-shrink-0">
                         <AlertCircle className="w-5 h-5 text-[#F7963D]" />
                       </div>
                       <div>
-                        <p className="font-semibold text-[#121A33] text-sm">Consulta automática indisponível</p>
-                        <p className="text-[#64748B] text-xs mt-0.5">Selecione seu tipo de veículo e faixa de valor para receber a simulação agora mesmo.</p>
+                        <p className="font-bold text-[#121A33] text-base">Vamos finalizar pelo WhatsApp</p>
+                        <p className="text-[#64748B] text-sm mt-1">
+                          {humanSupportReason === 'fipe_indisponivel'
+                            ? 'Identificamos seu veículo, mas a tabela FIPE não retornou o valor agora. Nosso consultor vai conferir e te passar a cotação personalizada na hora.'
+                            : 'Não conseguimos consultar a sua placa automaticamente. Fale com nosso consultor agora pra fazer sua simulação personalizada.'}
+                        </p>
                       </div>
                     </div>
 
-                    <div className="space-y-4">
-                      {/* Tipo de veículo */}
-                      <div>
-                        <label className="block text-sm font-semibold text-[#121A33] mb-2">Tipo do veículo</label>
-                        <div className="grid grid-cols-2 gap-2">
-                          {VEHICLE_TYPES.map(t => (
-                            <button key={t.value} type="button" onClick={() => { setFallbackType(t.value); setFallbackFipe(0) }}
-                              className={`py-3 rounded-xl border-2 text-sm font-semibold transition-all duration-200 ${
-                                fallbackType === t.value
-                                  ? 'border-[#F7963D] bg-[#F7963D]/10 text-[#F7963D] shadow-sm'
-                                  : 'border-[#D1DFFA] bg-white text-[#64748B] hover:border-[#F7963D]/40'
-                              }`}>
-                              {t.label}
-                            </button>
-                          ))}
-                        </div>
-                      </div>
+                    <a
+                      href={`https://wa.me/5521980214882?text=${encodeURIComponent(
+                        `Olá! Tentei fazer uma simulação no site e não consegui. Pode me ajudar?\n\nNome: ${form.nome}\nWhatsApp: ${form.whatsapp}${form.placa ? `\nPlaca: ${form.placa}` : ''}${form.email ? `\nE-mail: ${form.email}` : ''}`,
+                      )}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center justify-center gap-2.5 w-full py-4 bg-gradient-to-r from-[#10B981] to-[#059669] text-white font-bold text-base rounded-full shadow-lg shadow-[#10B981]/20 hover:shadow-xl hover:shadow-[#10B981]/30 hover:scale-[1.02] active:scale-[0.98] transition-all duration-200"
+                    >
+                      <MessageCircle className="w-5 h-5" />
+                      Falar com consultor agora
+                    </a>
 
-                      {/* Faixa FIPE */}
-                      <div>
-                        <label className="block text-sm font-semibold text-[#121A33] mb-2">Valor aproximado do veículo (FIPE)</label>
-                        <div className="grid grid-cols-2 gap-2 max-h-[220px] overflow-y-auto pr-1">
-                          {FIPE_RANGES.map(r => (
-                            <button key={r.value} type="button" onClick={() => setFallbackFipe(r.value)}
-                              className={`py-2.5 px-3 rounded-xl border-2 text-xs font-semibold transition-all duration-200 ${
-                                fallbackFipe === r.value
-                                  ? 'border-[#F7963D] bg-[#F7963D]/10 text-[#F7963D] shadow-sm'
-                                  : 'border-[#D1DFFA] bg-white text-[#64748B] hover:border-[#F7963D]/40'
-                              }`}>
-                              {r.label}
-                            </button>
-                          ))}
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="flex justify-center mt-6">
-                      <button onClick={handleFallbackQuote} disabled={!fallbackFipe}
-                        className="group inline-flex items-center gap-3 px-8 py-3.5 bg-gradient-to-r from-[#F7963D] to-[#F9A95E] text-white font-bold text-sm rounded-full shadow-lg shadow-[#F7963D]/20 hover:shadow-xl hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:scale-100">
-                        <Sparkles className="w-4 h-4" />
-                        Ver Simulação Estimada
-                        <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
-                      </button>
-                    </div>
-
-                    <p className="text-center text-[10px] text-[#94A3B8] mt-3">
-                      Valores estimados. O consultor confirmará o valor exato pelo WhatsApp.
+                    <p className="text-center text-xs text-[#94A3B8] mt-3">
+                      Atendimento humano direto, sem robô.
                     </p>
                   </div>
                 )}
 
-                {!showFallback && (
+                {!requiresHumanSupport && (
                 <div className="flex justify-center mt-10">
                   <button onClick={next} disabled={loading}
                     className="group inline-flex items-center gap-3 px-10 py-4 bg-gradient-to-r from-[#F7963D] to-[#F9A95E] text-white font-bold text-base rounded-full shadow-lg shadow-[#F7963D]/20 hover:shadow-xl hover:shadow-[#F7963D]/30 hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 disabled:opacity-70 disabled:cursor-not-allowed disabled:hover:scale-100">
@@ -1451,7 +1350,7 @@ export default function CotacaoPage() {
                   className="inline-flex items-center gap-2 text-sm text-[#64748B] hover:text-[#121A33] transition-colors">
                   <ArrowLeft className="w-4 h-4" /> Editar dados
                 </button>
-                <button onClick={() => { setStep(1); setForm({ nome: '', whatsapp: '', email: '', placa: '', leilao: 'nao', carroApp: 'nao', temSeguro: 'nao', nomeSeguro: '' }); setVehicle(null); setPlans([]); setShowFallback(false); setFallbackFipe(0); setExcluded(false); setSearchMode('placa'); setFipeMarcaCode(''); setFipeModeloCode(''); setFipeAnoCode(''); whatsappClicked.current = false }}
+                <button onClick={() => { setStep(1); setForm({ nome: '', whatsapp: '', email: '', placa: '', leilao: 'nao', carroApp: 'nao', temSeguro: 'nao', nomeSeguro: '' }); setVehicle(null); setPlans([]); setRequiresHumanSupport(false); setExcluded(false); setSearchMode('placa'); setFipeMarcaCode(''); setFipeModeloCode(''); setFipeAnoCode(''); whatsappClicked.current = false }}
                   className="text-sm text-[#375191] hover:text-[#3D72DE] transition-colors">
                   Nova simulação
                 </button>

@@ -21,6 +21,7 @@ import {
   type QuotePlan,
 } from '@/data/pricing'
 import { lookupFipeDirect } from './fipe-direct'
+import { lookupApiBrasilByPlate, isApiBrasilConfigured } from './apibrasil-lookup'
 
 const POWERCRM_BASE_URL = process.env.POWERCRM_BASE_URL || 'https://api.powercrm.com.br'
 const POWERAPI_TOKEN = process.env.POWERAPI_TOKEN || ''
@@ -53,6 +54,8 @@ export interface PlateResponse {
 export interface PlateErrorResponse {
   success: false
   error: string
+  /** Sinaliza pro frontend mostrar tela de atendimento humano em vez de erro genérico */
+  requires_human_support?: boolean
 }
 
 const apiHeaders = {
@@ -362,11 +365,30 @@ export async function lookupPlate(
 
   // fipeValue REVERSO (procura faixa em PRICING_TABLES baseado nos planos PowerCRM)
   let fipeValue = reverseFipeValue(plans) ?? 0
+  let fipeSource: 'powercrm-reverse' | 'apibrasil' | 'parallelum' = 'powercrm-reverse'
 
-  // Fallback: se a engenharia reversa falhou, busca direto na Parallelum
-  // usando brand+model+year+codFipe vindos do PowerCRM. REGRA ABSOLUTA: FIPE
-  // nunca pode ser zero. Se nem o PowerCRM nem a Parallelum derem valor,
-  // retornamos erro explícito (caller bloqueia o envio do form).
+  // ─── Cascata de fallbacks (REGRA ABSOLUTA: fipeValue NUNCA pode ser zero) ───
+  // Etapa 2: API Brasil — consulta direta pela placa (Denatran + FIPE oficial).
+  // Mais assertiva que Parallelum porque retorna o veículo exato pela placa.
+  if (fipeValue <= 0 && isApiBrasilConfigured()) {
+    try {
+      const ab = await lookupApiBrasilByPlate(normalized)
+      if (ab && ab.fipeValue > 0) {
+        console.log(
+          `[plate-lookup] FIPE reverse falhou, usando API Brasil: R$ ${ab.fipeValue} (${ab.marca} ${ab.modelo} ${ab.ano})`,
+        )
+        fipeValue = ab.fipeValue
+        fipeSource = 'apibrasil'
+      }
+    } catch (err) {
+      console.warn(
+        '[plate-lookup] API Brasil falhou:',
+        err instanceof Error ? err.message : err,
+      )
+    }
+  }
+
+  // Etapa 3: Parallelum — fuzzy match brand/model/year/codFipe (último recurso).
   if (fipeValue <= 0) {
     try {
       const direct = await lookupFipeDirect({
@@ -378,30 +400,33 @@ export async function lookupPlate(
       })
       if (direct && direct.fipeValue > 0) {
         console.log(
-          `[plate-lookup] FIPE reverse falhou, usando Parallelum: R$ ${direct.fipeValue} (matched: ${direct.matchedBrand} ${direct.matchedModel} ${direct.matchedYear})`,
+          `[plate-lookup] reverse + API Brasil falharam, usando Parallelum: R$ ${direct.fipeValue} (matched: ${direct.matchedBrand} ${direct.matchedModel} ${direct.matchedYear})`,
         )
         fipeValue = direct.fipeValue
+        fipeSource = 'parallelum'
       }
     } catch (err) {
       console.warn(
-        '[plate-lookup] fallback Parallelum falhou:',
+        '[plate-lookup] Parallelum falhou:',
         err instanceof Error ? err.message : err,
       )
     }
   }
 
-  // GUARD ABSOLUTO: nunca retornamos PlateResponse com fipeValue <= 0.
-  // Se nada deu, devolvemos erro pra UI tratar (mostrar fallback manual).
+  // GUARD ABSOLUTO: se as 3 etapas falharam, NUNCA retornamos zero/valor inventado.
+  // Cliente vai ver tela de atendimento humano (sem fallback manual).
   if (fipeValue <= 0) {
     console.error(
-      `[plate-lookup] FALHA TOTAL pra placa ${normalized}: PowerCRM reverse + Parallelum não acharam valor. brand="${cbMatch.text}" model="${exact.text}" year="${year}" codFipe="${codFipe}"`,
+      `[plate-lookup] FALHA TOTAL pra placa ${normalized}: PowerCRM reverse + API Brasil + Parallelum não acharam valor. brand="${cbMatch.text}" model="${exact.text}" year="${year}" codFipe="${codFipe}"`,
     )
     return {
       success: false,
+      requires_human_support: true,
       error:
-        'Não foi possível obter o valor FIPE deste veículo automaticamente. Por favor, fale com um consultor pra fazer a cotação manual.',
+        'Não conseguimos consultar o valor do seu veículo automaticamente. Fale com nosso consultor pelo WhatsApp pra fazer sua cotação personalizada.',
     }
   }
+  console.log(`[plate-lookup] OK placa=${normalized} fipe=R$${fipeValue} source=${fipeSource}`)
 
   const response: PlateResponse = {
     success: true,
