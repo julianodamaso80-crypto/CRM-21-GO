@@ -20,6 +20,7 @@ import {
   type PlanId,
   type QuotePlan,
 } from '@/data/pricing'
+import { lookupFipeByCode } from './fipe-direct'
 
 const POWERCRM_BASE_URL = process.env.POWERCRM_BASE_URL || 'https://api.powercrm.com.br'
 const POWERAPI_TOKEN = process.env.POWERAPI_TOKEN || ''
@@ -359,8 +360,22 @@ export async function lookupPlate(
     }
   }
 
-  // fipeValue REVERSO (procura faixa em PRICING_TABLES)
-  const fipeValue = reverseFipeValue(plans) ?? 0
+  // fipeValue REVERSO (procura faixa em PRICING_TABLES baseado nos planos PowerCRM)
+  let fipeValue = reverseFipeValue(plans) ?? 0
+
+  // Fallback: se a engenharia reversa falhou, busca direto na Brasil API por codFipe
+  // Sem isso, o PDF poderia ir com FIPE R$ 0 — inaceitável.
+  if (fipeValue <= 0 && codFipe && year) {
+    try {
+      const direct = await lookupFipeByCode(codFipe, year)
+      if (direct && direct > 0) {
+        console.log(`[plate-lookup] FIPE reverse falhou, usando Brasil API: R$ ${direct} (codFipe=${codFipe}, ano=${year})`)
+        fipeValue = direct
+      }
+    } catch (err) {
+      console.warn('[plate-lookup] fallback FIPE falhou:', err instanceof Error ? err.message : err)
+    }
+  }
 
   const response: PlateResponse = {
     success: true,

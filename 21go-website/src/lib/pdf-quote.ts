@@ -699,6 +699,20 @@ async function getBrowser() {
 
 export async function generateQuotePdf(input: QuotePdfInput): Promise<Buffer> {
   console.log('[PDF] generateQuotePdf iniciado para', input.nome, '-', input.marca, input.modelo)
+
+  // Guard de seguranca: PDF NUNCA deve sair com FIPE <= 0 ou mensalidade <= 0.
+  // O backend /api/vehicle/lead ja filtra, mas reforcamos aqui pra qualquer caller.
+  if (!input.fipe || input.fipe <= 0) {
+    throw new Error(
+      `valorFipe invalido (${input.fipe}) — recusa gerar PDF com FIPE zerado/ausente`,
+    )
+  }
+  if (!input.mensalidade || input.mensalidade <= 0) {
+    throw new Error(
+      `mensalidade invalida (${input.mensalidade}) — recusa gerar PDF com plano zerado`,
+    )
+  }
+
   const html = renderHTML(input)
   console.log('[PDF] HTML renderizado:', html.length, 'chars')
   const browser = await getBrowser()
